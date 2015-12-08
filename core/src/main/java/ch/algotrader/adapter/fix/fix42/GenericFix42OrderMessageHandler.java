@@ -209,9 +209,11 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
     protected ExternalFill createFill(final ExecutionReport executionReport, final DropCopyAllocationVO allocation) throws FieldNotFound {
 
-        char execType = executionReport.getExecType().getValue();
-        if (execType != ExecType.PARTIAL_FILL && execType != ExecType.FILL) {
-            throw new IllegalArgumentException("Unexpected execType: " + execType);
+        if (executionReport.isSetExecType()) {
+            char execType = executionReport.getExecType().getValue();
+            if (execType != ExecType.PARTIAL_FILL && execType != ExecType.FILL) {
+                throw new IllegalArgumentException("Unexpected execType: " + execType);
+            }
         }
 
         Security security = allocation.getSecurity();

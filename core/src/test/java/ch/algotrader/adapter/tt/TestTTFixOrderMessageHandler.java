@@ -36,10 +36,12 @@ import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.fix42.FixTestUtils;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.TransactionImpl;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
@@ -47,6 +49,7 @@ import ch.algotrader.entity.trade.LimitOrderImpl;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
@@ -55,6 +58,7 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
@@ -68,6 +72,7 @@ import quickfix.field.ExecType;
 import quickfix.field.OrderID;
 import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.Message;
 import quickfix.fix42.OrderCancelReject;
 
 /**
@@ -91,11 +96,14 @@ public class TestTTFixOrderMessageHandler {
     @Mock
     private TransactionService transactionService;
     @Mock
+    private LookupService lookupService;
+    @Mock
     private Engine engine;
     @Mock
     private DropCopyAllocator dropCopyAllocator;
 
     private Future future;
+    private Future future2;
     private Account account;
 
     private TTFixOrderMessageHandler impl;
@@ -118,17 +126,25 @@ public class TestTTFixOrderMessageHandler {
 
         this.future = Future.Factory.newInstance();
         this.future.setId(1L);
-        this.future.setSymbol("CL NOV/16");
+        this.future.setSymbol("CL NOV/15");
         this.future.setTtid("00A0KP00CLZ");
         this.future.setSecurityFamily(futureFamily);
         this.future.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+
+        this.future2 = Future.Factory.newInstance();
+        this.future2.setId(2L);
+        this.future2.setSymbol("CL JAN/16");
+        this.future2.setTtid("00A0AQ00CLZ");
+        this.future2.setSecurityFamily(futureFamily);
+        this.future2.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2016-01-01")));
 
         this.account = Account.Factory.newInstance();
         this.account.setName("TT_TEST");
         this.account.setExtAccount("ratkodts2");
         this.account.setBroker(Broker.TT.name());
 
-        this.impl = new TTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine, this.dropCopyAllocator);
+        this.impl = new TTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.lookupService,
+                this.engine, this.dropCopyAllocator);
     }
 
     @Test
@@ -571,6 +587,167 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-18 13:37:09.423"), orderStatus1.getExtDateTime());
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
+    }
+
+    @Test
+    public void testExecutionReportExternalWorkingOrder() throws Exception {
+        String s = "8=FIX.4.2|9=00398|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=2|52=20151209-09:38:29.284|" +
+                "55=CL|48=00A0AQ00CLZ|10455=CLF6|167=FUT|207=CME|15=USD|1=flowtdts2|47=A|204=0|10553=RATKODTS2|18203=CME|" +
+                "16142=US,IL|18216=A49004_-1|198=2JIB0|37=061YRV036|17=061YRV036:1|58=Working Order|200=201601|151=2|14=0|" +
+                "54=1|40=2|77=O|59=0|11028=Y|150=D|20=3|39=0|442=1|378=4|44=3745|38=2|6=0|60=20151209-09:38:29.284|146=0|10=099|";
+        ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        LimitOrder order = new LimitOrderImpl();
+        order.setSecurity(this.future2);
+        order.setAccount(this.account);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+    }
+
+    @Test
+    public void testExecutionReportOrderBookDownload() throws Exception {
+        String s = "8=FIX.4.2|9=00412|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=3|52=20151209-09:38:29.441|" +
+                "55=CL|48=00A0AQ00CLZ|10455=CLF6|167=FUT|207=CME|15=USD|1=flowtdts2|47=A|204=0|10553=RATKODTS2|18203=CME|" +
+                "16142=US,IL|18216=A49004_-1|198=2JIB0|37=061YRV036|17=061YRV036:2|58=Order Book Download|200=201601|" +
+                "151=2|14=0|16728=1|54=1|40=2|77=O|59=0|11028=Y|150=D|20=3|39=0|442=1|378=4|44=3745|38=2|6=0|" +
+                "60=20151209-09:38:29.441|146=0|10=199|";
+        ExecutionReport executionReport = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, ExecutionReport.class);
+        Assert.assertNotNull(executionReport);
+
+        LimitOrder order = new LimitOrderImpl();
+        order.setSecurity(this.future2);
+        order.setAccount(this.account);
+
+        this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+    }
+
+    @Test
+    public void testPositionUpdateUnknownExternalFill() throws Exception {
+        String s = "8=FIX.4.2|9=00476|35=UAP|49=TTDEV14O|56=RATKODTS2|34=5|52=20151209-10:35:52.898|50=TTORDDS202001|" +
+                "57=NONE|55=CL|48=00A0AQ00CLZ|10455=CLF6|167=FUT|207=CME|15=USD|1=ratkodts|47=A|204=0|10553=RATKODTS2|" +
+                "375=CME000A|18203=CME|18216=A49004_-1|58=Fill|10527=80232:M:37926TN0000013|16018=nz27s0|200=201601|" +
+                "32=3|75=20151209|54=1|40=2|59=0|44=3821|38=3|31=3821|60=20151209-10:35:40.469|146=0|16710=uan-at-1|" +
+                "16721=uan-at-1e7y7edm87u5m|198=2JIBE|37=065ZT3026|17=e7y7edm87u5m|16727=1|442=1|16724=1|77=O|20=0|10=218|";
+        Message message = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, Message.class);
+        Assert.assertNotNull(message);
+
+        Strategy strategy = Strategy.Factory.newInstance();
+
+        Mockito.when(this.lookupService.getTransactionByExtId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderExecutionService.lookupIntId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.dropCopyAllocator.allocate("00A0AQ00CLZ", "ratkodts")).thenReturn(
+                new DropCopyAllocationVO(this.future2, this.account, strategy));
+
+        this.impl.onMessage(message, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.lookupService, Mockito.times(1)).getTransactionByExtId("e7y7edm87u5m");
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).lookupIntId("065ZT3026");
+
+        ArgumentCaptor<ExternalFill> argumentCaptor1 = ArgumentCaptor.forClass(ExternalFill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor1.capture());
+
+        ExternalFill fill1 = argumentCaptor1.getValue();
+        Assert.assertNotNull(fill1);
+
+        Assert.assertSame(this.future2, fill1.getSecurity());
+        Assert.assertSame(this.account, fill1.getAccount());
+        Assert.assertSame(strategy, fill1.getStrategy());
+        Assert.assertEquals("e7y7edm87u5m", fill1.getExtId());
+        Assert.assertEquals("065ZT3026", fill1.getExtOrderId());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-12-09 10:35:40.469"), fill1.getExtDateTime());
+        Assert.assertEquals(Side.BUY, fill1.getSide());
+        Assert.assertEquals(3, fill1.getQuantity());
+        Assert.assertEquals(new BigDecimal("3821"), fill1.getPrice());
+
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(fill1);
+        Mockito.verify(this.transactionService, Mockito.times(1)).createTransaction(fill1);
+    }
+
+    @Test
+    public void testPositionUpdateUnknownInternalFill() throws Exception {
+        String s = "8=FIX.4.2|9=00480|35=UAP|49=TTDEV14O|56=RATKODTS2|34=3|52=20151209-10:49:18.092|50=TTORDDS202001|" +
+                "57=NONE|55=CL|48=00A0AQ00CLZ|10455=CLF6|167=FUT|207=CME|15=USD|1=ratkodts|47=A|204=0|10553=RATKODTS2|" +
+                "375=CME000A|18203=CME|18216=A49004_-1|58=Fill|10527=80232:M:37942TN0000014|16018=nz27s0|200=201601|32=3|" +
+                "75=20151209|54=1|40=2|59=0|44=3821|38=6|31=3821|60=20151209-10:37:34.998|146=0|16710=uan-at-1|" +
+                "16721=uan-at-11r80gux1b4i2si|198=2JIBF|37=065ZT3025|17=1r80gux1b4i2si|16727=3|442=1|16724=1|77=O|20=0|10=006|";
+        Message message = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, Message.class);
+        Assert.assertNotNull(message);
+
+        LimitOrder order = new LimitOrderImpl();
+        order.setSecurity(this.future2);
+        order.setAccount(this.account);
+        order.setQuantity(6);
+        ExecutionStatusVO executionStatus = new ExecutionStatusVO("ttt3.0", Status.SUBMITTED, 1, 5, null);
+
+        Mockito.when(this.lookupService.getTransactionByExtId(Mockito.anyString())).thenReturn(null);
+        Mockito.when(this.orderExecutionService.lookupIntId("065ZT3025")).thenReturn("ttt3.0");
+        Mockito.when(this.orderExecutionService.getOpenOrderDetailsByIntId("ttt3.0")).thenReturn(new OrderDetailsVO(order, executionStatus));
+
+        this.impl.onMessage(message, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.lookupService, Mockito.times(1)).getTransactionByExtId("1r80gux1b4i2si");
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).lookupIntId("065ZT3025");
+
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
+
+        ArgumentCaptor<Fill> argumentCaptor2 = ArgumentCaptor.forClass(Fill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor2.capture());
+
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
+        Assert.assertNotNull(orderStatus1);
+
+        Assert.assertEquals("ttt3.0", orderStatus1.getIntId());
+        Assert.assertEquals("065ZT3025", orderStatus1.getExtId());
+        Assert.assertEquals(Status.PARTIALLY_EXECUTED, orderStatus1.getStatus());
+        Assert.assertSame(order, orderStatus1.getOrder());
+        Assert.assertEquals(4, orderStatus1.getFilledQuantity());
+        Assert.assertEquals(2, orderStatus1.getRemainingQuantity());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-12-09 10:37:34.998"), orderStatus1.getExtDateTime());
+        Assert.assertEquals(new BigDecimal("3821"), orderStatus1.getLastPrice());
+        Assert.assertEquals(null, orderStatus1.getAvgPrice());
+
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(orderStatus1);
+
+        Fill fill1 = argumentCaptor2.getValue();
+        Assert.assertNotNull(fill1);
+
+        Assert.assertSame(order, fill1.getOrder());
+        Assert.assertEquals("1r80gux1b4i2si", fill1.getExtId());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-12-09 10:37:34.998"), fill1.getExtDateTime());
+        Assert.assertEquals(Side.BUY, fill1.getSide());
+        Assert.assertEquals(3, fill1.getQuantity());
+        Assert.assertEquals(new BigDecimal("3821"), fill1.getPrice());
+
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(fill1);
+        Mockito.verify(this.transactionService, Mockito.times(1)).createTransaction(fill1);
+
+        Mockito.verifyNoMoreInteractions(this.engine);
+
+    }
+
+    @Test
+    public void testPositionUpdateKnownExternalFill() throws Exception {
+        String s = "8=FIX.4.2|9=00476|35=UAP|49=TTDEV14O|56=RATKODTS2|34=5|52=20151209-10:35:52.898|50=TTORDDS202001|" +
+                "57=NONE|55=CL|48=00A0AQ00CLZ|10455=CLF6|167=FUT|207=CME|15=USD|1=ratkodts|47=A|204=0|10553=RATKODTS2|" +
+                "375=CME000A|18203=CME|18216=A49004_-1|58=Fill|10527=80232:M:37926TN0000013|16018=nz27s0|200=201601|" +
+                "32=3|75=20151209|54=1|40=2|59=0|44=3821|38=3|31=3821|60=20151209-10:35:40.469|146=0|16710=uan-at-1|" +
+                "16721=uan-at-1e7y7edm87u5m|198=2JIBE|37=065ZT3026|17=e7y7edm87u5m|16727=1|442=1|16724=1|77=O|20=0|10=218|";
+        Message message = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, Message.class);
+        Assert.assertNotNull(message);
+
+        Mockito.when(this.lookupService.getTransactionByExtId(Mockito.anyString())).thenReturn(new TransactionImpl());
+
+        this.impl.onMessage(message, FixTestUtils.fakeFix42Session());
+
+        Mockito.verifyZeroInteractions(this.engine, this.transactionService, this.orderExecutionService);
     }
 
 }

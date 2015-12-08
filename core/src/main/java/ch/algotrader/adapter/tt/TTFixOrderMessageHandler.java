@@ -32,10 +32,14 @@ import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
+import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
+import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
@@ -44,13 +48,18 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
+import quickfix.IncorrectTagValue;
 import quickfix.SessionID;
+import quickfix.UnsupportedMessageType;
+import quickfix.field.ClOrdID;
+import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.ExpireDate;
 import quickfix.field.MsgSeqNum;
@@ -58,6 +67,7 @@ import quickfix.field.MsgType;
 import quickfix.field.SendingTime;
 import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.ExecutionReport;
+import quickfix.fix42.Message;
 
 /**
  * Trading Technology specific FIX/4.2 order message handler.
@@ -72,13 +82,20 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     private final OrderExecutionService orderExecutionService;
     private final TransactionService transactionService;
+    private final LookupService lookupService;
     private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
-    public TTFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
+    public TTFixOrderMessageHandler(
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
+            final LookupService lookupService,
+            final Engine serverEngine,
+            final DropCopyAllocator dropCopyAllocator) {
         super(orderExecutionService, transactionService, serverEngine);
         this.orderExecutionService = orderExecutionService;
         this.transactionService = transactionService;
+        this.lookupService = lookupService;
         this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
@@ -86,7 +103,39 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
     @Override
     protected void handleStatus(final ExecutionReport executionReport) throws FieldNotFound {
 
-        super.handleStatus(executionReport);
+        String orderIntId;
+        if (executionReport.isSetClOrdID()) {
+            orderIntId = executionReport.getClOrdID().getValue();
+        } else {
+            String orderExtId = executionReport.getOrderID().getValue();
+            orderIntId = this.orderExecutionService.lookupIntId(orderExtId);
+        }
+
+        OrderDetailsVO orderDetails = orderIntId != null ? this.orderExecutionService.getOpenOrderDetailsByIntId(orderIntId) : null;
+        if (orderDetails != null) {
+
+            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            OrderStatus orderStatus = createStatus(executionReport, orderDetails.getOrder());
+            if (executionStatus.getStatus() != orderStatus.getStatus()
+                || executionStatus.getFilledQuantity() != orderStatus.getFilledQuantity()
+                || executionStatus.getRemainingQuantity() != orderStatus.getRemainingQuantity()) {
+
+                if (orderStatus.getStatus() == Status.CANCELED || orderStatus.getStatus() == Status.REJECTED) {
+                    this.orderExecutionService.handleOrderStatus(orderStatus);
+                } else {
+                    String text = executionReport.isSetText() ? executionReport.getText().getValue() : "";
+                    if ("Response to Order Status Request".equalsIgnoreCase(text)) {
+                        LOGGER.error("Unexpected order status: {}", orderStatus);
+                    } else {
+                        if (LOGGER.isInfoEnabled()) {
+                            LOGGER.info("Working order status: {}", orderStatus);
+                        }
+                    }
+                }
+            }
+        } else {
+            super.handleStatus(executionReport);
+        }
     }
 
     @Override
@@ -114,15 +163,21 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         String extId = executionReport.getOrderID().getValue();
 
         ExecType execType = executionReport.getExecType();
-        Status status = getStatus(execType, (long) executionReport.getCumQty().getValue());
+        long cumQty = executionReport.isSetCumQty () ? (long) executionReport.getCumQty().getValue() : 0L;
+        Status status = getStatus(execType, cumQty);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Received order status {} for external order {}", status, extId);
         }
 
-        if (status != Status.PARTIALLY_EXECUTED && status != Status.EXECUTED) {
-            return;
+        if (status == Status.PARTIALLY_EXECUTED || status == Status.EXECUTED) {
+            handleExternalFill(executionReport);
         }
+    }
+
+    private void handleExternalFill(final ExecutionReport executionReport) throws FieldNotFound {
+
+        String extId = executionReport.getOrderID().getValue();
 
         String ttid = executionReport.getSecurityID().getValue();
         String extAccount = executionReport.getAccount().getValue();
@@ -249,6 +304,73 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             }
         }
         super.onMessage(reject, sessionID);
+    }
+
+    public void onMessage(final Message message, final SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        if(message.getHeader().isSetField(MsgType.FIELD)) {
+            switch(message.getHeader().getString(MsgType.FIELD)) {
+                case "UAP":
+                    // stop if there is no position update
+                    if (!message.isSetField(16727) || message.getInt(16727) != 0) {
+                        handlePositionReport(message);
+                    }
+                    break;
+            }
+        }
+    }
+
+    private ExecutionReport convert(final Message message) throws FieldNotFound {
+
+        ExecutionReport executionReport = new ExecutionReport();
+        executionReport.setFields(message);
+        executionReport.getHeader().setInt(MsgSeqNum.FIELD, message.getHeader().getInt(MsgSeqNum.FIELD));
+        return executionReport;
+    }
+
+    private void handlePositionReport(final Message message) throws FieldNotFound {
+        ExecutionReport executionReport = convert(message);
+        String extId = executionReport.getExecID().getValue();
+        Transaction transaction = this.lookupService.getTransactionByExtId(extId);
+
+        if (transaction == null) {
+
+            String orderIntId;
+            if (executionReport.isSetClOrdID()) {
+                orderIntId = executionReport.getClOrdID().getValue();
+            } else {
+                String orderExtId = executionReport.getOrderID().getValue();
+                orderIntId = this.orderExecutionService.lookupIntId(orderExtId);
+            }
+
+            OrderDetailsVO orderDetails = orderIntId != null ? this.orderExecutionService.getOpenOrderDetailsByIntId(orderIntId) : null;
+
+            if (orderDetails != null) {
+                // internal fill
+                Order order = orderDetails.getOrder();
+                ExecutionStatusVO execStatus = orderDetails.getExecutionStatus();
+
+                long lastQty = (long) executionReport.getLastShares().getValue();
+                long cumQty = execStatus.getFilledQuantity() + lastQty;
+                executionReport.set(new CumQty(cumQty));
+                executionReport.set(new ExecType(cumQty < order.getQuantity() ? ExecType.PARTIAL_FILL : ExecType.FILL));
+                executionReport.set(new ClOrdID(orderIntId));
+
+                OrderStatus orderStatus = createStatus(executionReport, order);
+
+                this.serverEngine.sendEvent(orderStatus);
+                this.orderExecutionService.handleOrderStatus(orderStatus);
+
+                Fill fill = createFill(executionReport, order);
+                if (fill != null) {
+                    this.serverEngine.sendEvent(fill);
+                    this.transactionService.createTransaction(fill);
+                    this.orderExecutionService.handleFill(fill);
+                }
+            } else {
+                // external fill
+                handleExternalFill(executionReport);
+            }
+        }
     }
 
     @Override

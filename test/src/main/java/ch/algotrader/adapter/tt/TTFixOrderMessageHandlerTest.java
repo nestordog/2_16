@@ -48,6 +48,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
@@ -66,6 +67,7 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
     private EventDispatcher eventDispatcher;
     private OrderExecutionService orderExecutionService;
     private TransactionService transactionService;
+    private LookupService lookupService;
     private TTFixOrderMessageFactory messageFactory;
     private TTFixOrderMessageHandler messageHandler;
 
@@ -125,10 +127,12 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
         this.transactionService = Mockito.mock(TransactionService.class);
+        this.lookupService = Mockito.mock(LookupService.class);
 
         this.messageFactory = new TTFixOrderMessageFactory();
 
-        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine, null);
+        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(
+                this.orderExecutionService, this.transactionService, this.lookupService, engine, null);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,

@@ -42,7 +42,7 @@ import quickfix.field.SecurityReqID;
 import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
-public class TTRequestDefinitionRequestTest extends FixApplicationTestBase {
+public class TTSecurityDefinitionMessageHandlerTest extends FixApplicationTestBase {
 
     private TTSecurityDefinitionRequestFactory requestFactory;
     private TTPendingRequests pendingRequests;
