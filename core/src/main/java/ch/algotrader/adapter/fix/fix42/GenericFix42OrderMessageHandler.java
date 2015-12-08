@@ -78,6 +78,20 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
     }
 
     @Override
+    protected void handleStatus(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isInfoEnabled()) {
+            if (executionReport.isSetClOrdID()) {
+                String orderIntId = executionReport.getClOrdID().getValue();
+                LOGGER.info("Working order at the broker side: IntId = {}", orderIntId);
+            } else {
+                String orderExtId = executionReport.getOrderID().getValue();
+                LOGGER.info("Working order at the broker side: ExtId = {}", orderExtId);
+            }
+        }
+    }
+
+    @Override
     protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
     }
 

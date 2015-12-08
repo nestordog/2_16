@@ -59,6 +59,8 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
 
+    protected abstract void handleStatus(ExecutionReport executionReport) throws FieldNotFound;
+
     protected abstract void handleExternal(ExecutionReport executionReport) throws FieldNotFound;
 
     protected abstract void handleUnknown(ExecutionReport executionReport) throws FieldNotFound;
@@ -84,6 +86,20 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             return;
         }
 
+        // check ExecTransType
+        if (executionReport.isSetExecTransType()) {
+            char execTransType = executionReport.getExecTransType().getValue();
+            switch (execTransType) {
+                case ExecTransType.NEW:
+                    break;
+                case ExecTransType.STATUS:
+                    handleStatus(executionReport);
+                    return;
+                default:
+                    throw new UnsupportedOperationException("Unsupported ExecTransType " + execTransType);
+            }
+        }
+
         String orderIntId;
         ExecType execType = executionReport.getExecType();
         if (execType.getValue() == ExecType.CANCELED) {
@@ -105,11 +121,6 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
             handleUnknown(executionReport);
             return;
-        }
-
-        // check ExecTransType
-        if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
-            throw new UnsupportedOperationException("order " + orderIntId + " has received an unsupported ExecTransType of: " + executionReport.getExecTransType().getValue());
         }
 
         Order order = this.orderExecutionService.getOpenOrderByIntId(orderIntId);

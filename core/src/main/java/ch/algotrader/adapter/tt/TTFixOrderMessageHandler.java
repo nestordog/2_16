@@ -51,7 +51,6 @@ import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
-import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
 import quickfix.field.ExpireDate;
 import quickfix.field.MsgSeqNum;
@@ -85,24 +84,9 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
     }
 
     @Override
-    protected boolean discardReport(final ExecutionReport executionReport) throws FieldNotFound {
+    protected void handleStatus(final ExecutionReport executionReport) throws FieldNotFound {
 
-        if (executionReport.isSetExecTransType()) {
-            ExecTransType execTransType = executionReport.getExecTransType();
-            if (execTransType.getValue() == ExecTransType.STATUS) {
-                if (LOGGER.isInfoEnabled()) {
-                    if (executionReport.isSetClOrdID()) {
-                        String orderIntId = executionReport.getClOrdID().getValue();
-                        LOGGER.info("Working order at the TT side: IntId = {}", orderIntId);
-                    } else {
-                        String orderExtId = executionReport.getOrderID().getValue();
-                        LOGGER.info("Working order at the TT side: ExtId = {}", orderExtId);
-                    }
-                }
-                return true;
-            }
-        }
-        return super.discardReport(executionReport);
+        super.handleStatus(executionReport);
     }
 
     @Override
@@ -137,10 +121,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         }
 
         if (status != Status.PARTIALLY_EXECUTED && status != Status.EXECUTED) {
-            return;
-        }
-
-        if (executionReport.isSetExecTransType() && executionReport.getExecTransType().getValue() != ExecTransType.NEW) {
             return;
         }
 
