@@ -166,6 +166,33 @@ public class TransactionDaoTest extends InMemoryDBTest {
     }
 
     @Test
+    public void testFindByExtId() {
+
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
+        this.session.save(this.strategy1);
+
+        Assert.assertNull(this.dao.findByExtId("blah"));
+
+        Transaction t1 = new TransactionImpl();
+        t1.setUuid(UUID.randomUUID().toString());
+        t1.setSecurity(this.forex1);
+        t1.setQuantity(222);
+        t1.setDateTime(new Date());
+        t1.setPrice(new BigDecimal(111));
+        t1.setCurrency(Currency.NZD);
+        t1.setType(TransactionType.BUY);
+        t1.setStrategy(this.strategy1);
+        t1.setExtId("blah");
+
+        this.session.save(t1);
+        this.session.flush();
+
+        Transaction t2 = this.dao.findByExtId("blah");
+        Assert.assertEquals(t1, t2);
+    }
+
+    @Test
     public void testFindDailyTransactionsDesc() {
 
         this.session.save(this.family1);

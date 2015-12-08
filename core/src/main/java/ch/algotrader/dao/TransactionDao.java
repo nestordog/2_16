@@ -83,5 +83,10 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
      */
     List<Transaction> findTradesByMinDateAndMaxDate(Date minDate, Date maxDate);
 
+    /**
+     * Finds transaction by its extId.
+     */
+    Transaction findByExtId(String extId);
+
     // spring-dao merge-point
 }

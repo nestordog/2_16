@@ -340,6 +340,11 @@ public interface LookupService {
     public Transaction getTransaction(long id);
 
     /**
+     * Gets a Transaction by its {@code extId}.
+     */
+    public Transaction getTransactionByExtId(String id);
+
+    /**
      * Finds all Transactions of the current day in descending {@code dateTime} order.
      */
     public List<Transaction> getDailyTransactions();

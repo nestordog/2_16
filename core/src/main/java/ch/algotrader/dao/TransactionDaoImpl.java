@@ -108,4 +108,12 @@ public class TransactionDaoImpl extends AbstractDao<Transaction> implements Tran
         return find("Transaction.findTradesByMinDateAndMaxDate", QueryType.BY_NAME, new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
     }
 
+    @Override
+    public Transaction findByExtId(final String extId) {
+
+        Validate.notEmpty(extId, "ExtId is empty");
+
+        return findUnique("Transaction.findByExtId", QueryType.BY_NAME, new NamedParam("extId", extId));
+    }
+
 }

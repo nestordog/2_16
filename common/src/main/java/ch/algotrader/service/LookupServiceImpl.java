@@ -740,7 +740,15 @@ public class LookupServiceImpl implements LookupService {
     public Transaction getTransaction(final long id) {
 
         return this.cacheManager.get(TransactionImpl.class, id);
+    }
 
+    @Override
+    public Transaction getTransactionByExtId(final String extId) {
+
+        Validate.notEmpty(extId, "ExtId is empty");
+
+        return this.cacheManager.findUnique(TransactionImpl.class, "Transaction.findByExtId", QueryType.BY_NAME,
+                new NamedParam("extId", extId));
     }
 
     @Override

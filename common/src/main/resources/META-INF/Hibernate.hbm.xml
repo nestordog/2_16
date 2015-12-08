@@ -486,6 +486,12 @@
     ]]>
     </query>
 
+    <query name="Transaction.findByExtId">
+        <![CDATA[
+        from TransactionImpl as t where t.extId = :extId
+    ]]>
+    </query>
+         
     <!-- Transaction DAO queries Ends -->
      
     <!-- Bar DAO queries Starts -->
