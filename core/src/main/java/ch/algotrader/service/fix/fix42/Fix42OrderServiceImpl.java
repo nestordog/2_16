@@ -63,6 +63,11 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         this.messageFactory = messageFactory;
     }
 
+    protected OrderRegistry getOrderRegistry() {
+
+        return this.orderRegistry;
+    }
+
     @Override
     public void validateOrder(SimpleOrder order) {
         // to be implememented

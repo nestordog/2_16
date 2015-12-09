@@ -97,18 +97,27 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
         return this.fixAdapter;
     }
 
+    protected List<Account> getAllAccounts() {
+
+        return this.accountDao.findByByOrderServiceType(this.orderServiceType);
+    }
+
+    protected Set<String> getAllSessionQualifiers() {
+
+        List<Account> accounts = getAllAccounts();
+        return accounts.stream()
+                .filter(account -> !StringUtils.isEmpty(account.getSessionQualifier()))
+                .map(Account::getSessionQualifier)
+                .collect(Collectors.toSet());
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public void init() {
 
-        List<Account> accounts = this.accountDao.findByByOrderServiceType(this.orderServiceType);
-
-        Set<String> sessionQualifiers = accounts.stream()
-                .filter(account -> !StringUtils.isEmpty(account.getSessionQualifier()))
-                .map(Account::getSessionQualifier)
-                .collect(Collectors.toSet());
+        Set<String> sessionQualifiers = getAllSessionQualifiers();
 
         for (String sessionQualifier: sessionQualifiers) {
             BigDecimal orderId = this.orderDao.findLastIntOrderIdBySessionQualifier(sessionQualifier);
