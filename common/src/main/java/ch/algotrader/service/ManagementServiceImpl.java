@@ -935,15 +935,11 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Cancels all orders currently outstanding.")
+    @ManagedOperation(description = "Exits JVM.")
     @ManagedOperationParameters({})
-    public void cancelAllOrders() {
+    public void exitVM() {
 
-        // cancel all orders if we called from the AlgoTrader Server
-        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
-            this.orderService.cancelAllOrders();
-        }
-
+        System.exit(0);
     }
 
     private long getSecurityId(String securityString) {
