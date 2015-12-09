@@ -20,6 +20,9 @@ package ch.algotrader.service.tt;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.tt.TTFixOrderMessageFactory;
@@ -44,6 +47,8 @@ import quickfix.fix42.OrderCancelRequest;
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService, FixStatelessService {
+
+    private static final Logger LOGGER = LogManager.getLogger(TTFixOrderServiceImpl.class);
 
     private final TTFixPositionRequestFactory positionRequestFactory;
     private final TTFixOrderStatusRequestFactory orderStatusRequestFactory;
@@ -95,10 +100,17 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
         Set<String> sessionQualifiers = getAllSessionQualifiers();
         for (String sessionQualifier: sessionQualifiers) {
 
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Requesting session state for {}", sessionQualifier);
+            }
+
             getFixAdapter().sendMessage(this.positionRequestFactory.create(), sessionQualifier);
             List<Order> allOpenOrders = getOrderRegistry().getAllOpenOrders();
             for (Order order: allOpenOrders) {
 
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Requesting order state: {}", order);
+                }
                 getFixAdapter().sendMessage(this.orderStatusRequestFactory.create(order), sessionQualifier);
             }
         }
