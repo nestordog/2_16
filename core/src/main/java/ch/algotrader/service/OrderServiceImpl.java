@@ -498,6 +498,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.engineManager.getCurrentEPTime());
+        }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
         externalOrderService.modifyOrder(order);
@@ -764,6 +767,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         order.setQuantity(orderVO.getQuantity());
         order.setTif(orderVO.getTif());
         order.setTifDateTime(orderVO.getTifDateTime());
+        order.setDateTime(orderVO.getDateTime());
 
         order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
         order.initializeStrategy(HibernateInitializer.INSTANCE);
