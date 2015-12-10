@@ -40,10 +40,12 @@ import ch.algotrader.rest.LookupRestController;
 import ch.algotrader.rest.MarketDataRestController;
 import ch.algotrader.rest.MetaDataRestController;
 import ch.algotrader.rest.OrderRestController;
+import ch.algotrader.rest.PositionRestController;
 import ch.algotrader.rest.index.SecurityIndexer;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
+import ch.algotrader.service.PositionService;
 
 @Configuration
 @EnableWebMvc
@@ -107,6 +109,13 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     public ConfigRestController createConfigRestController() {
 
         return new ConfigRestController(this.configParams);
+    }
+
+    @Bean(name = "positionRestController")
+    public PositionRestController createPositionRestController(
+            final PositionService positionService) {
+
+        return new PositionRestController(positionService);
     }
 
 }

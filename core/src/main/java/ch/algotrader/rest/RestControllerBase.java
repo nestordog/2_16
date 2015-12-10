@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -60,13 +59,6 @@ public class RestControllerBase {
 
     @ExceptionHandler()
     public InternalErrorVO handleTypeMismatchException(final HttpServletResponse response, final TypeMismatchException ex) {
-
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        return new InternalErrorVO(ex.getClass(), ex.getMessage());
-    }
-
-    @ExceptionHandler()
-    public InternalErrorVO handleLuceneParseException(final HttpServletResponse response, final ParseException ex) {
 
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         return new InternalErrorVO(ex.getClass(), ex.getMessage());

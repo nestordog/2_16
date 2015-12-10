@@ -24,10 +24,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,6 +39,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountVO;
+import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeVO;
 import ch.algotrader.entity.security.Security;
@@ -46,6 +51,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyVO;
 import ch.algotrader.rest.index.SecurityIndexer;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.vo.InternalErrorVO;
 
 @RestController
 @RequestMapping(path = "/rest")
@@ -140,6 +146,39 @@ public class LookupRestController extends RestControllerBase {
         return lookupService.getAllExchanges().stream()
                 .map(Exchange::convertToVO)
                 .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/position", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PositionVO> getPositions() {
+
+        return lookupService.getAllPositions().stream()
+                .map(Position::convertToVO)
+                .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/position/strategy/{strategyName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PositionVO> getPositions(@PathVariable final String strategyName) {
+
+        return lookupService.getPositionsByStrategy(strategyName).stream()
+                .map(Position::convertToVO)
+                .collect(Collectors.toList());
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/position/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public PositionVO getPosition(@PathVariable final long id) {
+
+        return Optional.ofNullable(lookupService.getPosition(id))
+                .map(Position::convertToVO).orElseThrow(() -> new EntityNotFoundException("Position not found: " + id));
+    }
+
+    @ExceptionHandler()
+    public InternalErrorVO handleLuceneParseException(final HttpServletResponse response, final ParseException ex) {
+
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        return new InternalErrorVO(ex.getClass(), ex.getMessage());
     }
 
 }
