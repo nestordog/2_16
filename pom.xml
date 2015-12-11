@@ -529,7 +529,7 @@
 
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-http</artifactId>
+                <artifactId>jetty-server</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
@@ -538,8 +538,8 @@
                 <version>${jetty.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-websocket</artifactId>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-server</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
 
@@ -702,8 +702,8 @@
         <esper.version>5.3.0</esper.version>
         <esperee.version>4.11.0</esperee.version>
         <quickfixj.version>1.5.2</quickfixj.version>
-        <activemq.version>5.12.1</activemq.version>
-        <jetty.version>8.1.18.v20150929</jetty.version>
+        <activemq.version>5.13.0</activemq.version>
+        <jetty.version>9.3.6.v20151106</jetty.version>
         <jackson.version>2.6.3</jackson.version>
         <lucene.version>5.3.0</lucene.version>
         <log4j.version>2.5</log4j.version>

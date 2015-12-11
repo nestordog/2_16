@@ -27,10 +27,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
+import org.eclipse.jetty.server.NetworkTrafficServerConnector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
@@ -91,7 +91,7 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("HTTP connector on port {}", this.port);
         }
-        SelectChannelConnector channelConnector = new SelectChannelConnector();
+        NetworkTrafficServerConnector channelConnector = new NetworkTrafficServerConnector(this.server);
         channelConnector.setPort(this.port);
         this.server.addConnector(channelConnector);
         if (!this.server.isRunning()) {
