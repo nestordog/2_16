@@ -187,6 +187,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
                 }
 
                 this.serverEngine.sendEvent(orderStatus);
+                this.orderExecutionService.handleOrderStatus(orderStatus);
                 return;
             }
         }
