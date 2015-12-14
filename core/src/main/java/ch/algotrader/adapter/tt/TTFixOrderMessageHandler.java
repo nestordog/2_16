@@ -115,7 +115,8 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         if (orderDetails != null) {
 
             ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
-            OrderStatus orderStatus = createStatus(executionReport, orderDetails.getOrder());
+            Order order = orderDetails.getOrder();
+            OrderStatus orderStatus = createStatus(executionReport, order);
             if (executionStatus.getStatus() != orderStatus.getStatus()
                 || executionStatus.getFilledQuantity() != orderStatus.getFilledQuantity()
                 || executionStatus.getRemainingQuantity() != orderStatus.getRemainingQuantity()) {
@@ -125,7 +126,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
                 } else {
                     String text = executionReport.isSetText() ? executionReport.getText().getValue() : "";
                     if ("Response to Order Status Request".equalsIgnoreCase(text)) {
-                        LOGGER.error("Unexpected order status: {}", orderStatus);
+                        handleRestated(executionReport, order);
                     } else {
                         if (LOGGER.isInfoEnabled()) {
                             LOGGER.info("Working order status: {}", orderStatus);
@@ -218,6 +219,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         try {
             restatedOrder = BeanUtil.clone((SimpleOrder) order);
             restatedOrder.setId(0);
+            restatedOrder.setDateTime(this.serverEngine.getCurrentTime());
         } catch (ReflectiveOperationException ex) {
             throw new ServiceException(ex);
         }
