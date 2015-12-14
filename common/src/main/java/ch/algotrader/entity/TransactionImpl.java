@@ -54,7 +54,7 @@ public class TransactionImpl extends Transaction {
     public double getGrossValueDouble() {
 
         if (this.value == null) {
-            if (isTrade()) {
+            if (isTrade() && getSecurity() != null) {
                 this.value = -getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getPrice().doubleValue();
             } else {
                 this.value = getQuantity() * getPrice().doubleValue();
