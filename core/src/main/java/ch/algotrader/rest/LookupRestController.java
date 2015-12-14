@@ -43,12 +43,15 @@ import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeVO;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.ForexVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyVO;
 import ch.algotrader.entity.security.SecurityVO;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyVO;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.rest.index.SecurityIndexer;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.vo.InternalErrorVO;
@@ -96,6 +99,19 @@ public class LookupRestController extends RestControllerBase {
         } else {
             return securityIndexer.search(query);
         }
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/forex", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ForexVO getForex(
+        @RequestParam(value = "baseCurrency", required = true) String baseCurrency,
+        @RequestParam(value = "transactionCurrency", required = true) String transactionCurrency) throws ParseException {
+
+        Currency _baseCurrency = Currency.valueOf(baseCurrency);
+        Currency _transactionCurrency = Currency.valueOf(transactionCurrency);
+
+        return Optional.ofNullable(lookupService.getForex(_baseCurrency, _transactionCurrency)).map(Forex::convertToVO)
+            .orElseThrow(() -> new EntityNotFoundException("Forex not found not found base " + baseCurrency + " transaction " + transactionCurrency));
     }
 
     @CrossOrigin
