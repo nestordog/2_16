@@ -78,5 +78,10 @@ public interface TransactionDao extends ReadWriteDao<Transaction> {
      */
     List<Transaction> findByStrategyAndMaxDate(String strategyName, Date maxDate);
 
+    /**
+     * Finds all trades (BUY and SELL transactions) for the given time frame
+     */
+    List<Transaction> findTradesByMinDateAndMaxDate(Date minDate, Date maxDate);
+
     // spring-dao merge-point
 }

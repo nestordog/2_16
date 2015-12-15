@@ -476,7 +476,16 @@
         order by t.dateTime 
     ]]>
     </query>
-         
+
+    <query name='Transaction.findTradesByMinDateAndMaxDate'>
+        <![CDATA[
+        from TransactionImpl as t
+        where t.dateTime > :minDate and t.dateTime < :maxDate
+        and (t.type = 'BUY' or t.type = 'SELL')
+        order by t.dateTime
+    ]]>
+    </query>
+
     <!-- Transaction DAO queries Ends -->
      
     <!-- Bar DAO queries Starts -->

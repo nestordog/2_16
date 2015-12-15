@@ -762,6 +762,16 @@ public class LookupServiceImpl implements LookupService {
     }
 
     @Override
+    public List<Transaction> getTradesByMinDateAndMaxDate(final Date minDate, final Date maxDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return this.cacheManager.find(Transaction.class, "Transaction.findTradesByMinDateAndMaxDate", QueryType.BY_NAME,
+                new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
+    }
+
+    @Override
     public List<Order> getDailyOrders() {
 
         LocalDate today = LocalDate.now();

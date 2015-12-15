@@ -350,6 +350,11 @@ public interface LookupService {
     public List<Transaction> getDailyTransactionsByStrategy(String strategyName);
 
     /**
+     * Finds all trades (BUY and SELL transactions) for the given time frame.
+     */
+    public List<Transaction> getTradesByMinDateAndMaxDate(Date minDate, final Date maxDate);
+
+    /**
      * Finds all orders of the current day in descending {@code dateTime} order.
      */
     public List<Order> getDailyOrders();
