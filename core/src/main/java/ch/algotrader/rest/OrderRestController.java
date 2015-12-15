@@ -74,10 +74,24 @@ public class OrderRestController extends RestControllerBase {
     }
 
     @CrossOrigin
+    @RequestMapping(path = "/execution/modify/order/market", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void modifyOrder(@RequestBody final MarketOrderVO order) {
+
+        this.orderService.modifyOrder(order);
+    }
+
+    @CrossOrigin
     @RequestMapping(path = "/execution/order/limit", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void submitOrder(@RequestBody final LimitOrderVO order) {
 
         this.orderService.sendOrder(order);
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/execution/modify/order/limit", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void modifyOrder(@RequestBody final LimitOrderVO order) {
+
+        this.orderService.modifyOrder(order);
     }
 
     @CrossOrigin
@@ -88,6 +102,13 @@ public class OrderRestController extends RestControllerBase {
     }
 
     @CrossOrigin
+    @RequestMapping(path = "/execution/modify/order/stop", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void modifyOrder(@RequestBody final StopOrderVO order) {
+
+        this.orderService.modifyOrder(order);
+    }
+
+    @CrossOrigin
     @RequestMapping(path = "/execution/order/stoplimit", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void submitOrder(@RequestBody final StopLimitOrderVO order) {
 
@@ -95,10 +116,24 @@ public class OrderRestController extends RestControllerBase {
     }
 
     @CrossOrigin
+    @RequestMapping(path = "/execution/modify/order/stoplimit", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public void modifyOrder(@RequestBody final StopLimitOrderVO order) {
+
+        this.orderService.modifyOrder(order);
+    }
+
+    @CrossOrigin
     @RequestMapping(path = "/execution/order/{intId}", method = RequestMethod.DELETE)
     public void submitOrder(@PathVariable final String intId) {
 
         this.orderService.cancelOrder(intId);
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/execution/next-order-id", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String getNextOrderId(@RequestBody final long accountId) {
+
+        return this.orderService.getNextOrderId(accountId);
     }
 
 }
