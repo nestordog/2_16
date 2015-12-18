@@ -30,6 +30,7 @@ public enum SubscriptionTopic {
     POSITION("position"),
     CASH_BALANCE("cash-balance"),
     MARKET_DATA_SUBSCRIPTION("market-data-subscription"),
+    LOG_EVENT("log-event"),
     ;
 
     final String baseTopic;

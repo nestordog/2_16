@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Configuration;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.util.log4j.Log4JEventPropagator;
 import ch.algotrader.util.log4j.Log4JRewriter;
 import ch.algotrader.util.log4j.LogLevelSetter;
 
@@ -38,9 +40,15 @@ public class Log4jWiring {
     }
 
     @Bean(name = "log4JRewriter")
-    public Log4JRewriter createLog4JRewriter(final CommonConfig commonConfig, final EngineManager engineManager) {
+    public Log4JRewriter createLog4JRewriter(final EngineManager engineManager, final CommonConfig commonConfig) {
 
         return new Log4JRewriter(engineManager, commonConfig);
+    }
+
+    @Bean(name = "log4JEventPropagator")
+    public Log4JEventPropagator createLog4JEventPropagator(final EventDispatcher eventDispatcher, final CommonConfig commonConfig) {
+
+        return new Log4JEventPropagator(eventDispatcher, commonConfig);
     }
 
 }

@@ -39,6 +39,8 @@ public enum EventRecipient {
 
     public static Set<EventRecipient> SERVER_ENGINE_ONLY = EnumSet.of(SERVER_ENGINE);
 
+    public static Set<EventRecipient> REMOTE_ONLY = EnumSet.of(REMOTE);
+
     public static Set<EventRecipient> of(EventRecipient... recipients) {
 
         Set<EventRecipient> set = EnumSet.noneOf(EventRecipient.class);

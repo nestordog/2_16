@@ -55,6 +55,7 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.json.ObjectMapperFactory;
+import ch.algotrader.vo.LogEventVO;
 import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
 @Configuration
@@ -141,6 +142,8 @@ public class BrokerWiring {
                 new StrategyTopicCreator<>(SubscriptionTopic.CASH_BALANCE.getBaseTopic(), cashBalance -> String.valueOf(cashBalance.getId())));
         publisher.register(MarketDataSubscriptionVO.class,
                 new MarketDataSubscriptionTopicCreator<>(SubscriptionTopic.MARKET_DATA_SUBSCRIPTION.getBaseTopic()));
+        publisher.register(LogEventVO.class,
+                new SimpleTopicCreator<>(SubscriptionTopic.LOG_EVENT.getBaseTopic(), LogEventVO::getPriority));
 
         return publisher;
     }
