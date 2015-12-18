@@ -49,6 +49,10 @@
                                     <file>pojo/ValueObject.ftl</file>
                                     <pattern>{package-name}/{class-name}VO.java</pattern>
                                 </template>
+                                <template>
+                                    <file>pojo/ValueObjectBuilder.ftl</file>
+                                    <pattern>{package-name}/{class-name}VOBuilder.java</pattern>
+                                </template>
                             </templates>
                         </configuration>
                     </execution>
