@@ -90,6 +90,7 @@ public class TestTTOrderMessageFactory {
         this.clNov2015.setTtid("00A0KP00CLZ");
         this.clNov2015.setSecurityFamily(futureFamily);
         this.clNov2015.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.clNov2015.setMonthYear("201511");
 
         Exchange iceipe = Exchange.Factory.newInstance();
         iceipe.setName("ICE_IPE");
@@ -196,7 +197,7 @@ public class TestTTOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(this.clNov2015);
-        order.setAccount(account);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(5);
         order.setLimit(new BigDecimal("1234"));

@@ -18,7 +18,8 @@
 package ch.algotrader.dao.security;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Date;
 import java.util.List;
 
@@ -37,6 +38,8 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * Unit tests for {@link FutureDaoImpl}.
@@ -76,21 +79,18 @@ public class FutureDaoTest extends InMemoryDBTest {
     @Test
     public void testFindByExpirationInclSecurityFamily() {
 
-        Calendar cal1 = Calendar.getInstance();
-        cal1.set(Calendar.HOUR_OF_DAY, 0);
-        cal1.set(Calendar.MINUTE, 0);
-        cal1.set(Calendar.SECOND, 0);
-        cal1.set(Calendar.MILLISECOND, 0);
+        LocalDate today = LocalDate.now();
 
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(this.family1);
-        future1.setExpiration(cal1.getTime());
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
         this.session.save(this.family1);
         this.session.save(future1);
         this.session.flush();
 
-        Future future2 = this.dao.findByExpirationInclSecurityFamily(0, cal1.getTime());
+        Future future2 = this.dao.findByExpirationInclSecurityFamily(0, DateTimeLegacy.toLocalDate(today));
 
         Assert.assertNull(future2);
 
@@ -98,7 +98,7 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Assert.assertNull(future3);
 
-        Future future4 = this.dao.findByExpirationInclSecurityFamily(this.family1.getId(), cal1.getTime());
+        Future future4 = this.dao.findByExpirationInclSecurityFamily(this.family1.getId(), DateTimeLegacy.toLocalDate(today));
 
         Assert.assertNotNull(future4);
 
@@ -109,47 +109,39 @@ public class FutureDaoTest extends InMemoryDBTest {
     @Test
     public void testFindByMinExpiration() {
 
-        Calendar cal1 = Calendar.getInstance();
-        cal1.set(Calendar.HOUR_OF_DAY, 0);
-        cal1.set(Calendar.MINUTE, 0);
-        cal1.set(Calendar.SECOND, 0);
-        cal1.set(Calendar.MILLISECOND, 0);
+        LocalDate today = LocalDate.now();
 
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(this.family1);
-        future1.setExpiration(cal1.getTime());
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.add(Calendar.DAY_OF_MONTH, 1);
-        cal2.set(Calendar.HOUR_OF_DAY, 0);
-        cal2.set(Calendar.MINUTE, 0);
-        cal2.set(Calendar.SECOND, 0);
-        cal2.set(Calendar.MILLISECOND, 0);
+        LocalDate tomorrow = today.plusDays(1);
 
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(cal2.getTime());
+        future2.setExpiration(DateTimeLegacy.toLocalDate(tomorrow));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(tomorrow));
 
         this.session.save(this.family1);
         this.session.save(future1);
         this.session.save(future2);
         this.session.flush();
 
-        Calendar cal3 = Calendar.getInstance();
-        cal3.add(Calendar.DAY_OF_MONTH, 2);
+        LocalDate afterTomorrow = tomorrow.plusDays(1);
 
-        List<Future> futures1 = this.dao.findByMinExpiration(this.family1.getId(), cal3.getTime());
+        List<Future> futures1 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(afterTomorrow));
 
         Assert.assertEquals(0, futures1.size());
 
-        List<Future> futures2 = this.dao.findByMinExpiration(this.family1.getId(), cal2.getTime());
+        List<Future> futures2 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(tomorrow));
 
         Assert.assertEquals(1, futures2.size());
 
         Assert.assertSame(future2, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
 
-        List<Future> futures3 = this.dao.findByMinExpiration(this.family1.getId(), cal1.getTime());
+        List<Future> futures3 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(today));
 
         Assert.assertEquals(2, futures3.size());
 
@@ -162,40 +154,33 @@ public class FutureDaoTest extends InMemoryDBTest {
     @Test
     public void testFindByMinExpirationByLimit() {
 
-        Calendar cal1 = Calendar.getInstance();
-        cal1.set(Calendar.HOUR_OF_DAY, 0);
-        cal1.set(Calendar.MINUTE, 0);
-        cal1.set(Calendar.SECOND, 0);
-        cal1.set(Calendar.MILLISECOND, 0);
+        LocalDate today = LocalDate.now();
 
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(this.family1);
-        future1.setExpiration(cal1.getTime());
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.add(Calendar.DAY_OF_MONTH, 1);
-        cal2.set(Calendar.HOUR_OF_DAY, 0);
-        cal2.set(Calendar.MINUTE, 0);
-        cal2.set(Calendar.SECOND, 0);
-        cal2.set(Calendar.MILLISECOND, 0);
+        LocalDate tomorrow = today.plusDays(1);
 
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(cal2.getTime());
+        future2.setExpiration(DateTimeLegacy.toLocalDate(tomorrow));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(tomorrow));
 
         this.session.save(this.family1);
         this.session.save(future1);
         this.session.save(future2);
         this.session.flush();
 
-        List<Future> futures3 = this.dao.findByMinExpiration(1, this.family1.getId(), cal1.getTime());
+        List<Future> futures3 = this.dao.findByMinExpiration(1, this.family1.getId(), DateTimeLegacy.toLocalDate(today));
 
         Assert.assertEquals(1, futures3.size());
 
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(this.family1, futures3.get(0).getSecurityFamily());
 
-        List<Future> futures4 = this.dao.findByMinExpiration(2, this.family1.getId(), cal1.getTime());
+        List<Future> futures4 = this.dao.findByMinExpiration(2, this.family1.getId(), DateTimeLegacy.toLocalDate(today));
 
         Assert.assertEquals(2, futures4.size());
 
@@ -206,19 +191,44 @@ public class FutureDaoTest extends InMemoryDBTest {
     }
 
     @Test
-    public void testFindSubscribedFutures() {
+    public void testFindByMonthYear() {
 
-        Calendar cal1 = Calendar.getInstance();
+        LocalDate expiration = LocalDate.of(2015, Month.JANUARY, 1);
 
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(this.family1);
-        future1.setExpiration(cal1.getTime());
+        future1.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(expiration));
 
-        Calendar cal2 = Calendar.getInstance();
+        this.session.save(this.family1);
+        this.session.save(future1);
+        this.session.flush();
+
+        Future future3 = this.dao.findByMonthYear(this.family1.getId(), 2015, 1);
+
+        Assert.assertNotNull(future3);
+
+        Assert.assertSame(future1, future3);
+
+        Future future4 = this.dao.findByMonthYear(this.family1.getId(), 2015, 2);
+
+        Assert.assertNull(future4);
+    }
+
+    @Test
+    public void testFindSubscribedFutures() {
+
+        LocalDate today = LocalDate.now();
+
+        Future future1 = new FutureImpl();
+        future1.setSecurityFamily(this.family1);
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(cal2.getTime());
+        future2.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
         this.session.save(this.family1);
         this.session.save(future1);
@@ -275,12 +285,15 @@ public class FutureDaoTest extends InMemoryDBTest {
     @Test
     public void testFindBySecurityFamily() {
 
-        Future future = new FutureImpl();
-        future.setSecurityFamily(this.family1);
-        future.setExpiration(new Date());
+        LocalDate today = LocalDate.now();
+
+        Future future1 = new FutureImpl();
+        future1.setSecurityFamily(this.family1);
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
         this.session.save(this.family1);
-        this.session.save(future);
+        this.session.save(future1);
         this.session.flush();
 
         List<Future> futures1 = this.dao.findBySecurityFamily(0);
@@ -291,15 +304,8 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, futures2.size());
 
-        Assert.assertSame(future, futures2.get(0));
+        Assert.assertSame(future1, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
-    }
-
-    @Test
-    public void testFindByExpirationMonth() {
-
-        // Could not execute query in test environment
-        // Caused by: org.h2.jdbc.JdbcSQLException: Function "last_day" not found
     }
 
 }

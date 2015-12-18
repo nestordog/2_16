@@ -112,7 +112,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
 
@@ -151,7 +151,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
 
         } else if (security instanceof Forex) {
@@ -186,7 +186,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
 
         } else if (security instanceof Forex) {

@@ -278,7 +278,8 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
             Contract contract = contractDetails.m_summary;
             LocalDate expiration = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
-            LocalDate contractMonth = parseYearMonth(contractDetails.m_contractMonth);
+            String contractMonthString = contractDetails.m_contractMonth;
+            LocalDate contractMonth = parseYearMonth(contractMonthString);
 
             String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
             final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
@@ -290,6 +291,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
             future.setRic(ric);
             future.setConid(conid);
             future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+            future.setMonthYear(contractMonthString);
             future.setSecurityFamily(securityFamily);
             future.setUnderlying(securityFamily.getUnderlying());
 

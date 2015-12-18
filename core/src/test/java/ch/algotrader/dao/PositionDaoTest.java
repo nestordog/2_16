@@ -47,6 +47,8 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.HibernateUtil;
 
 /**
@@ -729,10 +731,13 @@ public class PositionDaoTest extends InMemoryDBTest {
     @Test
     public void testFindExpirablePositionsPositionExpired() {
 
+        Date expiration = new Date(System.currentTimeMillis() - 100000000L);
+
         Future future = new FutureImpl();
 
         future.setSecurityFamily(this.futurefamily1);
-        future.setExpiration(new Date(System.currentTimeMillis() - 100000000L));
+        future.setExpiration(expiration);
+        future.setMonthYear(DateTimePatterns.MONTH_YEAR.format(DateTimeLegacy.toLocalDate(expiration)));
 
         this.session.save(this.futurefamily1);
         this.session.save(future);
@@ -764,7 +769,7 @@ public class PositionDaoTest extends InMemoryDBTest {
         List<Position> positions2 = this.dao.findExpirablePositions(new Date());
         Assert.assertEquals(0, positions2.size());
 
-        future.setExpiration(new Date(System.currentTimeMillis() - 100000000L));
+        future.setExpiration(expiration);
         position.setQuantity(0);
         this.session.flush();
 

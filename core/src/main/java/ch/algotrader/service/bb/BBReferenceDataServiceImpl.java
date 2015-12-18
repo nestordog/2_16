@@ -453,6 +453,7 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
                     }
 
                     String lastTradingString = fields.getElementAsString(BBConstants.LAST_TRADEABLE_DT);
+                    String contractDateString = fields.getElementAsString(BBConstants.FUT_CONTRACT_DT);
                     String firstNoticeString = fields.getElementAsString(BBConstants.FUT_NOTICE_FIRST);
 
                     Date lastTrading = DateTimeLegacy.parseAsDateTimeGMT(lastTradingString);
@@ -466,7 +467,7 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
                     future.setUnderlying(this.securityFamily.getUnderlying());
 
                     future.setExpiration(lastTrading);
-                    future.setLastTrading(lastTrading);
+                    future.setMonthYear(contractDateString.substring(3, 7) + contractDateString.substring(0, 2));
                     future.setFirstNotice(firstNotice);
 
                     // ignore futures that already exist

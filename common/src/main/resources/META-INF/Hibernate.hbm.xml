@@ -855,11 +855,11 @@
     ]]>
     </query>
 
-    <query name='Future.findByExpirationMonth'>
+    <query name='Future.findByMonthYear'>
     <![CDATA[
         from FutureImpl f 
         where f.securityFamily.id = :futureFamilyId 
-        and last_day(f.expiration) = :expirationMonth 
+        and f.monthYear = :monthYear 
     ]]>
     </query>
  

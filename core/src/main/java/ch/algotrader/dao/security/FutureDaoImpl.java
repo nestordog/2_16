@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.dao.security;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.enumeration.QueryType;
+import ch.algotrader.util.DateTimePatterns;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -66,6 +68,14 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     }
 
     @Override
+    public Future findByMonthYear(long futureFamilyId, int year, int month) {
+
+        LocalDate date = LocalDate.of(year, month, 1);
+        String monthYear = DateTimePatterns.MONTH_YEAR.format(date);
+        return findUniqueCaching("Future.findByMonthYear", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("monthYear", monthYear));
+    }
+
+    @Override
     public List<Future> findSubscribedFutures() {
 
         return findCaching("Future.findSubscribedFutures", QueryType.BY_NAME);
@@ -75,14 +85,6 @@ public class FutureDaoImpl extends AbstractDao<Future> implements FutureDao {
     public List<Future> findBySecurityFamily(long securityFamilyId) {
 
         return findCaching("Future.findBySecurityFamily", QueryType.BY_NAME, new NamedParam("securityFamilyId", securityFamilyId));
-    }
-
-    @Override
-    public Future findByExpirationMonth(long futureFamilyId, Date expirationMonth) {
-
-        Validate.notNull(expirationMonth, "Expiration month is null");
-
-        return findUniqueCaching("Future.findByExpirationMonth", QueryType.BY_NAME, new NamedParam("futureFamilyId", futureFamilyId), new NamedParam("expirationMonth", expirationMonth));
     }
 
 }

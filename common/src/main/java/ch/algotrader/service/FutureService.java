@@ -42,7 +42,7 @@ public interface FutureService {
     public Future getFutureByMinExpiration(long futureFamilyId, Date targetExpirationDate);
 
     /**
-     * Gets a Future by its {@link ch.algotrader.entity.security.FutureFamily} and {@code expirationDate}.
+     * Gets a Future by its {@code futureFamilyId} and {@code expirationDate}.
      * In simulation mode, if {@code simulateFuturesByUnderlying} or {code
      * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
      * found.
@@ -50,7 +50,7 @@ public interface FutureService {
     public Future getFutureByExpiration(long futureFamilyId, Date expirationDate);
 
     /**
-     * Gets a Future by its {@link ch.algotrader.entity.security.FutureFamily}, that is {@code n} durations after the specified
+     * Gets a Future by its {@code futureFamilyId}, that is {@code n} durations after the specified
      * {@code targetExpirationDate}.
      * In simulation mode, if {@code simulateFuturesByUnderlying} or {code
      * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
@@ -59,8 +59,17 @@ public interface FutureService {
     public Future getFutureByDuration(long futureFamilyId, Date targetDate, int duration);
 
     /**
-     * Gets all Futures with {@code expirationDate} after the specified {@code targetExpirationDate}
-     * and {@code futureFamilyId}. The returned Futures are sorted with their {@code expirationDate}
+     * Gets a Future by its {@code futureFamilyId} and maturity {@code month} and {@code year}.
+     * In simulation mode, if {@code simulateFuturesByUnderlying} or {code
+     * simulateFuturesByGenericFutures} is configured, a dummy Future will be created if none was
+     * found.
+     */
+    public Future getFutureByMonthYear(long futureFamilyId, int year, int month);
+
+    /**
+     * Gets all Futures for the specified {@code futureFamilyId} with an {@code expirationDate} after
+     * the specified {@code targetExpirationDate}.
+     * The returned Futures are sorted with their {@code expirationDate}
      * in ascending order.
      */
     public List<Future> getFuturesByMinExpiration(long futureFamilyId, Date minExpirationDate);

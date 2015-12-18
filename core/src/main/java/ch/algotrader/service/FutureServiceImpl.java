@@ -39,6 +39,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.future.FutureSymbol;
 import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.DateUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 
@@ -99,6 +100,7 @@ public class FutureServiceImpl implements FutureService {
 
             Date expiration = DateUtil.getExpirationDateNMonths(family.getExpirationType(), this.engineManager.getCurrentEPTime(), duration);
             LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
+            String monthYear = DateTimePatterns.MONTH_YEAR.format(expirationDate);
 
             String symbol = FutureSymbol.getSymbol(family, expirationDate);
             String isin = FutureSymbol.getIsin(family, expirationDate);
@@ -109,6 +111,7 @@ public class FutureServiceImpl implements FutureService {
             future.setIsin(isin);
             future.setRic(ric);
             future.setExpiration(expiration);
+            future.setMonthYear(monthYear);
             future.setUnderlying(underlying);
             future.setSecurityFamily(family);
 
@@ -199,6 +202,27 @@ public class FutureServiceImpl implements FutureService {
         if (future == null) {
             throw new ServiceException("no future available targetExpiration " + targetDate + " and duration " + duration);
         } else {
+            return future;
+        }
+
+    }
+
+    @Override
+    public Future getFutureByMonthYear(long futureFamilyId, int year, int month) {
+
+        Future future = this.futureDao.findByMonthYear(futureFamilyId, year, month);
+
+        // if no future was found, create the missing part of the future-chain
+        if (this.commonConfig.isSimulation() && future == null && (this.coreConfig.isSimulateFuturesByUnderlying() || this.coreConfig.isSimulateFuturesByGenericFutures())) {
+
+            createDummyFutures(futureFamilyId);
+            future = this.futureDao.findByMonthYear(futureFamilyId, year, month);
+        }
+
+        if (future == null) {
+            throw new ServiceException("no future available year " + year + " and month " + month);
+        } else {
+
             return future;
         }
 

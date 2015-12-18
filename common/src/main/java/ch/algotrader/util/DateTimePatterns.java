@@ -129,6 +129,18 @@ public final class DateTimePatterns {
 
     }
 
+
+    /**
+     * The 4-digit year and two-digit month format: {@literal yyyymm}.
+     */
+    public final static DateTimeFormatter MONTH_YEAR;
+    static {
+        MONTH_YEAR = new DateTimeFormatterBuilder()
+                .appendValue(ChronoField.YEAR, 4)
+                .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                .toFormatter(Locale.ROOT);
+    }
+
     /**
      * The short month text format: {@literal MMM}.
      */

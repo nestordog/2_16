@@ -91,7 +91,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new SecurityExchange(exchangeCode));
             message.set(new Symbol(symbolRoot));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(future.getMonthYear()));
 
         } else {
 
@@ -129,7 +129,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new SecurityExchange(exchangeCode));
             message.set(new Symbol(symbolRoot));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(future.getMonthYear()));
 
         } else {
 

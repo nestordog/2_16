@@ -86,6 +86,7 @@ public class TestIBFixOrderMessageFactory {
         this.future.setRic("COILJ6:VE");
         this.future.setSecurityFamily(this.family);
         this.future.setExpiration(DateTimeLegacy.parseAsDateGMT("2015-03-31"));
+        this.future.setMonthYear("201503");
 
         this.account = new AccountImpl();
         this.account.setBroker(Broker.RT.name());

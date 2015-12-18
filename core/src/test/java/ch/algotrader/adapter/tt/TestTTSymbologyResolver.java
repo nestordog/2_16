@@ -71,6 +71,7 @@ public class TestTTSymbologyResolver {
         this.clNov2015.setTtid("00A0KP00CLZ");
         this.clNov2015.setSecurityFamily(futureFamily);
         this.clNov2015.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.clNov2015.setMonthYear("201511");
 
         Exchange iceipe = Exchange.Factory.newInstance();
         iceipe.setName("ICE_IPE");

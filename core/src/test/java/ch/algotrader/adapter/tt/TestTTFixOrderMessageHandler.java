@@ -130,6 +130,7 @@ public class TestTTFixOrderMessageHandler {
         this.future.setTtid("00A0KP00CLZ");
         this.future.setSecurityFamily(futureFamily);
         this.future.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.future.setMonthYear("201511");
 
         this.future2 = Future.Factory.newInstance();
         this.future2.setId(2L);

@@ -255,20 +255,21 @@
                 <column name="ID" sql-type="BIGINT"/>
             </key>
             <property name="expiration">
-                <meta attribute="field-description"><![CDATA[The Expiration Date]]></meta>
+                <meta attribute="field-description"><![CDATA[The Last Trading / Expiration Date]]></meta>
                 <column name="EXPIRATION" not-null="true" unique="false" sql-type="DATE"/>
 
                 <type name="java.util.Date"/>
             </property>
+            <property name="monthYear">
+                <meta attribute="field-description"><![CDATA[The month and year in the format "yyyymm".
+Note: month can be different that the month part of the expiration. E.g. a Jan 2016 contract might have an expiration date of Dec. 16th 2015.]]></meta>
+                <column name="MONTH_YEAR" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+                <type name="java.lang.String"/>
+            </property>
             <property name="firstNotice">
                 <meta attribute="field-description"><![CDATA[The first notice date]]></meta>
                 <column name="FIRST_NOTICE" not-null="false" unique="false" sql-type="DATE"/>
-
-                <type name="java.util.Date"/>
-            </property>
-            <property name="lastTrading">
-                <meta attribute="field-description"><![CDATA[The last trading date]]></meta>
-                <column name="LAST_TRADING" not-null="false" unique="false" sql-type="DATE"/>
 
                 <type name="java.util.Date"/>
             </property>

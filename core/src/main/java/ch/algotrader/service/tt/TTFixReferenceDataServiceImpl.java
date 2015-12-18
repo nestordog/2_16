@@ -66,6 +66,7 @@ import ch.algotrader.service.NoServiceResponseException;
 import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.RoundUtil;
 import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
@@ -288,11 +289,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                     future.setRic(ric);
                     future.setTtid(id);
                     future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
-                    LocalDate expiryDate = securityDef.getExpiryDate();
-                    if (expiryDate != null) {
-                        future.setFirstNotice(DateTimeLegacy.toLocalDate(expiryDate));
-                        future.setLastTrading(DateTimeLegacy.toLocalDate(expiryDate));
-                    }
+                    future.setMonthYear(DateTimePatterns.MONTH_YEAR.format(maturityDate));
                     future.setSecurityFamily(securityFamily);
                     future.setUnderlying(securityFamily.getUnderlying());
 

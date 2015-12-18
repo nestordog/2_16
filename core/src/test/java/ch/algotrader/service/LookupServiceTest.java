@@ -19,6 +19,7 @@ package ch.algotrader.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -109,6 +110,8 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
@@ -912,17 +915,17 @@ public class LookupServiceTest extends InMemoryDBTest {
         Strategy strategy1 = new StrategyImpl();
         strategy1.setName("Strategy1");
     
-        Calendar cal1 = Calendar.getInstance();
+        LocalDate today = LocalDate.now();
     
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(family1);
-        future1.setExpiration(cal1.getTime());
-    
-        Calendar cal2 = Calendar.getInstance();
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
     
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(family1);
-        future2.setExpiration(cal2.getTime());
+        future2.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
     
         this.session.save(family1);
         this.session.save(future1);
@@ -2412,11 +2415,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactionsByStrategy("Dummy");
+        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsByStrategy("Dummy");
     
         Assert.assertEquals(0, transactionVOs1.size());
     
-        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactionsByStrategy("Strategy1");
+        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsByStrategy("Strategy1");
 
         Assert.assertEquals(1, transactionVOs2.size());
     
