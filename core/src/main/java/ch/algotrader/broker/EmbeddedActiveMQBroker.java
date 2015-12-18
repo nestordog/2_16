@@ -19,6 +19,8 @@
 package ch.algotrader.broker;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.management.MBeanServer;
 
@@ -27,6 +29,8 @@ import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.broker.region.policy.LastImageSubscriptionRecoveryPolicy;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
 import org.apache.activemq.broker.region.policy.PolicyMap;
+import org.apache.activemq.command.ActiveMQTopic;
+import org.apache.activemq.filter.DestinationMapEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,13 +64,18 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         this.broker.setPersistent(false);
         this.broker.setAdvisorySupport(true);
 
-        LastImageSubscriptionRecoveryPolicy policy = new LastImageSubscriptionRecoveryPolicy();
-        PolicyEntry policyEntry = new PolicyEntry();
-        policyEntry.setSubscriptionRecoveryPolicy(policy);
-
         PolicyMap policyMap = new PolicyMap();
-        policyMap.setDefaultEntry(policyEntry);
-
+        LastImageSubscriptionRecoveryPolicy policy = new LastImageSubscriptionRecoveryPolicy();
+        List<DestinationMapEntry> entryList = new ArrayList<>();
+        for (SubscriptionTopic subscriptionTopic: SubscriptionTopic.values()) {
+            if (subscriptionTopic.getPolicy() == SubscriptionTopic.Policy.LAST_IMAGE) {
+                PolicyEntry policyEntry = new PolicyEntry();
+                policyEntry.setSubscriptionRecoveryPolicy(policy);
+                policyEntry.setDestination(new ActiveMQTopic(subscriptionTopic.getBaseTopic() +  ".>"));
+                entryList.add(policyEntry);
+            }
+        }
+        policyMap.setPolicyEntries(entryList);
         this.broker.setDestinationPolicy(policyMap);
     }
 

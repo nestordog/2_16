@@ -45,7 +45,7 @@ import ch.algotrader.broker.MarketDataSubscriptionTopicCreator;
 import ch.algotrader.broker.SimpleTopicCreator;
 import ch.algotrader.broker.StrategyTopicCreator;
 import ch.algotrader.broker.TopicPublisher;
-import ch.algotrader.broker.subscription.SubscriptionTopic;
+import ch.algotrader.broker.SubscriptionTopic;
 import ch.algotrader.broker.subscription.TopicSubscriptionHandler;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;

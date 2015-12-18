@@ -16,31 +16,39 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.broker.subscription;
+package ch.algotrader.broker;
 
 /**
  * @author <a href="mailto:vgolding@algotrader.ch">Vince Golding</a>
  */
 public enum SubscriptionTopic {
 
-    ORDER("order"),
-    ORDER_STATUS("order-status"),
-    TRANSACTION("transaction"),
-    TICK("tick"),
-    POSITION("position"),
-    CASH_BALANCE("cash-balance"),
-    MARKET_DATA_SUBSCRIPTION("market-data-subscription"),
-    LOG_EVENT("log-event"),
+    ORDER("order", Policy.LAST_IMAGE),
+    ORDER_STATUS("order-status", Policy.LAST_IMAGE),
+    TRANSACTION("transaction", Policy.DEFAULT),
+    TICK("tick", Policy.LAST_IMAGE),
+    POSITION("position", Policy.LAST_IMAGE),
+    CASH_BALANCE("cash-balance", Policy.LAST_IMAGE),
+    MARKET_DATA_SUBSCRIPTION("market-data-subscription", Policy.LAST_IMAGE),
+    LOG_EVENT("log-event", Policy.DEFAULT),
     ;
 
-    final String baseTopic;
+    enum Policy { LAST_IMAGE, DEFAULT };
 
-    SubscriptionTopic(String baseTopic) {
+    private final String baseTopic;
+    private final Policy policy;
+
+    SubscriptionTopic(final String baseTopic, final Policy policy) {
         this.baseTopic = baseTopic;
+        this.policy = policy;
     }
 
     public String getBaseTopic() {
         return baseTopic;
+    }
+
+    public Policy getPolicy() {
+        return policy;
     }
 
 }
