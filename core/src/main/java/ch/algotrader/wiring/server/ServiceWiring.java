@@ -269,10 +269,11 @@ public class ServiceWiring {
 
     @Bean(name = "tickPersister")
     public TickPersister createTickPersistEventPropagator(
+            final Engine serverEngine,
             final LookupService lookupService,
             final MarketDataService marketDataService) {
 
-        return new TickPersister(lookupService, marketDataService);
+        return new TickPersister(serverEngine, lookupService, marketDataService);
     }
 
     @Bean(name = "orderPersistenceService")
