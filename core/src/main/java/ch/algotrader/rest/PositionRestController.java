@@ -45,7 +45,7 @@ public class PositionRestController extends RestControllerBase {
     }
 
     @CrossOrigin
-    @RequestMapping(path = "/reduce/position/{id}", method = RequestMethod.POST)
+    @RequestMapping(path = "/position/reduce/{id}", method = RequestMethod.POST)
     public void reducePosition(@PathVariable final long id, @RequestBody final long qty) {
 
         this.positionService.reducePosition(id, qty);

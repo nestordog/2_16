@@ -762,20 +762,20 @@ public class LookupServiceImpl implements LookupService {
     }
 
     @Override
-    public List<Transaction> getDailyTransactions() {
+    public List<Transaction> getDailyTransactions(int limit) {
 
         LocalDate today = LocalDate.now();
-        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactions", QueryType.BY_NAME,
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactions", limit, QueryType.BY_NAME,
                 new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
     }
 
     @Override
-    public List<Transaction> getDailyTransactionsByStrategy(String strategyName) {
+    public List<Transaction> getDailyTransactionsByStrategy(String strategyName, int limit) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
         LocalDate today = LocalDate.now();
-        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategy", QueryType.BY_NAME,
+        return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategy", limit, QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName), new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
     }
 

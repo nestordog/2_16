@@ -351,13 +351,37 @@ public interface LookupService {
 
     /**
      * Finds all Transactions of the current day in descending {@code dateTime} order.
+     *
+     * @param limit defines maximum number of records to be retrieved. Value {@code 0}
+     *              represents no limit.
      */
-    public List<Transaction> getDailyTransactions();
+    public List<Transaction> getDailyTransactions(int limit);
+
+    /**
+     * Finds all Transactions of the current day in descending {@code dateTime} order.
+     */
+    default List<Transaction> getDailyTransactions() {
+
+        return getDailyTransactions(0);
+    }
+    /**
+     * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
+     *
+     * @param strategyName strategy name
+     * @param limit defines maximum number of records to be retrieved. Value {@code 0}
+     *              represents no limit.
+     */
+    public List<Transaction> getDailyTransactionsByStrategy(String strategyName, int limit);
 
     /**
      * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
+     *
+     * @param strategyName strategy name
      */
-    public List<Transaction> getDailyTransactionsByStrategy(String strategyName);
+    default List<Transaction> getDailyTransactionsByStrategy(String strategyName) {
+
+        return getDailyTransactionsByStrategy(strategyName, 0);
+    }
 
     /**
      * Finds all trades (BUY and SELL transactions) for the given time frame.

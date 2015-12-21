@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +41,8 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountVO;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionVO;
+import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeVO;
 import ch.algotrader.entity.security.Forex;
@@ -166,20 +168,17 @@ public class LookupRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/position", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<PositionVO> getPositions() {
+    public List<PositionVO> getPositions(@RequestParam(name = "strategy", required = false) final String strategyName) {
 
-        return lookupService.getAllPositions().stream()
-                .map(Position::convertToVO)
-                .collect(Collectors.toList());
-    }
-
-    @CrossOrigin
-    @RequestMapping(path = "/position/strategy/{strategyName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<PositionVO> getPositions(@PathVariable final String strategyName) {
-
-        return lookupService.getPositionsByStrategy(strategyName).stream()
-                .map(Position::convertToVO)
-                .collect(Collectors.toList());
+        if (StringUtils.isBlank(strategyName)) {
+            return lookupService.getAllPositions().stream()
+                    .map(Position::convertToVO)
+                    .collect(Collectors.toList());
+        } else {
+            return lookupService.getPositionsByStrategy(strategyName).stream()
+                    .map(Position::convertToVO)
+                    .collect(Collectors.toList());
+        }
     }
 
     @CrossOrigin
@@ -188,6 +187,31 @@ public class LookupRestController extends RestControllerBase {
 
         return Optional.ofNullable(lookupService.getPosition(id))
                 .map(Position::convertToVO).orElseThrow(() -> new EntityNotFoundException("Position not found: " + id));
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public TransactionVO getTransaction(@PathVariable long id) {
+
+        return Optional.ofNullable(lookupService.getTransaction(id))
+                .map(Transaction::convertToVO).orElseThrow(() -> new EntityNotFoundException("Transaction not found: " + id));
+    }
+
+    @CrossOrigin
+    @RequestMapping(path = "/transaction/daily", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<TransactionVO> getTransactions(
+            @RequestParam(name = "strategy", required = false) final String strategyName,
+            @RequestParam(name = "limit", required = false, defaultValue = "0") int limit) {
+
+        if (StringUtils.isBlank(strategyName)) {
+            return lookupService.getDailyTransactions(limit).stream()
+                    .map(Transaction::convertToVO)
+                    .collect(Collectors.toList());
+        } else {
+            return lookupService.getDailyTransactionsByStrategy(strategyName, limit).stream()
+                    .map(Transaction::convertToVO)
+                    .collect(Collectors.toList());
+        }
     }
 
     @ExceptionHandler()
