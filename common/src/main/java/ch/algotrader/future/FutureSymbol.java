@@ -107,10 +107,7 @@ public class FutureSymbol {
      */
     public static int getMonth(String symbol) {
 
-        String month = symbol.substring(5, 6);
-        int index = Arrays.binarySearch(monthEnc, month);
-
-        return index;
+        return convertMonth(symbol.substring(5, 6));
     }
 
     /**
@@ -118,7 +115,27 @@ public class FutureSymbol {
      */
     public static int getYear(String symbol) {
 
-        String year = symbol.substring(6, 7);
-        return Arrays.binarySearch(yearEnc, year) + 2010;
+        return convertYear(symbol.substring(6, 7));
     }
+
+    /**
+     * Converts from future month symbol to month ordinal number from {@code 0} to {@code 11}.
+     * @param month future month symbol
+     * @return value from {@code 0} to {@code 11} in case of a successful symbol conversion,
+     *  {@code -1} if case of a failure.
+     */
+    public static int convertMonth(final String month) {
+        return Arrays.binarySearch(monthEnc, month);
+    }
+
+    /**
+     * Converts from future year symbol to year ordinal number from  {@code 0} to {@code 9}
+     * @param year future year symbol
+     * @return value from {@code 0} to {@code 9} in case of a successful symbol conversion,
+     *  {@code -1} if case of a failure.
+     */
+    public static int convertYear(final String year) {
+        return Arrays.binarySearch(yearEnc, year);
+    }
+
 }
