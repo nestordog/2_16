@@ -40,6 +40,12 @@ public interface EngineManager {
     boolean hasEngine(String engineName);
 
     /**
+     * Returns engine with the given name or {@code null} if no engine is found
+     * @param engineName
+     */
+    Engine lookup(String engineName);
+
+    /**
      * Returns engine with the given name
      * @param engineName
      */

@@ -149,7 +149,7 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
         Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
-                final Engine engine = this.engineManager.getEngine(strategyName);
+                final Engine engine = this.engineManager.lookup(strategyName);
                 if (engine != null) {
                     engine.sendEvent(marketDataEvent);
                 }
@@ -161,7 +161,7 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     @Override
     public void sendEvent(final String engineName, final Object obj) {
         // check if it is a local engine
-        final Engine engine = this.engineManager.getEngine(engineName);
+        final Engine engine = this.engineManager.lookup(engineName);
         if (engine != null) {
             engine.sendEvent(obj);
         }

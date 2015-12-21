@@ -61,6 +61,9 @@ public class LocalEventDispatcherImplTest {
         Mockito.when(engineManager.getEngine("SERVER")).thenReturn(serverEngine);
         Mockito.when(engineManager.getEngine("this")).thenReturn(engine1);
         Mockito.when(engineManager.getEngine("that")).thenReturn(engine2);
+        Mockito.when(engineManager.lookup("SERVER")).thenReturn(serverEngine);
+        Mockito.when(engineManager.lookup("this")).thenReturn(engine1);
+        Mockito.when(engineManager.lookup("that")).thenReturn(engine2);
         Mockito.when(engineManager.getEngines()).thenReturn(Arrays.asList(serverEngine, engine1, engine2));
         Mockito.when(engineManager.getStrategyEngines()).thenReturn(Arrays.asList(engine1, engine2));
 
