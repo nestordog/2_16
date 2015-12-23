@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -108,18 +108,12 @@ class CollectionHandler extends AbstractHandler {
             } else if (obj instanceof Set) {
 
                 Set set = (Set) obj;
-                Set replacements = new HashSet();
                 for (Object value : set) {
 
-                    CacheResponse response = this.cacheManager.put(value, stack);
-                    if (response.getState() == CacheState.EXISTING && response.getValue() != value) {
-                        replacements.add(value);
-                    }
-                }
+                    this.cacheManager.put(value, stack);
 
-                // need to replace the values outside the loop to prevent java.util.ConcurrentModificationException
-                set.removeAll(replacements);
-                set.addAll(replacements);
+                    // values are not replaced in the set since objects might not be initialized enough for equals/hashCode need by Set.add()
+                }
 
             } else {
                 throw new IllegalArgumentException("unsupported collection type " + obj.getClass());
@@ -159,11 +153,12 @@ class CollectionHandler extends AbstractHandler {
 
                 if (updatedCollection instanceof PersistentCollection) {
 
-                    PersistentCollection updatedCol = (PersistentCollection) updatedCollection;
-                    FieldUtil.copyAllFields(origCollection, updatedCol);
+                    // copy the updatedCollection unto the origCollection in order to update entities holding a reference to the origCollection
+                    FieldUtil.copyAllFields(updatedCollection, origCollection);
 
-                    // make sure everything is in the cache
-                    this.cacheManager.put(origCollection);
+                    // make sure all elements of the updateCollection are in the cache
+                    ArrayList<EntityCacheSubKey> stack = new ArrayList<EntityCacheSubKey>();
+                    put(updatedCollection, stack);
 
                     // getInitializedCollection should normally return a PersistentCollection
                 } else {

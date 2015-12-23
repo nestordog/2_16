@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.rt;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
 import ch.algotrader.adapter.rt.RTFixOrderMessageFactory;
@@ -39,15 +40,30 @@ import quickfix.fix44.OrderCancelRequest;
 public class RTFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     public RTFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder rTOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.RT_FIX.name(), fixAdapter, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()),
+        super(orderServiceType, fixAdapter, rTOrderSessionStateHolder, new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver()),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public RTFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder rTOrderSessionStateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.RT_FIX.name(), fixAdapter, rTOrderSessionStateHolder, orderRegistry,
+                orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override

@@ -38,12 +38,12 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
-import quickfix.field.CumQty;
 import quickfix.field.ExecType;
 import quickfix.field.LastPx;
 import quickfix.field.MsgSeqNum;
@@ -59,8 +59,8 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
     private static final Logger LOGGER = LogManager.getLogger(GenericFix42OrderMessageHandler.class);
 
-    public GenericFix42OrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
-        super(orderRegistry, serverEngine);
+    public GenericFix42OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+        super(orderExecutionService, transactionService, serverEngine);
     }
 
     @Override
@@ -78,6 +78,20 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
     }
 
     @Override
+    protected void handleStatus(final ExecutionReport executionReport) throws FieldNotFound {
+
+        if (LOGGER.isInfoEnabled()) {
+            if (executionReport.isSetClOrdID()) {
+                String orderIntId = executionReport.getClOrdID().getValue();
+                LOGGER.info("Working order at the broker side: IntId = {}", orderIntId);
+            } else {
+                String orderExtId = executionReport.getOrderID().getValue();
+                LOGGER.info("Working order at the broker side: ExtId = {}", orderExtId);
+            }
+        }
+    }
+
+    @Override
     protected void handleExternal(final ExecutionReport executionReport) throws FieldNotFound {
     }
 
@@ -87,6 +101,14 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
             String orderIntId = executionReport.getClOrdID().getValue();
             LOGGER.error("Cannot find open order with IntID {}", orderIntId);
+        }
+    }
+
+    @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Cannot re-state order with IntID {}", order.getIntId());
         }
     }
 
@@ -103,10 +125,16 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
     }
 
     @Override
+    protected boolean isOrderRestated(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.RESTATED;
+    }
+
+    @Override
     protected OrderStatus createStatus(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
         // get the other fields
         ExecType execType = executionReport.getExecType();
-        Status status = getStatus(execType, executionReport.getCumQty());
+        Status status = getStatus(execType, (long) executionReport.getCumQty().getValue());
         long filledQuantity = (long) executionReport.getCumQty().getValue();
         long remainingQuantity = (long) (executionReport.getOrderQty().getValue() - executionReport.getCumQty().getValue());
         long lastQuantity = executionReport.isSetLastShares() ? (long) executionReport.getLastShares().getValue() : 0L;
@@ -181,9 +209,11 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
     protected ExternalFill createFill(final ExecutionReport executionReport, final DropCopyAllocationVO allocation) throws FieldNotFound {
 
-        char execType = executionReport.getExecType().getValue();
-        if (execType != ExecType.PARTIAL_FILL && execType != ExecType.FILL) {
-            throw new IllegalArgumentException("Unexpected execType: " + execType);
+        if (executionReport.isSetExecType()) {
+            char execType = executionReport.getExecType().getValue();
+            if (execType != ExecType.PARTIAL_FILL && execType != ExecType.FILL) {
+                throw new IllegalArgumentException("Unexpected execType: " + execType);
+            }
         }
 
         Security security = allocation.getSecurity();
@@ -212,7 +242,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         long quantity = (long) executionReport.getLastShares().getValue();
 
         Account account = allocation.getAccount();
-        String broker = account != null ? account.getBroker() : null;
+        String broker = account != null ? account.getBroker() : getDefaultBroker();
 
         double price = executionReport.getLastPx().getValue();
 
@@ -247,7 +277,12 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
         return fill;
     }
 
-    private Status getStatus(ExecType execType, CumQty cumQty) {
+    @Override
+    protected String getDefaultBroker() {
+        return null;
+    }
+
+    static protected Status getStatus(final ExecType execType, final long cumQty) {
 
         if (execType.getValue() == ExecType.NEW) {
             return Status.SUBMITTED;
@@ -259,13 +294,16 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
                 || execType.getValue() == ExecType.DONE_FOR_DAY || execType.getValue() == ExecType.EXPIRED) {
             return Status.CANCELED;
         } else if (execType.getValue() == ExecType.REPLACE) {
-            if (cumQty.getValue() == 0) {
+            if (cumQty == 0) {
                 return Status.SUBMITTED;
             } else {
                 return Status.PARTIALLY_EXECUTED;
             }
+        } else if (execType.getValue() == ExecType.RESTATED) {
+            return Status.SUBMITTED;
         } else {
             throw new IllegalArgumentException("unknown execType " + execType.getValue());
         }
     }
+
 }

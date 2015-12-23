@@ -476,6 +476,21 @@
         order by t.dateTime 
     ]]>
     </query>
+
+    <query name='Transaction.findTradesByMinDateAndMaxDate'>
+        <![CDATA[
+        from TransactionImpl as t
+        where t.dateTime > :minDate and t.dateTime < :maxDate
+        and (t.type = 'BUY' or t.type = 'SELL')
+        order by t.dateTime
+    ]]>
+    </query>
+
+    <query name="Transaction.findByExtId">
+        <![CDATA[
+        from TransactionImpl as t where t.extId = :extId
+    ]]>
+    </query>
          
     <!-- Transaction DAO queries Ends -->
      
@@ -1017,6 +1032,13 @@
     <![CDATA[
         from SecurityImpl as s 
         where s.conid = :conid 
+    ]]>
+    </query>
+
+    <query name='Security.findByLmaxid'>
+        <![CDATA[
+        from SecurityImpl as s
+        where s.lmaxid = :lmaxid
     ]]>
     </query>
 

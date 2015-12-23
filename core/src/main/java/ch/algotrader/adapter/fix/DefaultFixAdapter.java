@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.TimeZone;
@@ -29,7 +30,6 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.service.LookupService;
 import quickfix.ConfigError;
 import quickfix.FieldConvertError;
@@ -78,11 +78,42 @@ public class DefaultFixAdapter implements FixAdapter {
         return orderIdGenerator;
     }
 
+    private SessionID findSessionID(final String sessionQualifier) {
+
+        for (Iterator<SessionID> it = this.socketInitiator.getSettings().sectionIterator(); it.hasNext();) {
+            SessionID sessionId = it.next();
+            if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
+                return sessionId;
+            }
+        }
+        throw new FixApplicationException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
+    }
+
+    @Override
+    public Session getSession(String sessionQualifier) throws FixApplicationException {
+
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
+        this.lock.lock();
+        try {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session == null) {
+                throw new FixApplicationException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
+            }
+            return session;
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
     /**
      * creates an individual session
      */
     @Override
     public void createSessionForService(String orderServiceType) throws FixApplicationException {
+
+        Validate.notEmpty(orderServiceType, "Order service type is empty");
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
@@ -93,12 +124,16 @@ public class DefaultFixAdapter implements FixAdapter {
             return;
         }
         for (String sessionQualifier : sessionQualifiers) {
-            createSession(sessionQualifier);
+            if (sessionQualifier != null) {
+                createSession(sessionQualifier);
+            }
         }
     }
 
     @Override
     public void openSessionForService(String orderServiceType) throws FixApplicationException {
+
+        Validate.notEmpty(orderServiceType, "Order service type is empty");
 
         Collection<String> sessionQualifiers = this.lookupService.getActiveSessionsByOrderServiceType(orderServiceType);
         if (sessionQualifiers == null || sessionQualifiers.isEmpty()) {
@@ -113,38 +148,30 @@ public class DefaultFixAdapter implements FixAdapter {
         }
     }
 
-    private void createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
+    private Session createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
 
         this.lock.lock();
         try {
-            // need to iterate over all sessions definitions in the settings because there is no lookup method
-            for (Iterator<SessionID> i = this.socketInitiator.getSettings().sectionIterator(); i.hasNext();) {
-                SessionID sessionId = i.next();
-                if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
-                    Session session = Session.lookupSession(sessionId);
-                    if (session != null) {
-                        if (createNew) {
-                            throw new IllegalStateException("FIX configuration error: " +
-                                    "existing session with qualifier " + sessionQualifier + " please add 'Inactive=Y' to session config");
-                        }
-                    } else {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session != null) {
+                if (createNew) {
+                    throw new FixApplicationException("FIX configuration error: " +
+                            "existing session with qualifier '" + sessionQualifier + "' please add 'Inactive=Y' to session config");
+                }
+            } else {
 
-                        try {
-                            this.socketInitiator.createDynamicSession(sessionId);
-                            if (this.eventScheduler != null) {
+                try {
+                    this.socketInitiator.createDynamicSession(sessionId);
+                    if (this.eventScheduler != null) {
 
-                                createLogonLogoutStatement(sessionId);
-                            }
-                        } catch (FieldConvertError | ConfigError ex) {
-                            throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
-                        }
+                        createLogonLogoutStatement(sessionId);
                     }
-                    return;
+                } catch (FieldConvertError | ConfigError ex) {
+                    throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
                 }
             }
-
-            throw new FixApplicationException("FIX configuration error: SessionID missing in settings " + sessionQualifier);
-
+            return session;
         } finally {
             this.lock.unlock();
         }
@@ -153,13 +180,36 @@ public class DefaultFixAdapter implements FixAdapter {
     @Override
     public void createSession(String sessionQualifier) throws FixApplicationException {
 
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
         createSessionInternal(sessionQualifier, true);
     }
 
     @Override
     public void openSession(String sessionQualifier) throws FixApplicationException {
 
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
         createSessionInternal(sessionQualifier, false);
+    }
+
+    @Override
+    public void closeSession(String sessionQualifier) throws FixApplicationException {
+
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
+        this.lock.lock();
+        try {
+            SessionID sessionId = findSessionID(sessionQualifier);
+            Session session = Session.lookupSession(sessionId);
+            if (session != null) {
+                session.close();
+            }
+        } catch (IOException ex) {
+            throw new FixApplicationException(ex.getMessage(), ex);
+        } finally {
+            this.lock.unlock();
+        }
     }
 
     /**
@@ -168,13 +218,14 @@ public class DefaultFixAdapter implements FixAdapter {
     @Override
     public void sendMessage(Message message, Account account) throws FixApplicationException {
 
-        Validate.notNull(account.getSessionQualifier(), "no session qualifier defined for account " + account);
+        String sessionQualifier = account.getSessionQualifier();
+        Validate.notNull(sessionQualifier, "no session qualifier defined for account " + account);
 
-        Session session = Session.lookupSession(getSessionID(account.getSessionQualifier()));
+        Session session = Session.lookupSession(findSessionID(sessionQualifier));
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new FixApplicationException("message cannot be sent, FIX Session is not logged on " + account.getSessionQualifier());
+            throw new FixApplicationException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
         }
     }
 
@@ -184,11 +235,13 @@ public class DefaultFixAdapter implements FixAdapter {
     @Override
     public void sendMessage(Message message, String sessionQualifier) throws FixApplicationException {
 
-        Session session = Session.lookupSession(getSessionID(sessionQualifier));
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
+
+        Session session = Session.lookupSession(findSessionID(sessionQualifier));
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new FixApplicationException("message cannot be sent, FIX Session is not logged on " + sessionQualifier);
+            throw new FixApplicationException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
         }
     }
 
@@ -203,30 +256,6 @@ public class DefaultFixAdapter implements FixAdapter {
 
         String sessionQualifier = account.getSessionQualifier();
         return this.orderIdGenerator.getNextOrderId(sessionQualifier);
-    }
-
-    /**
-     * Gets the next {@code orderIdVersion} based on the specified {@code order}
-     */
-    @Override
-    public String getNextOrderIdVersion(Order order) {
-
-        String[] segments = order.getIntId().split("\\.");
-
-        return segments[0] + "." + (Integer.parseInt(segments[1]) + 1);
-    }
-
-    /**
-     * gets an active session by the sessionQualifier
-     */
-    private SessionID getSessionID(String sessionQualifier) {
-
-        for (SessionID sessionId : this.socketInitiator.getSessions()) {
-            if (sessionId.getSessionQualifier().equals(sessionQualifier)) {
-                return sessionId;
-            }
-        }
-        throw new IllegalStateException("FIX Session does not exist " + sessionQualifier);
     }
 
     /**
@@ -273,6 +302,8 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     public void setOrderId(String sessionQualifier, int orderId) {
+
+        Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
         this.orderIdGenerator.setOrderId(sessionQualifier, orderId);
     }

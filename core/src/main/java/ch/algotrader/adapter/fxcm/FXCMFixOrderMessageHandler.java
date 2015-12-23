@@ -31,7 +31,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -52,8 +53,8 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
     private static final Logger LOGGER = LogManager.getLogger(FXCMFixOrderMessageHandler.class);
 
-    public FXCMFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
-        super(orderRegistry, serverEngine);
+    public FXCMFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+        super(orderExecutionService, transactionService, serverEngine);
     }
 
     @Override
@@ -66,6 +67,14 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
         if (LOGGER.isErrorEnabled() && executionReport.isSetClOrdID()) {
             String orderIntId = executionReport.getClOrdID().getValue();
             LOGGER.error("Cannot find open order with IntID {}", orderIntId);
+        }
+    }
+
+    @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Cannot re-state order with IntID {}", order.getIntId());
         }
     }
 
@@ -98,6 +107,12 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
         ExecType execType = executionReport.getExecType();
         return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
+    protected boolean isOrderRestated(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.RESTATED;
     }
 
     @Override
@@ -177,6 +192,11 @@ public class FXCMFixOrderMessageHandler extends AbstractFix44OrderMessageHandler
 
             return null;
         }
+    }
+
+    @Override
+    protected String getDefaultBroker() {
+        return null;
     }
 
     private static Status getStatus(OrdStatus ordStatus, ExecType execType, CumQty cumQty) {

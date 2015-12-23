@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.cnx;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.cnx.CNXFixOrderMessageFactory;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.config.CommonConfig;
@@ -38,15 +39,30 @@ import quickfix.fix44.OrderCancelRequest;
 public class CNXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
     public CNXFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(OrderServiceType.CNX_FIX.name(), fixAdapter, new CNXFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, stateHolder, new CNXFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public CNXFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig) {
+
+        this(OrderServiceType.CNX_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig);
     }
 
     @Override

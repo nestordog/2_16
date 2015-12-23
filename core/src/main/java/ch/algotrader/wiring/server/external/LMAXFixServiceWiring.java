@@ -22,16 +22,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.adapter.ExternalSessionStateHolder;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.adapter.lmax.LMAXTickerIdGenerator;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
+import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderRegistry;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
+import ch.algotrader.service.lmax.LMAXDropCopyAllocationServiceImpl;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
 import ch.algotrader.service.lmax.LMAXFixOrderServiceImpl;
 
@@ -42,16 +46,27 @@ import ch.algotrader.service.lmax.LMAXFixOrderServiceImpl;
 public class LMAXFixServiceWiring {
 
     @Profile("lMAXFix")
+    @Bean(name = "lMAXFixFixDropCopyAllocator")
+    public DropCopyAllocator createLMAXDropCopyAllocator(
+            final SecurityDao securityDao,
+            final AccountDao accountDao,
+            final StrategyDao strategyDao) {
+
+        return new LMAXDropCopyAllocationServiceImpl(securityDao, accountDao, strategyDao);
+    }
+
+    @Profile("lMAXFix")
     @Bean(name = "lMAXFixOrderService")
     public ExternalOrderService createLMAXFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder lMAXOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new LMAXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new LMAXFixOrderServiceImpl(fixAdapter, lMAXOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("lMAXMarketData")

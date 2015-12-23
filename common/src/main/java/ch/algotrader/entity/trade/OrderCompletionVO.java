@@ -32,7 +32,9 @@ public class OrderCompletionVO implements Serializable {
 
     private final String orderIntId;
 
-    private final String strategy;
+    private final String strategyName;
+
+    private final long securityId;
 
     private final Date dateTime;
 
@@ -54,10 +56,11 @@ public class OrderCompletionVO implements Serializable {
 
     private final double executionTime;
 
-    public OrderCompletionVO(final String orderIntId, final String strategy, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
+    public OrderCompletionVO(final String orderIntId, final String strategyName, final long securityId, final Date dateTime, final Status status, final long filledQuantity, final long remainingQuantity, final BigDecimal avgPrice,
                              final BigDecimal grossValue, final BigDecimal netValue, final BigDecimal totalCharges, final int fills, final double executionTime) {
         this.orderIntId = orderIntId;
-        this.strategy = strategy;
+        this.strategyName = strategyName;
+        this.securityId = securityId;
         this.dateTime = dateTime;
         this.status = status;
         this.filledQuantity = filledQuantity;
@@ -81,7 +84,14 @@ public class OrderCompletionVO implements Serializable {
      * Name of the corresponding strategy.
      */
     public String getStrategy() {
-        return strategy;
+        return this.strategyName;
+    }
+
+    /**
+     * ID of the corresponding security.
+     */
+    public long getSecurityId() {
+        return this.securityId;
     }
 
     /**
@@ -174,7 +184,7 @@ public class OrderCompletionVO implements Serializable {
         buffer.append(",orderIntId=");
         buffer.append(this.orderIntId);
         buffer.append(",strategy=");
-        buffer.append(this.strategy);
+        buffer.append(this.strategyName);
         buffer.append(",filledQuantity=");
         buffer.append(this.remainingQuantity);
         buffer.append(",remainingQuantity=");

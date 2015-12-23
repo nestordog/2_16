@@ -27,14 +27,15 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
-import ch.algotrader.adapter.tt.TTFixMarketDataMessageHandler;
+import ch.algotrader.adapter.tt.TTFixMarketAndReferenceDataMessageHandler;
 import ch.algotrader.adapter.tt.TTFixOrderMessageHandler;
-import ch.algotrader.adapter.tt.TTFixSecurityDefinitionMessageHandler;
 import ch.algotrader.adapter.tt.TTLogonMessageHandler;
 import ch.algotrader.adapter.tt.TTPendingRequests;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -43,7 +44,7 @@ import quickfix.SessionSettings;
 @Configuration
 public class TTFixWiring {
 
-    @Profile({"tTFix", "tTReferenceData", "tTMarketData"})
+    @Profile({"tTFix", "tTMarketData"})
     @Bean(name = "tTLogonMessageHandler")
     public TTLogonMessageHandler createTTLogonMessageHandler(final SessionSettings fixSessionSettings) {
 
@@ -63,43 +64,24 @@ public class TTFixWiring {
     @Profile("tTFix")
     @Bean(name = "tTOrderApplicationFactory")
     public FixApplicationFactory createTTOrderApplicationFactory(
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
+            final LookupService lookupService,
             final Engine serverEngine,
             final TTLogonMessageHandler tTLogonMessageHandler,
             final ExternalSessionStateHolder tTOrderSessionStateHolder,
             final DropCopyAllocator tTFixDropCopyAllocator) {
 
-        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderRegistry, serverEngine, tTFixDropCopyAllocator);
-
+        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderExecutionService, transactionService,
+                lookupService, serverEngine, tTFixDropCopyAllocator);
         return new DefaultFixApplicationFactory(tTFixOrderMessageHandler, tTLogonMessageHandler, tTOrderSessionStateHolder);
     }
 
-    @Profile("tTReferenceData")
-    @Bean(name = "tTSecurityDefinitionSessionStateHolder")
-    public ExternalSessionStateHolder createTTSecurityDefinitionSessionStateHolder(
-            @Value("${fix.tt.refdata.sessionQualifier}")
-            final String sessionQualifier,
-            final EventDispatcher eventDispatcher) {
-
-        return new DefaultFixSessionStateHolder(sessionQualifier, eventDispatcher);
-    }
-
-    @Profile("tTReferenceData")
+    @Profile("tTMarketData")
     @Bean(name = "tTPendingRequests")
     public TTPendingRequests createTTPendingRequests() {
 
         return new TTPendingRequests();
-    }
-
-    @Profile("tTReferenceData")
-    @Bean(name = "tTSecurityDefinitionApplicationFactory")
-    public FixApplicationFactory createTTSecurityDefinitionApplicationFactory(
-            final TTPendingRequests tTPendingRequests,
-            final TTLogonMessageHandler tTLogonMessageHandler,
-            final ExternalSessionStateHolder tTSecurityDefinitionSessionStateHolder) {
-
-        TTFixSecurityDefinitionMessageHandler tTSecurityDefinitionMessageHandler = new TTFixSecurityDefinitionMessageHandler(tTPendingRequests);
-        return new DefaultFixApplicationFactory(tTSecurityDefinitionMessageHandler, tTLogonMessageHandler, tTSecurityDefinitionSessionStateHolder);
     }
 
     @Profile("tTMarketData")
@@ -116,10 +98,11 @@ public class TTFixWiring {
     @Bean(name = "tTMarketDataApplicationFactory")
     public FixApplicationFactory createTTMarketDataApplicationFactory(
             final Engine serverEngine,
+            final TTPendingRequests tTPendingRequests,
             final TTLogonMessageHandler tTLogonMessageHandler,
             final ExternalSessionStateHolder tTMarketDataSessionStateHolder) {
 
-        TTFixMarketDataMessageHandler tTFixMarketDataMessageHandler = new TTFixMarketDataMessageHandler(serverEngine);
+        TTFixMarketAndReferenceDataMessageHandler tTFixMarketDataMessageHandler = new TTFixMarketAndReferenceDataMessageHandler(serverEngine, tTPendingRequests);
 
         return new DefaultFixApplicationFactory(tTFixMarketDataMessageHandler, tTLogonMessageHandler, tTMarketDataSessionStateHolder);
     }

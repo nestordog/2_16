@@ -70,6 +70,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.DateTimeLegacy;
@@ -420,11 +421,11 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(final String strategyName) {
+    public List<Subscription> getSubscriptionsByStrategy(final String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        List<Subscription> subscriptions = this.cacheManager.find(Subscription.class, "Subscription.findByStrategyInclProps", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
+        List<Subscription> subscriptions = this.cacheManager.find(Subscription.class, "Subscription.findByStrategy", QueryType.BY_NAME, new NamedParam("strategyName", strategyName));
 
         // initialize components
         for (Subscription subscription : subscriptions) {
@@ -726,10 +727,28 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public boolean hasOpenPosition(long securityId, String strategyName) {
+
+        Position position = getPositionBySecurityAndStrategy(securityId, strategyName);
+        return position != null && position.getDirection() != Direction.FLAT;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Transaction getTransaction(final long id) {
 
         return this.cacheManager.get(TransactionImpl.class, id);
+    }
 
+    @Override
+    public Transaction getTransactionByExtId(final String extId) {
+
+        Validate.notEmpty(extId, "ExtId is empty");
+
+        return this.cacheManager.findUnique(TransactionImpl.class, "Transaction.findByExtId", QueryType.BY_NAME,
+                new NamedParam("extId", extId));
     }
 
     @Override
@@ -748,6 +767,16 @@ public class LookupServiceImpl implements LookupService {
         LocalDate today = LocalDate.now();
         return this.cacheManager.find(Transaction.class, "Transaction.findDailyTransactionsByStrategy", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName), new NamedParam("curdate", DateTimeLegacy.toLocalDate(today)));
+    }
+
+    @Override
+    public List<Transaction> getTradesByMinDateAndMaxDate(final Date minDate, final Date maxDate) {
+
+        Validate.notNull(minDate, "minDate is null");
+        Validate.notNull(maxDate, "maxDate is null");
+
+        return this.cacheManager.find(Transaction.class, "Transaction.findTradesByMinDateAndMaxDate", QueryType.BY_NAME,
+                new NamedParam("minDate", minDate), new NamedParam("maxDate", maxDate));
     }
 
     @Override

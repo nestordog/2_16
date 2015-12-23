@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ib.IBFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -39,7 +40,9 @@ import quickfix.fix42.OrderCancelRequest;
 public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix42OrderService {
 
     public IBFixOrderServiceImpl(
+            final String orderServiceType,
             final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
@@ -47,8 +50,22 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        super(OrderServiceType.IB_FIX.name(), fixAdapter, new IBFixOrderMessageFactory(iBConfig),
+        super(orderServiceType, fixAdapter, stateHolder, new IBFixOrderMessageFactory(iBConfig),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+    }
+
+    public IBFixOrderServiceImpl(
+            final FixAdapter fixAdapter,
+            final ExternalSessionStateHolder stateHolder,
+            final OrderRegistry orderRegistry,
+            final OrderPersistenceService orderPersistenceService,
+            final OrderDao orderDao,
+            final AccountDao accountDao,
+            final CommonConfig commonConfig,
+            final IBConfig iBConfig) {
+
+        this(OrderServiceType.IB_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+                orderDao, accountDao, commonConfig, iBConfig);
     }
 
     @Override

@@ -74,10 +74,16 @@ public class EngineManagerImpl implements EngineManager {
     }
 
     @Override
-    public Engine getEngine(final String engineName) {
+    public Engine lookup(String engineName) {
 
         Validate.notEmpty(engineName, "Engine name is empty");
-        Engine engine = this.engineMap.get(engineName);
+        return this.engineMap.get(engineName);
+    }
+
+    @Override
+    public Engine getEngine(final String engineName) {
+
+        Engine engine = lookup(engineName);
         if (engine == null) {
             throw new IllegalStateException("Unknown engine: " + engineName);
         }

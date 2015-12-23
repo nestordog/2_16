@@ -90,6 +90,8 @@ import ch.algotrader.service.MeasurementService;
 import ch.algotrader.service.MeasurementServiceImpl;
 import ch.algotrader.service.OptionService;
 import ch.algotrader.service.OptionServiceImpl;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.OrderExecutionServiceImpl;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.OrderPersistenceServiceImpl;
 import ch.algotrader.service.OrderService;
@@ -267,10 +269,11 @@ public class ServiceWiring {
 
     @Bean(name = "tickPersister")
     public TickPersister createTickPersistEventPropagator(
+            final Engine serverEngine,
             final LookupService lookupService,
             final MarketDataService marketDataService) {
 
-        return new TickPersister(lookupService, marketDataService);
+        return new TickPersister(serverEngine, lookupService, marketDataService);
     }
 
     @Bean(name = "orderPersistenceService")
@@ -298,10 +301,20 @@ public class ServiceWiring {
         return new DefaultOrderRegistry();
     }
 
+    @Bean(name = "orderExecutionService")
+    public OrderExecutionService createOrderExecutionService(final CommonConfig commonConfig,
+           final OrderPersistenceService orderPersistService,
+           final OrderRegistry orderRegistry,
+           final EventDispatcher eventDispatcher,
+           final EngineManager engineManager,
+           final Engine serverEngine) {
+
+        return new OrderExecutionServiceImpl(commonConfig, orderPersistService, orderRegistry, eventDispatcher, engineManager, serverEngine);
+    }
+
     @Bean(name = "orderService")
     public OrderService createOrderService(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
-            final OrderPersistenceService orderPersistService,
             final MarketDataCache marketDataCache,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
@@ -320,7 +333,7 @@ public class ServiceWiring {
         Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
-        return new OrderServiceImpl(commonConfig, sessionFactory, orderPersistService, marketDataCache, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
+        return new OrderServiceImpl(commonConfig, sessionFactory, marketDataCache, orderDao, orderStatusDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
                 orderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
@@ -395,10 +408,11 @@ public class ServiceWiring {
 
     @Bean(name = "eventPropagator")
     public EventPropagator createEventPropagator(
+            final OrderExecutionService orderExecutionService,
             final EventDispatcher eventDispatcher,
             final CommonConfig commonConfig) {
 
-        return new EventPropagator(eventDispatcher, commonConfig);
+        return new EventPropagator(orderExecutionService, eventDispatcher, commonConfig);
     }
 
     @Bean(name = "lazyLoaderService")

@@ -18,8 +18,8 @@
 package ch.algotrader.adapter.fix;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.Order;
 import quickfix.Message;
+import quickfix.Session;
 
 /**
  * Main entry point to Fix sessions.
@@ -27,6 +27,11 @@ import quickfix.Message;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public interface FixAdapter {
+
+    /**
+     * Returns session with the given identifier.
+     */
+    Session getSession(String sessionQualifier) throws FixApplicationException;
 
     /**
      * creates an individual session
@@ -51,6 +56,11 @@ public interface FixAdapter {
     void openSession(String sessionQualifier) throws FixApplicationException;
 
     /**
+     * Closes session with the given identifier if open.
+     */
+    void closeSession(String sessionQualifier) throws FixApplicationException;
+
+    /**
      * sends a message to the designated session for the given account
      */
     void sendMessage(Message message, Account account) throws FixApplicationException;
@@ -64,11 +74,6 @@ public interface FixAdapter {
      * Gets the next {@code orderId} for the specified {@code account}
      */
     String getNextOrderId(Account account);
-
-    /**
-     * Gets the next {@code orderIdVersion} based on the specified {@code order}
-     */
-    String getNextOrderIdVersion(Order order);
 
     /**
      * Sets the current order count for the given session qualifier.

@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import ch.algotrader.enumeration.Status;
@@ -26,7 +27,9 @@ import ch.algotrader.enumeration.Status;
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class ExecutionStatusVO {
+public class ExecutionStatusVO implements Serializable {
+
+    private static final long serialVersionUID = 4573998159302461630L;
 
     private final String intId;
     private final Status status;

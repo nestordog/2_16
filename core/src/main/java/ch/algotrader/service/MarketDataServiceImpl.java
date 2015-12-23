@@ -141,9 +141,15 @@ public class MarketDataServiceImpl implements MarketDataService {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Initializing subscriptions for data feed {}", feedType);
             }
-            final Set<Security> securities = new LinkedHashSet<>();
-            for (final Engine engine : this.engineManager.getEngines()) {
-                securities.addAll(this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, engine.getStrategyName()));
+            Set<Security> securities = new LinkedHashSet<>();
+            for (Engine engine : this.engineManager.getEngines()) {
+                String strategyName = engine.getStrategyName();
+                List<Security> strategySubscribed = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, strategyName);
+                for (Security security : strategySubscribed) {
+
+                    this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
+                    securities.add(security);
+                }
             }
 
             for (Security security : securities) {

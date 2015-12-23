@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.ManagedFixAdapter;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
@@ -39,13 +40,14 @@ public class JPMFixServiceWiring {
     @Bean(name = "jPMFixOrderService")
     public JPMFixOrderServiceImpl createJPMFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder jPMOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new JPMFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new JPMFixOrderServiceImpl(fixAdapter, jPMOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
 }

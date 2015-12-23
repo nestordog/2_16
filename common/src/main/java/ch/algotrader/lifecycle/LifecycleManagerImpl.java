@@ -95,6 +95,10 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
         engine.deployAllModules();
 
         runServices();
+
+        broadcastLocal(LifecyclePhase.START);
+
+        broadcastLocalOnShutdown(LifecyclePhase.EXIT);
     }
 
     @Override

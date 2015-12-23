@@ -83,7 +83,7 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
         Validate.notNull(security, "Security is null");
 
         if (!this.sessionStateHolder.isLoggedOn()) {
-            throw new ServiceException("IB is not logged on to subscribe " + security);
+            throw new ServiceException("IB session is not logged on");
         }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)

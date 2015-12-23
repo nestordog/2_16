@@ -26,6 +26,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.esper.Engine;
 
 /**
  * A utility class that propagates tick persistence events to {@link MarketDataService}.
@@ -34,12 +35,15 @@ import ch.algotrader.entity.marketData.TickVO;
  */
 public class TickPersister {
 
+    private final Engine serverEngine;
     private final LookupService lookupService;
     private final MarketDataService marketDataService;
 
     public TickPersister(
+            final Engine serverEngine,
             final LookupService lookupService,
             final MarketDataService marketDataService) {
+        this.serverEngine = serverEngine;
         this.lookupService = lookupService;
         this.marketDataService = marketDataService;
     }
@@ -59,7 +63,7 @@ public class TickPersister {
         tick.setVolBid(event.getVolBid());
 
         // get the current Date rounded to MINUTES
-        Date date = DateUtils.round(event.getDateTime() != null ? event.getDateTime() : new Date(), Calendar.MINUTE);
+        Date date = DateUtils.round(serverEngine.getCurrentTime(), Calendar.MINUTE);
         tick.setDateTime(date);
 
         this.marketDataService.persistTick(tick);

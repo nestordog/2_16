@@ -342,8 +342,8 @@ public interface ManagementService {
     public void checkIsAlive();
 
     /**
-     * Shutdown this JVM
+     * Exits JVM
      */
-    public void shutdown();
+    public void exitVM();
 
 }

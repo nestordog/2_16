@@ -17,12 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade;
 
+import java.io.Serializable;
+
 /**
 * Details of an open order.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class OrderDetailsVO {
+public class OrderDetailsVO implements Serializable {
+
+    private static final long serialVersionUID = 8772503592015087599L;
 
     private final Order order;
     private final ExecutionStatusVO executionStatus;

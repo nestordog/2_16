@@ -56,7 +56,6 @@ import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -91,8 +90,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private final SessionFactory sessionFactory;
 
-    private final OrderPersistenceService orderPersistService;
-
     private final MarketDataCache marketDataCache;
 
     private final OrderDao orderDao;
@@ -121,7 +118,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     public OrderServiceImpl(final CommonConfig commonConfig,
             final SessionFactory sessionFactory,
-            final OrderPersistenceService orderPersistService,
             final MarketDataCache marketDataCache,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
@@ -138,7 +134,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
@@ -154,7 +149,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.commonConfig = commonConfig;
         this.sessionFactory = sessionFactory;
-        this.orderPersistService = orderPersistService;
         this.marketDataCache = marketDataCache;
         this.orderDao = orderDao;
         this.orderStatusDao = orderStatusDao;
@@ -329,10 +323,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.orderRegistry.add(order);
 
-        // progapate the order to all corresponding esper engines
         propagateOrder(order);
-
-        this.serverEngine.sendEvent(order);
     }
 
     private void sendSimpleOrder(final SimpleOrder order) {
@@ -400,29 +391,32 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private void cancelAlgoOrder(AlgoOrder order) {
 
-        // cancel existing child orders
+        String algoOrderId = order.getIntId();
+        ExecutionStatusVO executionStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+        if (executionStatus != null) {
+            OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+            algoOrderStatus.setIntId(algoOrderId);
+            algoOrderStatus.setStatus(Status.CANCELED);
+            algoOrderStatus.setFilledQuantity(executionStatus.getFilledQuantity());
+            algoOrderStatus.setRemainingQuantity(executionStatus.getRemainingQuantity());
+            algoOrderStatus.setOrder(order);
+
+            this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                    algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+            propagateOrderStatus(algoOrderStatus);
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("cancelled algo order: {}", order);
+            }
+        }
+
         Collection<Order> openOrders = this.orderRegistry.getOpenOrdersByParentIntId(order.getIntId());
-        openOrders.forEach(childOrder -> {
-            Account account = order.getAccount();
-            Validate.notNull(account, "missing account for order: " + order);
-            getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
-        });
-
-        ExecutionStatusVO executionStatus = this.orderRegistry.getStatusByIntId(order.getIntId());
-
-        // assemble a new OrderStatus Entity
-        OrderStatus orderStatus = OrderStatus.Factory.newInstance();
-        orderStatus.setIntId(order.getIntId());
-        orderStatus.setStatus(Status.CANCELED);
-        orderStatus.setFilledQuantity(executionStatus != null ? executionStatus.getFilledQuantity() : 0L);
-        orderStatus.setRemainingQuantity(executionStatus != null ? executionStatus.getRemainingQuantity() : 0L);
-        orderStatus.setOrder(order);
-
-        // send the orderStatus
-        this.serverEngine.sendEvent(orderStatus);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("cancelled algo order: {}", order);
+        for (Order childOrder: openOrders) {
+            if (childOrder instanceof SimpleOrder) {
+                Account account = order.getAccount();
+                getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
+            }
         }
     }
 
@@ -459,6 +453,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
     public void cancelAllOrders() {
 
         final List<Order> orders = this.orderRegistry.getAllOpenOrders();
+        if (LOGGER.isInfoEnabled() && !orders.isEmpty()) {
+            LOGGER.info("Canceling {} open orders", orders.size());
+        }
         for (Order order: orders) {
             cancelOrder(order);
         }
@@ -501,6 +498,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.engineManager.getCurrentEPTime());
+        }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
         externalOrderService.modifyOrder(order);
@@ -534,8 +534,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
     private void propagateOrder(final Order order) {
 
-        Validate.notNull(order, "Order is null");
-
         // send the order into the AlgoTrader Server engine to be correlated with fills
         this.serverEngine.sendEvent(order);
 
@@ -547,64 +545,18 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void propagateOrderStatus(final OrderStatus orderStatus) {
+    private void propagateOrderStatus(final OrderStatus orderStatus) {
 
-        Validate.notNull(orderStatus, "Order status is null");
+        // send the order into the AlgoTrader Server engine to be correlated with fills
+        this.serverEngine.sendEvent(orderStatus);
 
-        String intId = orderStatus.getIntId();
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
-        if (order == null) {
-            throw new ServiceException("Open order with IntID " + intId + " not found");
-        }
-
-        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
-
-        // send the fill to the strategy that placed the corresponding order
+        // also send the order to the strategy that placed the order
+        Order order = orderStatus.getOrder();
         Strategy strategy = order.getStrategy();
         if (!strategy.isServer()) {
 
             this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
         }
-
-        if (!this.commonConfig.isSimulation()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("propagated orderStatus: {}", orderStatus);
-            }
-            // only store OrderStatus for non AlgoOrders
-            // and ignore order status message with synthetic (non-positive) sequence number
-            if (orderStatus.getSequenceNumber() > 0 && !(order instanceof AlgoOrder)) {
-
-                if (orderStatus.getDateTime() == null) {
-                    if (orderStatus.getExtDateTime() != null) {
-                        orderStatus.setDateTime(orderStatus.getExtDateTime());
-                    } else {
-                        orderStatus.setDateTime(this.serverEngine.getCurrentTime());
-                    }
-                }
-                this.orderPersistService.persistOrderStatus(orderStatus);
-            }
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void propagateOrderCompletion(final OrderCompletionVO orderCompletion) {
-
-        Validate.notNull(orderCompletion, "Order completion is null");
-
-        // send the fill to the strategy that placed the corresponding order
-        Strategy strategy = this.strategyDao.findByName(orderCompletion.getStrategy());
-        if (!strategy.isServer()) {
-            this.eventDispatcher.sendEvent(orderCompletion.getStrategy(), orderCompletion);
-        }
-
     }
 
     /**
@@ -629,6 +581,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notEmpty(intId, "Order IntId is empty");
 
         return this.orderRegistry.getStatusByIntId(intId);
+    }
+
+    @Override
+    public Order getOpenOrderByIntId(final String intId) {
+
+        Validate.notEmpty(intId, "Order IntId is empty");
+
+        return this.orderRegistry.getOpenOrderByIntId(intId);
     }
 
     /**
@@ -706,7 +666,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         return pendingOrderMap;
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
     @Override
     public void init() {
 
@@ -733,7 +692,8 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
             OrderStatus orderStatus = entry.getValue();
             if (orderStatus != null) {
-                this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+                this.orderRegistry.updateExecutionStatus(order.getIntId(), order.getExtId(), orderStatus.getStatus(),
+                        orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
             }
         }
     }
@@ -807,6 +767,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         order.setQuantity(orderVO.getQuantity());
         order.setTif(orderVO.getTif());
         order.setTifDateTime(orderVO.getTifDateTime());
+        order.setDateTime(orderVO.getDateTime());
 
         order.setStrategy(this.strategyDao.load(orderVO.getStrategyId()));
         order.initializeStrategy(HibernateInitializer.INSTANCE);

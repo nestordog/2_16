@@ -26,12 +26,14 @@ import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
+import ch.algotrader.adapter.fix.DropCopyAllocator;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.lmax.LMAXFixMarketDataMessageHandler;
 import ch.algotrader.adapter.lmax.LMAXFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -60,12 +62,14 @@ public class LMAXFixWiring {
     @Profile("lMAXFix")
     @Bean(name = "lMAXOrderApplicationFactory")
     public FixApplicationFactory createLMAXOrderApplicationFactory(
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final Engine serverEngine,
             final DefaultLogonMessageHandler lMAXLogonMessageHandler,
-            final ExternalSessionStateHolder lMAXOrderSessionStateHolder) {
+            final ExternalSessionStateHolder lMAXOrderSessionStateHolder,
+            final DropCopyAllocator lMAXDropCopyAllocator) {
 
-        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderRegistry, serverEngine);
+        LMAXFixOrderMessageHandler lMAXFixOrderMessageHandler = new LMAXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine, lMAXDropCopyAllocator);
         return new DefaultFixApplicationFactory(lMAXFixOrderMessageHandler, lMAXLogonMessageHandler, lMAXOrderSessionStateHolder);
     }
 

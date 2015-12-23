@@ -31,7 +31,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
@@ -51,8 +52,8 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(DCFixOrderMessageHandler.class);
 
-    public DCFixOrderMessageHandler(final OrderRegistry orderRegistry, final Engine serverEngine) {
-        super(orderRegistry, serverEngine);
+    public DCFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+        super(orderExecutionService, transactionService, serverEngine);
     }
 
     @Override
@@ -75,6 +76,14 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
     }
 
     @Override
+    protected void handleRestated(final ExecutionReport executionReport, final Order order) throws FieldNotFound {
+
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error("Cannot re-state order with IntID {}", order.getIntId());
+        }
+    }
+
+    @Override
     protected boolean isOrderRejected(final ExecutionReport executionReport) throws FieldNotFound {
 
         OrdStatus ordStatus = executionReport.getOrdStatus();
@@ -86,6 +95,12 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
         ExecType execType = executionReport.getExecType();
         return execType.getValue() == ExecType.REPLACE;
+    }
+
+    @Override
+    protected boolean isOrderRestated(final ExecutionReport executionReport) throws FieldNotFound {
+        ExecType execType = executionReport.getExecType();
+        return execType.getValue() == ExecType.RESTATED;
     }
 
     @Override
@@ -157,6 +172,11 @@ public class DCFixOrderMessageHandler extends AbstractFix44OrderMessageHandler {
 
             return null;
         }
+    }
+
+    @Override
+    protected String getDefaultBroker() {
+        return null;
     }
 
     private static Status getStatus(OrdStatus ordStatus, CumQty cumQty) {

@@ -352,7 +352,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         } else {
 
             // for strategies iterate over all subscriptions
-            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategyInclComponentsAndProps(this.engine.getStrategyName());
+            List<Subscription> subscriptions = this.lookupService.getSubscriptionsByStrategy(this.engine.getStrategyName());
             for (Subscription subscription : subscriptions) {
 
                 Security security = subscription.getSecurity();
@@ -935,15 +935,11 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Shutdown this JVM")
+    @ManagedOperation(description = "Exits JVM.")
     @ManagedOperationParameters({})
-    public void shutdown() {
+    public void exitVM() {
 
-        // cancel all orders if we called from the AlgoTrader Server
-        if (StrategyImpl.SERVER.equals(this.engine.getStrategyName())) {
-            this.orderService.cancelAllOrders();
-        }
-
+        System.exit(0);
     }
 
     private long getSecurityId(String securityString) {

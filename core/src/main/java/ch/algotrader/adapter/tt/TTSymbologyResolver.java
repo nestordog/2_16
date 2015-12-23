@@ -33,6 +33,7 @@ import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.MaturityMonthYear;
 import quickfix.field.PutOrCall;
 import quickfix.field.SecurityExchange;
+import quickfix.field.SecurityID;
 import quickfix.field.SecurityType;
 import quickfix.field.StrikePrice;
 import quickfix.field.Symbol;
@@ -65,14 +66,19 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
+        String exchangeCode = exchange.getCode();
+        String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
+        if (security.getTtid() != null) {
+            message.set(new SecurityID(security.getTtid()));
+        }
 
         if (security instanceof Option) {
 
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new SecurityExchange(exchange.getCode()));
-            message.set(new Symbol(securityFamily.getSymbolRoot(Broker.TT.name())));
+            message.set(new SecurityExchange(exchangeCode));
+            message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
             message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
@@ -83,8 +89,8 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new SecurityExchange(exchange.getCode()));
-            message.set(new Symbol(securityFamily.getSymbolRoot(Broker.TT.name())));
+            message.set(new SecurityExchange(exchangeCode));
+            message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
 
         } else {
@@ -98,14 +104,19 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
+        String exchangeCode = exchange.getCode();
+        String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
+        if (security.getTtid() != null) {
+            message.set(new SecurityID(security.getTtid()));
+        }
 
         if (security instanceof Option) {
 
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new SecurityExchange(exchange.getCode()));
-            message.set(new Symbol(securityFamily.getSymbolRoot(Broker.TT.name())));
+            message.set(new SecurityExchange(exchangeCode));
+            message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
             message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
@@ -116,8 +127,8 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             Future future = (Future) security;
 
             message.set(new SecurityType(SecurityType.FUTURE));
-            message.set(new SecurityExchange(exchange.getCode()));
-            message.set(new Symbol(securityFamily.getSymbolRoot(Broker.TT.name())));
+            message.set(new SecurityExchange(exchangeCode));
+            message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
 
         } else {

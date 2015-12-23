@@ -19,6 +19,7 @@ package ch.algotrader.dao.security;
 
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.commons.lang.Validate;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -109,6 +110,14 @@ public class SecurityDaoImpl extends AbstractDao<Security> implements SecurityDa
         Validate.notEmpty(ttid, "ttid is empty");
 
         return findUniqueCaching("Security.findByTtid", QueryType.BY_NAME, new NamedParam("ttid", ttid));
+    }
+
+    @Override
+    public Security findByLmaxid(String lmaxid) {
+
+        Validate.notEmpty(lmaxid, "Lmaxid is empty");
+
+        return findUniqueCaching("Security.findByLmaxid", QueryType.BY_NAME, new NamedParam("lmaxid", lmaxid));
     }
 
     @Override

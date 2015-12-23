@@ -52,7 +52,8 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.fix44.NewOrderSingle;
@@ -63,7 +64,8 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
     private EventDispatcher eventDispatcher;
-    private OrderRegistry orderRegistry;
+    private OrderExecutionService orderExecutionService;
+    private TransactionService transactionService;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
 
@@ -95,8 +97,9 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXT");
 
-        this.orderRegistry = Mockito.mock(OrderRegistry.class);
-        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderRegistry, engine);
+        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
+        this.transactionService = Mockito.mock(TransactionService.class);
+        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new CNXFixOrderMessageFactory();
 
@@ -130,7 +133,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
 
         this.session.send(message);
 
@@ -219,7 +222,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -239,7 +242,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -282,7 +285,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId1)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
 
         this.session.send(message1);
 
@@ -304,7 +307,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId2)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -326,7 +329,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
 
-        Mockito.when(this.orderRegistry.getByIntId(orderId3)).thenReturn(order);
+        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId3)).thenReturn(order);
 
         this.session.send(message3);
 

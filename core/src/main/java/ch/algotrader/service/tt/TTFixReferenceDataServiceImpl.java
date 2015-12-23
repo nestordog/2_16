@@ -19,13 +19,19 @@ package ch.algotrader.service.tt;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Comparator;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAccessor;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +54,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.InitializingServiceType;
@@ -62,6 +67,7 @@ import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
+import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
 /**
@@ -72,6 +78,11 @@ import quickfix.fix42.SecurityDefinitionRequest;
 public class TTFixReferenceDataServiceImpl implements ReferenceDataService, InitializingServiceI {
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixReferenceDataServiceImpl.class);
+
+    private static final DateTimeFormatter E_BRENT_SYMBOL = new DateTimeFormatterBuilder()
+            .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+            .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
+            .toFormatter(Locale.ROOT);
 
     private final FixAdapter fixAdapter;
     private final ExternalSessionStateHolder stateHolder;
@@ -114,10 +125,11 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(final long securityFamilyId) {
 
         if (!this.stateHolder.isLoggedOn()) {
-            throw new ServiceException("Fix session is not logged on to retrieve security definitions");
+            throw new ServiceException("Fix session is not logged on");
         }
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
@@ -126,7 +138,16 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
         }
 
         String requestId = this.requestIdGenerator.generateId(securityFamily);
-        SecurityDefinitionRequest request = this.requestFactory.create(requestId, securityFamily, "FUT");
+        String securityType;
+        if (securityFamily instanceof OptionFamily) {
+            securityType = SecurityType.OPTION;
+        } else if (securityFamily instanceof FutureFamily) {
+            securityType = SecurityType.FUTURE;
+        } else {
+            securityType = SecurityType.NO_SECURITY_TYPE;
+        }
+
+        SecurityDefinitionRequest request = this.requestFactory.create(requestId, securityFamily, securityType);
 
         PromiseImpl<List<TTSecurityDefVO>> promise = new PromiseImpl<>(null);
         this.pendingRequests.addSecurityDefinitionRequest(requestId, promise);
@@ -157,19 +178,15 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
         }
     }
 
-    private static final Comparator<Security> SECURITY_COMPARATOR = (o1, o2) -> {
-        if (o1.getTtid() != null && o2.getTtid() != null) {
-            return o1.getTtid().compareTo(o2.getTtid());
-        } else {
-            return o1.getSymbol().compareTo(o2.getSymbol());
-        }
-    };
-
     private void retrieveOptions(final OptionFamily securityFamily, final List<TTSecurityDefVO> securityDefs) {
 
         // get all current options
-        Set<Option> existingOptions = new TreeSet<>(SECURITY_COMPARATOR);
-        existingOptions.addAll(this.optionDao.findBySecurityFamily(securityFamily.getId()));
+        List<Option> allOptions = this.optionDao.findBySecurityFamily(securityFamily.getId());
+        Map<String, Option> mapByTtid = allOptions.stream()
+                .filter(e -> e.getTtid() != null)
+                .collect(Collectors.toMap(e -> e.getTtid(), e -> e));
+        Map<String, Option> mapBySymbol = allOptions.stream()
+                .collect(Collectors.toMap(e -> e.getSymbol(), e -> e));
         for (TTSecurityDefVO securityDef: securityDefs) {
 
             String type = securityDef.getType();
@@ -177,38 +194,39 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                 throw new ServiceException("Unexpected security definition type for option: " + type);
             }
             String id = securityDef.getId();
-            OptionType optionType = securityDef.getOptionType();
-            BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
-                    securityDef.getStrikePrice(), securityFamily.getScale(Broker.TT.name())) : null;
-            LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
-            String desc = securityDef.getDescription();
+            if (!mapByTtid.containsKey(id)) {
+                OptionType optionType = securityDef.getOptionType();
+                BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
+                        securityDef.getStrikePrice(), securityFamily.getScale(Broker.TT.name())) : null;
+                LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
+                String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
 
-            String isin = OptionSymbol.getIsin(securityFamily, expiryDate, optionType, strike);
-            String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
-            String ric = OptionSymbol.getRic(securityFamily, expiryDate, optionType, strike);
+                if (!mapBySymbol.containsKey(symbol)) {
+                    String isin = securityFamily.getIsinRoot() != null ? OptionSymbol.getIsin(securityFamily, expiryDate, optionType, strike) : null;
+                    String ric = securityFamily.getRicRoot() != null ? OptionSymbol.getRic(securityFamily, expiryDate, optionType, strike) : null;
+                    String desc = securityDef.getDescription();
 
-            Option option = Option.Factory.newInstance();
-            option.setDescription(desc);
-            option.setSymbol(symbol);
-            option.setIsin(isin);
-            option.setRic(ric);
-            option.setTtid(id);
-            option.setType(optionType);
-            option.setStrike(strike);
-            option.setExpiration(DateTimeLegacy.toLocalDate(expiryDate));
-            option.setSecurityFamily(securityFamily);
-            option.setUnderlying(securityFamily.getUnderlying());
+                    Option option = Option.Factory.newInstance();
+                    option.setDescription(desc);
+                    option.setSymbol(symbol);
+                    option.setIsin(isin);
+                    option.setRic(ric);
+                    option.setTtid(id);
+                    option.setType(optionType);
+                    option.setStrike(strike);
+                    option.setExpiration(DateTimeLegacy.toLocalDate(expiryDate));
+                    option.setSecurityFamily(securityFamily);
+                    option.setUnderlying(securityFamily.getUnderlying());
 
-            // ignore options that already exist
-            if (!existingOptions.contains(option)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Creating option based on TT definition: {} {} {} {}",
-                            securityDef.getSymbol(),
-                            securityDef.getOptionType(),
-                            securityDef.getMaturityDate(),
-                            securityDef.getDescription());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Creating option based on TT definition: {} {} {} {}",
+                                securityDef.getSymbol(),
+                                securityDef.getOptionType(),
+                                securityDef.getMaturityDate(),
+                                securityDef.getDescription());
+                    }
+                    this.optionDao.save(option);
                 }
-                this.optionDao.save(option);
             }
         }
     }
@@ -216,8 +234,12 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     private void retrieveFutures(final FutureFamily securityFamily, final List<TTSecurityDefVO> securityDefs) {
 
         // get all current futures
-        Set<Future> existingFutures = new TreeSet<>(SECURITY_COMPARATOR);
-        existingFutures.addAll(this.futureDao.findBySecurityFamily(securityFamily.getId()));
+        List<Future> allFutures = this.futureDao.findBySecurityFamily(securityFamily.getId());
+        Map<String, Future> mapByTtid = allFutures.stream()
+                .filter(e -> e.getTtid() != null)
+                .collect(Collectors.toMap(e -> e.getTtid(), e -> e));
+        Map<String, Future> mapBySymbol = allFutures.stream()
+                .collect(Collectors.toMap(e -> e.getSymbol(), e -> e));
 
         for (TTSecurityDefVO securityDef: securityDefs) {
 
@@ -226,34 +248,56 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                 throw new ServiceException("Unexpected security definition type for future: " + type);
             }
             String id = securityDef.getId();
-            LocalDate maturityDate = securityDef.getMaturityDate();
-            LocalDate expiryDate = securityDef.getExpiryDate();
+            if (!mapByTtid.containsKey(id)) {
 
-            Future future = Future.Factory.newInstance();
+                LocalDate maturityDate = securityDef.getMaturityDate();
+                LocalDate expiration = maturityDate.withDayOfMonth(1);
 
-            String symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
-            String isin = FutureSymbol.getIsin(securityFamily, maturityDate);
-            String ric = FutureSymbol.getRic(securityFamily, maturityDate);
-
-            future.setSymbol(symbol);
-            future.setIsin(isin);
-            future.setRic(ric);
-            future.setTtid(id);
-            future.setExpiration(DateTimeLegacy.toLocalDate(maturityDate));
-            if (expiryDate != null) {
-                future.setFirstNotice(DateTimeLegacy.toLocalDate(expiryDate));
-                future.setLastTrading(DateTimeLegacy.toLocalDate(expiryDate));
-            }
-            future.setSecurityFamily(securityFamily);
-            future.setUnderlying(securityFamily.getUnderlying());
-
-            // ignore futures that already exist
-            if (!existingFutures.contains(future)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Creating future based on TT definition: {} {}",
-                            securityDef.getSymbol(), securityDef.getMaturityDate());
+                // IPE e-Brent has to be handled as a special case as it happens to have multiple contracts
+                // with the same expiration month
+                String symbol;
+                if ("IPE e-Brent".equalsIgnoreCase(securityFamily.getSymbolRoot()) && securityDef.getAltSymbol() != null) {
+                    String altSymbol = securityDef.getAltSymbol();
+                    if (altSymbol.startsWith("Q") || altSymbol.startsWith("Cal")) {
+                        continue;
+                    } else {
+                        try {
+                            TemporalAccessor parsed = E_BRENT_SYMBOL.parse(altSymbol);
+                            int year = parsed.get(ChronoField.YEAR);
+                            int month = parsed.get(ChronoField.MONTH_OF_YEAR);
+                            expiration = LocalDate.of(year, month, 1);
+                            symbol = FutureSymbol.getSymbol(securityFamily, expiration);
+                        } catch (DateTimeParseException ex) {
+                            throw new ServiceException("Unable to parse IPE e-Brent expiration month / year: " + altSymbol, ex);
+                        }
+                    }
+                } else {
+                    symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
                 }
-                this.futureDao.save(future);
+                if (!mapBySymbol.containsKey(symbol)) {
+                    Future future = Future.Factory.newInstance();
+                    String isin = securityFamily.getIsinRoot() != null ? FutureSymbol.getIsin(securityFamily, maturityDate) : null;
+                    String ric = securityFamily.getRicRoot() != null ? FutureSymbol.getRic(securityFamily, maturityDate) : null;
+
+                    future.setSymbol(symbol);
+                    future.setIsin(isin);
+                    future.setRic(ric);
+                    future.setTtid(id);
+                    future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+                    LocalDate expiryDate = securityDef.getExpiryDate();
+                    if (expiryDate != null) {
+                        future.setFirstNotice(DateTimeLegacy.toLocalDate(expiryDate));
+                        future.setLastTrading(DateTimeLegacy.toLocalDate(expiryDate));
+                    }
+                    future.setSecurityFamily(securityFamily);
+                    future.setUnderlying(securityFamily.getUnderlying());
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Creating future based on TT definition: {} {}",
+                                securityDef.getSymbol(), securityDef.getMaturityDate());
+                    }
+                    this.futureDao.save(future);
+                }
             }
         }
     }

@@ -40,10 +40,12 @@ import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ReferenceDataService;
+import ch.algotrader.service.fix.FixStatelessService;
 import ch.algotrader.service.tt.TTDropCopyAllocationServiceImpl;
 import ch.algotrader.service.tt.TTFixMarketDataServiceImpl;
 import ch.algotrader.service.tt.TTFixOrderServiceImpl;
 import ch.algotrader.service.tt.TTFixReferenceDataServiceImpl;
+import ch.algotrader.wiring.server.adapter.FixStateRequester;
 
 /**
  * Trading Technologies Fix service configuration.
@@ -65,26 +67,36 @@ public class TTFixServiceWiring {
     @Bean(name = "tTFixOrderService")
     public ExternalOrderService createTTFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder tTOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new TTFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new TTFixOrderServiceImpl(fixAdapter, tTOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
-    @Profile("tTReferenceData")
+    @Profile("tTFix")
+    @Bean(name = "tTFixStateRequester")
+    public FixStateRequester createTTFixStateRequester(
+            final FixStatelessService tTFixOrderService,
+            final ExternalSessionStateHolder tTOrderSessionStateHolder) {
+
+        return new FixStateRequester(tTFixOrderService, tTOrderSessionStateHolder);
+    }
+
+    @Profile("tTMarketData")
     @Bean(name = { "tTReferenceDataService", "referenceDataService" })
     public ReferenceDataService createTTReferenceDataService(
             final ManagedFixAdapter fixAdapter,
-            final ExternalSessionStateHolder tTSecurityDefinitionSessionStateHolder,
+            final ExternalSessionStateHolder tTMarketDataSessionStateHolder,
             final TTPendingRequests tTPendingRequests,
             final OptionDao optionDao,
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao) {
 
-        return new TTFixReferenceDataServiceImpl(fixAdapter, tTSecurityDefinitionSessionStateHolder, tTPendingRequests, optionDao, futureDao, securityFamilyDao);
+        return new TTFixReferenceDataServiceImpl(fixAdapter, tTMarketDataSessionStateHolder, tTPendingRequests, optionDao, futureDao, securityFamilyDao);
     }
 
     @Profile("tTMarketData")

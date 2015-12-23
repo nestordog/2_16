@@ -41,7 +41,8 @@ import ch.algotrader.adapter.ib.IBSessionStateHolder;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.TransactionService;
 
 /**
  * IB Native configuration.
@@ -109,14 +110,15 @@ public class IBNativeWiring {
             final IBSessionStateHolder iBSessionStateHolder,
             final AutoIncrementIdGenerator iBOrderIdGenerator,
             final IBPendingRequests iBPendingRequests,
-            final OrderRegistry orderRegistry,
+            final OrderExecutionService orderExecutionService,
+            final TransactionService transactionService,
             final IBExecutions ibExecutions,
             final LinkedBlockingDeque<AccountUpdate> iBAccountUpdateQueue,
             final LinkedBlockingDeque<Set<String>> iBAccountsQueue,
             final LinkedBlockingDeque<ch.algotrader.adapter.ib.Profile> iBProfilesQueue,
             final Engine serverEngine) {
-        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBOrderIdGenerator, orderRegistry, ibExecutions,
-                iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
+        return new DefaultIBMessageHandler(0, iBSessionStateHolder, iBPendingRequests, iBOrderIdGenerator, orderExecutionService, transactionService,
+                ibExecutions, iBAccountUpdateQueue, iBAccountsQueue, iBProfilesQueue, serverEngine);
     }
 
     @Bean(name = "iBSession")

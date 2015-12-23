@@ -17,11 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
@@ -36,8 +37,8 @@ class QueryCache {
 
     private static final Logger LOGGER = LogManager.getLogger(EntityCache.class);
 
-    private final Map<String, Set<QueryCacheKey>> spaces = new HashMap<>();
-    private final Map<QueryCacheKey, List<?>> queries = new HashMap<>();
+    private final Map<String, Set<QueryCacheKey>> spaces = new ConcurrentHashMap<>();
+    private final Map<QueryCacheKey, List<?>> queries = new ConcurrentHashMap<>();
 
     /**
      * attaches a query to the cache and associates specified spaces with the query
@@ -50,7 +51,7 @@ class QueryCache {
             Set<QueryCacheKey> space = this.spaces.get(spaceName);
             if (space == null) {
 
-                space = new HashSet<>();
+                space = Collections.newSetFromMap(new ConcurrentHashMap<>());
                 this.spaces.put(spaceName, space);
             }
             space.add(cacheKey);

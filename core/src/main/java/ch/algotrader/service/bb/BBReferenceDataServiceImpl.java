@@ -30,6 +30,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.bloomberglp.blpapi.Element;
 import com.bloomberglp.blpapi.Event;
@@ -116,6 +118,7 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(long securityFamilyId) {
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);

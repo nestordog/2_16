@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,6 +29,6 @@ public interface ReconciliationService {
      * invoke the reconciliation process by passing a File.
      * @param file Name of the File.
      */
-    public void reconcile(File file);
+    void reconcile(File file) throws IOException;
 
 }

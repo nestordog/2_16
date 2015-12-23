@@ -42,7 +42,7 @@ import quickfix.field.SecurityReqID;
 import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
-public class TTRequestDefinitionRequestTest extends FixApplicationTestBase {
+public class TTSecurityDefinitionMessageHandlerTest extends FixApplicationTestBase {
 
     private TTSecurityDefinitionRequestFactory requestFactory;
     private TTPendingRequests pendingRequests;
@@ -77,6 +77,34 @@ public class TTRequestDefinitionRequestTest extends FixApplicationTestBase {
 
         FutureFamily futureFamily = FutureFamily.Factory.newInstance();
         futureFamily.setSymbolRoot("CL");
+        futureFamily.setCurrency(Currency.USD);
+        futureFamily.setExchange(exchange);
+
+        SecurityDefinitionRequest request = this.requestFactory.create("test-1", futureFamily, SecurityType.FUTURE);
+
+        String requestId = request.getSecurityReqID().getValue();
+        Assert.assertNotNull(requestId);
+
+        PromiseImpl<List<TTSecurityDefVO>> promise = new PromiseImpl<>(null);
+        this.pendingRequests.addSecurityDefinitionRequest(requestId, promise);
+
+        this.session.send(request);
+
+        List<TTSecurityDefVO> securityDefs = promise.get(10, TimeUnit.SECONDS);
+        Assert.assertNotNull(securityDefs);
+        securityDefs.forEach(System.out::println);
+    }
+
+    @Test
+    public void testRequestBrentFutureDefinitions() throws Exception {
+
+        Exchange exchange = Exchange.Factory.newInstance();
+        exchange.setName("ICE_IPE");
+        exchange.setCode("ICE_IPE");
+        exchange.setTimeZone("US/Central");
+
+        FutureFamily futureFamily = FutureFamily.Factory.newInstance();
+        futureFamily.setSymbolRoot("IPE e-Brent");
         futureFamily.setCurrency(Currency.USD);
         futureFamily.setExchange(exchange);
 

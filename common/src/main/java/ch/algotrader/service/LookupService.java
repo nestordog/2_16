@@ -205,7 +205,7 @@ public interface LookupService {
      * Gets all Subscriptions by the defined {@code strategyName}. If corresponding Securities are
      * Combinations, all Components will be initialized as well. In additional all Properties are initialized
      */
-    public List<Subscription> getSubscriptionsByStrategyInclComponentsAndProps(String strategyName);
+    public List<Subscription> getSubscriptionsByStrategy(String strategyName);
 
     /**
      * Gets Subscriptions for the specified Strategy that do not have any open {@link Position
@@ -330,9 +330,19 @@ public interface LookupService {
     public List<Position> getOpenFXPositionsByStrategy(String strategyName);
 
     /**
+     * Returns true if the specified Strategy has an open position on the specified Security
+     */
+    public boolean hasOpenPosition(long securityId, String strategyName);
+
+    /**
      * Gets a Transaction by its {@code id}.
      */
     public Transaction getTransaction(long id);
+
+    /**
+     * Gets a Transaction by its {@code extId}.
+     */
+    public Transaction getTransactionByExtId(String id);
 
     /**
      * Finds all Transactions of the current day in descending {@code dateTime} order.
@@ -343,6 +353,11 @@ public interface LookupService {
      * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
      */
     public List<Transaction> getDailyTransactionsByStrategy(String strategyName);
+
+    /**
+     * Finds all trades (BUY and SELL transactions) for the given time frame.
+     */
+    public List<Transaction> getTradesByMinDateAndMaxDate(Date minDate, final Date maxDate);
 
     /**
      * Finds all orders of the current day in descending {@code dateTime} order.

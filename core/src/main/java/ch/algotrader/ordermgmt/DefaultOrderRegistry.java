@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
@@ -43,12 +44,16 @@ import ch.algotrader.enumeration.Status;
 public class DefaultOrderRegistry implements OrderRegistry {
 
     private final ConcurrentMap<String, Order> orderMap;
+    private final ConcurrentMap<String, String> extIdToIntIdMap;
     private final ConcurrentMap<String, OrderDetailsVO> orderExecMap;
+    private final ConcurrentMap<String, AtomicLong> revisionMap;
     private final Deque<OrderDetailsVO> completedOrders;
 
     public DefaultOrderRegistry() {
         this.orderMap = new ConcurrentHashMap<>();
+        this.extIdToIntIdMap = new ConcurrentHashMap<>();
         this.orderExecMap = new ConcurrentHashMap<>();
+        this.revisionMap = new ConcurrentHashMap<>();
         this.completedOrders = new ConcurrentLinkedDeque<>();
     }
 
@@ -61,10 +66,10 @@ public class DefaultOrderRegistry implements OrderRegistry {
 
         if (this.orderExecMap.putIfAbsent(intId, new OrderDetailsVO(order,
                 new ExecutionStatusVO(intId, Status.OPEN, 0L, order.getQuantity(), LocalDateTime.now()))) != null) {
-            throw new IllegalStateException("Entry with IntId " + intId + " already present");
+            throw new OrderRegistryException("Entry with IntId " + intId + " already present");
         }
         if (this.orderMap.putIfAbsent(intId, order) != null) {
-            throw new IllegalStateException("Entry with IntId " + intId + " already present");
+            throw new OrderRegistryException("Entry with IntId " + intId + " already present");
         }
     }
 
@@ -110,12 +115,12 @@ public class DefaultOrderRegistry implements OrderRegistry {
     }
 
     @Override
-    public void updateExecutionStatus(final String intId, final Status status, final long filledQuantity, final long remainingQuantity) {
+    public void updateExecutionStatus(final String intId, final String extId, final Status status, final long filledQuantity, final long remainingQuantity) {
 
         Validate.notNull(intId, "Order IntId is null");
         OrderDetailsVO entry = this.orderExecMap.get(intId);
         if (entry == null) {
-            throw new IllegalStateException("Entry with IntId " + intId + " not found");
+            throw new OrderRegistryException("Entry with IntId " + intId + " not found");
         }
         OrderDetailsVO updatedEntry = new OrderDetailsVO(entry.getOrder(),
                 new ExecutionStatusVO(intId, status, filledQuantity, remainingQuantity, LocalDateTime.now()));
@@ -125,6 +130,17 @@ public class DefaultOrderRegistry implements OrderRegistry {
         } else {
             this.orderExecMap.replace(intId, entry, updatedEntry);
         }
+        if (status == Status.SUBMITTED && extId != null) {
+            this.extIdToIntIdMap.put(extId, intId);
+        }
+    }
+
+    @Override
+    public String lookupIntId(final String extId) {
+        if (extId != null) {
+            return this.extIdToIntIdMap.get(extId);
+        }
+        return null;
     }
 
     @Override
@@ -159,6 +175,7 @@ public class DefaultOrderRegistry implements OrderRegistry {
     @Override
     public void evictCompleted() {
         this.completedOrders.clear();
+        this.revisionMap.clear();
         for (Iterator<Map.Entry<String, Order>> it = this.orderMap.entrySet().iterator(); it.hasNext(); ) {
             Map.Entry<String, Order> entry = it.next();
             String intId = entry.getKey();
@@ -166,5 +183,43 @@ public class DefaultOrderRegistry implements OrderRegistry {
                 it.remove();
             }
         }
+        for (Iterator<Map.Entry<String, String>> it = this.extIdToIntIdMap.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<String, String> entry = it.next();
+            String intId = entry.getKey();
+            if (!this.orderExecMap.containsKey(intId)) {
+                it.remove();
+            }
+        }
     }
+
+    @Override
+    public String getNextOrderIdRevision(final String intId) {
+        if (intId == null) {
+            return null;
+        }
+        int i = intId.indexOf('.');
+        String baseId = i != -1 ? intId.substring(0, i) : null;
+        if (baseId == null) {
+            throw new OrderRegistryException("Unexpected internal order ID format: " + intId);
+        }
+        String s = intId.substring(baseId.length() + 1);
+        long revision;
+        try {
+            revision = Long.parseLong(s);
+        } catch (NumberFormatException ex) {
+            throw new OrderRegistryException("Unexpected internal order ID format: " + intId);
+        }
+        AtomicLong count = this.revisionMap.compute(baseId, (key, existing) -> {
+            if (existing != null) {
+                if (existing.get() < revision) {
+                    existing.set(revision);
+                }
+                return existing;
+            }
+                return new AtomicLong(revision);
+            });
+        long nextRevision = count.incrementAndGet();
+        return baseId + '.' + nextRevision;
+    }
+
 }

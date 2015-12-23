@@ -60,7 +60,7 @@ public class DefaultOrderRegistryTest {
         Assert.assertNull(this.impl.getStatusByIntId("Blah"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = OrderRegistryException.class)
     public void testInvalidAdd() {
 
         Order order = MarketOrder.Factory.newInstance();
@@ -99,7 +99,7 @@ public class DefaultOrderRegistryTest {
         Assert.assertNull(this.impl.getStatusByIntId("Blah"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = OrderRegistryException.class)
     public void testInvalidUpdateExecution() {
 
         Order order = MarketOrder.Factory.newInstance();
@@ -146,6 +146,30 @@ public class DefaultOrderRegistryTest {
     }
 
     @Test
+    public void testGetNextOrderIdVersion() {
+
+        Assert.assertEquals("blah.1", this.impl.getNextOrderIdRevision("blah.0"));
+        Assert.assertEquals("blah.2", this.impl.getNextOrderIdRevision("blah.0"));
+        Assert.assertEquals("blah.3", this.impl.getNextOrderIdRevision("blah.0"));
+        Assert.assertEquals("blah.155", this.impl.getNextOrderIdRevision("blah.154"));
+        Assert.assertEquals("yada.102", this.impl.getNextOrderIdRevision("yada.101"));
+        Assert.assertEquals("yada.103", this.impl.getNextOrderIdRevision("yada.101"));
+        Assert.assertEquals("yada.10101", this.impl.getNextOrderIdRevision("yada.10100"));
+    }
+
+    @Test(expected = OrderRegistryException.class)
+    public void testGetNextOrderIdVersionUnexpectedFormat() {
+
+        this.impl.getNextOrderIdRevision("blah-blah");
+    }
+
+    @Test(expected = OrderRegistryException.class)
+    public void testGetNextOrderIdVersionUnexpectedFormat2() {
+
+        this.impl.getNextOrderIdRevision("blah.blah");
+    }
+
+    @Test
     public void testEvictExecutedOrders() {
 
         Order order1 = MarketOrder.Factory.newInstance();
@@ -175,6 +199,21 @@ public class DefaultOrderRegistryTest {
         Assert.assertNull(this.impl.getByIntId("Blah"));
         Assert.assertNull(this.impl.getByIntId("Yada"));
         Assert.assertSame(order3, this.impl.getByIntId("Booh"));
+    }
+
+    @Test
+    public void testExtIdLookup() {
+
+        Order order = MarketOrder.Factory.newInstance();
+        order.setIntId("Blah");
+        order.setQuantity(123L);
+
+        this.impl.add(order);
+        Assert.assertEquals(null, this.impl.lookupIntId("Blah"));
+        this.impl.updateExecutionStatus("Blah", "Blah-Ext", Status.SUBMITTED, 0L, 123L);
+        Assert.assertEquals("Blah", this.impl.lookupIntId("Blah-Ext"));
+        this.impl.updateExecutionStatus("Blah", "---", Status.PARTIALLY_EXECUTED, 23L, 100L);
+        Assert.assertEquals("Blah", this.impl.lookupIntId("Blah-Ext"));
     }
 
 }

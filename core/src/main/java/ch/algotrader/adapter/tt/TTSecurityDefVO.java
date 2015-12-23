@@ -28,6 +28,7 @@ import ch.algotrader.enumeration.OptionType;
 public class TTSecurityDefVO {
 
     private final String symbol;
+    private final String altSymbol;
     private final String id;
     private final String type;
     private final String exchange;
@@ -39,10 +40,11 @@ public class TTSecurityDefVO {
     private final Double strikePrice;
 
     public TTSecurityDefVO(
-            final String symbol, final String id, final String type, final String exchange, final String description,
-            final Currency currency, final LocalDate maturityDate, final LocalDate expiryDate,
+            final String symbol, final String altSymbol, final String id, final String type, final String exchange,
+            final String description, final Currency currency, final LocalDate maturityDate, final LocalDate expiryDate,
             final OptionType optionType, final Double strikePrice) {
         this.symbol = symbol;
+        this.altSymbol = altSymbol;
         this.id = id;
         this.type = type;
         this.exchange = exchange;
@@ -55,19 +57,23 @@ public class TTSecurityDefVO {
     }
 
     public TTSecurityDefVO(
-            final String symbol, final String id, final String type, final String exchange, final String description,
-            final Currency currency) {
-        this(symbol, id, type, description, exchange, currency, null, null, null, null);
+            final String symbol, final String altSymbol, final String id, final String type, final String exchange,
+            final String description, final Currency currency) {
+        this(symbol, altSymbol, id, type, description, exchange, currency, null, null, null, null);
     }
 
     public TTSecurityDefVO(
-            final String symbol, final String id, final String type, final String exchange, final String description,
-            final Currency currency, final LocalDate maturityDate, final LocalDate expiryDate) {
-        this(symbol, id, type, exchange, description, currency, maturityDate, expiryDate, null, null);
+            final String symbol, final String altSymbol, final String id, final String type, final String exchange,
+            final String description, final Currency currency, final LocalDate maturityDate, final LocalDate expiryDate) {
+        this(symbol, altSymbol, id, type, exchange, description, currency, maturityDate, expiryDate, null, null);
     }
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public String getAltSymbol() {
+        return altSymbol;
     }
 
     public String getId() {
@@ -110,6 +116,7 @@ public class TTSecurityDefVO {
     public String toString() {
         return "{" +
                 "symbol='" + symbol + '\'' +
+                ", altSymbol='" + altSymbol + '\'' +
                 ", securityId='" + id + '\'' +
                 ", type='" + type + '\'' +
                 ", exchange='" + exchange + '\'' +

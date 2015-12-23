@@ -19,7 +19,9 @@ package ch.algotrader.cache;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.Charsets;
@@ -44,6 +46,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.dao.NamedParam;
+import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
@@ -63,9 +66,9 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.SecurityImpl;
+import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderVOBuilder;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.enumeration.AssetClass;
@@ -76,9 +79,9 @@ import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
-import ch.algotrader.esper.AbstractEngine;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.LookupService;
@@ -135,20 +138,12 @@ public class CacheTest extends DefaultConfigTestBase {
         context.getDefaultListableBeanFactory().registerSingleton("dataSource", database);
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
+        Mockito.when(engineManager.getCurrentEPTime()).thenReturn(new Date());
+        Mockito.when(engineManager.getCurrentEPTime()).thenReturn(new Date());
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
 
         AtomicReference<TransactionService> transactionService = new AtomicReference<>();
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                if (obj instanceof Fill) {
-                    Fill fill = (Fill) obj;
-                    fill.setExtDateTime(new Date());
-                    transactionService.get().createTransaction(fill);
-                }
-            }
-        };
+        Engine engine = new NoopEngine(StrategyImpl.SERVER);
         
         context.getDefaultListableBeanFactory().registerSingleton("serverEngine", engine);
 
@@ -289,6 +284,34 @@ public class CacheTest extends DefaultConfigTestBase {
         Assert.assertTrue(positions.wasInitialized());
     }
 
+    @Test
+    public void testStock() {
+        
+        SecurityFamily securityFamily = cache.get(SecurityFamilyImpl.class, securityFamilyId1);
+
+        Stock stock = cache.findUnique(Stock.class, "from StockImpl where symbol = :symbol", QueryType.HQL, new NamedParam("symbol", "AAPL"));
+        Assert.assertNull(stock);
+
+        net.sf.ehcache.CacheManager.getInstance().clearAll();
+
+        StockDao stockDao = context.getBean(StockDao.class);
+
+        txTemplate.execute(txStatus -> {
+            
+            Set<Stock> stocks = new HashSet<>();
+            Stock stock1 = Stock.Factory.newInstance();
+            stock1.setSymbol("AAPL");
+            stock1.setDescription("AAPL Inc");
+            stock1.setSecurityFamily(securityFamily);
+            stocks.add(stock1);
+            stockDao.saveAll(stocks);
+            return null;
+        });
+
+        Stock stock2 = cache.findUnique(Stock.class, "from StockImpl where symbol = :symbol", QueryType.HQL, new NamedParam("symbol", "AAPL"));
+        Assert.assertNotNull(stock2);
+    }
+    
     @Test
     public void testPosition() {
 

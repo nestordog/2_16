@@ -45,13 +45,14 @@ public class FXCMFixServiceWiring {
     @Bean(name = "fXCMFixOrderService")
     public ExternalOrderService createFXCMFixOrderService(
             final ManagedFixAdapter fixAdapter,
+            final ExternalSessionStateHolder fXCMSessionLifeCycle,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new FXCMFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new FXCMFixOrderServiceImpl(fixAdapter, fXCMSessionLifeCycle, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("fXCMMarketData")
