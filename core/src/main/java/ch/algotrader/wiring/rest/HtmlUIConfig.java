@@ -16,24 +16,20 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.wiring.server;
+package ch.algotrader.wiring.rest;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import ch.algotrader.jetty.EmbeddedJettyServer;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
-public class JettyWiring {
+@Profile("html5")
+public class HtmlUIConfig {
 
-    @Bean(name = "jettyService", destroyMethod = "stop")
-    public EmbeddedJettyServer createJettyService(
-            @Value("${http.port}") final int port,
-            final ApplicationContext applicationContext) {
+    @Bean(name = "staticResourceRoot")
+    public String createStaticResourceRoot() {
 
-        return new EmbeddedJettyServer(port, applicationContext);
+        return "classpath:html5/";
     }
 
 }

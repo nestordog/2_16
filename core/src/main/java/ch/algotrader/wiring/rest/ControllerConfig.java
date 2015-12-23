@@ -16,12 +16,13 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.rest.jetty;
+package ch.algotrader.wiring.rest;
 
 import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -51,6 +52,8 @@ import ch.algotrader.service.PositionService;
 @EnableWebMvc
 public class ControllerConfig extends WebMvcConfigurerAdapter {
 
+    @Autowired(required = false) @Qualifier("staticResourceRoot")
+    private String staticResourceRoot;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -71,7 +74,11 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/**", "/").addResourceLocations("classpath:html5/").setCachePeriod(24 * 60 * 60);
+        if (this.staticResourceRoot != null) {
+            registry.addResourceHandler("/**", "/")
+                    .addResourceLocations(this.staticResourceRoot)
+                    .setCachePeriod(24 * 60 * 60);
+        }
     }
 
     @Override

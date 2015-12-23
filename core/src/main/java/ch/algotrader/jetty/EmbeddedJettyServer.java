@@ -16,7 +16,7 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.rest.jetty;
+package ch.algotrader.jetty;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,7 +57,7 @@ public class EmbeddedJettyServer implements InitializingServiceI {
 
         AnnotationConfigWebApplicationContext webAppContext = new AnnotationConfigWebApplicationContext();
         webAppContext.setParent(this.applicationContext);
-        webAppContext.register(ControllerConfig.class);
+        webAppContext.scan("ch.algotrader.wiring.rest");
 
         ServletHolder servletHolder = new ServletHolder(new DispatcherServlet(webAppContext));
         ServletContextHandler context = new ServletContextHandler();
@@ -76,6 +76,12 @@ public class EmbeddedJettyServer implements InitializingServiceI {
             this.server.start();
         }
         channelConnector.start();
+
+        if (webAppContext.getEnvironment().acceptsProfiles("html5")) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Web UI available at http://localhost:{}/", this.port);
+            }
+        }
     }
 
     public void stop() throws Exception {
