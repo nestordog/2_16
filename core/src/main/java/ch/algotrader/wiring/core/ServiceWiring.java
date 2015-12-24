@@ -21,7 +21,6 @@ package ch.algotrader.wiring.core;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import ch.algotrader.config.ConfigParams;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +30,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.GenericDao;
@@ -260,6 +260,7 @@ public class ServiceWiring {
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
+            final ForexDao forexDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
             final MarketDataCache marketDataCache,
@@ -269,8 +270,8 @@ public class ServiceWiring {
         Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
-                eventDispatcher, marketDataCache, serviceMap2);
+        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, forexDao,
+                engineManager, eventDispatcher, marketDataCache, serviceMap2);
     }
 
     @Bean(name = "tickPersister")

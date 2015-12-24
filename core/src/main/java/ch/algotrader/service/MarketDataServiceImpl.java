@@ -39,14 +39,17 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.marketData.TickDao;
+import ch.algotrader.dao.security.ForexDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -77,6 +80,8 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final SubscriptionDao subscriptionDao;
 
+    private final ForexDao forexDao;
+
     private final EngineManager engineManager;
 
     private final EventDispatcher eventDispatcher;
@@ -95,6 +100,7 @@ public class MarketDataServiceImpl implements MarketDataService {
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
+            final ForexDao forexDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
             final MarketDataCache marketDataCache,
@@ -108,6 +114,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
+        Validate.notNull(forexDao, "ForexDao is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
@@ -120,6 +127,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
+        this.forexDao = forexDao;
         this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
         this.marketDataCache = marketDataCache;
@@ -199,35 +207,18 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void subscribe(final String strategyName, final long securityId, final String feedType) {
+    private void subscribe(final Strategy strategy, final Security security, final String feedType) {
 
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(feedType, "Feed type is null");
+        this.eventDispatcher.registerMarketDataSubscription(strategy.getName(), security.getId());
 
-        this.eventDispatcher.registerMarketDataSubscription(strategyName, securityId);
-
-        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, true);
+        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategy.getName(), security.getId(), feedType, true);
         this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
 
-        if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType) == null) {
-
-            Strategy strategy = this.strategyDao.findByName(strategyName);
-            if (strategy == null) {
-                throw new ServiceException("Unknown strategy: " + strategyName);
-            }
-            Security security = this.securityDao.get(securityId);
-            if (security == null) {
-                throw new ServiceException("Unknown security: " + securityId);
-            }
+        if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategy.getName(), security.getId(), feedType) == null) {
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
             if (!this.commonConfig.isSimulation()) {
-                List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(securityId, feedType);
+                List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(security.getId(), feedType);
                 if (subscriptions.size() == 0) {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).subscribe(security);
@@ -247,6 +238,39 @@ public class MarketDataServiceImpl implements MarketDataService {
                 LOGGER.info("subscribed security {} with {}", security, feedType);
             }
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void subscribe(final String strategyName, final long securityId, final String feedType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
+
+        Strategy strategy = this.strategyDao.findByName(strategyName);
+        if (strategy == null) {
+            throw new ServiceException("Unknown strategy: " + strategyName);
+        }
+        Security security = this.securityDao.get(securityId);
+        if (security == null) {
+            throw new ServiceException("Unknown security: " + securityId);
+        }
+
+        subscribe(strategy, security, feedType);
+
+        if (!(security instanceof Forex)) {
+            Currency transactionCurrency = security.getSecurityFamily().getCurrency();
+            Currency baseCurrency = this.commonConfig.getPortfolioBaseCurrency();
+            if (!transactionCurrency.equals(baseCurrency)) {
+                Forex forex = this.forexDao.getForex(baseCurrency, transactionCurrency);
+                if (forex != null) {
+                    subscribe(strategy, forex, this.coreConfig.getDefaultFeedType());
+                }
+            }
+        }
 
     }
 
@@ -263,25 +287,15 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void unsubscribe(final String strategyName, final long securityId, final String feedType) {
+    public void unsubscribe(final Strategy strategy, final Security security, final String feedType) {
 
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(feedType, "Feed type is null");
+        this.eventDispatcher.unregisterMarketDataSubscription(strategy.getName(), security.getId());
 
-        this.eventDispatcher.unregisterMarketDataSubscription(strategyName, securityId);
-
-        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, securityId, feedType, false);
+        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategy.getName(), security.getId(), feedType, false);
         this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
 
-        Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategyName, securityId, feedType);
+        Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategy.getName(), security.getId(), feedType);
         if (subscription != null && !subscription.isPersistent()) {
-
-            Security security = this.securityDao.get(securityId);
 
             // update links
             security.getSubscriptions().remove(subscription);
@@ -301,6 +315,28 @@ public class MarketDataServiceImpl implements MarketDataService {
                 LOGGER.info("unsubscribed security {} with {}", security, feedType);
             }
         }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void unsubscribe(final String strategyName, final long securityId, final String feedType) {
+
+        Validate.notEmpty(strategyName, "Strategy name is empty");
+        Validate.notNull(feedType, "Feed type is null");
+
+        Strategy strategy = this.strategyDao.findByName(strategyName);
+        if (strategy == null) {
+            throw new ServiceException("Unknown strategy: " + strategyName);
+        }
+        Security security = this.securityDao.get(securityId);
+        if (security == null) {
+            throw new ServiceException("Unknown security: " + securityId);
+        }
+        unsubscribe(strategy, security, feedType);
 
     }
 
