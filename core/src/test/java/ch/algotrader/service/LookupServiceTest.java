@@ -109,6 +109,7 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.EventPublisher;
 import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimePatterns;
@@ -150,6 +151,8 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
+        EventPublisher eventPublisher = Mockito.mock(EventPublisher.class);
+        context.getDefaultListableBeanFactory().registerSingleton("remoteEventPropagator", eventPublisher);
 
         EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
         dbFactory.setDatabaseType(EmbeddedDatabaseType.H2);
