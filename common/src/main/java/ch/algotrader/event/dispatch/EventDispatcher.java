@@ -42,12 +42,17 @@ public interface EventDispatcher {
     void resendPastEvent(String strategyName, Object event);
 
     /**
-     * Registers market data subscription subscription
+     * Tests if there is a market data registration for the given strategy and security.
+     */
+    boolean isMarketDataSubscriptionRegistered(long securityId, String strategyName);
+
+    /**
+     * Registers market data subscription for the given strategy and security
      */
     void registerMarketDataSubscription(String strategyName, long securityId);
 
     /**
-     * Un-registers market data subscription subscription
+     * Un-registers market data subscription for the given strategy and security
      */
     void unregisterMarketDataSubscription(String strategyName, long securityId);
 

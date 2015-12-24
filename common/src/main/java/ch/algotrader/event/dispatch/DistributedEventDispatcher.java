@@ -53,6 +53,7 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
     private final EventPublisher internalEventPublisher;
     private final EngineManager engineManager;
     private final MessageConverter messageConverter;
+    private final MarketDataSubscriptionRegistry marketDataSubscriptionRegistry;
     private final boolean tracing;
 
     public DistributedEventDispatcher(
@@ -72,6 +73,7 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
         this.internalEventPublisher = internalEventPublisher;
         this.engineManager = engineManager;
         this.messageConverter = messageConverter;
+        this.marketDataSubscriptionRegistry = new MarketDataSubscriptionRegistry();
         this.tracing = EVENT_LOGGER.isTraceEnabled() || MARKET_DATA_LOGGER.isTraceEnabled() || CACHE_LOGGER.isTraceEnabled();
     }
 
@@ -105,10 +107,20 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
 
     @Override
     public void registerMarketDataSubscription(final String strategyName, final long securityId) {
+
+        this.marketDataSubscriptionRegistry.register(strategyName, securityId);
     }
 
     @Override
     public void unregisterMarketDataSubscription(final String strategyName, final long securityId) {
+
+        this.marketDataSubscriptionRegistry.unregister(strategyName, securityId);
+    }
+
+    @Override
+    public boolean isMarketDataSubscriptionRegistered(final long securityId, final String strategyName) {
+
+        return this.marketDataSubscriptionRegistry.isRegistered(securityId, strategyName);
     }
 
     @Override

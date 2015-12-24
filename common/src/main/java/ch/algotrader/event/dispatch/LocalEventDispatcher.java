@@ -19,9 +19,6 @@ package ch.algotrader.event.dispatch;
 
 import java.util.Collection;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang.Validate;
 
@@ -42,7 +39,7 @@ public class LocalEventDispatcher implements EventDispatcher {
     private final EventBroadcaster localEventBroadcaster;
     private final EngineManager engineManager;
     private final EventPublisher internalEventPublisher;
-    private final ConcurrentMap<Long, Set<String>> marketDataSubscriptionMap;
+    private final MarketDataSubscriptionRegistry marketDataSubscriptionRegistry;
 
     public LocalEventDispatcher(
             final EventBroadcaster localEventBroadcaster,
@@ -55,7 +52,7 @@ public class LocalEventDispatcher implements EventDispatcher {
         this.localEventBroadcaster = localEventBroadcaster;
         this.internalEventPublisher = internalEventPublisher;
         this.engineManager = engineManager;
-        this.marketDataSubscriptionMap = new ConcurrentHashMap<>();
+        this.marketDataSubscriptionRegistry = new MarketDataSubscriptionRegistry();
     }
 
     @Override
@@ -84,58 +81,34 @@ public class LocalEventDispatcher implements EventDispatcher {
     @Override
     public void registerMarketDataSubscription(final String strategyName, final long securityId) {
 
-        Validate.notNull(strategyName, "Strategy name is null");
-
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
-        if (strategySet == null) {
-            Set<String> newStrategySet = new CopyOnWriteArraySet<>();
-            strategySet = this.marketDataSubscriptionMap.putIfAbsent(securityId, newStrategySet);
-            if (strategySet == null) {
-                strategySet = newStrategySet;
-            }
-        }
-        strategySet.add(strategyName);
+        this.marketDataSubscriptionRegistry.register(strategyName, securityId);
     }
 
     @Override
     public void unregisterMarketDataSubscription(final String strategyName, final long securityId) {
 
-        Validate.notNull(strategyName, "Strategy name is null");
-
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
-        if (strategySet != null) {
-            strategySet.remove(strategyName);
-        }
+        this.marketDataSubscriptionRegistry.unregister(strategyName, securityId);
     }
 
+    @Override
     public boolean isMarketDataSubscriptionRegistered(final long securityId, final String strategyName) {
 
-        Validate.notNull(strategyName, "Strategy name is null");
-
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(securityId);
-        if (strategySet != null) {
-            return strategySet.contains(strategyName);
-        } else {
-            return false;
-        }
+        return this.marketDataSubscriptionRegistry.isRegistered(securityId, strategyName);
     }
 
     @Override
     public void sendMarketDataEvent(final MarketDataEventVO event) {
 
         this.localEventBroadcaster.broadcast(event);
-        Set<String> strategySet = this.marketDataSubscriptionMap.get(event.getSecurityId());
-        if (strategySet != null && !strategySet.isEmpty()) {
-            for (String strategyName: strategySet) {
-                // Do not propagate market data to the SERVER
-                if (!strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
-                    final Engine engine = this.engineManager.lookup(strategyName);
-                    if (engine != null) {
-                        engine.sendEvent(event);
-                    }
+        this.marketDataSubscriptionRegistry.invoke(event.getSecurityId(), strategyName -> {
+            // Do not propagate market data to the SERVER
+            if (!strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
+                final Engine engine = this.engineManager.lookup(strategyName);
+                if (engine != null) {
+                    engine.sendEvent(event);
                 }
             }
-        }
+        });
         if (this.internalEventPublisher != null) {
             this.internalEventPublisher.publishMarketDataEvent(event);
         }
