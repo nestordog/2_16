@@ -15,7 +15,7 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.wiring.external;
+package ch.algotrader.service;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,22 +24,36 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.UnrecoverableCoreException;
 import ch.algotrader.concurrent.BasicThreadFactory;
+import ch.algotrader.entity.PositionVO;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.ConnectionState;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.listener.PositionEventListener;
 import ch.algotrader.event.listener.SessionEventListener;
-import ch.algotrader.service.MarketDataService;
 import ch.algotrader.vo.SessionEventVO;
 
-class MarketDataSubscriber implements SessionEventListener {
+public class MarketDataSubscriber implements SessionEventListener, PositionEventListener {
 
+    private final EventDispatcher eventDispatcher;
+    private final LookupService lookupService;
     private final MarketDataService marketDataService;
     private final Map<String, String> sessionToFeedTypeMap;
     private final ExecutorService executorService;
 
-    public MarketDataSubscriber(final MarketDataService marketDataService, final Map<String, String> sessionToFeedTypeMap) {
+    public MarketDataSubscriber(
+            final EventDispatcher eventDispatcher,
+            final LookupService lookupService,
+            final MarketDataService marketDataService,
+            final Map<String, String> sessionToFeedTypeMap) {
 
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
+        Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
 
+        this.eventDispatcher = eventDispatcher;
+        this.lookupService = lookupService;
         this.marketDataService = marketDataService;
         this.sessionToFeedTypeMap = new ConcurrentHashMap<>(sessionToFeedTypeMap);
         this.executorService = Executors.newSingleThreadExecutor(new BasicThreadFactory("Market-data-subscriber-thread", true));
@@ -54,12 +68,24 @@ class MarketDataSubscriber implements SessionEventListener {
                     try {
                         // Sleep a little
                         Thread.sleep(1000);
-                        marketDataService.initSubscriptions(feedType);
+                        this.marketDataService.initSubscriptions(feedType);
                     } catch (InterruptedException ignore) {
                     }
                 });
 
             }
+        }
+    }
+
+    @Override
+    public void onPositionChange(final PositionVO positionMutation) {
+
+        Strategy strategy = this.lookupService.getStrategy(positionMutation.getStrategyId());
+        if (strategy == null) {
+            throw new UnrecoverableCoreException("Unexpected strategy id: " + positionMutation.getStrategyId());
+        }
+        if (!this.eventDispatcher.isMarketDataSubscriptionRegistered(positionMutation.getSecurityId(), strategy.getName())) {
+            this.marketDataService.subscribe(strategy.getName(), positionMutation.getSecurityId());
         }
     }
 

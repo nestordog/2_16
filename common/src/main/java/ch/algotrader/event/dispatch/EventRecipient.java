@@ -37,6 +37,8 @@ public enum EventRecipient {
 
     public static Set<EventRecipient> ALL_LISTENERS = EnumSet.of(LISTENERS, REMOTE);
 
+    public static Set<EventRecipient> SERVER_LISTENERS = EnumSet.of(SERVER_ENGINE, LISTENERS);
+
     public static Set<EventRecipient> SERVER_ENGINE_ONLY = EnumSet.of(SERVER_ENGINE);
 
     public static Set<EventRecipient> REMOTE_ONLY = EnumSet.of(REMOTE);

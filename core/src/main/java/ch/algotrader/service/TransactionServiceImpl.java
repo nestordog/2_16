@@ -41,6 +41,7 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalanceVO;
@@ -54,6 +55,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
@@ -446,19 +448,19 @@ public class TransactionServiceImpl implements TransactionService {
         }
         TransactionResultVO transactionResult = this.transactionPersistenceService.saveTransaction(transaction);
         handleTransactionResult(transaction, transactionResult);
-        PositionVO positionMutation = transactionResult.getPositionMutation();
-
-        // propagate the positionMutation to the corresponding strategy
-        if (positionMutation != null) {
-            Strategy strategy = transaction.getStrategy();
-            this.eventDispatcher.sendEvent(strategy.getName(), positionMutation);
-        }
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
         Strategy strategy = transaction.getStrategy();
-        this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
+        TransactionVO transactionEvent = transaction.convertToVO();
+        this.eventDispatcher.sendEvent(strategy.getName(), transactionEvent);
+        this.eventDispatcher.broadcast(transactionEvent, EventRecipient.SERVER_LISTENERS);
 
-        this.serverEngine.sendEvent(transaction);
+        // propagate the positionMutation to the corresponding strategy
+        PositionVO positionMutation = transactionResult.getPositionMutation();
+        if (positionMutation != null) {
+            this.eventDispatcher.sendEvent(strategy.getName(), positionMutation);
+            this.eventDispatcher.broadcast(positionMutation, EventRecipient.SERVER_LISTENERS);
+        }
     }
 
     /**

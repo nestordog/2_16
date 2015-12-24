@@ -21,6 +21,6 @@ import ch.algotrader.entity.PositionVO;
 
 public interface PositionEventListener {
 
-    void onPositionChange(PositionVO closePosition);
+    void onPositionChange(PositionVO positionMutation);
 
 }
