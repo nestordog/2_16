@@ -891,7 +891,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         // convert non baseCurrencies
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = this.forexDao.getRateDoubleByDate(entry.getKey(), this.commonConfig.getPortfolioBaseCurrency(), date);
+            double fxRate = getRateDoubleByDate(entry.getKey(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
@@ -947,12 +947,19 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         double amount = 0.0;
         for (Map.Entry<Currency, Double> entry : map.entrySet()) {
-            double fxRate = this.forexDao.getRateDoubleByDate(entry.getKey(), this.commonConfig.getPortfolioBaseCurrency(), date);
+            double fxRate = getRateDoubleByDate(entry.getKey(), date);
             amount += entry.getValue() * fxRate;
         }
         return amount;
     }
 
+    private double getRateDoubleByDate(final Currency ccy, final Date date) {
+        Double fxRate = this.forexDao.getRateDoubleByDate(ccy, this.commonConfig.getPortfolioBaseCurrency(), date);
+        if (fxRate == null) {
+            throw new ForexAvailabilityException("No exchange rate available for " + ccy + "." + this.commonConfig.getPortfolioBaseCurrency() + " for " + date);
+        }
+        return fxRate;
+    }
 
     private double getUnrealizePLDoubleInternal(Collection<Position> openPositions) {
 

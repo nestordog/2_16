@@ -122,13 +122,16 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
         Forex forex = this.forexMap.get(key);
         if (forex == null) {
             forex = this.lookupService.getForex(baseCurrency, transactionCurrency);
+            if (forex == null) {
+                throw new ForexAvailabilityException("Forex does not exist: " + baseCurrency + "." + transactionCurrency);
+            }
             this.forexMap.put(key, forex);//we may replace an existing forex entry due to racing but that's ok
         }
 
         final MarketDataEventVO marketDataEvent = getCurrentMarketDataEvent(forex.getId());
 
         if (marketDataEvent == null) {
-            throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no marketDataEvent is available");
+            throw new ForexAvailabilityException("No exchange rate available for " + baseCurrency + "." + transactionCurrency);
         }
 
         if (forex.getBaseCurrency().equals(baseCurrency)) {

@@ -54,7 +54,7 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
     }
 
     @Override
-    public double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) {
+    public Double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date) {
 
         Validate.notNull(baseCurrency, "Base currency is null");
         Validate.notNull(transactionCurrency, "Transaction currency is null");
@@ -65,10 +65,13 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
         }
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
+        if (forex == null) {
+            return null;
+        }
 
         List<Tick> ticks = this.tickDao.findTicksBySecurityAndMaxDate(1, forex.getId(), date, this.intervalDays);
         if (ticks.isEmpty()) {
-            throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
+            return null;
         }
 
         Tick tick = ticks.get(0);
@@ -93,10 +96,6 @@ public class ForexDaoImpl extends AbstractDao<Forex> implements ForexDao {
 
             // reverse lookup
             forex = findUniqueCaching("Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam("transactionCurrency", baseCurrency));
-
-            if (forex == null) {
-                throw new IllegalStateException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
-            }
         }
 
         return forex;

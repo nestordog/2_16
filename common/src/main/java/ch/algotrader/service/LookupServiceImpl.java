@@ -1018,10 +1018,6 @@ public class LookupServiceImpl implements LookupService {
             // reverse lookup
             forex = this.cacheManager.findUnique(Forex.class, "Forex.findByBaseAndTransactionCurrency", QueryType.BY_NAME, new NamedParam("baseCurrency", transactionCurrency), new NamedParam(
                     "transactionCurrency", baseCurrency));
-
-            if (forex == null) {
-                throw new IllegalStateException("Forex does not exist: " + transactionCurrency + "." + baseCurrency);
-            }
         }
 
         return forex;
@@ -1043,10 +1039,13 @@ public class LookupServiceImpl implements LookupService {
         }
 
         Forex forex = getForex(baseCurrency, transactionCurrency);
+        if (forex == null) {
+            throw new ForexAvailabilityException("Forex does not exist: " + baseCurrency + "." + transactionCurrency);
+        }
 
         List<Tick> ticks = getTicksByMaxDate(forex.getId(), date, 1);
         if (ticks.isEmpty()) {
-            throw new IllegalStateException("Cannot get exchangeRate for " + baseCurrency + "." + transactionCurrency + " because no last tick is available for date " + date);
+            throw new ForexAvailabilityException("No exchange rate available for " + baseCurrency + "." + transactionCurrency + " for " + date);
         }
 
         Tick tick = ticks.get(0);
