@@ -230,6 +230,9 @@ public class CacheTest extends DefaultConfigTestBase {
         position1.setQuantity(222);
         position1.setStrategy(strategy1);
         position1.setSecurity(security2);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         session.save(position1);
         security2.addPositions(position1);
 
@@ -402,7 +405,7 @@ public class CacheTest extends DefaultConfigTestBase {
 
         Position position2 = lookupService.getPositionBySecurityAndStrategy(securityId1, STRATEGY_NAME);
         Assert.assertEquals(0, position2.getQuantity());
-        Assert.assertEquals(10000.0, position2.getRealizedPL(), 0.1);
+        Assert.assertEquals(new BigDecimal("10000.00"), position2.getRealizedPL());
         Assert.assertEquals(position1, position2);
         Assert.assertSame(position1, position2);
 

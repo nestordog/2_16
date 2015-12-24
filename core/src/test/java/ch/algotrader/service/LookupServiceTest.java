@@ -1510,6 +1510,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription2);
         this.session.save(subscription1);
@@ -1694,7 +1696,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1747,7 +1751,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
     
         this.session.save(family2);
@@ -1758,7 +1764,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position2.setQuantity(222);
         position2.setSecurity(forex2);
         position2.setStrategy(strategy1);
-    
+        position2.setCost(new BigDecimal(0.0));
+        position2.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position2);
         this.session.flush();
     
@@ -1805,7 +1813,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1860,7 +1870,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(0);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1876,6 +1888,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         position2.setQuantity(222);
         position2.setSecurity(forex2);
         position2.setStrategy(strategy2);
+        position2.setCost(new BigDecimal(0.0));
+        position2.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(position2);
         this.session.flush();
@@ -1914,7 +1928,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1959,7 +1975,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2001,7 +2019,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2046,7 +2066,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2088,7 +2110,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2130,7 +2154,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2172,7 +2198,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2212,7 +2240,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2250,7 +2280,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     

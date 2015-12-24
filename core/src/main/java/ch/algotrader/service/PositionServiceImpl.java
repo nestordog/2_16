@@ -209,6 +209,8 @@ public class PositionServiceImpl implements PositionService {
         // associate strategy and security
         position.setStrategy(strategy);
         position.setSecurity(security);
+        position.setCost(new BigDecimal(0.0));
+        position.setRealizedPL(new BigDecimal(0.0));
 
         this.positionDao.save(position);
 
@@ -320,7 +322,7 @@ public class PositionServiceImpl implements PositionService {
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
         MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
-        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(marketDataEvent), family.getScale());
+        BigDecimal price = position.getMarketPrice(marketDataEvent);
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
@@ -421,7 +423,7 @@ public class PositionServiceImpl implements PositionService {
                 // check cost
                 if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
 
-                    double existingCost = actualOpenPosition.getCost();
+                    BigDecimal existingCost = actualOpenPosition.getCost();
                     actualOpenPosition.setCost(targetOpenPosition.getCost());
 
                     String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
@@ -432,7 +434,7 @@ public class PositionServiceImpl implements PositionService {
                 // check realizedPL
                 if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
 
-                    double existingRealizedPL = actualOpenPosition.getRealizedPL();
+                    BigDecimal existingRealizedPL = actualOpenPosition.getRealizedPL();
                     actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
 
                     String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();

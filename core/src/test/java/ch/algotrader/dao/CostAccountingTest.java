@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.math.util.MathUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,6 +30,7 @@ import ch.algotrader.accounting.PositionTracker;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
@@ -59,7 +59,7 @@ public class CostAccountingTest {
 
         SecurityFamily family = new SecurityFamilyImpl();
         family.setContractSize(10.0);
-        family.setScale(2);
+        family.setScale(3);
 
         Security security = new StockImpl();
         security.setSecurityFamily(family);
@@ -68,7 +68,7 @@ public class CostAccountingTest {
 
         Transaction transaction;
 
-        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("08:00:00"), 10, new BigDecimal(100), Currency.USD, TransactionType.BUY, strategy);
+        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("08:00:00"), 10, new BigDecimal("100.000"), Currency.USD, TransactionType.BUY, strategy);
         transaction.setId(1);
         transaction.setSecurity(security);
         transaction.setExecutionCommission(new BigDecimal("10.0"));
@@ -76,10 +76,10 @@ public class CostAccountingTest {
 
         Position position = positionTracker.processFirstTransaction(transaction);
 
-        assertPosition(position, 100, 10, 10010, 100.1, 10000, -10, 0);
-        assertPosition(position, 105, 10, 10010, 100.1, 10500, 490, 0);
+        assertPosition(position, "100.000", 10, "10010.00", "100.100", "10000.00", "-10.00", "0.00");
+        assertPosition(position, "105.000", 10, "10010.00", "100.100", "10500.00", "490.00", "0.00");
 
-        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("09:00:00"), 2, new BigDecimal(110), Currency.USD, TransactionType.BUY, strategy);
+        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("09:00:00"), 2, new BigDecimal("110.000"), Currency.USD, TransactionType.BUY, strategy);
         transaction.setId(2);
         transaction.setSecurity(security);
         transaction.setExecutionCommission(new BigDecimal("2.0"));
@@ -87,10 +87,10 @@ public class CostAccountingTest {
 
         positionTracker.processTransaction(position, transaction);
 
-        assertPosition(position, 110, 12, 12212, 101.77, 13200, 988, 0);
-        assertPosition(position, 115, 12, 12212, 101.77, 13800, 1588, 0);
+        assertPosition(position, "110.000", 12, "12212.00", "101.767", "13200.00", "988.00", "0.00");
+        assertPosition(position, "115.000", 12, "12212.00", "101.767", "13800.00", "1588.00", "0.00");
 
-        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("10:00:00"), -12, new BigDecimal(120), Currency.USD, TransactionType.SELL, strategy);
+        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("10:00:00"), -12, new BigDecimal("120.000"), Currency.USD, TransactionType.SELL, strategy);
         transaction.setId(3);
         transaction.setSecurity(security);
         transaction.setExecutionCommission(new BigDecimal("12.0"));
@@ -98,10 +98,10 @@ public class CostAccountingTest {
 
         positionTracker.processTransaction(position, transaction);
 
-        assertPosition(position, 120, 0, 0, Double.NaN, 0, 0, 2176);
-        assertPosition(position, 125, 0, 0, Double.NaN, 0, 0, 2176);
+        assertPosition(position, "120.000", 0, "0.00", null, "0.00", "0.00", "2176.00");
+        assertPosition(position, "125.000", 0, "0.00", null, "0.00", "0.00", "2176.00");
 
-        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("11:00:00"), -20, new BigDecimal(130), Currency.USD, TransactionType.SELL, strategy);
+        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("11:00:00"), -20, new BigDecimal("130.000"), Currency.USD, TransactionType.SELL, strategy);
         transaction.setId(4);
         transaction.setSecurity(security);
         transaction.setExecutionCommission(new BigDecimal("20.0"));
@@ -109,10 +109,10 @@ public class CostAccountingTest {
 
         positionTracker.processTransaction(position, transaction);
 
-        assertPosition(position, 130, -20, -25980, 129.9, -26000, -20, 2176);
-        assertPosition(position, 135, -20, -25980, 129.9, -27000, -1020, 2176);
+        assertPosition(position, "130.000", -20, "-25980.00", "129.900", "-26000.00", "-20.00", "2176.00");
+        assertPosition(position, "135.000", -20, "-25980.00", "129.900", "-27000.00", "-1020.00", "2176.00");
 
-        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("12:00:00"), 12, new BigDecimal(140), Currency.USD, TransactionType.BUY, strategy);
+        transaction = Transaction.Factory.newInstance(UUID.randomUUID().toString(), DateTimeLegacy.parseAsTimeGMT("12:00:00"), 12, new BigDecimal("140.000"), Currency.USD, TransactionType.BUY, strategy);
         transaction.setId(5);
         transaction.setSecurity(security);
         transaction.setExecutionCommission(new BigDecimal("12.0"));
@@ -120,24 +120,23 @@ public class CostAccountingTest {
 
         positionTracker.processTransaction(position, transaction);
 
-        assertPosition(position, 140, -8, -10392, 129.9, -11200, -808, 952);
+        assertPosition(position, "140.000", -8, "-10392.00", "129.900", "-11200.00", "-808.00", "952.00");
     }
 
-    private void assertPosition(Position position, double price, long eQty, double eCost, double eAvgPrice, double eMarketValue, double eUnrealizedPL, double eRealizedPL) {
+    private void assertPosition(Position position, String price, long eQty, String eCost, String eAvgPrice, String eMarketValue, String eUnrealizedPL, String eRealizedPL) {
 
-        long qty = position.getQuantity();
-        double cost = MathUtils.round(position.getCost(), 2);
-        double marketValue = MathUtils.round(qty * 10 * price, 2);
-        double unrealizedPL = MathUtils.round(marketValue - cost, 2);
-        double avgPrice = MathUtils.round(position.getAveragePrice(), 2);
-        double realizedPL = MathUtils.round(position.getRealizedPL(), 2);
+        Tick tick = Tick.Factory.newInstance(null, null, null, new BigDecimal(price), null, null, null, 0, 0, 0);
 
-        Assert.assertEquals(eQty, qty);
-        Assert.assertEquals(eCost, cost, 0.001);
-        Assert.assertEquals(eMarketValue, marketValue, 0.001);
-        Assert.assertEquals(eUnrealizedPL, unrealizedPL, 0.001);
-        Assert.assertEquals(eAvgPrice, avgPrice, 0.001);
-        Assert.assertEquals(eRealizedPL, realizedPL, 0.001);
+        Assert.assertEquals(eQty, position.getQuantity());
+        Assert.assertEquals(getBigDecimal(eCost), position.getCost());
+        Assert.assertEquals(getBigDecimal(eMarketValue), position.getMarketValue(tick));
+        Assert.assertEquals(getBigDecimal(eUnrealizedPL), position.getUnrealizedPL(tick));
+        Assert.assertEquals(getBigDecimal(eAvgPrice), position.getAveragePrice());
+        Assert.assertEquals(getBigDecimal(eRealizedPL), position.getRealizedPL());
+    }
+
+    private Object getBigDecimal(String input) {
+        return input == null ? input : new BigDecimal(input);
     }
 
 }

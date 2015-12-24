@@ -602,7 +602,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
-            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime()).doubleValue();
         }
         return exposure / getNetLiqValueDouble();
 
@@ -624,7 +624,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             if (position.getSecurity().getUnderlying() != null) {
                 underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
-            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime());
+            exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime()).doubleValue();
         }
 
         return exposure / getNetLiqValueDouble(strategyName);
@@ -841,7 +841,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all FX positions
         for (Position position : positions) {
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
-            amount += position.getMarketValue(marketDataEvent) * this.marketDataCache.getForexRateBase(position.getSecurity());
+            amount += position.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(position.getSecurity());
         }
 
         return amount;
@@ -908,7 +908,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
                 MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
-                amount += openPosition.getMarketValue(marketDataEvent) * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
+                amount += openPosition.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
             }
         }
         return amount;
@@ -967,7 +967,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         double amount = 0.0;
         for (Position openPosition : openPositions) {
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
-            amount += openPosition.getUnrealizedPL(marketDataEvent) * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
+            amount += openPosition.getUnrealizedPL(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
         }
         return amount;
     }
@@ -998,7 +998,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                 } else {
                     securitiesMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
                 }
-                unrealizedPLMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), position.getUnrealizedPL(marketDataEvent));
+                unrealizedPLMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), position.getUnrealizedPL(marketDataEvent).doubleValue());
             }
         }
 
@@ -1049,7 +1049,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
             if (currencyAmount.getAmount() != null) {
                 currencyMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
-                currencyMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), -position.getMarketValue(marketDataEvent));
+                currencyMap.increment(position.getSecurity().getSecurityFamily().getCurrency(), -position.getMarketValue(marketDataEvent).doubleValue());
             }
         }
 

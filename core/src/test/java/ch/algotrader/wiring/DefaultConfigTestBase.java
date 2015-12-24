@@ -50,7 +50,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("simulation.logTransactions", "true");
         CONFIG_MAP.put("misc.embedded", "true");
         CONFIG_MAP.put("misc.portfolioBaseCurrency", "EUR");
-        CONFIG_MAP.put("misc.portfolioDigits", "5");
+        CONFIG_MAP.put("misc.portfolioDigits", "2");
         CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
         CONFIG_MAP.put("misc.validateCrossedSpread", "true");
         CONFIG_MAP.put("misc.displayClosedPositions", "true");

@@ -116,9 +116,9 @@
      * Gets either {@code bid} or {@code ask} depending on the direction of the position. The
      * returned value is always positive.
      * @param marketDataEvent 
-     * @return double
+     * @return java.math.BigDecimal
      */
-    public abstract double getMarketPrice(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
+    public abstract java.math.BigDecimal getMarketPrice(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Gets the value of the position based on either {@code bid} or {@code ask} depending on the
@@ -128,33 +128,40 @@
      * <li>long positions: positive</li>
      * </ul>
      * @param marketDataEvent 
-     * @return double
+     * @return java.math.BigDecimal
      */
-    public abstract double getMarketValue(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
+    public abstract java.math.BigDecimal getMarketValue(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
+
+    /**
+     * Gets the average price of the position based on all relevant opening transactions (always
+     * positive).
+     * @return java.math.BigDecimal
+     */
+    public abstract java.math.BigDecimal getAveragePrice();
 
     /**
      * Gets the average price of the position based on all relevant opening transactions (always
      * positive).
      * @return double
      */
-    public abstract double getAveragePrice();
+    public abstract double getAveragePriceDouble();
 
     /**
      * Gets the unrealized Profit-and-Loss for this Position. To realize this Profit, the Position
      * would have to be closed.
      * @param marketDataEvent 
-     * @return double
+     * @return java.math.BigDecimal
      */
-    public abstract double getUnrealizedPL(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
+    public abstract java.math.BigDecimal getUnrealizedPL(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent);
 
     /**
      * Gets the current market exposure (market value x leverage).
      * @param marketDataEvent 
      * @param underlyingMarketDataEvent 
      * @param currentTime 
-     * @return double
+     * @return java.math.BigDecimal
      */
-    public abstract double getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
+    public abstract java.math.BigDecimal getExposure(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
 
     /**
      * The Currency Attribution of this Position.
@@ -187,15 +194,15 @@
             </property>
             <property name="cost">
                 <meta attribute="field-description"><![CDATA[the cost associated with the current holdings of this Position. Based on the average cost method.]]></meta>
-                <column name="COST" not-null="true" unique="false" sql-type="DOUBLE"/>
+                <column name="COST" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
-                <type name="double"/>
+                <type name="java.math.BigDecimal"/>
             </property>
             <property name="realizedPL">
                 <meta attribute="field-description"><![CDATA[the realized Profit-and-Loss of this Position]]></meta>
-                <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="DOUBLE"/>
+                <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
-                <type name="double"/>
+                <type name="java.math.BigDecimal"/>
             </property>
             <property name="persistent">
                 <meta attribute="field-description"><![CDATA[If set to {@code false}, the Position will be removed when resetting the database before a simulation run.]]></meta>

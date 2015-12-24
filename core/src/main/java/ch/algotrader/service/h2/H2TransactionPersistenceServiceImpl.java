@@ -98,7 +98,7 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
 
             Position position = this.positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
             if (position == null) {
-                position = Position.Factory.newInstance(0, 0, 0, false, strategy, security);
+                position = Position.Factory.newInstance(0, new BigDecimal(0.0), new BigDecimal(0.0), false, strategy, security);
                 currentSession.save(position);
             }
         }

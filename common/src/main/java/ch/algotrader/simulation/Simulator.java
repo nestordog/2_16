@@ -387,7 +387,7 @@ public class Simulator {
         double amount = 0.0;
         for (Position openPosition : openPositions) {
             final MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
-            amount += openPosition.getMarketValue(marketDataEvent);
+            amount += openPosition.getMarketValue(marketDataEvent).doubleValue();
         }
         return amount;
     }

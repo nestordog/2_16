@@ -37,7 +37,6 @@ import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.service.MarketDataCache;
-import ch.algotrader.util.RoundUtil;
 
 /**
 * Unit tests for {@link PositionVOProducer}.
@@ -80,16 +79,15 @@ public class PositionVOProducerTest {
         Position position = new PositionImpl();
         position.setId(111);
         position.setQuantity(0);
-        position.setCost(333.33);
-        position.setRealizedPL(444.44);
+        position.setCost(new BigDecimal(333.33));
+        position.setRealizedPL(new BigDecimal(102));
         position.setSecurity(forex);
         position.setStrategy(strategy);
-        position.setRealizedPL(102);
 
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
         TickVO tick = new TickVO(0L, new Date(), FeedType.SIM.name(), 101, new BigDecimal("1.1"), new Date(), new BigDecimal("1.12"), new BigDecimal("1.09"), 1, 2, 3);
-        Mockito.when(marketDataCache.getCurrentMarketDataEvent(101L)).thenReturn(tick);
+        Mockito.when(this.marketDataCache.getCurrentMarketDataEvent(101L)).thenReturn(tick);
 
         PositionVO vo = this.instance.convert(position);
 
@@ -102,12 +100,12 @@ public class PositionVOProducerTest {
         Assert.assertEquals(position.getSecurity().toString(), vo.getName());
         Assert.assertEquals(position.getStrategy().toString(), vo.getStrategy());
         Assert.assertEquals(position.getSecurity().getSecurityFamily().getCurrency(), vo.getCurrency());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketPrice(tick), scale), vo.getMarketPrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getMarketValue(tick)), vo.getMarketValue());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getAveragePrice(), scale), vo.getAveragePrice());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getCost()), vo.getCost());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getUnrealizedPL(tick)), vo.getUnrealizedPL());
-        Assert.assertEquals(RoundUtil.getBigDecimal(position.getRealizedPL()), vo.getRealizedPL());
+        Assert.assertEquals(position.getMarketPrice(tick), vo.getMarketPrice());
+        Assert.assertEquals(position.getMarketValue(tick), vo.getMarketValue());
+        Assert.assertEquals(position.getAveragePrice(), vo.getAveragePrice());
+        Assert.assertEquals(position.getCost(), vo.getCost());
+        Assert.assertEquals(position.getUnrealizedPL(tick), vo.getUnrealizedPL());
+        Assert.assertEquals(position.getRealizedPL(), vo.getRealizedPL());
     }
 
 }

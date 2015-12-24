@@ -254,7 +254,7 @@ public class SimulatorTest {
         // verify positions and cashBalances
         position = this.simulator.findPositionByStrategyAndSecurity(strategyName, underlying);
         Assert.assertEquals(0, position.getQuantity());
-        Assert.assertEquals(40, position.getRealizedPL(), 0.01);
+        Assert.assertEquals(40, position.getRealizedPL().doubleValue(), 0.01);
 
         cashBalance = this.simulator.findCashBalanceByStrategyAndCurrency(strategyName, currency);
         Assert.assertEquals(new BigDecimal(1040), cashBalance.getAmount());

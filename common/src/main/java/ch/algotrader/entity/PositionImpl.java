@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.entity;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEventI;
@@ -66,7 +67,7 @@ public class PositionImpl extends Position {
     /**
      * used by hibernate hql expression to instantiate a virtual position
      */
-    public PositionImpl(long quantity, double cost, Security security) {
+    public PositionImpl(long quantity, BigDecimal cost, Security security) {
         super();
         setQuantity(quantity);
         setCost(cost);
@@ -86,47 +87,53 @@ public class PositionImpl extends Position {
     }
 
     @Override
-    public double getMarketPrice(MarketDataEventI marketDataEvent) {
+    public BigDecimal getMarketPrice(MarketDataEventI marketDataEvent) {
 
         if (isOpen()) {
 
             if (marketDataEvent != null) {
-                return marketDataEvent.getMarketValue(getDirection()).doubleValue();
+                return marketDataEvent.getMarketValue(getDirection());
             } else {
-                return Double.NaN;
+                return null;
             }
         } else {
-            return 0.0;
+            return RoundUtil.getBigDecimal(0.0);
         }
     }
 
     @Override
-    public double getMarketValue(MarketDataEventI marketDataEvent) {
+    public BigDecimal getMarketValue(MarketDataEventI marketDataEvent) {
 
         if (isOpen()) {
 
-            return getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPrice(marketDataEvent);
+            return RoundUtil.getBigDecimal(getQuantity() * getSecurity().getSecurityFamily().getContractSize() * getMarketPrice(marketDataEvent).doubleValue());
         } else {
-            return 0.0;
+            return RoundUtil.getBigDecimal(0.0);
         }
     }
 
     @Override
-    public double getAveragePrice() {
+    public double getAveragePriceDouble() {
 
-        return getCost() / getQuantity() / getSecurity().getSecurityFamily().getContractSize();
+        return getCost().doubleValue() / getQuantity() / getSecurity().getSecurityFamily().getContractSize();
     }
 
     @Override
-    public double getUnrealizedPL(MarketDataEventI marketDataEvent) {
+    public BigDecimal getAveragePrice() {
 
-        return getMarketValue(marketDataEvent) - getCost();
+        return RoundUtil.getBigDecimal(getAveragePriceDouble(), getSecurity().getSecurityFamily().getScale());
     }
 
     @Override
-    public double getExposure(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
+    public BigDecimal getUnrealizedPL(MarketDataEventI marketDataEvent) {
 
-        return getMarketValue(marketDataEvent) * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentTime);
+        return getMarketValue(marketDataEvent).subtract(getCost());
+    }
+
+    @Override
+    public BigDecimal getExposure(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
+
+        return RoundUtil.getBigDecimal(getMarketValue(marketDataEvent).doubleValue() * getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentTime));
     }
 
     @Override
@@ -142,7 +149,7 @@ public class PositionImpl extends Position {
             currency = ((Forex) getSecurity()).getBaseCurrency();
             amount = getQuantity() * securityFamily.getContractSize();
 
-            // Futures on Forex are attributed in the base currenty for their underlying baseCurrency
+            // Futures on Forex are attributed in the base currently for their underlying baseCurrency
         } else if (getSecurity() instanceof Future && getSecurity().getUnderlying() != null && getSecurity().getUnderlying() instanceof Forex) {
 
             Forex forex = (Forex) getSecurity().getUnderlying();
@@ -152,7 +159,7 @@ public class PositionImpl extends Position {
             // everything else is attributed in their currency
         } else {
             currency = securityFamily.getCurrency();
-            amount = getMarketValue(marketDataEvent);
+            amount = getMarketValue(marketDataEvent).doubleValue();
         }
 
         CurrencyAmountVO currencyAmount = new CurrencyAmountVO();

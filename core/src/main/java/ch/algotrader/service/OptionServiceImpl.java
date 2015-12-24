@@ -166,7 +166,7 @@ public class OptionServiceImpl implements OptionService {
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
             MarketDataEventVO underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
-            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
+            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent).doubleValue() * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
         }
 
         final Security underlying = this.securityDao.get(underlyingId);

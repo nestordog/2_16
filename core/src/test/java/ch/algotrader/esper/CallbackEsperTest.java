@@ -189,12 +189,12 @@ public class CallbackEsperTest extends EsperTestBase {
 
         });
 
-        PositionVO openPosition1 = new PositionVO(0L, 111L, 0L, 0L, false, 10L, 111L);
+        PositionVO openPosition1 = new PositionVO(0L, 111L, new BigDecimal(0.0), new BigDecimal(0.0), false, 10L, 111L);
         this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(openPositionQueue.poll());
 
-        PositionVO openPosition2 = new PositionVO(0L, 123L, 0L, 0L, false, 10L, 123L);
+        PositionVO openPosition2 = new PositionVO(0L, 123L, new BigDecimal(0.0), new BigDecimal(0.0), false, 10L, 123L);
         this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, openPositionQueue.poll());
@@ -215,12 +215,12 @@ public class CallbackEsperTest extends EsperTestBase {
 
         });
 
-        PositionVO openPosition1 = new PositionVO(0L, 0L, 0L, 0L, false, 10L, 111L);
+        PositionVO openPosition1 = new PositionVO(0L, 0L, new BigDecimal(0.0), new BigDecimal(0.0), false, 10L, 111L);
         this.epRuntime.sendEvent(openPosition1);
 
         Assert.assertNull(closedPositionQueue.poll());
 
-        PositionVO openPosition2 = new PositionVO(0L, 0l ,0L, 0L, false, 10L, 123L);
+        PositionVO openPosition2 = new PositionVO(0L, 0l, new BigDecimal(0.0), new BigDecimal(0.0), false, 10L, 123L);
         this.epRuntime.sendEvent(openPosition2);
 
         Assert.assertSame(openPosition2, closedPositionQueue.poll());

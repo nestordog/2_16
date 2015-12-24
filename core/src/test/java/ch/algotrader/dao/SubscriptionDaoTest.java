@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -319,6 +320,8 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription2);
         this.session.save(subscription1);
@@ -362,6 +365,8 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
         position1.setQuantity(0);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription1);
         this.session.save(subscription2);

@@ -511,8 +511,8 @@ DROP TABLE IF EXISTS "position";
 CREATE TABLE "position" (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `QUANTITY` bigint(20) NOT NULL,
-  `COST` double NOT NULL,
-  `REALIZED_P_L` double NOT NULL,
+  `COST` decimal(15,2) NOT NULL,
+  `REALIZED_P_L` decimal(15,2) NOT NULL,
   `PERSISTENT` bit(1) NOT NULL,
   `SECURITY_FK` bigint(20) NOT NULL,
   `STRATEGY_FK` bigint(20) NOT NULL,
