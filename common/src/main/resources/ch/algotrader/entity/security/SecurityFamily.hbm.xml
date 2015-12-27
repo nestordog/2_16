@@ -277,22 +277,12 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="SECURITY_FAMILY_EXCHANGE_FKC" not-null="false" lazy="proxy" fetch="select">
+        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="SECURITY_FAMILY_EXCHANGE_FKC" not-null="false" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
             <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <column name="EXCHANGE_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="securities" order-by="SECURITY_FAMILY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
-(e.g. All Options of the SP500)]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="SECURITY_SECURITY_FAMILY_FKC">
-                <column name="SECURITY_FAMILY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.security.SecurityImpl" not-found="exception"/>
-        </set>
         <map name="brokerParameters" order-by="SECURITY_FAMILY_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)]]></meta>

@@ -135,9 +135,6 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         // save to DB
         this.combinationDao.save(combination);
 
-        // reverse-associate security family (after combination has received an id)
-        securityFamily.getSecurities().add(combination);
-
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("created combination {}", combination);
         }
@@ -194,9 +191,6 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
                 // update the ComponentWindow
                 removeFromComponentWindow(component);
             }
-
-            // disassociated the security family
-            combination.getSecurityFamily().removeSecurities(combination);
 
             // remove the combination
             this.combinationDao.delete(combination);
