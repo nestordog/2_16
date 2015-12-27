@@ -168,10 +168,11 @@
         from PositionImpl as p 
         join p.security as s 
         join s.securityFamily as sf 
-        where p.strategy.name = :strategyName 
+        join sf.underlying as u
+        where p.strategy.name = :strategyName
         and p.quantity != 0 
         and s.class = :type 
-        and sf.class = :underlyingType 
+        and u.class = :underlyingType
         order by p.security.id 
     ]]>
     </query>

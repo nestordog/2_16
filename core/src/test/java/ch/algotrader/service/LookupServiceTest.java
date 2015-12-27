@@ -2135,27 +2135,45 @@ public class LookupServiceTest extends InMemoryDBTest {
 
     @Test
     public void testGetOpenPositionsByStrategyTypeAndUnderlyingType() {
-    
+
         SecurityFamily family1 = new SecurityFamilyImpl();
         family1.setName("Forex1");
         family1.setTickSizePattern("0<0.1");
         family1.setCurrency(Currency.USD);
-    
+
         Forex forex1 = new ForexImpl();
         forex1.setSymbol("EUR.USD");
         forex1.setBaseCurrency(Currency.EUR);
         forex1.setSecurityFamily(family1);
-    
-        Strategy strategy1 = new StrategyImpl();
-        strategy1.setName("Strategy1");
-    
+
         this.session.save(family1);
         this.session.save(forex1);
+
+        FutureFamily futurefamily1 = new FutureFamilyImpl();
+        futurefamily1.setName("Future1");
+        futurefamily1.setTickSizePattern("0<0.1");
+        futurefamily1.setCurrency(Currency.USD);
+        futurefamily1.setExpirationType(ExpirationType.NEXT_3_RD_FRIDAY);
+        futurefamily1.setExpirationDistance(Duration.DAY_1);
+
+        futurefamily1.setUnderlying(forex1);
+        this.session.save(futurefamily1);
+
+        Future future1 = new FutureImpl();
+        future1.setSecurityFamily(futurefamily1);
+        LocalDate expiration = LocalDate.now().plusMonths(1);
+        future1.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(expiration));
+        this.session.save(future1);
+
+        Strategy strategy1 = new StrategyImpl();
+        strategy1.setName("Strategy1");
+
         this.session.save(strategy1);
     
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setSecurity(forex1);
+        position1.setSecurity(future1);
         position1.setStrategy(strategy1);
         position1.setCost(new BigDecimal(0.0));
         position1.setRealizedPL(new BigDecimal(0.0));
@@ -2163,17 +2181,16 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Security.class, SecurityFamily.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Future.class, Forex.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Forex.class, SecurityFamily.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Future.class, Forex.class);
     
         Assert.assertEquals(1, positions2.size());
     
         Assert.assertEquals(222, positions2.get(0).getQuantity());
-        Assert.assertSame(forex1, positions2.get(0).getSecurity());
-        Assert.assertSame(family1, positions2.get(0).getSecurity().getSecurityFamily());
+        Assert.assertSame(future1, positions2.get(0).getSecurity());
         Assert.assertSame(strategy1, positions2.get(0).getStrategy());
     }
 

@@ -171,6 +171,7 @@
                 <!-- id-generator merge-point -->
             </generator>
         </id>
+        <discriminator column="class" type="string"/>
         <property name="name">
             <meta attribute="field-description"><![CDATA[The name of this SecurityFamily]]></meta>
             <meta attribute="use-in-equals">true</meta>
@@ -303,16 +304,13 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
             <map-key column="BROKER" type="java.lang.String"/>
             <one-to-many class="ch.algotrader.entity.security.BrokerParametersImpl" not-found="exception"/>
         </map>
-        <joined-subclass name="ch.algotrader.entity.security.FutureFamilyImpl" table="`future_family`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        <subclass name="ch.algotrader.entity.security.FutureFamilyImpl" discriminator-value="FutureFamilyImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.FutureFamilyI,ch.algotrader.entity.security.ExpirableFamilyI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.FutureFamily</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="FUTURE_FAMILYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="intrest">
                 <meta attribute="field-description"><![CDATA[The current Intrest relevant to the pricing of {@link Future Futures} of this FutureFamily.]]></meta>
                 <column name="INTREST" not-null="true" unique="false" sql-type="DOUBLE"/>
@@ -349,17 +347,14 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
 
                 <type name="int"/>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.OptionFamilyImpl" table="`option_family`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.OptionFamilyImpl" discriminator-value="OptionFamilyImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.OptionFamilyI,ch.algotrader.entity.security.ExpirableFamilyI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.OptionFamily</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="OPTION_FAMILYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="intrest">
                 <meta attribute="field-description"><![CDATA[The current Intrest relevant to the pricing of {@link Option Options} of this OptionFamily.]]></meta>
                 <column name="INTREST" not-null="true" unique="false" sql-type="DOUBLE"/>
@@ -402,17 +397,14 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
 
                 <type name="boolean"/>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.GenericFutureFamilyImpl" table="`generic_future_family`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.GenericFutureFamilyImpl" discriminator-value="GenericFutureFamilyImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.GenericFutureFamilyI,ch.algotrader.entity.security.ExpirableFamilyI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.GenericFutureFamily</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="GENERIC_FUTURE_FAMILYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="expirationType">
                 <meta attribute="field-description"><![CDATA[The Type of Expiration Logic utilized by {@link GenericFuture GenericFutures} of this GenericFutureFamily.]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.ExpirationType</meta>
@@ -431,17 +423,14 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
                  <param name="enumClassName">ch.algotrader.enumeration.Duration</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.BondFamilyImpl" table="`bond_family`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.BondFamilyImpl" discriminator-value="BondFamilyImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.BondFamilyI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.BondFamily</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="BOND_FAMILYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="maturityDistance">
                 <meta attribute="field-description"><![CDATA[The {@link Duration} between two {@link Bond Bonds} of this BondFamily. (e.g. 3 Months)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
@@ -466,6 +455,6 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
                  <param name="enumClassName">ch.algotrader.enumeration.QuotationStyle</param>
                 </type>
             </property>
-        </joined-subclass>
+        </subclass>
     </class>
 </hibernate-mapping>
