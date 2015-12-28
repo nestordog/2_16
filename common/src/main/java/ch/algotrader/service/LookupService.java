@@ -24,7 +24,6 @@ import java.util.Map;
 
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
@@ -174,7 +173,7 @@ public interface LookupService {
      * Gets Combinations that are subscribed by the specified Strategy and have a Component with the
      * specified Security Type.
      */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class<?> type);
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class<? extends Security> type);
 
     /**
      * Gets all Components where the Combination is subscribed by the defined Strategy.  In addition
@@ -312,12 +311,12 @@ public interface LookupService {
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class<? extends BaseEntityI> type);
+    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class<? extends Security> type);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends BaseEntityI> type, Class<? extends BaseEntityI> underlyingType);
+    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends Security> type, Class<? extends Security> underlyingType);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.

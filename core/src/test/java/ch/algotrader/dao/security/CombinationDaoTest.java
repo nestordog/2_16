@@ -42,7 +42,6 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.util.HibernateUtil;
 
 /**
 * Unit tests for {@link CombinationDaoImpl}.
@@ -243,15 +242,11 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
-
-        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", discriminator1);
+        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", Security.class);
 
         Assert.assertEquals(0, combinations1.size());
 
-        int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, ForexImpl.class);
-
-        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", discriminator2);
+        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(1, combinations2.size());
 
@@ -292,19 +287,15 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.flush();
 
-        int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
-
-        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", discriminator1);
+        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", Security.class);
 
         Assert.assertEquals(0, combinations1.size());
-
-        int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, ForexImpl.class);
 
         component1.setQuantity(0);
 
         this.session.flush();
 
-        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", discriminator2);
+        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(1, combinations2.size());
 

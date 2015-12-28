@@ -41,6 +41,7 @@ import ch.algotrader.entity.security.FutureImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
@@ -50,7 +51,6 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.hibernate.InMemoryDBTest;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimePatterns;
-import ch.algotrader.util.HibernateUtil;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Position}.
@@ -415,11 +415,11 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        List<Position> positions1 = this.dao.findOpenPositionsByStrategyAndType("Dummy", HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class));
+        List<Position> positions1 = this.dao.findOpenPositionsByStrategyAndType("Dummy", SecurityImpl.class);
 
         Assert.assertEquals(0, positions1.size());
 
-        List<Position> positions2 = this.dao.findOpenPositionsByStrategyAndType("Strategy1", HibernateUtil.getDisriminatorValue(this.sessionFactory, Forex.class));
+        List<Position> positions2 = this.dao.findOpenPositionsByStrategyAndType("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(1, positions2.size());
 
@@ -457,13 +457,11 @@ public class PositionDaoTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
 
-        List<Position> positions1 = this.dao.findOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", HibernateUtil.getDisriminatorValue(this.sessionFactory, Future.class),
-                HibernateUtil.getDisriminatorValue(this.sessionFactory, Forex.class));
+        List<Position> positions1 = this.dao.findOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", FutureImpl.class, ForexImpl.class);
 
         Assert.assertEquals(0, positions1.size());
 
-        List<Position> positions2 = this.dao.findOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", HibernateUtil.getDisriminatorValue(this.sessionFactory, Future.class),
-                HibernateUtil.getDisriminatorValue(this.sessionFactory, Forex.class));
+        List<Position> positions2 = this.dao.findOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", FutureImpl.class, ForexImpl.class);
 
         Assert.assertEquals(1, positions2.size());
 

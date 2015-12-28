@@ -54,7 +54,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
-import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.visitor.TickValidationVisitor;
 import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
@@ -362,13 +361,12 @@ public class MarketDataServiceImpl implements MarketDataService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void removeNonPositionSubscriptionsByType(final String strategyName, final Class<?> type) {
+    public void removeNonPositionSubscriptionsByType(final String strategyName, final Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-        Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptionsByType(strategyName, discriminator);
+        Collection<Subscription> subscriptions = this.subscriptionDao.findNonPositionSubscriptionsByType(strategyName, type);
 
         for (Subscription subscription : subscriptions) {
             unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());

@@ -100,11 +100,12 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
-    public List<Subscription> findNonPositionSubscriptionsByType(String strategyName, int type) {
+    public List<Subscription> findNonPositionSubscriptionsByType(String strategyName, Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findCaching("Subscription.findNonPositionSubscriptionsByType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Subscription.findNonPositionSubscriptionsByType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+                new NamedParam("type", type.getSimpleName()));
     }
 
     @Override

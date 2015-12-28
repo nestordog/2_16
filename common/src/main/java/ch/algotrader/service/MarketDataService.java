@@ -21,6 +21,7 @@ import java.util.Set;
 
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.security.Security;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -69,7 +70,7 @@ public interface MarketDataService {
      * an open Position.
      * @param type The class for which a potential Subscription should be removed. Example: {@link ch.algotrader.entity.security.Future Future}
      */
-    void removeNonPositionSubscriptionsByType(String strategyName, Class<?> type);
+    void removeNonPositionSubscriptionsByType(String strategyName, Class<? extends Security> type);
 
     /**
      * Publishes the latest Market Data Events of all subscribed Securities to the corresponding

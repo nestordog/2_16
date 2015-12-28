@@ -27,6 +27,7 @@ import org.springframework.stereotype.Repository;
 
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -123,20 +124,21 @@ public class PositionDaoImpl extends AbstractDao<Position> implements PositionDa
     }
 
     @Override
-    public List<Position> findOpenPositionsByStrategyAndType(String strategyName, int type) {
+    public List<Position> findOpenPositionsByStrategyAndType(String strategyName, Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findCaching("Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type",
+                type.getSimpleName()));
     }
 
     @Override
-    public List<Position> findOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, int type, int underlyingType) {
+    public List<Position> findOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends Security> type, Class<? extends Security> underlyingType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findCaching("Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type), new NamedParam(
-                "underlyingType", underlyingType));
+        return findCaching("Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+                new NamedParam("type", type.getSimpleName()), new NamedParam("underlyingType", underlyingType.getSimpleName()));
     }
 
     @Override

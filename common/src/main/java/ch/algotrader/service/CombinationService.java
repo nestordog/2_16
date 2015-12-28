@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.CombinationType;
 
 /**
@@ -90,7 +91,7 @@ public interface CombinationService {
      * Delete all Combinations that are subscribed by the specified Strategy, contain exclusively
      * Components with {@code quantity = 0} and have Components of the specified {@code type}.
      */
-    public void deleteCombinationsWithZeroQty(String strategyName, Class<?> type);
+    public void deleteCombinationsWithZeroQty(String strategyName, Class<? extends Security> type);
 
     /**
      * Updates the Component Window. This method should only be called after manually manipulating

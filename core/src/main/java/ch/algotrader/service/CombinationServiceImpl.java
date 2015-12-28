@@ -376,13 +376,13 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombinationsWithZeroQty(final String strategyName, final Class<?> type) {
+    public void deleteCombinationsWithZeroQty(final String strategyName, final Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
         int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-        Collection<Combination> combinations = this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, discriminator);
+        Collection<Combination> combinations = this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, type);
 
         if (combinations.size() > 0) {
 

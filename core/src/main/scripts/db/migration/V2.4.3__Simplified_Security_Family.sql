@@ -1,5 +1,5 @@
 ALTER TABLE `security_family`
-  ADD `CLASS` varchar(255),
+  ADD `CLASS` varchar(255) AFTER `ID`,
   ADD `INTREST` double DEFAULT NULL,
   ADD `DIVIDEND` double DEFAULT NULL,
   ADD `EXPIRATION_TYPE` enum('NEXT_3_RD_FRIDAY','NEXT_3_RD_FRIDAY_3_MONTHS','NEXT_3_RD_MONDAY_3_MONTHS','THIRTY_DAYS_BEFORE_NEXT_3_RD_FRIDAY') DEFAULT NULL,
@@ -18,12 +18,14 @@ UPDATE `security_family` sf, `future_family` ff SET
   sf.`EXPIRATION_DISTANCE` = ff.`EXPIRATION_DISTANCE`,
   sf.`LENGTH` = ff.`LENGTH`
 WHERE sf.`ID` = ff.`ID`;
+DROP TABLE `future_family`;
 
 UPDATE `security_family` sf, `generic_future_family` ff SET
   sf.`CLASS` = 'GenericFutureFamilyImpl',
   sf.`EXPIRATION_TYPE` = ff.`EXPIRATION_TYPE`,
   sf.`EXPIRATION_DISTANCE` = ff.`EXPIRATION_DISTANCE`
 WHERE sf.`ID` = ff.`ID`;
+DROP TABLE `generic_future_family`;
 
 UPDATE `security_family` sf, `option_family` of SET
   sf.`CLASS` = 'OptionFamilyImpl',
@@ -34,6 +36,7 @@ UPDATE `security_family` sf, `option_family` of SET
   sf.`STRIKE_DISTANCE` = of.`STRIKE_DISTANCE`,
   sf.`WEEKLY` = of.`WEEKLY`
 WHERE sf.`ID` = of.`ID`;
+DROP TABLE `option_family`;
 
 UPDATE `security_family` sf, `bond_family` bf SET
   sf.`CLASS` = 'BondFamilyImpl',
@@ -41,15 +44,8 @@ UPDATE `security_family` sf, `bond_family` bf SET
   sf.`LENGTH` = bf.`LENGTH`,
   sf.`QUOTATION_STYLE` = bf.`QUOTATION_STYLE`
 WHERE sf.`ID` = bf.`ID`;
+DROP TABLE `bond_family`;
 
 UPDATE `security_family` SET
   `CLASS` = 'SecurityFamilyImpl'
 WHERE `CLASS` IS NULL;
-
-ALTER TABLE `security_family`
-  MODIFY `CLASS` varchar(255) NOT NULL;
-
-DROP TABLE bond_family;
-DROP TABLE option_family;
-DROP TABLE generic_future_family;
-DROP TABLE future_family;

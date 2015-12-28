@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.security.Security;
 
 /**
  * DAO for {@link ch.algotrader.entity.Position} objects.
@@ -122,22 +123,19 @@ public interface PositionDao extends ReadWriteDao<Position> {
     /**
      * Finds open Positions for the specified Strategy and SecurityType.
      * @param strategyName
-     * @param type The Security Type which has to be defined as an {@code int} using {@link
-     * ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
+     * @param type security type (class)
      * @return List<Position>
      */
-    List<Position> findOpenPositionsByStrategyAndType(String strategyName, int type);
+    List<Position> findOpenPositionsByStrategyAndType(String strategyName, Class<? extends Security> type);
 
     /**
      * Finds open Positions for the specified Strategy and SecurityType.
      * @param strategyName
-     * @param type The Security Type which has to be defined as an {@code int} using {@link
-     * ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
-     * @param underlyingType The Security Type which has to be defined as an {@code int} using {@link
-     * ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
+     * @param type security type (class)
+     * @param underlyingType security type (class) of the underlying
      * @return List<Position>
      */
-    List<Position> findOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, int type, int underlyingType);
+    List<Position> findOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends Security> type, Class<? extends Security> underlyingType);
 
     /**
      * Finds open Positions for the specified Strategy and SecurityFamily.

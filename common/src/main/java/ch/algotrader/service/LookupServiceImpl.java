@@ -39,7 +39,6 @@ import ch.algotrader.cache.CacheManager;
 import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
@@ -361,13 +360,13 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(final String strategyName, final Class<?> type) {
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(final String strategyName, final Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        int discriminator = this.cacheManager.getDiscriminatorValue(type);
-        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
+        return this.cacheManager.find(Combination.class, "Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+                new NamedParam("type", type.getSimpleName()));
 
     }
 
@@ -667,14 +666,13 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Position> getOpenPositionsByStrategyAndType(final String strategyName, final Class<? extends BaseEntityI> type) {
+    public List<Position> getOpenPositionsByStrategyAndType(final String strategyName, final Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
 
-        int discriminator = this.cacheManager.getDiscriminatorValue(type);
-
-        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", discriminator));
+        return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyAndType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName),
+                new NamedParam("type", type.getSimpleName()));
 
     }
 
@@ -682,19 +680,16 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
-    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(final String strategyName, final Class<? extends BaseEntityI> type, final Class<? extends BaseEntityI> underlyingType) {
+    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(final String strategyName, final Class<? extends Security> type, final Class<? extends Security> underlyingType) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
         Validate.notNull(type, "Type is null");
         Validate.notNull(underlyingType, "Underlying type is null");
 
-        int discriminator = this.cacheManager.getDiscriminatorValue(type);
-        int underlyingDiscriminator = this.cacheManager.getDiscriminatorValue(underlyingType);
-
         return this.cacheManager.find(Position.class, "Position.findOpenPositionsByStrategyTypeAndUnderlyingType", QueryType.BY_NAME,
                 new NamedParam("strategyName", strategyName),
-                new NamedParam("type", discriminator),
-                new NamedParam("underlyingType", underlyingDiscriminator));
+                new NamedParam("type", type.getSimpleName()),
+                new NamedParam("underlyingType", underlyingType.getSimpleName()));
 
     }
 

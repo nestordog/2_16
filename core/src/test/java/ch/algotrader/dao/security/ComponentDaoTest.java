@@ -215,7 +215,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
 
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
-        combination1.setUuid("521ds5ds2d");
+        combination1.setUuid("this");
         combination1.setType(CombinationType.BUTTERFLY);
 
         Subscription subscription1 = new SubscriptionImpl();
@@ -225,7 +225,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
 
         Combination combination2 = new CombinationImpl();
         combination2.setSecurityFamily(this.family1);
-        combination2.setUuid("521ds5ds2d");
+        combination2.setUuid("that");
         combination2.setType(CombinationType.STRADDLE);
 
         Subscription subscription2 = new SubscriptionImpl();

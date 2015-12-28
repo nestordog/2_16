@@ -116,25 +116,25 @@ public class FutureDaoTest extends InMemoryDBTest {
         future1.setExpiration(DateTimeLegacy.toLocalDate(today));
         future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
-        LocalDate tomorrow = today.plusDays(1);
+        LocalDate nextMonth = today.plusMonths(1);
 
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(DateTimeLegacy.toLocalDate(tomorrow));
-        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(tomorrow));
+        future2.setExpiration(DateTimeLegacy.toLocalDate(nextMonth));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(nextMonth));
 
         this.session.save(this.family1);
         this.session.save(future1);
         this.session.save(future2);
         this.session.flush();
 
-        LocalDate afterTomorrow = tomorrow.plusDays(1);
+        LocalDate afterNextMonth = nextMonth.plusMonths(1);
 
-        List<Future> futures1 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(afterTomorrow));
+        List<Future> futures1 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(afterNextMonth));
 
         Assert.assertEquals(0, futures1.size());
 
-        List<Future> futures2 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(tomorrow));
+        List<Future> futures2 = this.dao.findByMinExpiration(this.family1.getId(), DateTimeLegacy.toLocalDate(nextMonth));
 
         Assert.assertEquals(1, futures2.size());
 
@@ -161,12 +161,12 @@ public class FutureDaoTest extends InMemoryDBTest {
         future1.setExpiration(DateTimeLegacy.toLocalDate(today));
         future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
-        LocalDate tomorrow = today.plusDays(1);
+        LocalDate nextMonth = today.plusMonths(1);
 
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(DateTimeLegacy.toLocalDate(tomorrow));
-        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(tomorrow));
+        future2.setExpiration(DateTimeLegacy.toLocalDate(nextMonth));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(nextMonth));
 
         this.session.save(this.family1);
         this.session.save(future1);
@@ -225,10 +225,12 @@ public class FutureDaoTest extends InMemoryDBTest {
         future1.setExpiration(DateTimeLegacy.toLocalDate(today));
         future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
 
+        LocalDate nextMonth = today.plusMonths(1);
+
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(this.family1);
-        future2.setExpiration(DateTimeLegacy.toLocalDate(today));
-        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
+        future2.setExpiration(DateTimeLegacy.toLocalDate(nextMonth));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(nextMonth));
 
         this.session.save(this.family1);
         this.session.save(future1);

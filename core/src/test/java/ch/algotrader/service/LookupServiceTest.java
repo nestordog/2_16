@@ -88,6 +88,7 @@ import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.security.SecurityReference;
 import ch.algotrader.entity.security.SecurityReferenceImpl;
 import ch.algotrader.entity.security.Stock;
@@ -924,11 +925,13 @@ public class LookupServiceTest extends InMemoryDBTest {
         future1.setSecurityFamily(family1);
         future1.setExpiration(DateTimeLegacy.toLocalDate(today));
         future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
-    
+
+        LocalDate nextMonth = today.plusMonths(1);
+
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(family1);
-        future2.setExpiration(DateTimeLegacy.toLocalDate(today));
-        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
+        future2.setExpiration(DateTimeLegacy.toLocalDate(nextMonth));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(nextMonth));
     
         this.session.save(family1);
         this.session.save(future1);
@@ -1189,7 +1192,7 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", Security.class);
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", SecurityImpl.class);
     
         Assert.assertEquals(0, combinations1.size());
     
@@ -2119,11 +2122,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndType("Dummy", Security.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndType("Dummy", SecurityImpl.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndType("Strategy1", Forex.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndType("Strategy1", ForexImpl.class);
     
         Assert.assertEquals(1, positions2.size());
     
@@ -2181,11 +2184,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Future.class, Forex.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", FutureImpl.class, ForexImpl.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Future.class, Forex.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", FutureImpl.class, ForexImpl.class);
     
         Assert.assertEquals(1, positions2.size());
     
