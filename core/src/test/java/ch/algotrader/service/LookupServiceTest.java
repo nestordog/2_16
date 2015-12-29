@@ -588,9 +588,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy2);
         this.session.save(subscription2);
     
-        forex1.addSubscriptions(subscription1);
-        forex2.addSubscriptions(subscription2);
-    
         this.session.flush();
     
         List<Security> forexes1 = new ArrayList<Security>(lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
@@ -643,8 +640,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(strategy1);
         this.session.save(subscription1);
-    
-        forex1.addSubscriptions(subscription1);
     
         this.session.flush();
     
@@ -896,15 +891,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(option1);
         this.session.save(subscription1);
     
-        option1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Option> options1 = lookupService.getSubscribedOptions();
     
         Assert.assertEquals(1, options1.size());
     
-        Assert.assertEquals(1, options1.get(0).getSubscriptions().size());
         Assert.assertSame(option1, options1.get(0));
     }
 
@@ -950,8 +942,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy1);
         this.session.save(subscription1);
     
-        future1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Future> futures2 = lookupService.getSubscribedFutures();
@@ -960,16 +950,13 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertSame(future1, futures2.get(0));
         Assert.assertSame(family1, futures2.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
-    
+
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(future2);
         subscription2.setStrategy(strategy1);
     
         this.session.save(subscription2);
-    
-        future2.addSubscriptions(subscription2);
     
         this.session.flush();
     
@@ -979,10 +966,8 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(family1, futures3.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(0).getSubscriptions().size());
         Assert.assertSame(future2, futures3.get(1));
         Assert.assertSame(family1, futures3.get(1).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(1).getSubscriptions().size());
     }
 
     @Test
@@ -1022,15 +1007,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategy("Strategy1");
     
         Assert.assertEquals(1, combinations1.size());
     
-        Assert.assertEquals(1, combinations1.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations1.get(0));
     }
 
@@ -1072,8 +1054,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", 0);
@@ -1084,7 +1064,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1130,8 +1109,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.save(component1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", 0);
@@ -1142,7 +1119,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1188,8 +1164,6 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", SecurityImpl.class);
@@ -1200,7 +1174,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1236,8 +1209,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
         component1.setCombination(combination1);
@@ -1254,7 +1225,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
     
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components2.get(0).getSecurity());
     }
 
@@ -1290,8 +1260,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
         component1.setCombination(combination1);
@@ -1312,7 +1280,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components3.size());
     
         Assert.assertSame(combination1, components3.get(0).getCombination());
-        Assert.assertEquals(1, components3.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components3.get(0).getSecurity());
     }
 
@@ -1348,8 +1315,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
         component1.setCombination(combination1);
@@ -1366,7 +1331,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
     
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components2.get(0).getSecurity());
     }
 

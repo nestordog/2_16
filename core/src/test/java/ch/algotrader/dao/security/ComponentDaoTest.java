@@ -102,8 +102,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
         component1.setCombination(combination1);
@@ -120,7 +118,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
 
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
     }
 
@@ -143,8 +140,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
         component1.setCombination(combination1);
@@ -161,7 +156,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
 
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
     }
 
@@ -184,8 +178,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
         component1.setCombination(combination1);
@@ -206,7 +198,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components3.size());
 
         Assert.assertSame(combination1, components3.get(0).getCombination());
-        Assert.assertEquals(1, components3.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components3.get(0).getSecurity());
     }
 
@@ -240,9 +231,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(subscription1);
         this.session.save(combination2);
         this.session.save(subscription2);
-
-        combination1.addSubscriptions(subscription1);
-        combination2.addSubscriptions(subscription2);
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);

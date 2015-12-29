@@ -266,9 +266,6 @@ public class ResetServiceImpl implements ResetService {
         }
 
         Collection<Position> nonPersistentPositions = this.positionDao.findNonPersistent();
-        for (Position position : nonPersistentPositions) {
-            position.getSecurity().removePositions(position);
-        }
         this.positionDao.deleteAll(nonPersistentPositions);
 
         // reset persistent positions
@@ -300,9 +297,6 @@ public class ResetServiceImpl implements ResetService {
 
         Collection<Subscription> nonPersistentSubscriptions = this.subscriptionDao.findNonPersistent();
         this.subscriptionDao.deleteAll(nonPersistentSubscriptions);
-        for (Subscription subscription : nonPersistentSubscriptions) {
-            subscription.getSecurity().getSubscriptions().remove(subscription);
-        }
     }
 
     /**

@@ -386,15 +386,12 @@ public class OptionDaoTest extends InMemoryDBTest {
         this.session.save(option1);
         this.session.save(subscription1);
 
-        option1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Option> options1 = this.dao.findSubscribedOptions();
 
         Assert.assertEquals(1, options1.size());
 
-        Assert.assertEquals(1, options1.get(0).getSubscriptions().size());
         Assert.assertSame(option1, options1.get(0));
     }
 

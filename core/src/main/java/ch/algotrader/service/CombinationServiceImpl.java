@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.collections15.CollectionUtils;
@@ -31,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.PositionDao;
+import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.security.CombinationDao;
 import ch.algotrader.dao.security.ComponentDao;
 import ch.algotrader.dao.security.SecurityDao;
@@ -64,6 +66,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private final MarketDataService marketDataService;
 
+    private final SubscriptionDao subscriptionDao;
+
     private final CombinationDao combinationDao;
 
     private final PositionDao positionDao;
@@ -80,6 +84,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
             final SessionFactory sessionFactory,
             final PositionService positionService,
             final MarketDataService marketDataService,
+            final SubscriptionDao subscriptionDao,
             final CombinationDao combinationDao,
             final PositionDao positionDao,
             final SecurityDao securityDao,
@@ -91,6 +96,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(combinationDao, "CombinationDao is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
@@ -103,6 +109,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         this.positionService = positionService;
         this.marketDataService = marketDataService;
         this.combinationDao = combinationDao;
+        this.subscriptionDao = subscriptionDao;
         this.positionDao = positionDao;
         this.securityDao = securityDao;
         this.componentDao = componentDao;
@@ -181,7 +188,8 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         } else {
 
             // unsubscribe potential subscribers
-            for (Subscription subscription : combination.getSubscriptions()) {
+            List<Subscription> subscriptions = this.subscriptionDao.findBySecurity(combination.getId());
+            for (Subscription subscription : subscriptions) {
                 this.marketDataService.unsubscribe(subscription.getStrategy().getName(), subscription.getSecurity().getId());
             }
 

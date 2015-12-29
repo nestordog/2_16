@@ -20,6 +20,7 @@ package ch.algotrader.dao.security;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -441,9 +442,6 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(strategy2);
         this.session.save(subscription2);
 
-        forex1.addSubscriptions(subscription1);
-        forex2.addSubscriptions(subscription2);
-
         this.session.flush();
 
         List<Security> forexes1 = this.dao.findSubscribedForAutoActivateStrategies();
@@ -520,9 +518,6 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(strategy2);
         this.session.save(subscription2);
 
-        forex1.addSubscriptions(subscription1);
-        forex2.addSubscriptions(subscription2);
-
         this.session.flush();
 
         List<Security> forexes1 = this.dao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(FeedType.BB.name());
@@ -598,9 +593,6 @@ public class SecurityDaoTest extends InMemoryDBTest {
         this.session.save(forex2);
         this.session.save(strategy2);
         this.session.save(subscription2);
-
-        forex1.addSubscriptions(subscription1);
-        forex2.addSubscriptions(subscription2);
 
         this.session.flush();
 

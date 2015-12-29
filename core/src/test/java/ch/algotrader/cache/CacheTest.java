@@ -28,7 +28,6 @@ import org.apache.commons.io.Charsets;
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.collection.internal.AbstractPersistentCollection;
 import org.hibernate.proxy.HibernateProxy;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -51,8 +50,6 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
-import ch.algotrader.entity.Subscription;
-import ch.algotrader.entity.SubscriptionImpl;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.exchange.ExchangeImpl;
 import ch.algotrader.entity.property.Property;
@@ -85,7 +82,6 @@ import ch.algotrader.esper.NoopEngine;
 import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
@@ -219,13 +215,6 @@ public class CacheTest extends DefaultConfigTestBase {
         strategy1.setName(STRATEGY_NAME);
         strategyId1 = (Long) session.save(strategy1);
 
-        Subscription subscription1 = new SubscriptionImpl();
-        subscription1.setStrategy(strategy1);
-        subscription1.setFeedType(FeedType.IB.name());
-        subscription1.setSecurity(security2);
-        session.save(subscription1);
-        security2.addSubscriptions(subscription1);
-
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
         position1.setStrategy(strategy1);
@@ -234,7 +223,6 @@ public class CacheTest extends DefaultConfigTestBase {
         position1.setRealizedPL(new BigDecimal(0.0));
 
         session.save(position1);
-        security2.addPositions(position1);
 
         Property property1 = new PropertyImpl();
         property1.setName(PROPERTY_NAME);
@@ -280,11 +268,6 @@ public class CacheTest extends DefaultConfigTestBase {
         Assert.assertNotNull(security.getUnderlying());
         Assert.assertFalse(security.getUnderlying() instanceof HibernateProxy);
 
-        AbstractPersistentCollection subscriptions = (AbstractPersistentCollection) security.getSubscriptions();
-        Assert.assertTrue(subscriptions.wasInitialized());
-
-        AbstractPersistentCollection positions = (AbstractPersistentCollection) security.getPositions();
-        Assert.assertTrue(positions.wasInitialized());
     }
 
     @Test
@@ -413,29 +396,6 @@ public class CacheTest extends DefaultConfigTestBase {
             
 
     @Test
-    public void testSubscription() {
-
-        MarketDataService marketDataService = context.getBean(MarketDataService.class);
-
-        Security security = cache.get(SecurityImpl.class, securityId1);
-        Assert.assertEquals(0, security.getSubscriptions().size());
-
-        txTemplate.execute(txStatus -> {
-            marketDataService.subscribe(STRATEGY_NAME, securityId1);
-            return null;
-        });
-
-        Assert.assertEquals(1, security.getSubscriptions().size());
-
-        txTemplate.execute(txStatus -> {
-            marketDataService.unsubscribe(STRATEGY_NAME, securityId1);
-            return null;
-        });
-
-        Assert.assertEquals(0, security.getSubscriptions().size());
-    }
-
-    @Test
     public void testHQL() {
 
         String queryString = "from PositionImpl as p join fetch p.security as s where s.id = :id";
@@ -458,26 +418,23 @@ public class CacheTest extends DefaultConfigTestBase {
 
         Security security = cache.get(SecurityImpl.class, securityId3);
 
-        Assert.assertEquals(0, security.getPositions().size());
+        long positionId = txTemplate.execute(txStatus ->
+                positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId());
 
-        long positionId = txTemplate.execute(txStatus -> {
-            return positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId();
-        });
+        txTemplate.execute(txStatus ->
+                positionService.modifyNonTradeablePosition(positionId, 2000000));
 
-        Assert.assertEquals(1, security.getPositions().size());
-
-        txTemplate.execute(txStatus -> {
-            return positionService.modifyNonTradeablePosition(positionId, 2000000);
-        });
-
-        Assert.assertEquals(2000000, security.getPositions().iterator().next().getQuantity());
+        Position position1 = cache.get(PositionImpl.class, positionId);
+        Assert.assertNotNull(position1);
+        Assert.assertEquals(2000000, position1.getQuantity());
 
         txTemplate.execute(txStatus -> {
             positionService.deleteNonTradeablePosition(positionId, false);
             return null;
         });
 
-        Assert.assertEquals(0, security.getPositions().size());
+        Position position2 = cache.get(PositionImpl.class, positionId);
+        Assert.assertNull(position2);
     }
 
     @Test

@@ -31,6 +31,13 @@ import ch.algotrader.util.collection.Pair;
 public interface SubscriptionDao extends ReadWriteDao<Subscription> {
 
     /**
+     * Finds all Subscriptions for the given security..
+     * @param securityId
+     * @return List<Subscription>
+     */
+    List<Subscription> findBySecurity(long securityId);
+
+    /**
      * Finds all Subscriptions by the defined {@code strategyName}.
      * @param strategyName
      * @return List<Subscription>

@@ -25,9 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -292,10 +290,6 @@ public class TickDaoTest extends InMemoryDBTest {
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
-        Set<Subscription> subscriptions = new HashSet<>();
-        subscriptions.add(subscription1);
-
-        this.forex1.setSubscriptions(subscriptions);
         this.session.save(this.strategy1);
 
         this.session.save(subscription1);
@@ -305,7 +299,6 @@ public class TickDaoTest extends InMemoryDBTest {
         List<Tick> ticks2 = this.dao.findSubscribedByTimePeriod(minDate.getTime(), maxDate.getTime());
 
         Assert.assertEquals(1, ticks2.size());
-        Assert.assertEquals(1, ticks2.get(0).getSecurity().getSubscriptions().size());
         Assert.assertSame(tick, ticks2.get(0));
         Assert.assertSame(this.forex1, ticks2.get(0).getSecurity());
     }
@@ -339,10 +332,6 @@ public class TickDaoTest extends InMemoryDBTest {
         subscription1.setSecurity(this.forex1);
         subscription1.setStrategy(this.strategy1);
 
-        Set<Subscription> subscriptions = new HashSet<>();
-        subscriptions.add(subscription1);
-
-        this.forex1.setSubscriptions(subscriptions);
         this.session.save(this.strategy1);
 
         this.session.save(subscription1);
@@ -359,14 +348,12 @@ public class TickDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, ticks1.size());
         Assert.assertEquals(1, ticks1.size());
-        Assert.assertEquals(1, ticks1.get(0).getSecurity().getSubscriptions().size());
         Assert.assertSame(tick1, ticks1.get(0));
         Assert.assertSame(this.forex1, ticks1.get(0).getSecurity());
 
         List<Tick> ticks2 = this.dao.findSubscribedByTimePeriod(2, minDate.getTime(), maxDate.getTime());
 
         Assert.assertEquals(2, ticks2.size());
-        Assert.assertEquals(1, ticks2.get(0).getSecurity().getSubscriptions().size());
         Assert.assertSame(tick1, ticks2.get(0));
         Assert.assertSame(this.forex1, ticks2.get(0).getSecurity());
 

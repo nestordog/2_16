@@ -108,6 +108,46 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
     }
 
     @Test
+    public void testFindBySecurity() {
+
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
+        this.session.save(this.strategy1);
+        this.session.save(this.strategy2);
+
+        List<Subscription> subscriptions1 = this.dao.findBySecurity(this.forex1.getId());
+
+        Assert.assertEquals(0, subscriptions1.size());
+
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM.name());
+        subscription1.setSecurity(this.forex1);
+        subscription1.setStrategy(this.strategy1);
+
+        this.session.save(subscription1);
+
+        Subscription subscription2 = new SubscriptionImpl();
+        subscription2.setFeedType(FeedType.SIM.name());
+        subscription2.setSecurity(this.forex1);
+        subscription2.setStrategy(this.strategy2);
+
+        this.session.save(subscription2);
+        this.session.flush();
+
+        Subscription subscription3 = new SubscriptionImpl();
+        subscription3.setFeedType(FeedType.IB.name());
+        subscription3.setSecurity(this.forex1);
+        subscription3.setStrategy(this.strategy2);
+
+        this.session.save(subscription3);
+        this.session.flush();
+
+        List<Subscription> subscriptions2 = this.dao.findBySecurity(this.forex1.getId());
+
+        Assert.assertEquals(3, subscriptions2.size());
+    }
+
+    @Test
     public void testFindByStrategy() {
 
         this.session.save(this.family1);
@@ -418,8 +458,6 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(strategy1);
         this.session.save(subscription1);
-
-        forex1.addSubscriptions(subscription1);
 
         this.session.flush();
 

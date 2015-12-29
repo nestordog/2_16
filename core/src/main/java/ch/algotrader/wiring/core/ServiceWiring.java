@@ -255,7 +255,6 @@ public class ServiceWiring {
     public MarketDataService createMarketDataService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final ConfigParams configParams,
-            final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
@@ -270,7 +269,7 @@ public class ServiceWiring {
         Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, forexDao,
+        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, tickDao, securityDao, strategyDao, subscriptionDao, forexDao,
                 engineManager, eventDispatcher, marketDataCache, serviceMap2);
     }
 
@@ -347,6 +346,7 @@ public class ServiceWiring {
             final SessionFactory sessionFactory,
             final PositionService positionService,
             final MarketDataService marketDataService,
+            final SubscriptionDao subscriptionDao,
             final CombinationDao combinationDao,
             final PositionDao positionDao,
             final SecurityDao securityDao,
@@ -354,7 +354,8 @@ public class ServiceWiring {
             final SecurityFamilyDao securityFamilyDao,
             final Engine serverEngine) {
 
-        return new CombinationServiceImpl(commonConfig, sessionFactory, positionService, marketDataService, combinationDao, positionDao, securityDao, componentDao, securityFamilyDao, serverEngine);
+        return new CombinationServiceImpl(commonConfig, sessionFactory, positionService, marketDataService, subscriptionDao, combinationDao, positionDao, securityDao,
+                componentDao, securityFamilyDao, serverEngine);
     }
 
     @Bean(name = "measurementService")

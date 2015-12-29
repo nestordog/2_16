@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -34,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -43,7 +41,6 @@ import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.RoundUtil;
@@ -172,10 +169,8 @@ public class SlicingOrderTest {
 
         Security security = Mockito.mock(Security.class);
         Strategy strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false, 0);
-        Subscription subscription = Subscription.Factory.newInstance(null, FeedType.IB.name(), true, strategy, security);
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance("", Currency.USD, 1, 2, "0<0.01", true, false);
 
-        Mockito.when(security.getSubscriptions()).thenReturn(Collections.singleton(subscription));
         Mockito.when(security.getSecurityFamily()).thenReturn(securityFamily);
         Mockito.when(security.toString()).thenReturn("TEST_SECURITY");
 

@@ -214,9 +214,6 @@ public class PositionServiceImpl implements PositionService {
 
         this.positionDao.save(position);
 
-        // reverse-associate the security (after position has received an id)
-        security.getPositions().add(position);
-
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("created non-tradeable position on {} for strategy {} quantity {}", security, strategyName, quantity);
         }
@@ -269,9 +266,6 @@ public class PositionServiceImpl implements PositionService {
 
         // propagate the ClosePosition event
         this.eventDispatcher.sendEvent(position.getStrategy().getName(), closePositionVO);
-
-        // remove the association
-        position.getSecurity().removePositions(position);
 
         this.positionDao.delete(position);
 

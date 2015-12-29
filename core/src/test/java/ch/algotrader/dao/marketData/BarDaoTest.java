@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -211,8 +209,6 @@ public class BarDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(subscription1);
 
-        this.forex1.addSubscriptions(subscription1);
-
         this.session.save(bar);
         this.session.flush();
 
@@ -245,11 +241,6 @@ public class BarDaoTest extends InMemoryDBTest {
         bar.setClose(new BigDecimal(444));
         bar.setFeedType(FeedType.CNX.name());
         bar.setSecurity(this.forex1);
-
-        Set<Subscription> subscriptions = new HashSet<>();
-        subscriptions.add(subscription1);
-
-        this.forex1.setSubscriptions(subscriptions);
 
         this.session.save(this.strategy1);
         this.session.save(this.family1);

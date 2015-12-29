@@ -249,8 +249,6 @@ public class FutureDaoTest extends InMemoryDBTest {
         this.session.save(this.strategy1);
         this.session.save(subscription1);
 
-        future1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Future> futures2 = this.dao.findSubscribedFutures();
@@ -259,7 +257,6 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Assert.assertSame(future1, futures2.get(0));
         Assert.assertSame(this.family1, futures2.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
 
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setFeedType(FeedType.BB.name());
@@ -267,8 +264,6 @@ public class FutureDaoTest extends InMemoryDBTest {
         subscription2.setStrategy(this.strategy1);
 
         this.session.save(subscription2);
-
-        future2.addSubscriptions(subscription2);
 
         this.session.flush();
 
@@ -278,10 +273,8 @@ public class FutureDaoTest extends InMemoryDBTest {
 
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(this.family1, futures3.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(0).getSubscriptions().size());
         Assert.assertSame(future2, futures3.get(1));
         Assert.assertSame(this.family1, futures3.get(1).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(1).getSubscriptions().size());
     }
 
     @Test

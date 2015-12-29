@@ -230,10 +230,10 @@ public class OrderServiceImpl implements OrderService {
 
         } else if (order instanceof AlgoOrder) {
 
-            // check market data for AlgoOrders
-            if (security.getSubscriptions().size() == 0) {
-                throw new OrderValidationException(security + " is not subscribed for " + order);
-            }
+//            // check market data for AlgoOrders
+//            if (security.getSubscriptions().size() == 0) {
+//                throw new OrderValidationException(security + " is not subscribed for " + order);
+//            }
 
             MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
             if (marketDataEvent == null) {

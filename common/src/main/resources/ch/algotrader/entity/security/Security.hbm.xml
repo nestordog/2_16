@@ -87,41 +87,13 @@
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
-        </set>
-        <set name="positions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="POSITION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.PositionImpl" not-found="exception"/>
-        </set>
-        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)]]></meta>
             <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="securityReferences" order-by="OWNER_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <meta attribute="field-inverse-name">owner</meta>
-            <cache usage="read-write" />
-            <key foreign-key="SECURITY_REFERENCE_OWNER_FKC">
-                <column name="OWNER_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.security.SecurityReferenceImpl" not-found="exception"/>
-        </set>
         <subclass name="ch.algotrader.entity.security.GenericFutureImpl" discriminator-value="GenericFutureImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.GenericFutureI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.GenericFuture</meta>

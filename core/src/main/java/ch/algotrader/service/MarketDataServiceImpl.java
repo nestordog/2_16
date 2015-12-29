@@ -31,7 +31,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,8 +68,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final CoreConfig coreConfig;
 
-    private final SessionFactory sessionFactory;
-
     private final TickDao tickDao;
 
     private final SecurityDao securityDao;
@@ -94,7 +91,6 @@ public class MarketDataServiceImpl implements MarketDataService {
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final ConfigParams configParams,
-            final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
@@ -108,7 +104,6 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(configParams, "ConfigParams is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
@@ -121,7 +116,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
-        this.sessionFactory = sessionFactory;
         this.tickDao = tickDao;
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
@@ -230,9 +224,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
             this.subscriptionDao.save(subscription);
 
-            // reverse-associate security (after subscription has received an id)
-            security.getSubscriptions().add(subscription);
-
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("subscribed security {} with {}", security, feedType);
             }
@@ -296,14 +287,12 @@ public class MarketDataServiceImpl implements MarketDataService {
         Subscription subscription = this.subscriptionDao.findByStrategySecurityAndFeedType(strategy.getName(), security.getId(), feedType);
         if (subscription != null && !subscription.isPersistent()) {
 
-            // update links
-            security.getSubscriptions().remove(subscription);
-
             this.subscriptionDao.delete(subscription);
 
             // only external unsubscribe if nobody is watching this security anymore
             if (!this.commonConfig.isSimulation()) {
-                if (security.getSubscriptions().size() == 0) {
+                List<Subscription> subscriptions = this.subscriptionDao.findBySecurity(security.getId());
+                if (subscriptions.isEmpty()) {
                     if (!security.getSecurityFamily().isSynthetic()) {
                         getExternalMarketDataService(feedType).unsubscribe(security);
                     }

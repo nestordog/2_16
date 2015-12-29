@@ -44,6 +44,12 @@ public class SubscriptionDaoImpl extends AbstractDao<Subscription> implements Su
     }
 
     @Override
+    public List<Subscription> findBySecurity(long securityId) {
+
+        return findCaching("Subscription.findBySecurity", QueryType.BY_NAME, new NamedParam("securityId", securityId));
+    }
+
+    @Override
     public List<Subscription> findByStrategy(String strategyName) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");

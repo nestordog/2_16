@@ -111,15 +111,12 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategy("Strategy1");
 
         Assert.assertEquals(1, combinations1.size());
 
-        Assert.assertEquals(1, combinations1.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations1.get(0));
     }
 
@@ -148,8 +145,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndUnderlying("Strategy1", 0);
@@ -160,7 +155,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -193,8 +187,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponent("Strategy1", 0);
@@ -205,7 +197,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -238,8 +229,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", Security.class);
@@ -250,7 +239,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -283,8 +271,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", Security.class);
@@ -299,7 +285,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -346,16 +331,12 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination2);
         this.session.save(subscription2);
 
-        combination1.addSubscriptions(subscription1);
-        combination2.addSubscriptions(subscription2);
-
         this.session.flush();
 
         List<Combination> combinations2 = this.dao.findNonPersistent();
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
 
         combination2.setPersistent(false);
@@ -366,7 +347,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(2, combinations3.size());
 
-        Assert.assertEquals(1, combinations3.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations3.get(0));
         Assert.assertSame(combination2, combinations3.get(1));
     }
