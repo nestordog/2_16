@@ -18,10 +18,19 @@
 package ch.algotrader.entity.security;
 
 
+import ch.algotrader.visitor.SecurityVisitor;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class IndexImpl extends Index {
 
     private static final long serialVersionUID = 4087343403938105040L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitIndex(this, param);
+    }
+
 }

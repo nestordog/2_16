@@ -25,6 +25,7 @@ import org.apache.commons.math.MathException;
 import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.option.OptionUtil;
 import ch.algotrader.util.DateUtil;
+import ch.algotrader.visitor.SecurityVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -32,6 +33,12 @@ import ch.algotrader.util.DateUtil;
 public class OptionImpl extends Option {
 
     private static final long serialVersionUID = -3168298592370987085L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitOption(this, param);
+    }
 
     @Override
     public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {

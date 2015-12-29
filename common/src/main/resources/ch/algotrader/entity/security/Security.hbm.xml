@@ -19,6 +19,8 @@
      */
     public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
 
+    public abstract <R,P> R accept(ch.algotrader.visitor.SecurityVisitor<R, ? super P> visitor, P param);
+
 ]]>   
 	    </meta> 	    
         <meta attribute="class-description"><![CDATA[The base class of all Securities in the system]]></meta>

@@ -19,8 +19,6 @@ package ch.algotrader.entity;
 
 import java.util.Objects;
 
-import ch.algotrader.visitor.EntityVisitor;
-
 /**
  * A GenericEntity used for testing
  *
@@ -33,11 +31,6 @@ public class GenericItem implements BaseEntityI {
     @Override
     public boolean isInitialized() {
         return false;
-    }
-
-    @Override
-    public <R, P> R accept(EntityVisitor<R, ? super P> visitor, P param) {
-        throw new UnsupportedOperationException("accept not supported");
     }
 
     private long id;

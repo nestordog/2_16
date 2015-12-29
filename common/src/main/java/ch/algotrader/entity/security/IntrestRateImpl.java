@@ -17,11 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import ch.algotrader.visitor.SecurityVisitor;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class IntrestRateImpl extends IntrestRate {
 
     private static final long serialVersionUID = -2637692221372204357L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitIntrestRate(this, param);
+    }
 
 }

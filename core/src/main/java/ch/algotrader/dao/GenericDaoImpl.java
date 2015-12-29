@@ -31,6 +31,7 @@ import org.hibernate.persister.collection.CollectionPersister;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import ch.algotrader.entity.BaseEntityI;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.visitor.InitializationVisitor;
@@ -65,8 +66,8 @@ public class GenericDaoImpl extends AbstractDao<BaseEntityI> implements GenericD
             BaseEntityI result = (BaseEntityI) session.get(clazz, id);
 
             // initialize Entities
-            if (result != null) {
-                result.accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
+            if (result instanceof Security) {
+                ((Security) result).accept(InitializationVisitor.INSTANCE, HibernateInitializer.INSTANCE);
             }
 
             return result;

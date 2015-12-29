@@ -17,10 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import ch.algotrader.visitor.SecurityVisitor;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class BondImpl extends Bond {
 
     private static final long serialVersionUID = 1012403390954424342L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitBond(this, param);
+    }
+
 }
