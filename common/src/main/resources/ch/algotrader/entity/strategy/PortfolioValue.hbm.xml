@@ -85,7 +85,7 @@ For the AlgoTrader Base these are {@code CREDIT} and {@code DEBIT} and for strat
 
             <type name="java.math.BigDecimal"/>
         </property>
-        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" cascade="none" foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" cascade="none" foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.]]></meta>

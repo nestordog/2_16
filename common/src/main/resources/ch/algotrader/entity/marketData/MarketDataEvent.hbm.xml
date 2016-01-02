@@ -73,7 +73,7 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="MARKET_DATA_EVENT_SECURITY_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="MARKET_DATA_EVENT_SECURITY_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <meta attribute="use-in-equals">true</meta>

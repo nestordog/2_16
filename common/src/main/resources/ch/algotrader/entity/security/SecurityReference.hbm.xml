@@ -25,14 +25,14 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="owner" class="ch.algotrader.entity.security.SecurityImpl" cascade="none" foreign-key="SECURITY_REFERENCE_OWNER_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="owner" class="ch.algotrader.entity.security.SecurityImpl" cascade="none" foreign-key="SECURITY_REFERENCE_OWNER_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <meta attribute="use-in-equals">true</meta>
             <column name="OWNER_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="target" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_REFERENCE_TARGET_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="target" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_REFERENCE_TARGET_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <column name="TARGET_FK" not-null="true" sql-type="BIGINT"/>

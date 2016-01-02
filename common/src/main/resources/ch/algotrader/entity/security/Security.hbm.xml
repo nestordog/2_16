@@ -9,6 +9,10 @@
 	    <meta attribute="generated-class">ch.algotrader.entity.security.Security</meta>
 	    <meta attribute="class-code">
 <![CDATA[
+
+    public abstract <R,P> R accept(ch.algotrader.visitor.SecurityVisitor<R, ? super P> visitor, P param);
+
+
     /**
      * Gets the leverage of this Security. This method has to be overwritten by subclasses (it
      * returns zero by default).
@@ -18,8 +22,6 @@
      * @return double
      */
     public abstract double getLeverage(ch.algotrader.entity.marketData.MarketDataEventI marketDataEvent, ch.algotrader.entity.marketData.MarketDataEventI underlyingMarketDataEvent, java.util.Date currentTime);
-
-    public abstract <R,P> R accept(ch.algotrader.visitor.SecurityVisitor<R, ? super P> visitor, P param);
 
 ]]>   
 	    </meta> 	    
@@ -83,7 +85,7 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="proxy" fetch="select">
+        <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
@@ -185,7 +187,7 @@
 
                 <type name="java.math.BigDecimal"/>
             </property>
-            <property name="type">
+            <property name="optionType">
                 <meta attribute="field-description"><![CDATA[The {@link OptionType} (i.e. Put or Call)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.OptionType</meta>
                 <column name="OPTION_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
@@ -241,7 +243,9 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
             <meta attribute="implements">ch.algotrader.entity.security.IntrestRateI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.IntrestRate</meta>
             <meta attribute="class-code">
-            </meta>
+<![CDATA[
+]]>   
+            </meta> 	    
             <property name="duration">
                 <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
                 <column name="DURATION" not-null="true" unique="false" sql-type="BIGINT"/>
@@ -255,7 +259,9 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
             <meta attribute="implements">ch.algotrader.entity.security.IndexI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Index</meta>
             <meta attribute="class-code">
-            </meta>
+<![CDATA[
+]]>   
+            </meta> 	    
             <property name="assetClass">
                 <meta attribute="property-type">ch.algotrader.enumeration.AssetClass</meta>
                 <column name="ASSET_CLASS" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
@@ -269,7 +275,9 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
             <meta attribute="implements">ch.algotrader.entity.security.StockI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Stock</meta>
             <meta attribute="class-code">
-            </meta>
+<![CDATA[
+]]>   
+            </meta> 	    
             <property name="gics">
                 <column name="GICS" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
 
@@ -331,7 +339,7 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
 
                 <type name="java.lang.String"/>
             </property>
-            <property name="type">
+            <property name="combinationType">
                 <meta attribute="field-description"><![CDATA[The type of the Combination (e.g. Butterfly, Condor, RatioSpread, etc.)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.CombinationType</meta>
                 <column name="COMBINATION_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
@@ -360,7 +368,9 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
             <meta attribute="implements">ch.algotrader.entity.security.BondI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Bond</meta>
             <meta attribute="class-code">
-            </meta>
+<![CDATA[
+]]>   
+            </meta> 	    
             <property name="maturity">
                 <meta attribute="field-description"><![CDATA[The Maturity Date]]></meta>
                 <column name="MATURITY" not-null="true" unique="false" sql-type="DATE"/>
@@ -378,14 +388,18 @@ Note: month can be different that the month part of the expiration. E.g. a Jan 2
             <meta attribute="implements">ch.algotrader.entity.security.FundI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Fund</meta>
             <meta attribute="class-code">
-            </meta>
+<![CDATA[
+]]>   
+            </meta> 	    
         </subclass>
         <subclass name="ch.algotrader.entity.security.CommodityImpl" discriminator-value="CommodityImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.CommodityI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Commodity</meta>
             <meta attribute="class-code">
-            </meta>
-            <property name="type">
+<![CDATA[
+]]>   
+            </meta> 	    
+            <property name="commodityType">
                 <meta attribute="property-type">ch.algotrader.enumeration.CommodityType</meta>
                 <column name="COMMODITY_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 

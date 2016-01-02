@@ -77,7 +77,7 @@
 
             <type name="java.lang.Boolean"/>
         </property>
-        <many-to-one name="propertyHolder" class="ch.algotrader.entity.property.PropertyHolderImpl" cascade="none" foreign-key="PROPERTY_PROPERTY_HOLDER_FKC" not-null="true" lazy="proxy" fetch="select">
+        <many-to-one name="propertyHolder" class="ch.algotrader.entity.property.PropertyHolderImpl" cascade="none" foreign-key="PROPERTY_PROPERTY_HOLDER_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.property.PropertyHolder</meta>
             <meta attribute="field-description"><![CDATA[Base class of an Entity that can hold {@link ch.algotrader.entity.property.Property Properties}.]]></meta>
             <meta attribute="use-in-equals">true</meta>

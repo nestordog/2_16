@@ -4,7 +4,7 @@
 
 <hibernate-mapping default-cascade="none">
     <class name="ch.algotrader.entity.security.SecurityFamilyImpl"
-        table="`security_family`" dynamic-insert="false" dynamic-update="false">
+        table="`security_family`" dynamic-insert="false" dynamic-update="false" discriminator-value="SecurityFamilyImpl">
 	    <meta attribute="implements">ch.algotrader.entity.security.SecurityFamilyI</meta>      
 	    <meta attribute="generated-class">ch.algotrader.entity.security.SecurityFamily</meta>
 	    <meta attribute="class-code">

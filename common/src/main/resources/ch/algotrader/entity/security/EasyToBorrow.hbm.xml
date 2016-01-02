@@ -38,7 +38,7 @@
 
             <type name="long"/>
         </property>
-        <many-to-one name="stock" class="ch.algotrader.entity.security.StockImpl" foreign-key="EASY_TO_BORROW_STOCK_FKC" not-null="true" lazy="false" fetch="select">
+        <many-to-one name="stock" class="ch.algotrader.entity.security.StockImpl" foreign-key="EASY_TO_BORROW_STOCK_FKC" not-null="true" lazy="false" fetch="join">
             <meta attribute="property-type">ch.algotrader.entity.security.Stock</meta>
             <meta attribute="field-description"><![CDATA[A Single Stock]]></meta>
             <meta attribute="use-in-equals">true</meta>
