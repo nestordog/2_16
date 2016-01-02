@@ -106,7 +106,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -120,7 +120,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal2.getTime());
         option2.setStrike(new BigDecimal(111));
-        option2.setType(OptionType.CALL);
+        option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
         this.session.save(this.family1);
@@ -163,7 +163,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -177,7 +177,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal2.getTime());
         option2.setStrike(new BigDecimal(111));
-        option2.setType(OptionType.CALL);
+        option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
         this.session.save(this.family1);
@@ -220,7 +220,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -234,7 +234,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal2.getTime());
         option2.setStrike(new BigDecimal(111));
-        option2.setType(OptionType.CALL);
+        option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
         Tick tick1 = new TickImpl();
@@ -298,7 +298,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -312,7 +312,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal2.getTime());
         option2.setStrike(new BigDecimal(111));
-        option2.setType(OptionType.CALL);
+        option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
         Tick tick1 = new TickImpl();
@@ -372,7 +372,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Subscription subscription1 = new SubscriptionImpl();
@@ -405,14 +405,14 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Option option2 = new OptionImpl();
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal1.getTime());
         option2.setStrike(new BigDecimal(111));
-        option2.setType(OptionType.CALL);
+        option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
         this.session.save(this.family1);
@@ -460,7 +460,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         Calendar cal2 = Calendar.getInstance();
@@ -505,7 +505,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         option1.setSecurityFamily(this.family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(this.forex1);
 
         this.session.save(this.family1);

@@ -234,7 +234,7 @@ public class OptionServiceImpl implements OptionService {
         option.setSymbol(symbol);
         option.setStrike(strike);
         option.setExpiration(expirationDate);
-        option.setType(type);
+        option.setOptionType(type);
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 
@@ -280,7 +280,7 @@ public class OptionServiceImpl implements OptionService {
         option.setRic(ric);
         option.setStrike(strike);
         option.setExpiration(expiration);
-        option.setType(type);
+        option.setOptionType(type);
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 

@@ -94,7 +94,7 @@ public class TestRTOrderMessageFactory {
 
         Option option = new OptionImpl();
         option.setSymbol("SOME_STUFF");
-        option.setType(OptionType.CALL);
+        option.setOptionType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
@@ -465,7 +465,7 @@ public class TestRTOrderMessageFactory {
 
         Option option = new OptionImpl();
         option.setSymbol("SOME_STUFF");
-        option.setType(OptionType.CALL);
+        option.setOptionType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
@@ -830,7 +830,7 @@ public class TestRTOrderMessageFactory {
 
         Option option = new OptionImpl();
         option.setSymbol("SOME_STUFF");
-        option.setType(OptionType.CALL);
+        option.setOptionType(OptionType.CALL);
         option.setSecurityFamily(family);
         option.setStrike(new BigDecimal("0.5"));
         option.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));

@@ -210,7 +210,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                     option.setIsin(isin);
                     option.setRic(ric);
                     option.setTtid(id);
-                    option.setType(optionType);
+                    option.setOptionType(optionType);
                     option.setStrike(strike);
                     option.setExpiration(DateTimeLegacy.toLocalDate(expiryDate));
                     option.setSecurityFamily(securityFamily);

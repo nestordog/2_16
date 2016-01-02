@@ -97,7 +97,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
@@ -130,7 +130,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setUnderlying(this.forex1);
 
@@ -168,7 +168,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -210,7 +210,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -252,7 +252,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -298,7 +298,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setPersistent(false);
 
@@ -314,7 +314,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination2 = new CombinationImpl();
         combination2.setSecurityFamily(this.family1);
         combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRANGLE);
+        combination2.setCombinationType(CombinationType.STRANGLE);
         combination2.addComponents(component2);
         combination2.setPersistent(true);
 

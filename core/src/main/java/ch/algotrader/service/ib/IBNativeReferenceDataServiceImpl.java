@@ -246,7 +246,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
             option.setIsin(isin);
             option.setRic(ric);
             option.setConid(conid);
-            option.setType(type);
+            option.setOptionType(type);
             option.setStrike(strike);
             option.setExpiration(DateTimeLegacy.toLocalDate(expirationDate));
             option.setSecurityFamily(securityFamily);

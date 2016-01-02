@@ -877,7 +877,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         option1.setSecurityFamily(family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(forex1);
     
         Subscription subscription1 = new SubscriptionImpl();
@@ -993,7 +993,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
     
         Subscription subscription1 = new SubscriptionImpl();
@@ -1039,7 +1039,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setUnderlying(forex1);
     
@@ -1090,7 +1090,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
     
         combination1.addComponents(component1);
     
@@ -1145,7 +1145,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
     
@@ -1196,7 +1196,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1247,7 +1247,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1302,7 +1302,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1391,7 +1391,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setSymbol("COMBI1");
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setSecurityFamily(family1);
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         this.session.save(strategy1);
         this.session.save(family1);

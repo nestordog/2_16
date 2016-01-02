@@ -84,7 +84,7 @@ public class IBUtil {
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
                 contract.m_primaryExch = securityFamily.getExchange().getIbCode();
                 contract.m_strike = option.getStrike().doubleValue();
-                contract.m_right = option.getType().toString();
+                contract.m_right = option.getOptionType().toString();
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
                 contract.m_expiry = dayFormat.format(DateTimeLegacy.toLocalDate(option.getExpiration()));
 

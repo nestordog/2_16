@@ -94,7 +94,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             message.set(new SecurityType(SecurityType.OPTION));
             message.set(new Currency(securityFamily.getCurrency().toString()));
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
-            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
+            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getOptionType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
@@ -139,7 +139,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
+            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getOptionType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 

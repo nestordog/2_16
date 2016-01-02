@@ -81,7 +81,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
 
         } else if (security instanceof Future) {
@@ -119,7 +119,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
 
         } else if (security instanceof Future) {

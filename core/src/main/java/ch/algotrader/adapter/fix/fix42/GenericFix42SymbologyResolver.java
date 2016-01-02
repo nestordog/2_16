@@ -94,7 +94,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             message.set(new SecurityType(SecurityType.OPTION));
             message.set(new Currency(securityFamily.getCurrency().toString()));
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
@@ -140,7 +140,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
@@ -175,7 +175,7 @@ public class GenericFix42SymbologyResolver implements Fix42SymbologyResolver {
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 

@@ -434,7 +434,7 @@ public class BBReferenceDataServiceImpl implements ReferenceDataService, Initial
 
                     option.setExpiration(expiration);
                     option.setStrike(strike);
-                    option.setType(type);
+                    option.setOptionType(type);
 
                     // ignore options that already exist
                     if (!this.existingSecurities.contains(option)) {

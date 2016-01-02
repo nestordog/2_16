@@ -131,7 +131,7 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
         // set the uuid since combinations have no other unique identifier
         combination.setUuid(UUID.randomUUID().toString());
-        combination.setType(type);
+        combination.setCombinationType(type);
 
         // attach the security family
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);

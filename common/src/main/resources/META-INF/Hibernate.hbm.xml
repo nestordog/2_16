@@ -901,7 +901,7 @@
         from OptionImpl as so 
         where so.underlying.id = :underlyingId 
         and so.expiration >= :targetExpirationDate 
-        and so.type = :optionType 
+        and so.optionType = :optionType 
         order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
     ]]>
     </query>
@@ -911,9 +911,9 @@
         from OptionImpl as so 
         where so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate 
-        and so.type = :optionType
-        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
-        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+        and so.optionType = :optionType
+        and (case so.optionType when 'PUT' then so.strike else -so.strike end)  <= (case so.optionType when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.optionType when 'PUT' then -so.strike else so.strike end) asc 
     ]]>
     </query>
 
@@ -924,7 +924,7 @@
         where so.id = t.security.id
         and so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate
-        and so.type = :optionType
+        and so.optionType = :optionType
         and t.dateTime = :date
         order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
     ]]>
@@ -937,10 +937,10 @@
         where so.id = t.security.id
         and so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate
-        and so.type = :optionType
+        and so.optionType = :optionType
         and t.dateTime = :date
-        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
-        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+        and (case so.optionType when 'PUT' then so.strike else -so.strike end)  <= (case so.optionType when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.optionType when 'PUT' then -so.strike else so.strike end) asc 
     ]]>
     </query>
     
@@ -979,7 +979,7 @@
         where o.securityFamily.id = :optionFamilyId 
         and o.expiration = :expirationDate 
         and o.strike = :strike 
-        and o.type = :type 
+        and o.optionType = :type 
     ]]>
     </query>
 

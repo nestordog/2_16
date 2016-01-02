@@ -89,7 +89,7 @@ public class TestTTSymbologyResolver {
         this.coffee.setTtid("92900317");
         this.coffee.setSecurityFamily(optionFamily);
         this.coffee.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
-        this.coffee.setType(OptionType.CALL);
+        this.coffee.setOptionType(OptionType.CALL);
         this.coffee.setStrike(new BigDecimal("50.0"));
 
         this.symbologyResolver = new TTSymbologyResolver();
