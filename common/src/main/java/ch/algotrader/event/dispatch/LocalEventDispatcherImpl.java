@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -149,9 +150,12 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
         Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
-                final Engine engine = this.engineManager.lookup(strategyName);
-                if (engine != null) {
-                    engine.sendEvent(marketDataEvent);
+                // Do not propagate market data to the SERVER
+                if (!strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
+                    final Engine engine = this.engineManager.lookup(strategyName);
+                    if (engine != null) {
+                        engine.sendEvent(marketDataEvent);
+                    }
                 }
             }
         }

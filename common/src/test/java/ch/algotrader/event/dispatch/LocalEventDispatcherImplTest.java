@@ -104,6 +104,7 @@ public class LocalEventDispatcherImplTest {
 
         impl.registerMarketDataSubscription("this", 1L);
         impl.registerMarketDataSubscription("that", 1L);
+        impl.registerMarketDataSubscription("SERVER", 1L);
 
         TickVO tick1 = new TickVO(1L, new Date(), FeedType.IB.name(), 1L, 0, 0, 0);
         TickVO tick2 = new TickVO(2L, new Date(), FeedType.IB.name(), 2L, 0, 0, 0);
@@ -114,6 +115,7 @@ public class LocalEventDispatcherImplTest {
         Mockito.verify(engine1, Mockito.never()).sendEvent(tick2);
         Mockito.verify(engine2, Mockito.times(1)).sendEvent(tick1);
         Mockito.verify(engine2, Mockito.never()).sendEvent(tick2);
+        Mockito.verify(serverEngine, Mockito.never()).sendEvent(Mockito.any());
         Mockito.verify(localEventBroadcaster, Mockito.times(1)).broadcast(tick1);
         Mockito.verify(localEventBroadcaster, Mockito.times(1)).broadcast(tick2);
     }
