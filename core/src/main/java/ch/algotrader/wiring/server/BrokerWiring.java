@@ -44,8 +44,8 @@ import ch.algotrader.broker.JMSTopicPublisher;
 import ch.algotrader.broker.MarketDataSubscriptionTopicCreator;
 import ch.algotrader.broker.SimpleTopicCreator;
 import ch.algotrader.broker.StrategyTopicCreator;
-import ch.algotrader.broker.TopicPublisher;
 import ch.algotrader.broker.SubscriptionTopic;
+import ch.algotrader.broker.TopicPublisher;
 import ch.algotrader.broker.subscription.TopicSubscriptionHandler;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
@@ -78,6 +78,8 @@ public class BrokerWiring {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Using standalone message broker at {}", activeMQHost);
         }
+        // consider using CachingConnectionFactory instead of SingleConnectionFactory
+        // in order to re-use sessions as well as the underlying connection
         return new SingleConnectionFactory(new ActiveMQConnectionFactory("failover:tcp://" + activeMQHost + ":" + activeMQPort));
     }
 
@@ -87,7 +89,10 @@ public class BrokerWiring {
     public ConnectionFactory createInternalBrokerConnectionFactory() throws Exception {
 
         LOGGER.info("Using embedded message broker");
-        return new ActiveMQConnectionFactory("vm://localhost?create=false");
+
+        // consider using CachingConnectionFactory instead of SingleConnectionFactory
+        // in order to re-use sessions as well as the underlying connection
+        return new SingleConnectionFactory(new ActiveMQConnectionFactory("vm://localhost?create=false"));
     }
 
     @Profile(value = "embeddedBroker")
