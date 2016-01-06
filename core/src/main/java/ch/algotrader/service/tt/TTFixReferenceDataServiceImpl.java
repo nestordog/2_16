@@ -79,7 +79,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixReferenceDataServiceImpl.class);
 
-    private static final DateTimeFormatter E_BRENT_SYMBOL = new DateTimeFormatterBuilder()
+    private static final DateTimeFormatter ICE_IPE_SYMBOL = new DateTimeFormatterBuilder()
             .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
             .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
             .toFormatter(Locale.ROOT);
@@ -256,13 +256,13 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                 // IPE e-Brent has to be handled as a special case as it happens to have multiple contracts
                 // with the same expiration month
                 String symbol;
-                if ("IPE e-Brent".equalsIgnoreCase(securityFamily.getSymbolRoot()) && securityDef.getAltSymbol() != null) {
+                if ("ICE_IPE".equalsIgnoreCase(securityDef.getExchange()) && securityDef.getAltSymbol() != null) {
                     String altSymbol = securityDef.getAltSymbol();
                     if (altSymbol.startsWith("Q") || altSymbol.startsWith("Cal")) {
                         continue;
                     } else {
                         try {
-                            TemporalAccessor parsed = E_BRENT_SYMBOL.parse(altSymbol);
+                            TemporalAccessor parsed = ICE_IPE_SYMBOL.parse(altSymbol);
                             int year = parsed.get(ChronoField.YEAR);
                             int month = parsed.get(ChronoField.MONTH_OF_YEAR);
                             expiration = LocalDate.of(year, month, 1);
