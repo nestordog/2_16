@@ -384,11 +384,13 @@ public class ServiceWiring {
     }
 
     @Bean(name = "marketDataCache")
-    public MarketDataCache createMarketDataCache(final CommonConfig commonConfig,
+    public MarketDataCache createMarketDataCache(
+            final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
+        return new MarketDataCacheImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), coreConfig.getIntervalDays());
     }
 
     @Bean(name = "strategyPersistenceService")

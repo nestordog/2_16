@@ -28,7 +28,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.Tick;
@@ -49,25 +48,28 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
 
     private static final Logger LOGGER = LogManager.getLogger(MarketDataCacheImpl.class);
 
-    private final CommonConfig commonConfig;
     private final EngineManager engineManager;
     private final LookupService lookupService;
+    private final Currency baseCurrency;
+    private final int lookBackDays;
 
     private final ConcurrentMap<Long, MarketDataEventVO> lastMarketDataEventBySecurityId;
     private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
     public MarketDataCacheImpl(
-            final CommonConfig commonConfig,
             final EngineManager engineManager,
-            final LookupService lookupService) {
+            final LookupService lookupService,
+            final Currency baseCurrency,
+            final int lookBackDays) {
 
-        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(baseCurrency, "BaseCurrency is null");
 
-        this.commonConfig = commonConfig;
         this.engineManager = engineManager;
         this.lookupService = lookupService;
+        this.baseCurrency = baseCurrency;
+        this.lookBackDays = lookBackDays;
         this.lastMarketDataEventBySecurityId = new ConcurrentHashMap<>();
         this.forexMap = new ConcurrentHashMap<>();
     }
@@ -85,7 +87,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
         if (last != null) {
             return last;
         }
-        Tick entity = this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), 1);
+        Tick entity = this.lookupService.getLastTick(securityId, this.engineManager.getCurrentEPTime(), this.lookBackDays);
         if (entity != null) {
             onMarketDataEvent(Tick.Converter.INSTANCE.convert(entity));
             // The market data may have changed in the meantime. Get the latest value.
@@ -146,7 +148,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
 
         Validate.notNull(baseCurrency, "Base currency is null");
 
-        return getForexRate(baseCurrency, this.commonConfig.getPortfolioBaseCurrency());
+        return getForexRate(baseCurrency, this.baseCurrency);
 
     }
 
@@ -177,7 +179,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
     @Override
     public double getForexRateBase(long securityId) {
 
-        return getForexRate(securityId, this.commonConfig.getPortfolioBaseCurrency());
+        return getForexRate(securityId, this.baseCurrency);
     }
 
     /**
@@ -186,7 +188,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
     @Override
     public double getForexRateBase(Security security) {
 
-        return getForexRate(security, this.commonConfig.getPortfolioBaseCurrency());
+        return getForexRate(security, this.baseCurrency);
     }
 
     @Override
