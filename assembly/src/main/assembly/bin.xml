@@ -40,14 +40,24 @@
             <includes>
                 <include>client.bat</include>
             </includes>
+            <lineEnding>windows</lineEnding>
         </fileSet>
         <fileSet>
             <directory>../core/bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>run.bat</include>
+            </includes>
+            <lineEnding>windows</lineEnding>
+        </fileSet>
+        <fileSet>
+            <directory>../core/bin/</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
                 <include>run.sh</include>
             </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>../core/flyway</directory>
