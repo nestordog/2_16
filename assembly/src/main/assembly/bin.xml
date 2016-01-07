@@ -50,11 +50,8 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../core/src/main/scripts/db/migration</directory>
-            <outputDirectory>scripts/db/migration</outputDirectory>
-            <includes>
-                <include>*.sql</include>
-            </includes>
+            <directory>../core/flyway</directory>
+            <outputDirectory>flyway</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
