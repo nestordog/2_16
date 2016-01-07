@@ -18,6 +18,8 @@
 
 package ch.algotrader.rest;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -44,24 +46,30 @@ public class ConfigRestController extends RestControllerBase {
         this.configParams = configParams;
     }
 
+    private String getBrokerHost() {
+        String host = this.configParams.getString("activeMQ.host");
+        if ("localhost".equalsIgnoreCase(host)) {
+            try {
+                InetAddress localHost = InetAddress.getLocalHost();
+                host = localHost.getHostName();
+            } catch (IOException ex) {
+            }
+        }
+        return host;
+    }
+
     @CrossOrigin
     @RequestMapping(path = "/broker/url/main", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public URI getBrokerMainURI() throws URISyntaxException {
 
-        String host = this.configParams.getString("activeMQ.host");
-        int port = this.configParams.getInteger("activeMQ.port");
-
-        return new URI("tcp", null, host, port, null, null, null);
+        return new URI("tcp", null, getBrokerHost(), this.configParams.getInteger("activeMQ.port"), null, null, null);
     }
 
     @CrossOrigin
     @RequestMapping(path = "/broker/url/ws", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public URI getBrokerWebsocketURI() throws URISyntaxException {
 
-        String host = this.configParams.getString("activeMQ.host");
-        int port = this.configParams.getInteger("activeMQ.ws.port");
-
-        return new URI("ws", null, host, port, null, null, null);
+        return new URI("ws", null, getBrokerHost(), this.configParams.getInteger("activeMQ.ws.port"), null, null, null);
     }
 
     @CrossOrigin

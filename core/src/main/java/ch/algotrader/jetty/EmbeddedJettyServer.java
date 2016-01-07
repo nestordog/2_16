@@ -18,6 +18,10 @@
 
 package ch.algotrader.jetty;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URI;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
@@ -79,7 +83,14 @@ public class EmbeddedJettyServer implements InitializingServiceI {
 
         if (webAppContext.getEnvironment().acceptsProfiles("html5")) {
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Web UI available at http://localhost:{}/", this.port);
+                String hostName;
+                try {
+                    InetAddress localHost = InetAddress.getLocalHost();
+                    hostName = localHost.getHostName();
+                } catch (IOException ex) {
+                    hostName = "localhost";
+                }
+                LOGGER.info("Web UI available at {}", new URI("http", null, hostName, this.port, "/", null, null));
             }
         }
     }

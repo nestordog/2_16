@@ -95,11 +95,11 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("JMS connector on port {}", this.port);
         }
-        this.broker.addConnector(new URI("tcp://localhost:" + this.port));
+        this.broker.addConnector(new URI("tcp", null, "0.0.0.0", this.port, null, null, null));
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Websocket connector on port {}", this.wsPort);
         }
-        this.broker.addConnector(new URI("ws://localhost:" + this.wsPort));
+        this.broker.addConnector(new URI("ws", null, "0.0.0.0", this.wsPort, null, null, null));
 
         this.broker.startAllConnectors();
 
