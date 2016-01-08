@@ -446,6 +446,20 @@ public class TestTTFixOrderMessageHandler {
     }
 
     @Test
+    public void testOrderCancelRejectDropCopy() throws Exception {
+        String s = "8=FIX.4.2|9=267|35=9|34=832|49=TT_ORDER|50=NONE|52=20160107-13:08:00.588|56=FIX_ECAMOS|57=NONE|" +
+                "37=02Y13V670|39=0|58=You have exceeded the order rate control (50 orders per second) configured by your risk administrator.|" +
+                "60=20160107-13:08:00.588|102=2|198=FN0EZ|434=2|10553=E1RMUELLER|10=111|";
+        OrderCancelReject orderCancelReject = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, OrderCancelReject.class);
+        Assert.assertNotNull(orderCancelReject);
+
+        this.impl.onMessage(orderCancelReject, FixTestUtils.fakeFix42Session());
+
+        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+    }
+
+
+    @Test
     public void testExecutionReportCancelMissingOrigIntId() throws Exception {
         String s = "8=FIX.4.2|9=00387|35=8|49=TTDEV14O|56=RATKODTS2|50=TTORDDS202001|57=NONE|34=3|52=20151109-15:53:01.991|" +
                 "55=ES|48=00A0LP00ESZ|10455=ESZ5|167=FUT|207=CME|15=USD|1=RATKODTS2|47=A|204=0|10553=RATKODTS2|11=ttt14.0|" +

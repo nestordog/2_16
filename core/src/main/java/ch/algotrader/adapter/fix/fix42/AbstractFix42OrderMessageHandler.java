@@ -207,7 +207,7 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
             buf.append("Order cancel/replace has been rejected");
             String clOrdID = reject.isSetClOrdID() ? reject.getClOrdID().getValue() : null;
             buf.append(" [order ID: ").append(clOrdID).append("]");
-            String origClOrdID = reject.getOrigClOrdID().getValue();
+            String origClOrdID = reject.isSetOrigClOrdID() ? reject.getOrigClOrdID().getValue() : null;
             buf.append(" [original order ID: ").append(origClOrdID).append("]");
             if (reject.isSetField(Text.FIELD)) {
                 String text = reject.getText().getValue();
