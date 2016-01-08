@@ -197,7 +197,8 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             if (!mapByTtid.containsKey(id)) {
                 OptionType optionType = securityDef.getOptionType();
                 BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
-                        securityDef.getStrikePrice(), securityFamily.getScale(Broker.TT.name())) : null;
+                        securityDef.getStrikePrice() / securityFamily.getPriceMultiplier(Broker.TT.name()),
+                        securityFamily.getScale(Broker.TT.name())) : null;
                 LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
                 String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
 
