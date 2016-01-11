@@ -94,7 +94,7 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="order" class="ch.algotrader.entity.trade.OrderImpl" foreign-key="ORDER_STATUS_ORDER_FKC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="order" class="ch.algotrader.entity.trade.OrderImpl" foreign-key="ORDER_STATUS_ORDER_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.trade.Order</meta>
             <meta attribute="field-description"><![CDATA[Base Class for all Order Types]]></meta>
             <column name="ORDER_FK" not-null="true" sql-type="BIGINT"/>

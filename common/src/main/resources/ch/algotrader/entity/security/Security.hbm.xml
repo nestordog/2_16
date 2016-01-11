@@ -85,13 +85,13 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="false" fetch="join">
+        <many-to-one name="underlying" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="SECURITY_UNDERLYING_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)]]></meta>

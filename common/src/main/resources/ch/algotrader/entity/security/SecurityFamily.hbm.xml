@@ -277,7 +277,7 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="SECURITY_FAMILY_EXCHANGE_FKC" not-null="false" lazy="false" fetch="join">
+        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" foreign-key="SECURITY_FAMILY_EXCHANGE_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
             <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <column name="EXCHANGE_FK" not-null="false" sql-type="BIGINT"/>

@@ -44,7 +44,7 @@
 
             <type name="java.util.Date"/>
         </property>
-        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" cascade="none" foreign-key="HOLIDAY_EXCHANGE_FKC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="exchange" class="ch.algotrader.entity.exchange.ExchangeImpl" cascade="none" foreign-key="HOLIDAY_EXCHANGE_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.exchange.Exchange</meta>
             <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <meta attribute="use-in-equals">true</meta>

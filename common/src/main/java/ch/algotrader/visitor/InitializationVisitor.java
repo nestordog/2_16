@@ -52,6 +52,7 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
             // so subscriptions would also get the Proxy instead of the implementation
 
             security.initializeUnderlying(initializer);
+            security.initializeSecurityFamily(initializer);
 
             security.setInitialized();
         }

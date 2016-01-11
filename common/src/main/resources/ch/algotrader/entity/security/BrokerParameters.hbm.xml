@@ -77,7 +77,7 @@ For example the pattern "0&lt;0.05 | 3&lt;0.1" says, that the TickSize is 0.05 f
 
             <type name="java.lang.Double"/>
         </property>
-        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" cascade="none" foreign-key="BROKER_PARAMETERS_SECURITY_FAC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" cascade="none" foreign-key="BROKER_PARAMETERS_SECURITY_FAC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
 (e.g. All Options of the SP500)]]></meta>

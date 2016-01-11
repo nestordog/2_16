@@ -442,9 +442,9 @@ public class CacheTest extends DefaultConfigTestBase {
 
         LookupService lookupService = context.getBean(LookupService.class);
         
-        // expect SecurityFamily with Exchange joined
+        // expect SecurityFamily with Exchange proxied
         SecurityFamily securityFamily = cache.get(SecurityFamilyImpl.class, securityFamilyId1);
-        Assert.assertTrue(Hibernate.isInitialized(securityFamily.getExchange()));
+        Assert.assertFalse(Hibernate.isInitialized(securityFamily.getExchange()));
 
         // expect Security / SecurityFamily / Exchange fully initialized
         Security security1 = lookupService.findUnique(SecurityImpl.class,

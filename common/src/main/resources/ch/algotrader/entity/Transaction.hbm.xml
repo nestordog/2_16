@@ -199,13 +199,13 @@
 
             <type name="java.lang.String"/>
         </property>
-        <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="TRANSACTION_ACCOUNT_FKC" not-null="false" lazy="false" fetch="join">
+        <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="TRANSACTION_ACCOUNT_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
             <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
             <column name="ACCOUNT_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="position" class="ch.algotrader.entity.PositionImpl" foreign-key="TRANSACTION_POSITION_FKC" not-null="false" lazy="false" fetch="join">
+        <many-to-one name="position" class="ch.algotrader.entity.PositionImpl" foreign-key="TRANSACTION_POSITION_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Position</meta>
             <meta attribute="field-description"><![CDATA[A position of a particular security owned by a particular strategy. For each opening transaction a
 position is created. The position object remains in place even if a corresponding closing
@@ -231,13 +231,13 @@ same security (of different strategies) in the correct manner.]]></meta>
             <column name="POSITION_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="TRANSACTION_SECURITY_FKC" not-null="false" lazy="false" fetch="join">
+        <many-to-one name="security" class="ch.algotrader.entity.security.SecurityImpl" foreign-key="TRANSACTION_SECURITY_FKC" not-null="false" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.Security</meta>
             <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
             <column name="SECURITY_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="TRANSACTION_STRATEGY_FKC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="strategy" class="ch.algotrader.entity.strategy.StrategyImpl" foreign-key="TRANSACTION_STRATEGY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.strategy.Strategy</meta>
             <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
 represented by an instance of this class.]]></meta>

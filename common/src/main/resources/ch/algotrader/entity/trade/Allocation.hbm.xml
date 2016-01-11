@@ -31,7 +31,7 @@ iNote: the total of all Allocations needs to be 1.0/i]]></meta>
 
             <type name="double"/>
         </property>
-        <many-to-one name="orderPreference" class="ch.algotrader.entity.trade.OrderPreferenceImpl" foreign-key="ALLOCATION_ORDER_PREFERENCE_FC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="orderPreference" class="ch.algotrader.entity.trade.OrderPreferenceImpl" foreign-key="ALLOCATION_ORDER_PREFERENCE_FC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.trade.OrderPreference</meta>
             <meta attribute="field-description"><![CDATA[Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
 {@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
@@ -40,7 +40,7 @@ Properties.]]></meta>
             <column name="ORDER_PREFERENCE_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
-        <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="ALLOCATION_ACCOUNT_FKC" not-null="true" lazy="false" fetch="join">
+        <many-to-one name="account" class="ch.algotrader.entity.AccountImpl" foreign-key="ALLOCATION_ACCOUNT_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.Account</meta>
             <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>
             <meta attribute="use-in-equals">true</meta>
