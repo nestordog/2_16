@@ -63,7 +63,7 @@
 
             <type name="java.lang.String"/>
         </property>
-        <set name="tradingHours" order-by="EXCHANGE_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
+        <set name="tradingHours" order-by="EXCHANGE_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
             <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <cache usage="read-write" />
             <key foreign-key="TRADING_HOURS_EXCHANGE_FKC">
@@ -81,7 +81,7 @@
             </key>
             <one-to-many class="ch.algotrader.entity.security.SecurityFamilyImpl" not-found="exception"/>
         </set>
-        <set name="holidays" order-by="EXCHANGE_FK" lazy="false" fetch="select" inverse="true" cascade="delete">
+        <set name="holidays" order-by="EXCHANGE_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
             <meta attribute="field-description"><![CDATA[Exchange where securities are traded]]></meta>
             <cache usage="read-write" />
             <key foreign-key="HOLIDAY_EXCHANGE_FKC">
