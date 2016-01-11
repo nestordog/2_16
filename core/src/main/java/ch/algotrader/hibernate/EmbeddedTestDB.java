@@ -82,6 +82,8 @@ public class EmbeddedTestDB {
         properties.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
         properties.setProperty("hibernate.cache.use_second_level_cache", "false");
         properties.setProperty("hibernate.cache.use_query_cache", "false");
+        // properties.setProperty("hibernate.show_sql", "true");
+        // properties.setProperty("hibernate.format_sql", "true");
 
         if (generateSchema) {
 
