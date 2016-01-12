@@ -116,7 +116,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         int scale = security.getSecurityFamily().getScale(Broker.IB.name());
         Contract contract = IBUtil.getContract(security);
         int requestId = (int) this.requestIdGenerator.generateId();
-        String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDate(endDate).atStartOfDay());
+        String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDateTime(endDate));
 
         String durationString = timePeriodLength + " ";
         switch (timePeriod) {
@@ -200,7 +200,8 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Request historic data; request id = {}; conId = {}", requestId, contract.m_conId);
+            LOGGER.debug("Request historic data; request id = {}; conId = {}; date = {}; duration = {}; bar size = {}",
+                    requestId, contract.m_conId, dateString, durationString, barSizeString);
         }
 
         PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
