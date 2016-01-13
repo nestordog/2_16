@@ -99,13 +99,11 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
     @Override
     public BigDecimal getCurrentValue(long securityId) {
 
-        return getCurrentMarketDataEvent(securityId).getCurrentValue();
-    }
-
-    @Override
-    public double getCurrentValueDouble(long securityId) {
-
-        return getCurrentMarketDataEvent(securityId).getCurrentValueDouble();
+        MarketDataEventVO marketDataEvent = getCurrentMarketDataEvent(securityId);
+        if (marketDataEvent == null) {
+            return null;
+        }
+        return marketDataEvent.getCurrentValue();
     }
 
     @Override

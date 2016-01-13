@@ -517,8 +517,14 @@ public class PositionServiceImpl implements PositionService {
 
             Option option = (Option) security;
             int scale = security.getSecurityFamily().getScale();
-            double underlyingSpot = this.marketDataCache.getCurrentValueDouble(security.getUnderlying().getId());
-            double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot);
+            if (security.getUnderlying() == null) {
+                throw new IllegalStateException("no underlying defined for " + security);
+            }
+            BigDecimal underlyingSpot = this.marketDataCache.getCurrentValue(security.getUnderlying().getId());
+            if (underlyingSpot == null) {
+                throw new IllegalStateException("no market data available for " + security.getUnderlying());
+            }
+            double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot.doubleValue());
             BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
             transaction.setPrice(price);
 

@@ -47,11 +47,6 @@ public interface MarketDataCache {
     BigDecimal getCurrentValue(long securityId);
 
     /**
-     * Returns the current value of the specified security.
-     */
-    double getCurrentValueDouble(long securityId);
-
-    /**
      * Gets the current Exchange Rate between the {@code baseCurrency} and {@code transactionCurrency}.
      */
     double getForexRate(Currency baseCurrency, Currency transactionCurrency);
