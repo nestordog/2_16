@@ -134,20 +134,19 @@ public class BBMarketDataServiceImpl extends NativeMarketDataServiceImpl impleme
             throw new ServiceException("Bloomberg session is not running to unsubscribe " + security);
         }
 
-        String tickerId = esperUnsubscribe(security);
+        esperUnsubscribe(security).ifPresent(tickerId -> {
+            SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
 
-        SubscriptionList subscriptions = getSubscriptionList(security, tickerId);
+            try {
+                session.unsubscribe(subscriptions);
+            } catch (IOException ex) {
+                throw new ExternalServiceException(ex);
+            }
 
-        try {
-            session.unsubscribe(subscriptions);
-        } catch (IOException ex) {
-            throw new ExternalServiceException(ex);
-        }
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("cancelled market data for : {}", security);
-        }
-
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("cancelled market data for : {}", security);
+            }
+        });
     }
 
     private SubscriptionList getSubscriptionList(Security security, String tickerId) {

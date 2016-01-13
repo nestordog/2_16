@@ -110,13 +110,13 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
             throw new ServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
-        String tickerId = esperUnsubscribe(security);
+        esperUnsubscribe(security).ifPresent(tickerId -> {
+            this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        this.iBSession.cancelMktData(Integer.parseInt(tickerId));
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("cancelled market data for : {}", security);
-        }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("cancelled market data for : {}", security);
+            }
+        });
 
     }
 
