@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.tt;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.enumeration.TIF;
 import quickfix.field.TimeInForce;
@@ -37,7 +37,7 @@ public class TTFixOrderMessageFactory extends GenericFix42OrderMessageFactory {
     protected TimeInForce resolveTimeInForce(TIF tif) {
 
         if (tif == TIF.ATC) {
-            throw new FixApplicationException("Time in force '" + tif + "' is not supported by TT");
+            throw new BrokerAdapterException("Time in force '" + tif + "' is not supported by TT");
         }
         return super.resolveTimeInForce(tif);
     }

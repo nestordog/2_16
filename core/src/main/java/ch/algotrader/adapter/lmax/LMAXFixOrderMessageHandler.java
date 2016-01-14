@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.entity.Account;
@@ -115,7 +115,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
             return;
         }
         if (allocation.getStrategy() == null) {
-            throw new FixApplicationException("External fill could not be allocated to a strategy");
+            throw new BrokerAdapterException("External fill could not be allocated to a strategy");
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("External (drop-copy) fill {} allocated to " +
@@ -227,13 +227,13 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
             try {
                 currency = Currency.valueOf(s);
             } catch (IllegalArgumentException ex) {
-                throw new FixApplicationException("Unsupported currency " + s);
+                throw new BrokerAdapterException("Unsupported currency " + s);
             }
         }
         if (securityFamily != null) {
             if (currency != null) {
                 if (!currency.equals(securityFamily.getCurrency())) {
-                    throw new FixApplicationException("Transaction currency does not match that defined by the security family");
+                    throw new BrokerAdapterException("Transaction currency does not match that defined by the security family");
                 }
             } else {
                 currency = securityFamily.getCurrency();

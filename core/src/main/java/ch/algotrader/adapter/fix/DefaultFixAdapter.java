@@ -28,6 +28,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.OrderIdGenerator;
 import ch.algotrader.entity.Account;
 import ch.algotrader.service.LookupService;
@@ -86,11 +87,11 @@ public class DefaultFixAdapter implements FixAdapter {
                 return sessionId;
             }
         }
-        throw new FixApplicationException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
+        throw new BrokerAdapterException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
     }
 
     @Override
-    public Session getSession(String sessionQualifier) throws FixApplicationException {
+    public Session getSession(String sessionQualifier) throws BrokerAdapterException {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
@@ -99,7 +100,7 @@ public class DefaultFixAdapter implements FixAdapter {
             SessionID sessionId = findSessionID(sessionQualifier);
             Session session = Session.lookupSession(sessionId);
             if (session == null) {
-                throw new FixApplicationException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
+                throw new BrokerAdapterException("FIX configuration error: session '" + sessionQualifier + "' not found in settings");
             }
             return session;
         } finally {
@@ -111,7 +112,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * creates an individual session
      */
     @Override
-    public void createSessionForService(String orderServiceType) throws FixApplicationException {
+    public void createSessionForService(String orderServiceType) throws BrokerAdapterException {
 
         Validate.notEmpty(orderServiceType, "Order service type is empty");
 
@@ -131,7 +132,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void openSessionForService(String orderServiceType) throws FixApplicationException {
+    public void openSessionForService(String orderServiceType) throws BrokerAdapterException {
 
         Validate.notEmpty(orderServiceType, "Order service type is empty");
 
@@ -148,7 +149,7 @@ public class DefaultFixAdapter implements FixAdapter {
         }
     }
 
-    private Session createSessionInternal(String sessionQualifier, boolean createNew) throws FixApplicationException {
+    private Session createSessionInternal(String sessionQualifier, boolean createNew) throws BrokerAdapterException {
 
         this.lock.lock();
         try {
@@ -156,7 +157,7 @@ public class DefaultFixAdapter implements FixAdapter {
             Session session = Session.lookupSession(sessionId);
             if (session != null) {
                 if (createNew) {
-                    throw new FixApplicationException("FIX configuration error: " +
+                    throw new BrokerAdapterException("FIX configuration error: " +
                             "existing session with qualifier '" + sessionQualifier + "' please add 'Inactive=Y' to session config");
                 }
             } else {
@@ -168,7 +169,7 @@ public class DefaultFixAdapter implements FixAdapter {
                         createLogonLogoutStatement(sessionId);
                     }
                 } catch (FieldConvertError | ConfigError ex) {
-                    throw new FixApplicationException("FIX configuration error: " + ex.getMessage(), ex);
+                    throw new BrokerAdapterException("FIX configuration error: " + ex.getMessage(), ex);
                 }
             }
             return session;
@@ -178,7 +179,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void createSession(String sessionQualifier) throws FixApplicationException {
+    public void createSession(String sessionQualifier) throws BrokerAdapterException {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
@@ -186,7 +187,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void openSession(String sessionQualifier) throws FixApplicationException {
+    public void openSession(String sessionQualifier) throws BrokerAdapterException {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
@@ -194,7 +195,7 @@ public class DefaultFixAdapter implements FixAdapter {
     }
 
     @Override
-    public void closeSession(String sessionQualifier) throws FixApplicationException {
+    public void closeSession(String sessionQualifier) throws BrokerAdapterException {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
@@ -206,7 +207,7 @@ public class DefaultFixAdapter implements FixAdapter {
                 session.close();
             }
         } catch (IOException ex) {
-            throw new FixApplicationException(ex.getMessage(), ex);
+            throw new BrokerAdapterException(ex.getMessage(), ex);
         } finally {
             this.lock.unlock();
         }
@@ -216,7 +217,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * sends a message to the designated session for the given account
      */
     @Override
-    public void sendMessage(Message message, Account account) throws FixApplicationException {
+    public void sendMessage(Message message, Account account) throws BrokerAdapterException {
 
         String sessionQualifier = account.getSessionQualifier();
         Validate.notNull(sessionQualifier, "no session qualifier defined for account " + account);
@@ -225,7 +226,7 @@ public class DefaultFixAdapter implements FixAdapter {
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new FixApplicationException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
+            throw new BrokerAdapterException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
         }
     }
 
@@ -233,7 +234,7 @@ public class DefaultFixAdapter implements FixAdapter {
      * sends a message to the designated session
      */
     @Override
-    public void sendMessage(Message message, String sessionQualifier) throws FixApplicationException {
+    public void sendMessage(Message message, String sessionQualifier) throws BrokerAdapterException {
 
         Validate.notEmpty(sessionQualifier, "Session qualifier is empty");
 
@@ -241,7 +242,7 @@ public class DefaultFixAdapter implements FixAdapter {
         if (session.isLoggedOn()) {
             session.send(message);
         } else {
-            throw new FixApplicationException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
+            throw new BrokerAdapterException("Message cannot be sent: session '" + sessionQualifier + "' is not logged on");
         }
     }
 

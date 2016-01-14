@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -256,7 +256,7 @@ public class TestFXCMMOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testModifyOrderUnsupportedType() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
@@ -291,7 +291,7 @@ public class TestFXCMMOrderMessageFactory {
         Assert.assertEquals(new OrderQty(123), message.getOrderQty());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderATC() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
@@ -299,7 +299,7 @@ public class TestFXCMMOrderMessageFactory {
         this.requestFactory.resolveTimeInForce(order);
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderATO() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();

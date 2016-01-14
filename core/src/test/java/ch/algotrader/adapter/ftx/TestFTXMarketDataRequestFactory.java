@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fxcm.FXCTickerIdGenerator;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
@@ -61,7 +61,7 @@ public class TestFTXMarketDataRequestFactory {
         Assert.assertEquals(1, quoteRequest.getInt(QuoteRequestType.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testRequestUnsupportedSecurity() throws Exception {
 
         Stock stock = new StockImpl();

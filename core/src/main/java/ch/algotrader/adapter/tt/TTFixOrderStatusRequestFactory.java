@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.tt;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.trade.Order;
 import quickfix.field.ClOrdID;
 import quickfix.field.OrderID;
@@ -41,7 +41,7 @@ public class TTFixOrderStatusRequestFactory {
             if (intId != null) {
                 request.set(new ClOrdID(intId));
             } else {
-                throw new FixApplicationException("Missing order identifier (intId and extId)");
+                throw new BrokerAdapterException("Missing order identifier (intId and extId)");
             }
         }
         return request;

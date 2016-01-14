@@ -20,7 +20,7 @@ package ch.algotrader.adapter.fix.fix44;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -79,7 +79,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -129,7 +129,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -164,7 +164,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 

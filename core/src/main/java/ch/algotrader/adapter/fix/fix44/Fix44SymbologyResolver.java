@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix.fix44;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Security;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
@@ -30,10 +30,10 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public interface Fix44SymbologyResolver {
 
-    void resolve(NewOrderSingle message, Security security, String broker) throws FixApplicationException;
+    void resolve(NewOrderSingle message, Security security, String broker) throws BrokerAdapterException;
 
-    void resolve(OrderCancelReplaceRequest message, Security security, String broker) throws FixApplicationException;
+    void resolve(OrderCancelReplaceRequest message, Security security, String broker) throws BrokerAdapterException;
 
-    void resolve(OrderCancelRequest message, Security security, String broker) throws FixApplicationException;
+    void resolve(OrderCancelRequest message, Security security, String broker) throws BrokerAdapterException;
 
 }

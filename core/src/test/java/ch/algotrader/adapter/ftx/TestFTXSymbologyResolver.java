@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -67,7 +67,7 @@ public class TestFTXSymbologyResolver {
         Assert.assertEquals(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT), message.getSecurityType());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testNewOrderStock() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();

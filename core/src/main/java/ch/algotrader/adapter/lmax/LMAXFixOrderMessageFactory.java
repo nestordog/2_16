@@ -32,7 +32,7 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.security.Forex;
@@ -51,7 +51,7 @@ import ch.algotrader.util.PriceUtil;
  */
 public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
-    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
+    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws BrokerAdapterException {
 
         TIF tif = order.getTif();
         if (tif == null) {
@@ -62,34 +62,34 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
             if (tif != TIF.IOC && tif != TIF.FOK) {
 
-                throw new FixApplicationException("Time in force '" + tif + "' is not supported by LMAX for market orders");
+                throw new BrokerAdapterException("Time in force '" + tif + "' is not supported by LMAX for market orders");
             }
         } else if (order instanceof LimitOrder) {
 
             if (tif != TIF.DAY && tif != TIF.GTC && tif != TIF.IOC && tif != TIF.FOK) {
 
-                throw new FixApplicationException("Time in force '" + tif + "' is not supported by LMAX for limit orders");
+                throw new BrokerAdapterException("Time in force '" + tif + "' is not supported by LMAX for limit orders");
             }
         } else if (order instanceof StopOrder) {
 
             if (tif != TIF.DAY && tif != TIF.GTC) {
 
-                throw new FixApplicationException("Time in force '" + tif + "' is not supported by LMAX for stop orders");
+                throw new BrokerAdapterException("Time in force '" + tif + "' is not supported by LMAX for stop orders");
             }
         }
 
         return FixUtil.getTimeInForce(tif);
     }
 
-    protected SecurityID resolveSecurityID(final Security security) throws FixApplicationException {
+    protected SecurityID resolveSecurityID(final Security security) throws BrokerAdapterException {
 
         if (!(security instanceof Forex)) {
 
-            throw new FixApplicationException("LMAX interface currently only supports FX orders");
+            throw new BrokerAdapterException("LMAX interface currently only supports FX orders");
         }
         String lmaxid = security.getLmaxid();
         if (lmaxid == null) {
-            throw new FixApplicationException(security + " is not supported by LMAX");
+            throw new BrokerAdapterException(security + " is not supported by LMAX");
         }
         return new SecurityID(lmaxid);
     }
@@ -98,14 +98,14 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         long quantity = order.getQuantity();
         if ((quantity % 1000) != 0) {
-            throw new FixApplicationException("FX orders on LMAX need to be multiples of 1000");
+            throw new BrokerAdapterException("FX orders on LMAX need to be multiples of 1000");
         } else {
             return new OrderQty((double) quantity / LMAXConsts.FOREX_CONTRACT_MULTIPLIER);
         }
     }
 
     @Override
-    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         NewOrderSingle message = new NewOrderSingle();
         message.set(new ClOrdID(clOrdID));
@@ -135,7 +135,7 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order type " + order.getClass().getName() + " is not supported by LMAX");
+            throw new BrokerAdapterException("Order type " + order.getClass().getName() + " is not supported by LMAX");
         }
 
         if (order.getTif() != null) {
@@ -147,11 +147,11 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         if (!(order instanceof LimitOrder)) {
 
-            throw new FixApplicationException("Order modification of type " + order.getClass().getName() + " is not supported by LMAX");
+            throw new BrokerAdapterException("Order modification of type " + order.getClass().getName() + " is not supported by LMAX");
         }
 
         LimitOrder limitOrder = (LimitOrder) order;
@@ -183,7 +183,7 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();

@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
@@ -171,7 +171,7 @@ public class TestTTOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderForexUnsupportedSecurityType() throws Exception {
 
         Exchange cme = Exchange.Factory.newInstance();

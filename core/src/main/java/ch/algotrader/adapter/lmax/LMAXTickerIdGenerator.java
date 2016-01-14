@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.lmax;
 
 import ch.algotrader.adapter.RequestIdGenerator;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Security;
 
 /**
@@ -33,7 +33,7 @@ public class LMAXTickerIdGenerator implements RequestIdGenerator<Security> {
 
         String lmaxId = security.getLmaxid();
         if (lmaxId == null) {
-            throw new FixApplicationException(security + " is not supported by LMAX");
+            throw new BrokerAdapterException(security + " is not supported by LMAX");
         }
         return lmaxId;
     }

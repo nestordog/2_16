@@ -24,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
@@ -225,13 +225,13 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             try {
                 currency = Currency.valueOf(s);
             } catch (IllegalArgumentException ex) {
-                throw new FixApplicationException("Unsupported currency " + s);
+                throw new BrokerAdapterException("Unsupported currency " + s);
             }
         }
         if (securityFamily != null) {
             if (currency != null) {
                 if (!currency.equals(securityFamily.getCurrency())) {
-                    throw new FixApplicationException("Transaction currency does not match that defined by the security family");
+                    throw new BrokerAdapterException("Transaction currency does not match that defined by the security family");
                 }
             } else {
                 currency = securityFamily.getCurrency();

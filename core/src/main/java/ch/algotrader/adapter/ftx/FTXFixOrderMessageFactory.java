@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -52,14 +52,14 @@ public class FTXFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
             case FOK:
                 return new TimeInForce(TimeInForce.FILL_OR_KILL);
             default:
-                throw new FixApplicationException("Unsupported time-in-force " + tif);
+                throw new BrokerAdapterException("Unsupported time-in-force " + tif);
         }
     }
 
     @Override
     public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) {
         if (order instanceof StopLimitOrder) {
-            throw new FixApplicationException("Forex does not support STOP_LIMIT orders");
+            throw new BrokerAdapterException("Forex does not support STOP_LIMIT orders");
         }
         final NewOrderSingle message = super.createNewOrderMessage(order, clOrdID);
         message.set(new HandlInst(HandlInst.AUTOMATED_EXECUTION_ORDER_PRIVATE));

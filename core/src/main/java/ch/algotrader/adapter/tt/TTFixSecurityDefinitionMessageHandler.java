@@ -26,7 +26,7 @@ import java.time.temporal.TemporalAccessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.fix42.AbstractFix42MessageHandler;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
@@ -77,15 +77,15 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
                 this.pendingRequests.removeSecurityDefinitionRequest(requestId);
             }
         } catch (FieldNotFound ex) {
-            pendingRequest.fail(new FixApplicationException("Unexpected SecurityDefinition format", ex));
+            pendingRequest.fail(new BrokerAdapterException("Unexpected SecurityDefinition format", ex));
             throw ex;
-        } catch (FixApplicationException ex) {
+        } catch (BrokerAdapterException ex) {
             pendingRequest.fail(ex);
             throw ex;
         }
     }
 
-    TTSecurityDefVO parse(final SecurityDefinition securityDefinition) throws FixApplicationException, FieldNotFound {
+    TTSecurityDefVO parse(final SecurityDefinition securityDefinition) throws BrokerAdapterException, FieldNotFound {
 
         String symbol = securityDefinition.getSymbol().getValue();
         String altSymbol = securityDefinition.isSetField(10455) ? securityDefinition.getString(10455) : null;
@@ -114,7 +114,7 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
         }
     }
 
-    LocalDate parseMaturityDate(final SecurityDefinition securityDefinition) throws FixApplicationException, FieldNotFound {
+    LocalDate parseMaturityDate(final SecurityDefinition securityDefinition) throws BrokerAdapterException, FieldNotFound {
         String s = securityDefinition.getMaturityMonthYear().getValue();
         if (s.isEmpty() || s.equals("0")) {
             return null;
@@ -129,18 +129,18 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
                 try {
                     day = Integer.parseInt(ss);
                 } catch (NumberFormatException ex) {
-                    throw new FixApplicationException("Invalid maturity day: " + ss);
+                    throw new BrokerAdapterException("Invalid maturity day: " + ss);
                 }
             } else {
                 day = 1;
             }
             return LocalDate.of(year, month, day);
         } catch (DateTimeParseException ex) {
-            throw new FixApplicationException("Invalid maturity month/year: " + s);
+            throw new BrokerAdapterException("Invalid maturity month/year: " + s);
         }
     }
 
-    LocalDate parseExpiryDate(final SecurityDefinition securityDefinition) throws FixApplicationException, FieldNotFound {
+    LocalDate parseExpiryDate(final SecurityDefinition securityDefinition) throws BrokerAdapterException, FieldNotFound {
         for (Group group : securityDefinition.getGroups(NoEvents.FIELD)) {
             int type = group.getInt(EventType.FIELD);
             if (type == 5) { // EXPIRY_DATE
@@ -148,14 +148,14 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
                 try {
                     return DATE_FORMAT.parse(s, LocalDate::from);
                 } catch (DateTimeParseException ex) {
-                    throw new FixApplicationException("Invalid expiry date: " + s);
+                    throw new BrokerAdapterException("Invalid expiry date: " + s);
                 }
             }
         }
         return null;
     }
 
-    OptionType parseOptionType(final SecurityDefinition securityDefinition) throws FixApplicationException, FieldNotFound {
+    OptionType parseOptionType(final SecurityDefinition securityDefinition) throws BrokerAdapterException, FieldNotFound {
         int i = securityDefinition.getPutOrCall().getValue();
         switch (i) {
             case 0:
@@ -163,7 +163,7 @@ public class TTFixSecurityDefinitionMessageHandler extends AbstractFix42MessageH
             case 1:
                 return OptionType.CALL;
             default:
-                throw new FixApplicationException("Unexpected put or call value: " + i);
+                throw new BrokerAdapterException("Unexpected put or call value: " + i);
         }
     }
 

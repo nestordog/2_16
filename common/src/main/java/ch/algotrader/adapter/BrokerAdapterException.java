@@ -15,20 +15,20 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.adapter.fix;
+package ch.algotrader.adapter;
 
 /**
- * Signals generic FIX application exception.
+ * Signals Broker adapter exception.
  */
-public class FixApplicationException extends RuntimeException {
+public class BrokerAdapterException extends RuntimeException {
 
     private static final long serialVersionUID = -7833579148653485688L;
 
-    public FixApplicationException(final String message) {
+    public BrokerAdapterException(final String message) {
         super(message);
     }
 
-    public FixApplicationException(final String message, final Throwable cause) {
+    public BrokerAdapterException(final String message, final Throwable cause) {
         super(message, cause);
     }
 

@@ -21,7 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Index;
@@ -103,7 +103,7 @@ public class TestLMAXMarketDataRequestFactory {
         Assert.assertEquals(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES), marketDataRequest.getSubscriptionRequestType());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testRequestUnsupportedSecurity() throws Exception {
 
         Stock stock = new StockImpl();

@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.DefaultSessionFactory;
@@ -83,7 +84,7 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
         // find the application factory by its name
         FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(applicationFactoryName);
         if (applicationFactory == null) {
-            throw new FixApplicationException("FixApplicationFactory not found: " + applicationFactoryName);
+            throw new BrokerAdapterException("FixApplicationFactory not found: " + applicationFactoryName);
         }
         String logImpl = "";
         try {

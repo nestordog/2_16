@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -111,7 +111,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderForexUnsupportedSecurityType() throws Exception {
 
         Stock stock = new StockImpl();
@@ -273,7 +273,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testModifyOrderForexUnsupportedSecurityType() throws Exception {
 
         Stock stock = new StockImpl();
@@ -439,7 +439,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new OrdType(OrdType.FOREX_MARKET), message.getField(new OrdType()));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testCancelOrderForexUnsupportedSecurityType() throws Exception {
 
         Stock stock = new StockImpl();
@@ -619,7 +619,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), message.getTimeInForce());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopOrderForexTimeInForceImmediateOrCancel() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -664,7 +664,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), message.getTimeInForce());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopOrderForexTimeInForceFillOrKill() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -711,7 +711,7 @@ public class TestCNXOrderMessageFactory {
         Assert.assertEquals(new ExpireTime(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-13 16:00:00.000")), message.getExpireTime());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderForexUnsupportedTimeInForce() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -730,7 +730,7 @@ public class TestCNXOrderMessageFactory {
         this.requestFactory.createNewOrderMessage(order, "test-id");
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderForexTimeInForceGoodTillDateMissing() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();

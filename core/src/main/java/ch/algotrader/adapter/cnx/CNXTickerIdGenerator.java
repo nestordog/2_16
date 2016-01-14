@@ -18,7 +18,7 @@
 package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.RequestIdGenerator;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 
@@ -33,7 +33,7 @@ public class CNXTickerIdGenerator implements RequestIdGenerator<Security> {
     public String generateId(final Security security) {
 
         if (!(security instanceof Forex)) {
-            throw new FixApplicationException("Currenex supports Forex only");
+            throw new BrokerAdapterException("Currenex supports Forex only");
         }
         return CNXUtil.getCNXSymbol((Forex) security);
     }

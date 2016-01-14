@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.entity.Transaction;
@@ -192,7 +192,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             return;
         }
         if (allocation.getStrategy() == null) {
-            throw new FixApplicationException("External (drop-copy) fill could not be allocated to a strategy");
+            throw new BrokerAdapterException("External (drop-copy) fill could not be allocated to a strategy");
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("External (drop-copy) fill {} allocated to " +

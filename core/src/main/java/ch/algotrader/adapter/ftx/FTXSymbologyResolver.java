@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ftx;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.fix44.Fix44SymbologyResolver;
 import ch.algotrader.entity.security.Security;
 import quickfix.field.SecurityType;
@@ -34,21 +34,21 @@ import quickfix.fix44.OrderCancelRequest;
 public class FTXSymbologyResolver implements Fix44SymbologyResolver {
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(new Symbol(FTXUtil.getFTXSymbol(security)));
         message.set(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT));
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(new Symbol(FTXUtil.getFTXSymbol(security)));
         message.set(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT));
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(new Symbol(FTXUtil.getFTXSymbol(security)));
         message.set(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT));

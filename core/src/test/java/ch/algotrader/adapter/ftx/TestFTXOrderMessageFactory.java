@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -178,7 +178,7 @@ public class TestFTXOrderMessageFactory {
         Assert.assertEquals(new SecurityType(SecurityType.FOREIGN_EXCHANGE_CONTRACT), message.getSecurityType());
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopLimitOrderForex() throws Exception {
 
         StopLimitOrder order = new StopLimitOrderImpl();
@@ -202,22 +202,22 @@ public class TestFTXOrderMessageFactory {
         try {
             this.requestFactory.resolveTimeInForce(TIF.DAY);
             Assert.fail("FixApplicationException expected");
-        } catch (FixApplicationException ignore) {
+        } catch (BrokerAdapterException ignore) {
         }
         try {
             this.requestFactory.resolveTimeInForce(TIF.GTD);
             Assert.fail("FixApplicationException expected");
-        } catch (FixApplicationException ignore) {
+        } catch (BrokerAdapterException ignore) {
         }
         try {
             this.requestFactory.resolveTimeInForce(TIF.ATO);
             Assert.fail("FixApplicationException expected");
-        } catch (FixApplicationException ignore) {
+        } catch (BrokerAdapterException ignore) {
         }
         try {
             this.requestFactory.resolveTimeInForce(TIF.ATC);
             Assert.fail("FixApplicationException expected");
-        } catch (FixApplicationException ignore) {
+        } catch (BrokerAdapterException ignore) {
         }
     }
 

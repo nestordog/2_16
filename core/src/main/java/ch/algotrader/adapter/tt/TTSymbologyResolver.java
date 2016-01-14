@@ -20,7 +20,7 @@ package ch.algotrader.adapter.tt;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.fix42.Fix42SymbologyResolver;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
@@ -62,7 +62,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
     }
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws BrokerAdapterException {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
@@ -95,12 +95,12 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         } else {
 
-            throw new FixApplicationException("TT interface does not support security class " + security.getClass());
+            throw new BrokerAdapterException("TT interface does not support security class " + security.getClass());
         }
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
@@ -133,12 +133,12 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         } else {
 
-            throw new FixApplicationException("TT interface does not support security class " + security.getClass());
+            throw new BrokerAdapterException("TT interface does not support security class " + security.getClass());
         }
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws BrokerAdapterException {
     }
 
 }
