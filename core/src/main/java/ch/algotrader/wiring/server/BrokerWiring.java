@@ -41,11 +41,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ch.algotrader.broker.CoreToUIEventPublisher;
 import ch.algotrader.broker.EmbeddedActiveMQBroker;
 import ch.algotrader.broker.JMSTopicPublisher;
-import ch.algotrader.broker.MarketDataSubscriptionTopicCreator;
-import ch.algotrader.broker.SimpleTopicCreator;
-import ch.algotrader.broker.StrategyTopicCreator;
+import ch.algotrader.broker.MarketDataSubscriptionTopicRouter;
+import ch.algotrader.broker.SimpleTopicRouter;
+import ch.algotrader.broker.StrategyTopicRouter;
 import ch.algotrader.broker.SubscriptionTopic;
 import ch.algotrader.broker.TopicPublisher;
+import ch.algotrader.broker.eviction.TopicEvictionRouter;
+import ch.algotrader.broker.eviction.TopicEvictionVO;
 import ch.algotrader.broker.subscription.TopicSubscriptionHandler;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
@@ -134,21 +136,23 @@ public class BrokerWiring {
         JMSTopicPublisher publisher = new JMSTopicPublisher(jmsActiveMQFactory, messageConverter);
 
         publisher.register(TickVO.class,
-                new SimpleTopicCreator<>(SubscriptionTopic.TICK.getBaseTopic(), tick -> String.valueOf(tick.getSecurityId())));
+                new SimpleTopicRouter<>(SubscriptionTopic.TICK.getBaseTopic(), tick -> String.valueOf(tick.getSecurityId())));
         publisher.register(OrderVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.ORDER.getBaseTopic(), OrderVO::getIntId));
+                new StrategyTopicRouter<>(SubscriptionTopic.ORDER.getBaseTopic(), OrderVO::getIntId));
         publisher.register(OrderStatusVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.ORDER_STATUS.getBaseTopic(), OrderStatusVO::getIntId));
+                new StrategyTopicRouter<>(SubscriptionTopic.ORDER_STATUS.getBaseTopic(), OrderStatusVO::getIntId));
         publisher.register(TransactionVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.TRANSACTION.getBaseTopic(), TransactionVO::getUuid));
+                new StrategyTopicRouter<>(SubscriptionTopic.TRANSACTION.getBaseTopic(), TransactionVO::getUuid));
         publisher.register(PositionVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.POSITION.getBaseTopic(), position -> String.valueOf(position.getId())));
+                new StrategyTopicRouter<>(SubscriptionTopic.POSITION.getBaseTopic(), position -> String.valueOf(position.getId())));
         publisher.register(CashBalanceVO.class,
-                new StrategyTopicCreator<>(SubscriptionTopic.CASH_BALANCE.getBaseTopic(), cashBalance -> String.valueOf(cashBalance.getId())));
+                new StrategyTopicRouter<>(SubscriptionTopic.CASH_BALANCE.getBaseTopic(), cashBalance -> String.valueOf(cashBalance.getId())));
         publisher.register(MarketDataSubscriptionVO.class,
-                new MarketDataSubscriptionTopicCreator<>(SubscriptionTopic.MARKET_DATA_SUBSCRIPTION.getBaseTopic()));
+                new MarketDataSubscriptionTopicRouter<>(SubscriptionTopic.MARKET_DATA_SUBSCRIPTION.getBaseTopic()));
         publisher.register(LogEventVO.class,
-                new SimpleTopicCreator<>(SubscriptionTopic.LOG_EVENT.getBaseTopic(), LogEventVO::getPriority));
+                new SimpleTopicRouter<>(SubscriptionTopic.LOG_EVENT.getBaseTopic(), LogEventVO::getPriority));
+
+        publisher.register(TopicEvictionVO.class, new TopicEvictionRouter());
 
         return publisher;
     }

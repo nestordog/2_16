@@ -76,4 +76,9 @@ public interface OrderExecutionService {
      */
     Order getOpenOrderByIntId(String intId);
 
+    /**
+     * Gets an order by its {@code intId}.
+     */
+    Order getOrderByIntId(String intId);
+
 }

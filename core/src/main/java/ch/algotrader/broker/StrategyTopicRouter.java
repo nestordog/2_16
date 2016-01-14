@@ -22,25 +22,46 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 import org.apache.activemq.command.ActiveMQTopic;
 
-public class SimpleTopicCreator<T> implements TopicCreator<T> {
+public class StrategyTopicRouter<T> implements TopicRouter<T> {
 
     private final String baseTopic;
     private final Function<T, String> idExtractor;
 
-    public SimpleTopicCreator(final String baseTopic, final Function<T, String> idExtractor) {
+    public StrategyTopicRouter(final String baseTopic, final Function<T, String> idExtractor) {
         this.baseTopic = baseTopic;
         this.idExtractor = idExtractor;
     }
 
     public Destination create(final T vo, final Optional<String> strategyName) {
+        return new ActiveMQTopic(create(this.baseTopic, strategyName, this.idExtractor.apply(vo)));
+    }
+
+    public static String create(final String baseTopic, final Optional<String> strategyName, final String id) {
         StringBuilder buf = new StringBuilder();
-        buf.append(this.baseTopic);
+        buf.append(baseTopic);
         buf.append(SEPARATOR);
-        buf.append(idExtractor.apply(vo));
-        return new ActiveMQTopic(buf.toString());
+        if (strategyName.isPresent()) {
+            buf.append(strategyName.get());
+        }
+        buf.append(SEPARATOR);
+        buf.append(escape(id));
+        return buf.toString();
+    }
+
+    private static String escape(final String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.replace(SEPARATOR, '_');
+    }
+
+    @Override
+    public void postProcess(final T event, final Message message) throws JMSException {
     }
 
 }

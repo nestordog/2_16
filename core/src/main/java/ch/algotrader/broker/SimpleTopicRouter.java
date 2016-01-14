@@ -22,36 +22,35 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 import org.apache.activemq.command.ActiveMQTopic;
 
-public class StrategyTopicCreator<T> implements TopicCreator<T> {
+public class SimpleTopicRouter<T> implements TopicRouter<T> {
 
     private final String baseTopic;
     private final Function<T, String> idExtractor;
 
-    public StrategyTopicCreator(final String baseTopic, final Function<T, String> idExtractor) {
+    public SimpleTopicRouter(final String baseTopic, final Function<T, String> idExtractor) {
         this.baseTopic = baseTopic;
         this.idExtractor = idExtractor;
     }
 
     public Destination create(final T vo, final Optional<String> strategyName) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(this.baseTopic);
-        buf.append(SEPARATOR);
-        if (strategyName.isPresent()) {
-            buf.append(strategyName.get());
-        }
-        buf.append(SEPARATOR);
-        buf.append(escape(this.idExtractor.apply(vo)));
-        return new ActiveMQTopic(buf.toString());
+        return new ActiveMQTopic(create(this.baseTopic, this.idExtractor.apply(vo)));
     }
 
-    private static String escape(final String s) {
-        if (s == null) {
-            return null;
-        }
-        return s.replace(SEPARATOR, '_');
+    @Override
+    public void postProcess(final T event, final Message message) throws JMSException {
+    }
+
+    public static String create(final String baseTopic, final String id) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(baseTopic);
+        buf.append(SEPARATOR);
+        buf.append(id);
+        return buf.toString();
     }
 
 }

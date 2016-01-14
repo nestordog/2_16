@@ -16,40 +16,34 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.broker;
+package ch.algotrader.broker.eviction;
 
 import java.util.Optional;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 import org.apache.activemq.command.ActiveMQTopic;
-import org.apache.commons.lang.Validate;
 
-import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
+import ch.algotrader.broker.TopicRouter;
 
-public class MarketDataSubscriptionTopicCreator<T extends MarketDataSubscriptionVO> implements TopicCreator<T> {
+public class TopicEvictionRouter implements TopicRouter<TopicEvictionVO> {
 
-    private final String baseTopic;
+    public static final String TOPIC = "evict";
+    public static final String ATTRIBUTE_NAME   = "at.topic-to-evict";
 
-    public MarketDataSubscriptionTopicCreator(final String baseTopic) {
-
-        Validate.notEmpty(baseTopic, "Base topic is empty");
-
-        this.baseTopic = baseTopic;
+    public TopicEvictionRouter() {
     }
 
-    public Destination create(final T vo, final Optional<String> strategyName) {
-        StringBuilder buf = new StringBuilder();
-        buf.append(this.baseTopic);
-        buf.append(SEPARATOR);
-        buf.append(vo.getStrategyName());
-        buf.append(SEPARATOR);
-        buf.append(vo.getSecurityId());
-        if (vo.getFeedType() != null) {
-            buf.append(SEPARATOR);
-            buf.append(vo.getFeedType());
-        }
-        return new ActiveMQTopic(buf.toString());
+    public Destination create(final TopicEvictionVO vo, final Optional<String> strategyName) {
+        return new ActiveMQTopic(TOPIC);
+    }
+
+    @Override
+    public void postProcess(final TopicEvictionVO event, final Message message) throws JMSException {
+
+        message.setStringProperty(ATTRIBUTE_NAME, event.getDestination());
     }
 
 }

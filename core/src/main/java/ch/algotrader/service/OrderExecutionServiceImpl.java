@@ -17,10 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.Optional;
+
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.broker.StrategyTopicRouter;
+import ch.algotrader.broker.SubscriptionTopic;
+import ch.algotrader.broker.eviction.TopicEvictionVO;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
@@ -35,6 +40,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.ordermgmt.OrderRegistry;
 
 /**
@@ -138,6 +144,17 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
                     }
                 }
             }
+        }
+
+        switch (orderStatus.getStatus()) {
+            case EXECUTED:
+            case REJECTED:
+            case CANCELED:
+                Optional<String> strategyName = Optional.of(strategy.getName());
+                TopicEvictionVO eviction1 = new TopicEvictionVO(StrategyTopicRouter.create(SubscriptionTopic.ORDER.getBaseTopic(), strategyName, intId));
+                this.eventDispatcher.broadcast(eviction1, EventRecipient.REMOTE_ONLY);
+                TopicEvictionVO eviction2 = new TopicEvictionVO(StrategyTopicRouter.create(SubscriptionTopic.ORDER_STATUS.getBaseTopic(), strategyName, intId));
+                this.eventDispatcher.broadcast(eviction2, EventRecipient.REMOTE_ONLY);
         }
 
     }
@@ -280,4 +297,11 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         return this.orderRegistry.getOpenOrderByIntId(intId);
     }
 
+    @Override
+    public Order getOrderByIntId(String intId) {
+
+        Validate.notEmpty(intId, "Order IntId is empty");
+
+        return this.orderRegistry.getByIntId(intId);
+    }
 }

@@ -34,19 +34,19 @@ import ch.algotrader.event.EventTypeCache;
 public class JMSTopicPublisher implements TopicPublisher<Object> {
 
     private final EventTypeCache eventTypeCache;
-    private final ConcurrentMap<Class<?>, TopicCreator<?>> topicCreators;
+    private final ConcurrentMap<Class<?>, TopicRouter<?>> topicRouters;
     private final JmsTemplate template;
 
     public JMSTopicPublisher(final ConnectionFactory connectionFactory, final MessageConverter converter) {
         this.eventTypeCache = new EventTypeCache();
-        this.topicCreators = new ConcurrentHashMap<>();
+        this.topicRouters = new ConcurrentHashMap<>();
         this.template = new JmsTemplate(connectionFactory);
         this.template.setMessageConverter(converter);
     }
 
-    public <T> void register(final Class<T> eventClass, final TopicCreator<T> topicCreator) {
+    public <T> void register(final Class<T> eventClass, final TopicRouter<T> topicRouter) {
 
-        this.topicCreators.put(eventClass, topicCreator);
+        this.topicRouters.put(eventClass, topicRouter);
     }
 
     public void publish(final Object event) {
@@ -62,10 +62,13 @@ public class JMSTopicPublisher implements TopicPublisher<Object> {
         for (Class<?> type: allTypes) {
 
             @SuppressWarnings("unchecked")
-            TopicCreator<Object> topicCreator = (TopicCreator<Object>) this.topicCreators.get(type);
-            if (topicCreator != null) {
-                Destination destination = topicCreator.create(event, strategyName);
-                this.template.convertAndSend(destination, event);
+            TopicRouter<Object> topicRouter = (TopicRouter<Object>) this.topicRouters.get(type);
+            if (topicRouter != null) {
+                Destination destination = topicRouter.create(event, strategyName);
+                this.template.convertAndSend(destination, event, message -> {
+                    topicRouter.postProcess(event, message);
+                    return message;
+                });
                 return;
             }
         }

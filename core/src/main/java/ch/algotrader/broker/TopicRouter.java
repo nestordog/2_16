@@ -21,11 +21,15 @@ package ch.algotrader.broker;
 import java.util.Optional;
 
 import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
-public interface TopicCreator<T> {
+public interface TopicRouter<T> {
 
     char SEPARATOR = '.';
 
     Destination create(T event, Optional<String> strategyId);
+
+    void postProcess(T event, Message message) throws JMSException;
 
 }

@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.management.MBeanServer;
 
+import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.broker.region.policy.LastImageSubscriptionRecoveryPolicy;
@@ -34,6 +35,7 @@ import org.apache.activemq.filter.DestinationMapEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.broker.eviction.TopicEvictionPlugin;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -77,6 +79,7 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         }
         policyMap.setPolicyEntries(entryList);
         this.broker.setDestinationPolicy(policyMap);
+        this.broker.setPlugins(new BrokerPlugin[]{new TopicEvictionPlugin()});
     }
 
     public void start() throws Exception {
