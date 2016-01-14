@@ -64,7 +64,6 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
             final MessageConverter messageConverter) {
 
         Validate.notNull(localEventBroadcaster, "EventBroadcaster is null");
-        Validate.notNull(remoteEventPublisher, "EventPublisher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(messageConverter, "MessageConverter is null");
 
@@ -89,7 +88,9 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
             if (engine != null) {
                 engine.sendEvent(event);
             } else {
-                this.remoteEventPublisher.publishStrategyEvent(event, strategyName);
+                if (this.remoteEventPublisher != null) {
+                    this.remoteEventPublisher.publishStrategyEvent(event, strategyName);
+                }
             }
         }
         if (this.internalEventPublisher != null) {
@@ -126,9 +127,10 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
     @Override
     public void sendMarketDataEvent(final MarketDataEventVO event) {
 
-        this.remoteEventPublisher.publishMarketDataEvent(event);
         this.localEventBroadcaster.broadcast(event);
-
+        if (this.remoteEventPublisher != null) {
+            this.remoteEventPublisher.publishMarketDataEvent(event);
+        }
         if (this.internalEventPublisher != null) {
             this.internalEventPublisher.publishMarketDataEvent(event);
         }
@@ -151,8 +153,9 @@ public class DistributedEventDispatcher implements EventDispatcher, MessageListe
             }
         }
         if (recipients.contains(EventRecipient.REMOTE)) {
-            this.remoteEventPublisher.publishGenericEvent(event);
-
+            if (this.remoteEventPublisher != null) {
+                this.remoteEventPublisher.publishGenericEvent(event);
+            }
             if (this.internalEventPublisher != null) {
                 this.internalEventPublisher.publishGenericEvent(event);
             }

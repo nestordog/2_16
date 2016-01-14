@@ -58,7 +58,9 @@ public class EventDispatchWiring {
             return new LocalEventDispatcher(eventListenerRegistry, internalEventPropagator, engineManager);
         } else {
 
-            EventPublisher remoteEventPropagator = applicationContext.getBean("remoteEventPropagator", EventPublisher.class);
+            EventPublisher remoteEventPropagator = applicationContext.containsBean("remoteEventPropagator")
+                    ? applicationContext.getBean("remoteEventPropagator", EventPublisher.class) : null;
+
             return new DistributedEventDispatcher(
                     eventListenerRegistry,
                     remoteEventPropagator,
