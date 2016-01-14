@@ -221,7 +221,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getSymbol(),
                                 securityDef.getOptionType(),
                                 securityDef.getMaturityDate(),
-                                securityDef.getDescription());
+                                securityDef.getStrikePrice());
                     }
                     this.optionDao.save(option);
                 } else {

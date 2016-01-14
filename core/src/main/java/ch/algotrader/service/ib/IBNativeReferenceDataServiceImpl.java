@@ -25,16 +25,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +58,6 @@ import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.OptionFamily;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.enumeration.Broker;
@@ -150,7 +148,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         } else if (securityFamily instanceof FutureFamily) {
             contract.m_secType = "FUT";
         } else {
-            throw new IllegalStateException("illegal securityFamily type");
+            throw new ServiceException("illegal securityFamily type");
         }
 
         if (LOGGER.isDebugEnabled()) {
@@ -168,7 +166,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
             } else if (securityFamily instanceof FutureFamily) {
                 retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
             } else {
-                throw new IllegalStateException("illegal securityFamily type");
+                throw new ServiceException("illegal securityFamily type");
             }
         } catch (ParseException ex) {
             throw new ExternalServiceException(ex);
@@ -224,87 +222,96 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current options
-        Set<Security> existingOptions = new TreeSet<>(SECURITY_COMPARATOR);
-        existingOptions.addAll(this.optionDao.findBySecurityFamily(securityFamily.getId()));
+        List<Option> allOptions = this.optionDao.findBySecurityFamily(securityFamily.getId());
+        Map<String, Option> mapByConid = allOptions.stream()
+                .filter(e -> e.getConid() != null)
+                .collect(Collectors.toMap(e -> e.getConid(), e -> e));
+        Map<String, Option> mapBySymbol = allOptions.stream()
+                .collect(Collectors.toMap(e -> e.getSymbol(), e -> e));
 
-        Set<Option> newOptions = new HashSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
-            Option option = Option.Factory.newInstance();
-
             Contract contract = contractDetails.m_summary;
-            OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
-            BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB.name()));
-            LocalDate expirationDate = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
-
-            final String isin = OptionSymbol.getIsin(securityFamily, expirationDate, type, strike);
-            String symbol = OptionSymbol.getSymbol(securityFamily, expirationDate, type, strike, false);
-            String ric = OptionSymbol.getRic(securityFamily, expirationDate, type, strike);
             String conid = String.valueOf(contract.m_conId);
+            if (!mapByConid.containsKey(conid)) {
 
-            option.setSymbol(symbol);
-            option.setIsin(isin);
-            option.setRic(ric);
-            option.setConid(conid);
-            option.setOptionType(type);
-            option.setStrike(strike);
-            option.setExpiration(DateTimeLegacy.toLocalDate(expirationDate));
-            option.setSecurityFamily(securityFamily);
-            option.setUnderlying(securityFamily.getUnderlying());
+                OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
+                BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB.name()));
+                LocalDate expirationDate = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
+                String symbol = OptionSymbol.getSymbol(securityFamily, expirationDate, type, strike, false);
+                if (!mapBySymbol.containsKey(symbol)) {
+                    Option option = Option.Factory.newInstance();
 
-            // ignore options that already exist
-            if (!existingOptions.contains(option)) {
-                newOptions.add(option);
+                    final String isin = OptionSymbol.getIsin(securityFamily, expirationDate, type, strike);
+                    String ric = OptionSymbol.getRic(securityFamily, expirationDate, type, strike);
+
+                    option.setSymbol(symbol);
+                    option.setIsin(isin);
+                    option.setRic(ric);
+                    option.setConid(conid);
+                    option.setOptionType(type);
+                    option.setStrike(strike);
+                    option.setExpiration(DateTimeLegacy.toLocalDate(expirationDate));
+                    option.setSecurityFamily(securityFamily);
+                    option.setUnderlying(securityFamily.getUnderlying());
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Creating option based on IB definition: {} {} {} {}",
+                                contract.m_symbol,
+                                contract.m_right,
+                                contract.m_expiry,
+                                contract.m_strike);
+                    }
+                    this.optionDao.save(option);
+                }
             }
-        }
-
-        this.optionDao.saveAll(newOptions);
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("retrieved options for optionfamily: {} {}", securityFamily.getName(), newOptions);
         }
     }
 
     private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
 
         // get all current futures
-        Set<Future> existingFutures = new TreeSet<>(SECURITY_COMPARATOR);
-        existingFutures.addAll(this.futureDao.findBySecurityFamily(securityFamily.getId()));
+        List<Future> allFutures = this.futureDao.findBySecurityFamily(securityFamily.getId());
+        Map<String, Future> mapByConid = allFutures.stream()
+                .filter(e -> e.getConid() != null)
+                .collect(Collectors.toMap(e -> e.getConid(), e -> e));
+        Map<String, Future> mapBySymbol = allFutures.stream()
+                .collect(Collectors.toMap(e -> e.getSymbol(), e -> e));
 
-        Set<Future> newFutures = new HashSet<>();
         for (ContractDetails contractDetails : contractDetailsSet) {
 
-            Future future = Future.Factory.newInstance();
-
             Contract contract = contractDetails.m_summary;
-            LocalDate expiration = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
-            String contractMonthString = contractDetails.m_contractMonth;
-            LocalDate contractMonth = parseYearMonth(contractMonthString);
-
-            String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
-            final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
-            String ric = FutureSymbol.getRic(securityFamily, contractMonth);
             String conid = String.valueOf(contract.m_conId);
+            if (!mapByConid.containsKey(conid)) {
 
-            future.setSymbol(symbol);
-            future.setIsin(isin);
-            future.setRic(ric);
-            future.setConid(conid);
-            future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
-            future.setMonthYear(contractMonthString);
-            future.setSecurityFamily(securityFamily);
-            future.setUnderlying(securityFamily.getUnderlying());
+                LocalDate expiration = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
+                String contractMonthString = contractDetails.m_contractMonth;
+                LocalDate contractMonth = parseYearMonth(contractMonthString);
 
-            // ignore futures that already exist
-            if (!existingFutures.contains(future)) {
-                newFutures.add(future);
+                String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
+                if (!mapBySymbol.containsKey(symbol)) {
+                    Future future = Future.Factory.newInstance();
+
+                    final String isin = FutureSymbol.getIsin(securityFamily, contractMonth);
+                    String ric = FutureSymbol.getRic(securityFamily, contractMonth);
+
+                    future.setSymbol(symbol);
+                    future.setIsin(isin);
+                    future.setRic(ric);
+                    future.setConid(conid);
+                    future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+                    future.setMonthYear(contractMonthString);
+                    future.setSecurityFamily(securityFamily);
+                    future.setUnderlying(securityFamily.getUnderlying());
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Creating future based on IB definition: {} {}",
+                                contract.m_symbol,
+                                contractDetails.m_contractMonth);
+                    }
+                    this.futureDao.save(future);
+                }
             }
-        }
-
-        this.futureDao.saveAll(newFutures);
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("retrieved futures for futurefamily: {} {}", securityFamily.getName(), newFutures);
         }
     }
 
@@ -348,8 +355,6 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
         this.stockDao.saveAll(newStocks);
     }
-
-    private static final Comparator<Security> SECURITY_COMPARATOR = (o1, o2) -> o1.getConid().compareTo(o2.getConid());
 
     private LocalDate parseYearMonth(final CharSequence s) {
         if (s == null || s.length() == 0) {
