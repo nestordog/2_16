@@ -18,6 +18,7 @@
 package ch.algotrader.adapter.tt;
 
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.enumeration.FeedType;
 import quickfix.field.SecurityExchange;
 import quickfix.field.SecurityReqID;
 import quickfix.field.SecurityType;
@@ -39,10 +40,11 @@ public class TTSecurityDefinitionRequestFactory {
         String code = securityFamily.getExchange().getCode();
         request.set(new SecurityExchange(code));
 
-        String symbolRoot = securityFamily.getSymbolRoot();
+        String symbolRoot = securityFamily.getSymbolRoot(FeedType.TT.name());
         if (symbolRoot != null) {
             request.set(new Symbol(symbolRoot));
         }
+
 
         return request;
     }

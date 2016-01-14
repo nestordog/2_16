@@ -227,6 +227,13 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getDescription());
                     }
                     this.optionDao.save(option);
+                } else {
+                    Option option = mapBySymbol.get(symbol);
+                    option.setTtid(id);
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Updating option based on TT definition: {}",securityDef.getSymbol());
+                    }
                 }
             }
         }
@@ -298,6 +305,14 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getSymbol(), securityDef.getMaturityDate());
                     }
                     this.futureDao.save(future);
+                } else {
+                    Future future = mapBySymbol.get(symbol);
+                    future.setTtid(id);
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Updating future based on TT definition: {} {}",
+                            securityDef.getSymbol(), securityDef.getMaturityDate());
+                    }
                 }
             }
         }
