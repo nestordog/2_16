@@ -142,14 +142,26 @@ public class MarketDataServiceImpl implements MarketDataService {
                 LOGGER.info("Initializing subscriptions for data feed {}", feedType);
             }
             Set<Security> securities = new LinkedHashSet<>();
-            for (Engine engine : this.engineManager.getEngines()) {
-                String strategyName = engine.getStrategyName();
-                List<Security> strategySubscribed = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, strategyName);
-                for (Security security : strategySubscribed) {
+            if (this.commonConfig.isEmbedded()) {
+                for (Engine engine : this.engineManager.getEngines()) {
+                    String strategyName = engine.getStrategyName();
+                    List<Security> strategySubscribed = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, strategyName);
+                    for (Security security : strategySubscribed) {
+
+                        this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
+                        securities.add(security);
+                    }
+                }
+            } else {
+                Engine serverEngine = this.engineManager.getServerEngine();
+                String strategyName = serverEngine.getStrategyName();
+                List<Security> serverSubscribed = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, strategyName);
+                for (Security security : serverSubscribed) {
 
                     this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
                     securities.add(security);
                 }
+                securities.addAll(securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(feedType));
             }
 
             for (Security security : securities) {
