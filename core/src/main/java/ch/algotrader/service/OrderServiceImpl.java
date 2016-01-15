@@ -591,6 +591,24 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         return this.orderRegistry.getOpenOrderByIntId(intId);
     }
 
+    @Override
+    public List<Order> getOpenOrdersByStrategy(final long strategyId) {
+
+        return this.orderRegistry.getOpenOrdersByStrategy(strategyId);
+    }
+
+    @Override
+    public List<Order> getOpenOrdersBySecurity(final long securityId) {
+
+        return this.orderRegistry.getOpenOrdersBySecurity(securityId);
+    }
+
+    @Override
+    public List<Order> getOpenOrdersByStrategyAndSecurity(final long strategyId, final long securityId) {
+
+        return this.orderRegistry.getOpenOrdersByStrategyAndSecurity(strategyId, securityId);
+    }
+
     /**
      * {@inheritDoc}
      */

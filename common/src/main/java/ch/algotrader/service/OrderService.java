@@ -118,6 +118,21 @@ public interface OrderService {
     public Order getOpenOrderByIntId(String intId);
 
     /**
+     * Returns open orders for the given strategy.
+     */
+    List<Order> getOpenOrdersByStrategy(long strategyId);
+
+    /**
+     * Returns open ordesr for the given security.
+     */
+    List<Order> getOpenOrdersBySecurity(long securityId);
+
+    /**
+     * Returns open orders for the given strategy and security.
+     */
+    List<Order> getOpenOrdersByStrategyAndSecurity(long strategyId, long securityId);
+
+    /**
      * Gets an order (open or completed) by its {@code intId}.
      */
     public Order getOrderByIntId(String intId);
