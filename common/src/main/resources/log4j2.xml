@@ -28,6 +28,9 @@
         <logger name="org.hibernate.event.def.AbstractFlushingEventListener" level="fatal" />
         <!-- logs error messages that are also logged by HibernateInterceptor -->
         <logger name="org.hibernate.util.JDBCExceptionReporter" level="warn" />
+        <!-- mute SQL warning-->
+        <logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="error" />
+
         <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="error" />
         <!-- Logs warnings when inserting position / cash balance records through native SQL -->
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
