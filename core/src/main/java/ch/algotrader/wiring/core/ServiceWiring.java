@@ -85,6 +85,8 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.LookupServiceImpl;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.MarketDataCacheImpl;
+import ch.algotrader.service.MarketDataPersistenceService;
+import ch.algotrader.service.MarketDataPersistenceServiceImpl;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.MarketDataServiceImpl;
 import ch.algotrader.service.MeasurementService;
@@ -255,7 +257,6 @@ public class ServiceWiring {
     public MarketDataService createMarketDataService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final ConfigParams configParams,
-            final TickDao tickDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
@@ -269,17 +270,23 @@ public class ServiceWiring {
         Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, tickDao, securityDao, strategyDao, subscriptionDao, forexDao,
+        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, securityDao, strategyDao, subscriptionDao, forexDao,
                 engineManager, eventDispatcher, marketDataCache, serviceMap2);
+    }
+
+    @Bean(name = "marketDataPersistenceService")
+    public MarketDataPersistenceService createMarketDataPersistenceService(final TickDao tickDao) {
+
+        return new MarketDataPersistenceServiceImpl(tickDao);
     }
 
     @Bean(name = "tickPersister")
     public TickPersister createTickPersistEventPropagator(
             final Engine serverEngine,
             final LookupService lookupService,
-            final MarketDataService marketDataService) {
+            final MarketDataPersistenceService marketDataPersistenceService) {
 
-        return new TickPersister(serverEngine, lookupService, marketDataService);
+        return new TickPersister(serverEngine, lookupService, marketDataPersistenceService);
     }
 
     @Bean(name = "orderPersistenceService")

@@ -19,7 +19,6 @@ package ch.algotrader.service;
 
 import java.util.Set;
 
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 
@@ -27,11 +26,6 @@ import ch.algotrader.entity.security.Security;
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public interface MarketDataService {
-
-    /**
-     * Persists a Tick to the DB and CSV File.
-     */
-    void persistTick(Tick tick);
 
     /**
      * Initializes current Subscriptions with the external Market Data Provider for the specified

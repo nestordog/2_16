@@ -37,13 +37,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.ForexDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
@@ -68,8 +66,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final CoreConfig coreConfig;
 
-    private final TickDao tickDao;
-
     private final SecurityDao securityDao;
 
     private final StrategyDao strategyDao;
@@ -91,7 +87,6 @@ public class MarketDataServiceImpl implements MarketDataService {
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final ConfigParams configParams,
-            final TickDao tickDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final SubscriptionDao subscriptionDao,
@@ -104,7 +99,6 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(configParams, "ConfigParams is null");
-        Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
@@ -116,7 +110,6 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
-        this.tickDao = tickDao;
         this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.subscriptionDao = subscriptionDao;
@@ -126,17 +119,6 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.marketDataCache = marketDataCache;
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
         this.normaliseMarketData = configParams.getBoolean("misc.normaliseMarketData", false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void persistTick(final Tick tick) {
-
-        Validate.notNull(tick, "Tick is null");
-        // write the tick to the DB (even if not valid)
-        this.tickDao.save(tick);
     }
 
     /**
