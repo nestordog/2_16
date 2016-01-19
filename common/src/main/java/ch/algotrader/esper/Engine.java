@@ -23,8 +23,6 @@ import java.util.List;
 
 import com.espertech.esperio.CoordinatedAdapter;
 
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
@@ -234,19 +232,19 @@ public interface Engine {
      * Adds a {@link TradeCallback} to the given Engine that will be invoked as soon as all {@code orders} have been
      * fully executed, rejected or cancelled.
      */
-    public void addTradeCallback(Collection<Order> orders, TradeCallback callback);
+    public void addTradeCallback(Collection<String> orders, TradeCallback callback);
 
     /**
      * Adds a {@link TradePersistedCallback} to the given Engine that will be invoked as soon as all {@code orders}
      * have been fully executed or cancelled and fully persisted.
      */
-    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback);
+    public void addTradePersistedCallback(Collection<String> orders, TradePersistedCallback callback);
 
     /**
      * Adds a {@link TickCallback} to the given Engine that will be invoked as soon as at least one Tick has arrived
      * for each of the specified {@code securities}
      */
-    public void addFirstTickCallback(Collection<Security> securities, TickCallback callback);
+    public void addFirstTickCallback(Collection<Long> securities, TickCallback callback);
 
     /**
      * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a new Position

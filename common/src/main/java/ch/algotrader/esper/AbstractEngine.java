@@ -23,8 +23,6 @@ import java.util.List;
 
 import com.espertech.esperio.CoordinatedAdapter;
 
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.callback.ClosePositionCallback;
 import ch.algotrader.esper.callback.OpenPositionCallback;
 import ch.algotrader.esper.callback.TickCallback;
@@ -240,17 +238,17 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
+    public void addTradeCallback(Collection<String> orders, TradeCallback callback) {
 
     }
 
     @Override
-    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+    public void addTradePersistedCallback(Collection<String> orders, TradePersistedCallback callback) {
 
     }
 
     @Override
-    public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
+    public void addFirstTickCallback(Collection<Long> securities, TickCallback callback) {
 
     }
 

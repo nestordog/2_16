@@ -30,12 +30,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -81,9 +79,6 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.esper.annotation.Condition;
 import ch.algotrader.esper.annotation.Listeners;
 import ch.algotrader.esper.annotation.RunTimeOnly;
@@ -98,7 +93,6 @@ import ch.algotrader.esper.callback.TradeCallback;
 import ch.algotrader.esper.callback.TradePersistedCallback;
 import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.util.DateTimeUtil;
-import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -635,26 +629,10 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
-    private Set<String> collectIntIds(final Collection<Order> orders, final Strategy strategy) {
-        return orders.stream()
-                .map(order -> {
-                    String intId = order.getIntId();
-                    if (intId == null) {
-                        throw new IllegalArgumentException("Cannot add trade callback for orders with null IntId");
-                    }
-                    if (!order.getStrategy().equals(strategy)) {
-                        throw new IllegalArgumentException("Cannot add trade callback for orders of different strategies");
-                    }
-                    return intId;
-                }).collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
     @Override
-    public void addTradeCallback(Collection<Order> orders, TradeCallback callback) {
+    public void addTradeCallback(Collection<String> orderIntIds, TradeCallback callback) {
 
-        Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Strategy strategy = firstOrder.getStrategy();
-        Set<String> orderIntIds = collectIntIds(orders, strategy);
+        Validate.notEmpty(orderIntIds, "orderIntIds is empty");
 
         // get the statement alias based on all security ids
         String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
@@ -672,11 +650,9 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public void addTradePersistedCallback(Collection<Order> orders, TradePersistedCallback callback) {
+    public void addTradePersistedCallback(Collection<String> orderIntIds, TradePersistedCallback callback) {
 
-        Order firstOrder = CollectionUtil.getFirstElement(orders);
-        Strategy strategy = firstOrder.getStrategy();
-        Set<String> orderIntIds = collectIntIds(orders, strategy);
+        Validate.notEmpty(orderIntIds, "orderIntIds is empty");
 
         // get the statement alias based on all security ids
         String alias = "ON_TRADE_PERSISTED_" + StringUtils.join(orderIntIds, "_");
@@ -694,12 +670,9 @@ public class EngineImpl extends AbstractEngine {
     }
 
     @Override
-    public void addFirstTickCallback(Collection<Security> securities, TickCallback callback) {
+    public void addFirstTickCallback(Collection<Long> securityIds, TickCallback callback) {
 
-        // create a list of unique security ids
-        Set<Long> securityIds = securities.stream()
-                .map(Security::getId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Validate.notEmpty(securityIds, "orderIntIds is empty");
 
         String alias = "ON_FIRST_TICK_" + StringUtils.join(securityIds, "_");
 

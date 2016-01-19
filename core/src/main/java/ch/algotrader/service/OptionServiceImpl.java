@@ -183,7 +183,7 @@ public class OptionServiceImpl implements OptionService {
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        this.serverEngine.addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
+        this.serverEngine.addFirstTickCallback(Collections.singleton(future.getId()), new TickCallback() {
             @Override
             public void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception {
 
