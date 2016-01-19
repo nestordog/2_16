@@ -18,8 +18,6 @@
 package ch.algotrader.entity.trade;
 
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.lang.ClassUtils;
@@ -32,24 +30,6 @@ import ch.algotrader.entity.marketData.TickI;
 public abstract class AlgoOrder extends OrderImpl {
 
     private static final long serialVersionUID = 5310975560518020161L;
-
-    private Collection<Allocation> allocations = new HashSet<>();
-
-    public Collection<Allocation> getAllocations() {
-        return this.allocations;
-    }
-
-    public void setAllocations(Collection<Allocation> allocationsIn) {
-        this.allocations = allocationsIn;
-    }
-
-    public boolean addAllocations(Allocation elementToAdd) {
-        return this.allocations.add(elementToAdd);
-    }
-
-    public boolean removeAllocations(Allocation elementToRemove) {
-        return this.allocations.remove(elementToRemove);
-    }
 
     /**
      * Gets initial child {@link SimpleOrder SimpleOrders} that should be placed on the market right

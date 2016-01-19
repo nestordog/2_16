@@ -283,17 +283,6 @@ represented by an instance of this class.]]></meta>
                  <param name="enumClassName">ch.algotrader.enumeration.OrderType</param>
                 </type>
             </property>
-            <set name="allocations" order-by="ORDER_PREFERENCE_FK" lazy="true" fetch="select" inverse="true">
-                <meta attribute="field-description"><![CDATA[Contains certain order default values (e.g. quantity, orderType, delays, etc.). Except for the
-{@link ch.algotrader.enumeration.OrderType OrderType}, all values have to be defined through
-Properties.]]></meta>
-                <cache usage="read-write" />
-                <key foreign-key="ALLOCATION_ORDER_PREFERENCE_FC">
-                    <column name="ORDER_PREFERENCE_FK" sql-type="BIGINT"/>
-
-                </key>
-                <one-to-many class="ch.algotrader.entity.trade.AllocationImpl" not-found="exception"/>
-            </set>
             <many-to-one name="defaultAccount" class="ch.algotrader.entity.AccountImpl" foreign-key="ORDER_PREFERENCE_DEFAULT_ACCOC" not-null="false" lazy="proxy" fetch="select">
                 <meta attribute="property-type">ch.algotrader.entity.Account</meta>
                 <meta attribute="field-description"><![CDATA[Represents an actual Account / AccountGroup / AllocationProfile with an external Broker / Bank]]></meta>

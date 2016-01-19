@@ -43,7 +43,6 @@ import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.Allocation;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderVO;
@@ -173,27 +172,6 @@ public class OrderServiceImpl implements OrderService {
         // set the account if defined
         if (orderPreference.getDefaultAccount() != null) {
             order.setAccount(orderPreference.getDefaultAccount());
-        }
-
-        // set allocations if defined
-        if (orderPreference.getAllocations().size() > 0) {
-
-            if (!(order instanceof AlgoOrder)) {
-                throw new IllegalStateException("allocations cannot be assigned to " + orderClazz + " (only AlgoOrders can have allocations)");
-            } else {
-
-                double totalAllocation = 0;
-                for (Allocation allocation : orderPreference.getAllocations()) {
-                    totalAllocation += allocation.getValue();
-                }
-
-                if (totalAllocation != 1.0) {
-                    throw new IllegalStateException("sum of allocations are not 1.0 for " + toString());
-                }
-
-                AlgoOrder algoOrder = (AlgoOrder) order;
-                algoOrder.setAllocations(orderPreference.getAllocations());
-            }
         }
 
         return order;

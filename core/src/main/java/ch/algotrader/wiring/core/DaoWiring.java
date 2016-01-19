@@ -98,8 +98,6 @@ import ch.algotrader.dao.strategy.PortfolioValueDao;
 import ch.algotrader.dao.strategy.PortfolioValueDaoImpl;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.strategy.StrategyDaoImpl;
-import ch.algotrader.dao.trade.AllocationDao;
-import ch.algotrader.dao.trade.AllocationDaoImpl;
 import ch.algotrader.dao.trade.LimitOrderDao;
 import ch.algotrader.dao.trade.LimitOrderDaoImpl;
 import ch.algotrader.dao.trade.MarketOrderDao;
@@ -329,12 +327,6 @@ public class DaoWiring {
     public StockDao createStockDao(final SessionFactory sessionFactory) {
 
         return new StockDaoImpl(sessionFactory);
-    }
-
-    @Bean(name = "allocationDao")
-    public AllocationDao createAllocationDao(final SessionFactory sessionFactory) {
-
-        return new AllocationDaoImpl(sessionFactory);
     }
 
     @Bean(name = "cashBalanceDao")

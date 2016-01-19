@@ -36,19 +36,17 @@ import ch.algotrader.config.ConfigBeanFactory;
 import ch.algotrader.config.ConfigLocator;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.spring.DefaultConfigProvider;
-import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.Allocation;
-import ch.algotrader.entity.trade.DistributingOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
@@ -416,32 +414,17 @@ public class TradingEsperTest extends EsperTestBase {
                 new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
         this.epRuntime.sendEvent(tick1);
 
-        DistributingOrder algoOrder = new DistributingOrder();
+        SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setSecurity(this.eurusd);
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
-        Account account1 = Account.Factory.newInstance();
-        account1.setName("acc1");
-        Account account2 = Account.Factory.newInstance();
-        account1.setName("acc2");
-
-        Allocation allocation1 = Allocation.Factory.newInstance();
-        allocation1.setValue(0.4);
-        allocation1.setAccount(account1);
-        algoOrder.addAllocations(allocation1);
-
-        Allocation allocation2 = Allocation.Factory.newInstance();
-        allocation2.setValue(0.6);
-        allocation2.setAccount(account2);
-        algoOrder.addAllocations(allocation2);
-
         this.epRuntime.sendEvent(algoOrder);
 
         Collection<Order> orders = orderQueue.poll();
         Assert.assertNotNull(orders);
-        Assert.assertEquals(2, orders.size());
+        Assert.assertEquals(1, orders.size());
     }
 
     @Test
