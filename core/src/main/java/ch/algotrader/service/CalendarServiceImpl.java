@@ -21,6 +21,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -50,6 +52,8 @@ public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;
     private final EngineManager engineManager;
+    private final Map<Long, Date> openTimeMap;
+    private final Map<Long, Date> closeTimeMap;
 
     public CalendarServiceImpl(final ExchangeDao exchangeDao, final EngineManager engineManager) {
 
@@ -58,6 +62,9 @@ public class CalendarServiceImpl implements CalendarService {
 
         this.exchangeDao = exchangeDao;
         this.engineManager = engineManager;
+        this.openTimeMap = new HashMap<>();
+        this.closeTimeMap = new HashMap<>();
+
     }
 
     /**
@@ -92,11 +99,23 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "Data time is null");
 
-        Exchange exchange = this.exchangeDao.get(exchangeId);
-        Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
-        TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-        return timeIntervals.contains(dateTime) || exchange.getTradingHours().size() == 0;
-
+        Date openTime = this.openTimeMap.get(exchangeId);
+        Date closeTime = this.closeTimeMap.get(exchangeId);
+        if (closeTime != null) {
+            if (closeTime.compareTo(dateTime) > 0) {
+                return true;
+            } else {
+                return isOpenInternal(exchangeId, dateTime);
+            }
+        } else if (openTime != null) {
+            if (openTime.compareTo(dateTime) > 0) {
+                return false;
+            } else {
+                return isOpenInternal(exchangeId, dateTime);
+            }
+        } else {
+            return isOpenInternal(exchangeId, dateTime);
+        }
     }
 
     @Override
@@ -235,6 +254,26 @@ public class CalendarServiceImpl implements CalendarService {
             }
         }
         return openTimes;
+    }
+
+    private boolean isOpenInternal(final long exchangeId, final Date dateTime) {
+
+        Exchange exchange = this.exchangeDao.get(exchangeId);
+        Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
+        TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
+        boolean isOpen = timeIntervals.contains(dateTime) || exchange.getTradingHours().size() == 0;
+
+        if (isOpen) {
+            this.openTimeMap.remove(exchangeId);
+            Date closeTime = getNextCloseTime(exchangeId, dateTime);
+            this.closeTimeMap.put(exchangeId, closeTime);
+        } else {
+            this.closeTimeMap.remove(exchangeId);
+            Date openTime = getNextOpenTime(exchangeId, dateTime);
+            this.openTimeMap.put(exchangeId, openTime);
+        }
+
+        return isOpen;
     }
 
     private boolean isTradingDay(Exchange exchange, Date date) {

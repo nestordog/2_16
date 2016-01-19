@@ -101,15 +101,19 @@ public class CalendarServiceTest {
     @Test
     public void testIsOpenRegularOpen() throws Exception {
         Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET"))); // Wed
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:20:00 CET"))); // Wed
         Assert.assertEquals(this.impl.getNextOpenTime(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET")), DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:30:00 CET"));
         Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:45:00 CET")));
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:50:00 CET")));
     }
 
     @Test
     public void testIsOpenRegularClose() throws Exception {
         Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:45:00 CET"))); // Wed
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:50:00 CET"))); // Wed
         Assert.assertEquals(this.impl.getNextCloseTime(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:45:00 CET")), DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:00:00 CET")); // Jan 2nd
         Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:15:00 CET"))); // Wed
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:20:00 CET"))); // Wed
     }
 
     @Test
