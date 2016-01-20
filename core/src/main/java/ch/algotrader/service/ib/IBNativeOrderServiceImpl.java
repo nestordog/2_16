@@ -18,6 +18,9 @@
 package ch.algotrader.service.ib;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -59,8 +62,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 
-    private static boolean firstOrder = true;
-
     private final IBSession iBSession;
     private final AutoIncrementIdGenerator orderIdGenerator;
     private final OrderRegistry orderRegistry;
@@ -69,6 +70,8 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
     private final OrderPersistenceService orderPersistenceService;
     private final OrderDao orderDao;
     private final CommonConfig commonConfig;
+    private final Lock lock;
+    private final AtomicBoolean firstTime;
 
     public IBNativeOrderServiceImpl(final IBSession iBSession,
             final AutoIncrementIdGenerator orderIdGenerator,
@@ -96,6 +99,8 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
         this.orderPersistenceService = orderPersistenceService;
         this.orderDao = orderDao;
         this.commonConfig = commonConfig;
+        this.lock = new ReentrantLock();
+        this.firstTime = new AtomicBoolean(false);
     }
 
     @Override
@@ -128,50 +133,43 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
 
         Validate.notNull(order, "Order is null");
 
-        // Because of an IB bug only one order can be submitted at a time when
-        // first connecting to IB, so wait 100ms after the first order
-        LOGGER.info("before place");
-
-        String intId = order.getIntId();
-        if (intId == null) {
-
-            intId = Integer.toString((int) this.orderIdGenerator.generateId());
-            order.setIntId(intId);
+        if (!this.iBSession.isLoggedOn()) {
+            throw new ServiceException("IB session is not logged on");
         }
 
-        this.orderRegistry.add(order);
-        IBExecution execution = this.iBExecutions.addNew(intId);
+        this.lock.lock();
+        try {
 
-        synchronized (execution) {
-            execution.setStatus(Status.OPEN);
-        }
+            String intId = order.getIntId();
+            if (intId == null) {
 
-        if (!this.commonConfig.isSimulation()) {
-            this.orderPersistenceService.persistOrder(order);
-        }
+                intId = Integer.toString((int) this.orderIdGenerator.generateId());
+                order.setIntId(intId);
+            }
+            this.orderRegistry.add(order);
+            IBExecution execution = this.iBExecutions.addNew(intId);
 
-        if (firstOrder) {
+            synchronized (execution) {
+                execution.setStatus(Status.OPEN);
+            }
 
-            synchronized (this) {
-                internalSendOrder(order);
+            if (!this.commonConfig.isSimulation()) {
+                this.orderPersistenceService.persistOrder(order);
+            }
+
+            sendOrModifyOrder(order);
+
+            if (this.firstTime.compareAndSet(false, true)) {
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new ServiceException(ex);
                 }
-                firstOrder = false;
             }
-
-        } else {
-            internalSendOrder(order);
+        } finally {
+            this.lock.unlock();
         }
-
-    }
-
-    private synchronized void internalSendOrder(SimpleOrder order) {
-
-        sendOrModifyOrder(order);
 
     }
 
@@ -180,20 +178,31 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
 
         Validate.notNull(order, "Order is null");
 
-        String intId = order.getIntId();
-        this.orderRegistry.remove(intId);
-        this.orderRegistry.add(order);
-
-        IBExecution execution = this.iBExecutions.addNew(intId);
-        synchronized (execution) {
-            execution.setStatus(Status.OPEN);
+        if (!this.iBSession.isLoggedOn()) {
+            throw new ServiceException("IB session is not logged on");
         }
 
-        if (!this.commonConfig.isSimulation()) {
-            this.orderPersistenceService.persistOrder(order);
-        }
+        this.lock.lock();
+        try {
 
-        sendOrModifyOrder(order);
+            String intId = order.getIntId();
+            this.orderRegistry.remove(intId);
+            this.orderRegistry.add(order);
+
+            IBExecution execution = this.iBExecutions.addNew(intId);
+            synchronized (execution) {
+                execution.setStatus(Status.OPEN);
+            }
+
+            if (!this.commonConfig.isSimulation()) {
+                this.orderPersistenceService.persistOrder(order);
+            }
+
+            sendOrModifyOrder(order);
+
+        } finally {
+            this.lock.unlock();
+        }
 
     }
 
@@ -206,10 +215,17 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
             throw new ServiceException("IB session is not logged on");
         }
 
-        this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
+        this.lock.lock();
+        try {
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("requested order cancellation for order: {}", order);
+            this.iBSession.cancelOrder(Integer.parseInt(order.getIntId()));
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("requested order cancellation for order: {}", order);
+            }
+
+        } finally {
+            this.lock.unlock();
         }
 
     }
