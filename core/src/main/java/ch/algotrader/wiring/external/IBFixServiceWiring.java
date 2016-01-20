@@ -29,7 +29,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderPersistenceService;
@@ -47,14 +47,14 @@ public class IBFixServiceWiring {
     @Bean(name = "iBFixOrderService")
     public ExternalOrderService createIBFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        return new IBFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig, iBConfig);
+        return new IBFixOrderServiceImpl(fixAdapter, orderBook, orderPersistenceService, orderDao, accountDao, commonConfig, iBConfig);
     }
 
     @Bean(name = "iBFixAllocationService")

@@ -25,11 +25,11 @@ import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
 /**
-* Registry of active orders.
+* Book of orders.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public interface OrderRegistry {
+public interface OrderBook {
 
     /**
      * Adds the order to the registry.

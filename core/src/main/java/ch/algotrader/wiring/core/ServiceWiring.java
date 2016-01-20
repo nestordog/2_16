@@ -66,8 +66,8 @@ import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.DefaultOrderRegistry;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.DefaultOrderBook;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
@@ -310,19 +310,19 @@ public class ServiceWiring {
     }
 
     @Bean(name = "openOrderRegistry")
-    public OrderRegistry createOpenOrderRegistry() {
-        return new DefaultOrderRegistry();
+    public OrderBook createOpenOrderRegistry() {
+        return new DefaultOrderBook();
     }
 
     @Bean(name = "orderExecutionService")
     public OrderExecutionService createOrderExecutionService(final CommonConfig commonConfig,
            final OrderPersistenceService orderPersistService,
-           final OrderRegistry orderRegistry,
+           final OrderBook orderBook,
            final EventDispatcher eventDispatcher,
            final EngineManager engineManager,
            final Engine serverEngine) {
 
-        return new OrderExecutionServiceImpl(commonConfig, orderPersistService, orderRegistry, eventDispatcher, engineManager, serverEngine);
+        return new OrderExecutionServiceImpl(commonConfig, orderPersistService, orderBook, eventDispatcher, engineManager, serverEngine);
     }
 
     @Bean(name = "orderService")
@@ -334,7 +334,7 @@ public class ServiceWiring {
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine,
@@ -345,7 +345,7 @@ public class ServiceWiring {
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
         return new OrderServiceImpl(commonConfig, marketDataCache, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
-                orderRegistry, eventDispatcher, engineManager, serverEngine, serviceMap2);
+                orderBook, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
     @Bean(name = "combinationService")
@@ -428,9 +428,9 @@ public class ServiceWiring {
             final OrderStatusDao orderStatusDao,
             final PositionDao positionDao,
             final CashBalanceDao cashBalanceDao,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final EventDispatcher eventDispatcher) {
-        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, cashBalanceDao, orderRegistry, eventDispatcher);
+        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, cashBalanceDao, orderBook, eventDispatcher);
     }
 
     @Bean(name = "eventPropagator")

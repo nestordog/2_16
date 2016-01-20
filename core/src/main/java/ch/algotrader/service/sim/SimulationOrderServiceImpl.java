@@ -38,7 +38,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
@@ -49,7 +49,7 @@ import ch.algotrader.service.TransactionService;
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
     private final MarketDataCache marketDataCache;
-    private final OrderRegistry orderRegistry;
+    private final OrderBook orderBook;
     private final OrderExecutionService orderExecutionService;
     private final TransactionService transactionService;
     private final EngineManager engineManager;
@@ -58,21 +58,21 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     private final AtomicLong seqnum;
 
     public SimulationOrderServiceImpl(
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
             final MarketDataCache marketDataCache,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(orderExecutionService, "OrderExecutionService is null");
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataCache, "MarketDataCache is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
-        this.orderRegistry = orderRegistry;
+        this.orderBook = orderBook;
         this.orderExecutionService = orderExecutionService;
         this.transactionService = transactionService;
         this.engineManager = engineManager;
@@ -94,7 +94,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             order.setIntId(intId);
         }
 
-        this.orderRegistry.add(order);
+        this.orderBook.add(order);
 
         Date d = this.engineManager.getCurrentEPTime();
 

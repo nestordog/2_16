@@ -25,7 +25,7 @@ import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
@@ -41,7 +41,7 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
     public IBFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
@@ -49,19 +49,19 @@ public class IBFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
             final IBConfig iBConfig) {
 
         super(orderServiceType, fixAdapter, new IBFixOrderMessageFactory(iBConfig),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public IBFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig,
             final IBConfig iBConfig) {
 
-        this(OrderServiceType.IB_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.IB_FIX.name(), fixAdapter, orderBook, orderPersistenceService,
                 orderDao, accountDao, commonConfig, iBConfig);
     }
 

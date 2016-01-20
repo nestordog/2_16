@@ -32,7 +32,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderI;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
@@ -58,7 +58,7 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
     public DCFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
@@ -66,18 +66,18 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
 
         super(orderServiceType, fixAdapter,
                 new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public DCFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.DC_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.DC_FIX.name(), fixAdapter, orderBook, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

@@ -32,13 +32,13 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
-public class DefaultOrderRegistryTest {
+public class DefaultOrderBookTest {
 
-    private DefaultOrderRegistry impl;
+    private DefaultOrderBook impl;
 
     @Before
     public void setup() {
-        this.impl = new DefaultOrderRegistry();
+        this.impl = new DefaultOrderBook();
     }
 
     @Test

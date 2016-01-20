@@ -25,7 +25,7 @@ import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix42.Fix42OrderService;
 import ch.algotrader.service.fix.fix42.Fix42OrderServiceImpl;
@@ -42,25 +42,25 @@ public class JPMFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix
     public JPMFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         super(orderServiceType, fixAdapter, new GenericFix42OrderMessageFactory(new GenericFix42SymbologyResolver()),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public JPMFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.JPM_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.JPM_FIX.name(), fixAdapter, orderBook, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

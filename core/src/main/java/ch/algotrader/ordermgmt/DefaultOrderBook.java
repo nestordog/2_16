@@ -39,11 +39,11 @@ import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.enumeration.Status;
 
 /**
-* Default implementation of {@link OrderRegistry}.
+* Default implementation of {@link OrderBook}.
 *
 * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
 */
-public class DefaultOrderRegistry implements OrderRegistry {
+public class DefaultOrderBook implements OrderBook {
 
     private final ConcurrentMap<String, Order> orderMap;
     private final ConcurrentMap<String, String> extIdToIntIdMap;
@@ -51,7 +51,7 @@ public class DefaultOrderRegistry implements OrderRegistry {
     private final ConcurrentMap<String, AtomicLong> revisionMap;
     private final Deque<OrderDetailsVO> completedOrders;
 
-    public DefaultOrderRegistry() {
+    public DefaultOrderBook() {
         this.orderMap = new ConcurrentHashMap<>();
         this.extIdToIntIdMap = new ConcurrentHashMap<>();
         this.orderExecMap = new ConcurrentHashMap<>();

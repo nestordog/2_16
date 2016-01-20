@@ -42,7 +42,7 @@ import ch.algotrader.dao.security.SecurityFamilyDao;
 import ch.algotrader.dao.security.StockDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.HistoricalDataService;
@@ -77,14 +77,14 @@ public class IBNativeServiceWiring {
     public ExternalOrderService createIBNativeOrderService(
             final IBSession iBSession,
             final AutoIncrementIdGenerator iBOrderIdGenerator,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final IBExecutions ibExecutions,
             final IBOrderMessageFactory iBOrderMessageFactory,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final CommonConfig commonConfig) {
 
-        return new IBNativeOrderServiceImpl(iBSession, iBOrderIdGenerator, orderRegistry, ibExecutions,
+        return new IBNativeOrderServiceImpl(iBSession, iBOrderIdGenerator, orderBook, ibExecutions,
                 iBOrderMessageFactory, orderPersistenceService, orderDao, commonConfig);
     }
 

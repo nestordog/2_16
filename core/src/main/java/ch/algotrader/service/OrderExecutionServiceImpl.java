@@ -41,7 +41,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -52,27 +52,27 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
     private final CommonConfig commonConfig;
     private final OrderPersistenceService orderPersistService;
-    private final OrderRegistry orderRegistry;
+    private final OrderBook orderBook;
     private final EventDispatcher eventDispatcher;
     private final Engine serverEngine;
 
     public OrderExecutionServiceImpl(final CommonConfig commonConfig,
                                      final OrderPersistenceService orderPersistService,
-                                     final OrderRegistry orderRegistry,
+                                     final OrderBook orderBook,
                                      final EventDispatcher eventDispatcher,
                                      final EngineManager engineManager,
                                      final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
-        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.orderPersistService = orderPersistService;
-        this.orderRegistry = orderRegistry;
+        this.orderBook = orderBook;
         this.eventDispatcher = eventDispatcher;
         this.serverEngine = serverEngine;
     }
@@ -86,12 +86,12 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         Validate.notNull(orderStatus, "Order status is null");
 
         String intId = orderStatus.getIntId();
-        Order order = this.orderRegistry.getOpenOrderByIntId(intId);
+        Order order = this.orderBook.getOpenOrderByIntId(intId);
         if (order == null) {
             throw new ServiceException("Open order with IntID " + intId + " not found");
         }
 
-        this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getExtId(), orderStatus.getStatus(),
+        this.orderBook.updateExecutionStatus(order.getIntId(), orderStatus.getExtId(), orderStatus.getStatus(),
                 orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
 
         if (orderStatus.getDateTime() == null) {
@@ -121,7 +121,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         if (parentOrder instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
 
             String algoOrderId = parentOrder.getIntId();
-            ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
                 OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
                 algoOrderStatus.setStatus(Status.SUBMITTED);
@@ -132,7 +132,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
                 algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
                 algoOrderStatus.setOrder(parentOrder);
 
-                this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
                         algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
 
                 this.serverEngine.sendEvent(algoOrderStatus);
@@ -182,7 +182,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         if (parentOrder instanceof AlgoOrder) {
 
             String algoOrderId = parentOrder.getIntId();
-            ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(algoOrderId);
+            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null) {
                 OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
                 algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
@@ -193,7 +193,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
                 algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
                 algoOrderStatus.setOrder(parentOrder);
 
-                this.orderRegistry.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
                         algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
 
                 this.serverEngine.sendEvent(algoOrderStatus);
@@ -246,9 +246,9 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         String previousIntId = initialOrder.getIntId();
         if (previousIntId != null) {
-            this.orderRegistry.remove(previousIntId);
+            this.orderBook.remove(previousIntId);
         }
-        this.orderRegistry.add(restatedOrder);
+        this.orderBook.add(restatedOrder);
 
         if (!this.commonConfig.isSimulation()) {
 
@@ -266,7 +266,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
     @Override
     public String lookupIntId(final String extId) {
 
-        return this.orderRegistry.lookupIntId(extId);
+        return this.orderBook.lookupIntId(extId);
     }
 
     /**
@@ -275,7 +275,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
     @Override
     public OrderDetailsVO getOpenOrderDetailsByIntId(final String intId) {
 
-        return this.orderRegistry.getOpenOrderDetailsByIntId(intId);
+        return this.orderBook.getOpenOrderDetailsByIntId(intId);
     }
 
     /**
@@ -286,7 +286,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderRegistry.getStatusByIntId(intId);
+        return this.orderBook.getStatusByIntId(intId);
     }
 
     @Override
@@ -294,7 +294,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderRegistry.getOpenOrderByIntId(intId);
+        return this.orderBook.getOpenOrderByIntId(intId);
     }
 
     @Override
@@ -302,6 +302,6 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 
-        return this.orderRegistry.getByIntId(intId);
+        return this.orderBook.getByIntId(intId);
     }
 }

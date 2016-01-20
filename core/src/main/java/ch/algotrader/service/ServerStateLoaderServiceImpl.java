@@ -44,7 +44,7 @@ import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -65,7 +65,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
 
     private final CashBalanceDao cashBalanceDao;
 
-    private final OrderRegistry orderRegistry;
+    private final OrderBook orderBook;
 
     private final EventDispatcher eventDispatcher;
 
@@ -75,7 +75,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
             final OrderStatusDao orderStatusDao,
             final PositionDao positionDao,
             final CashBalanceDao cashBalanceDao,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final EventDispatcher eventDispatcher) {
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
@@ -83,7 +83,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
         Validate.notNull(orderStatusDao, "OrderStatusDao is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
-        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
 
         this.sessionFactory = sessionFactory;
@@ -91,7 +91,7 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
         this.orderStatusDao = orderStatusDao;
         this.positionDao = positionDao;
         this.cashBalanceDao = cashBalanceDao;
-        this.orderRegistry = orderRegistry;
+        this.orderBook = orderBook;
         this.eventDispatcher = eventDispatcher;
     }
 
@@ -180,11 +180,11 @@ public class ServerStateLoaderServiceImpl implements ServerStateLoaderService, I
             for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
 
                 Order order = entry.getKey();
-                this.orderRegistry.add(order);
+                this.orderBook.add(order);
 
                 OrderStatus orderStatus = entry.getValue();
                 if (orderStatus != null) {
-                    this.orderRegistry.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+                    this.orderBook.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
                     Strategy strategy = order.getStrategy();
                     this.eventDispatcher.resendPastEvent(strategy.getName(), orderStatus.convertToVO());
                 }

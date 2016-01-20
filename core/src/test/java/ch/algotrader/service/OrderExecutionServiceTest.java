@@ -50,7 +50,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -60,7 +60,7 @@ public class OrderExecutionServiceTest {
     @Mock
     private OrderPersistenceService orderPersistenceService;
     @Mock
-    private OrderRegistry orderRegistry;
+    private OrderBook orderBook;
     @Mock
     private EventDispatcher eventDispatcher;
     @Mock
@@ -99,7 +99,7 @@ public class OrderExecutionServiceTest {
         this.stock.setSecurityFamily(this.family);
 
         CommonConfig commonConfig = CommonConfigBuilder.create().setSimulation(false).build();
-        this.impl = new OrderExecutionServiceImpl(commonConfig, this.orderPersistenceService, this.orderRegistry,
+        this.impl = new OrderExecutionServiceImpl(commonConfig, this.orderPersistenceService, this.orderBook,
                 this.eventDispatcher, this.engineManager, this.engine);
 
     }
@@ -123,11 +123,11 @@ public class OrderExecutionServiceTest {
         orderStatus1.setOrder(order);
         orderStatus1.setSequenceNumber(1);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
 
         this.impl.handleOrderStatus(orderStatus1);
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.SUBMITTED, 0L, 25L);
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.SUBMITTED, 0L, 25L);
         Mockito.verify(this.eventDispatcher, Mockito.times(1)).sendEvent(Mockito.eq("TestStrategy"), Mockito.any());
         Mockito.verify(this.orderPersistenceService, Mockito.times(1)).persistOrderStatus(orderStatus1);
         Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
@@ -146,7 +146,7 @@ public class OrderExecutionServiceTest {
         orderStatus1.setRemainingQuantity(25L);
         orderStatus1.setSequenceNumber(1);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(null);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(null);
 
         this.impl.handleOrderStatus(orderStatus1);
     }
@@ -173,7 +173,7 @@ public class OrderExecutionServiceTest {
         orderStatus1.setOrder(order);
         orderStatus1.setSequenceNumber(1);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleOrderStatus(orderStatus1);
@@ -203,7 +203,7 @@ public class OrderExecutionServiceTest {
         orderStatus1.setOrder(order);
         orderStatus1.setSequenceNumber(1);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleOrderStatus(orderStatus1);
@@ -237,15 +237,15 @@ public class OrderExecutionServiceTest {
 
         Date currentTime = new Date();
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderRegistry.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.OPEN, 1L, 24L, null));
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.OPEN, 1L, 24L, null));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleOrderStatus(orderStatus1);
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.SUBMITTED, 0L, 25L);
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.SUBMITTED, 0L, 24L);
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.SUBMITTED, 0L, 25L);
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.SUBMITTED, 0L, 24L);
 
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.eventDispatcher, Mockito.times(2)).sendEvent(Mockito.eq("TestStrategy"), argumentCaptor1.capture());
@@ -307,15 +307,15 @@ public class OrderExecutionServiceTest {
 
         Date currentTime = new Date();
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderRegistry.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.SUBMITTED, 1L, 24L, null));
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.SUBMITTED, 1L, 24L, null));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleOrderStatus(orderStatus1);
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.CANCELED, 0L, 25L);
-        Mockito.verify(this.orderRegistry, Mockito.never()).updateExecutionStatus(Mockito.eq("a1.0"), Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong());
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.CANCELED, 0L, 25L);
+        Mockito.verify(this.orderBook, Mockito.never()).updateExecutionStatus(Mockito.eq("a1.0"), Mockito.anyString(), Mockito.any(), Mockito.anyLong(), Mockito.anyLong());
 
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.eventDispatcher, Mockito.times(1)).sendEvent(Mockito.eq("TestStrategy"), argumentCaptor1.capture());
@@ -355,7 +355,7 @@ public class OrderExecutionServiceTest {
         fill1.setOrder(order);
         fill1.setSequenceNumber(1);
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
 
         this.impl.handleFill(fill1);
 
@@ -387,14 +387,14 @@ public class OrderExecutionServiceTest {
 
         Date currentTime = new Date();
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderRegistry.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 5L, 20L, null));
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 5L, 20L, null));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleFill(fill1);
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.PARTIALLY_EXECUTED, 12L, 13L);
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.PARTIALLY_EXECUTED, 12L, 13L);
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.eventDispatcher, Mockito.times(2)).sendEvent(Mockito.eq("TestStrategy"), argumentCaptor1.capture());
 
@@ -451,14 +451,14 @@ public class OrderExecutionServiceTest {
 
         Date currentTime = new Date();
 
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("Blah")).thenReturn(order);
-        Mockito.when(this.orderRegistry.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderRegistry.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 18L, 7L, null));
+        Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
+        Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 18L, 7L, null));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleFill(fill1);
 
-        Mockito.verify(this.orderRegistry, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.EXECUTED, 25L, 0L);
+        Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("a1.0", null, Status.EXECUTED, 25L, 0L);
         ArgumentCaptor<Object> argumentCaptor1 = ArgumentCaptor.forClass(Object.class);
         Mockito.verify(this.eventDispatcher, Mockito.times(2)).sendEvent(Mockito.eq("TestStrategy"), argumentCaptor1.capture());
 

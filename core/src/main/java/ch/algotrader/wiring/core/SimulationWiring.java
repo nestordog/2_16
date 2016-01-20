@@ -27,7 +27,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.OrderExecutionService;
@@ -71,14 +71,14 @@ public class SimulationWiring {
 
     @Bean(name = "simulationOrderService")
     public SimulationOrderService createSimulationOrderService(
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
             final MarketDataCache marketDataCache,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new SimulationOrderServiceImpl(orderRegistry, orderExecutionService, transactionService, marketDataCache, engineManager, serverEngine);
+        return new SimulationOrderServiceImpl(orderBook, orderExecutionService, transactionService, marketDataCache, engineManager, serverEngine);
     }
 
 }
