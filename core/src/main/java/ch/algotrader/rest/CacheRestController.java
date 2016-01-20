@@ -15,47 +15,33 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-
 package ch.algotrader.rest;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.algotrader.service.PositionService;
+import ch.algotrader.cache.CacheManager;
 
 @RestController
 @RequestMapping(path = "/rest")
-public class PositionRestController extends RestControllerBase {
+public class CacheRestController {
 
-    private final PositionService positionService;
+    private final CacheManager levelZeroCacheManager;
+    private final net.sf.ehcache.CacheManager ehCacheManager;
 
-    public PositionRestController(final PositionService positionService) {
-        this.positionService = positionService;
+    public CacheRestController(final CacheManager levelZeroCacheManager) {
+        this.levelZeroCacheManager = levelZeroCacheManager;
+        this.ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
     }
 
     @CrossOrigin
-    @RequestMapping(path = "/position/{id}", method = RequestMethod.DELETE)
-    public void closePosition(@PathVariable final long id) {
+    @RequestMapping(path = "/cache/clear-all", method = RequestMethod.POST)
+    public void clearAll() {
 
-        this.positionService.closePosition(id, false);
-    }
-
-    @CrossOrigin
-    @RequestMapping(path = "/position/reduce/{id}", method = RequestMethod.POST)
-    public void reducePosition(@PathVariable final long id, @RequestBody final long qty) {
-
-        this.positionService.reducePosition(id, qty);
-    }
-
-    @CrossOrigin
-    @RequestMapping(path = "/position/reset-positions", method = RequestMethod.POST)
-    public void resetCashBalances() {
-
-        this.positionService.resetPositions();
+        this.ehCacheManager.clearAll();
+        this.levelZeroCacheManager.clear();
     }
 
 }

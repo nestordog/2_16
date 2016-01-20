@@ -815,6 +815,15 @@ public class LookupServiceImpl implements LookupService {
      * {@inheritDoc}
      */
     @Override
+    public Account getAccount(long accountId) {
+
+        return this.cacheManager.get(Account.class, accountId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Account getAccountByName(final String accountName) {
 
         Validate.notEmpty(accountName, "Account name is empty");

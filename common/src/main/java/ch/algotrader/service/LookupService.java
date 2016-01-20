@@ -403,6 +403,11 @@ public interface LookupService {
     public Collection<Account> getAllAccounts();
 
     /**
+     * Gets an account by its {@code id}.
+     */
+    public Account getAccount(long accountId);
+
+    /**
      * Gets an account by its {@code accountName}.
      */
     public Account getAccountByName(String accountName);

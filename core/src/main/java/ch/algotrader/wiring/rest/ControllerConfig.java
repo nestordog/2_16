@@ -34,19 +34,24 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.rest.CacheRestController;
 import ch.algotrader.rest.ConfigRestController;
 import ch.algotrader.rest.LookupRestController;
 import ch.algotrader.rest.MarketDataRestController;
 import ch.algotrader.rest.MetaDataRestController;
 import ch.algotrader.rest.OrderRestController;
 import ch.algotrader.rest.PositionRestController;
+import ch.algotrader.rest.RuntimeRestController;
+import ch.algotrader.rest.TransactionRestController;
 import ch.algotrader.rest.index.SecurityIndexer;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PositionService;
+import ch.algotrader.service.TransactionService;
 
 @Configuration
 @EnableWebMvc
@@ -123,6 +128,27 @@ public class ControllerConfig extends WebMvcConfigurerAdapter {
             final PositionService positionService) {
 
         return new PositionRestController(positionService);
+    }
+
+    @Bean(name = "transactionRestController")
+    public TransactionRestController createTransactionRestController(
+            final TransactionService transactionService,
+            final LookupService lookupService) {
+
+        return new TransactionRestController(transactionService, lookupService);
+    }
+
+    @Bean(name = "cacheRestController")
+    public CacheRestController createCacheRestController(
+            final CacheManager cacheManager) {
+
+        return new CacheRestController(cacheManager);
+    }
+
+    @Bean(name = "runtimeRestController")
+    public RuntimeRestController createRuntimeRestController() {
+
+        return new RuntimeRestController();
     }
 
 }

@@ -15,47 +15,22 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-
 package ch.algotrader.rest;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.algotrader.service.PositionService;
-
 @RestController
 @RequestMapping(path = "/rest")
-public class PositionRestController extends RestControllerBase {
-
-    private final PositionService positionService;
-
-    public PositionRestController(final PositionService positionService) {
-        this.positionService = positionService;
-    }
+public class RuntimeRestController {
 
     @CrossOrigin
-    @RequestMapping(path = "/position/{id}", method = RequestMethod.DELETE)
-    public void closePosition(@PathVariable final long id) {
+    @RequestMapping(path = "/runtime/exit-vm", method = RequestMethod.POST)
+    public void exitVM() {
 
-        this.positionService.closePosition(id, false);
-    }
-
-    @CrossOrigin
-    @RequestMapping(path = "/position/reduce/{id}", method = RequestMethod.POST)
-    public void reducePosition(@PathVariable final long id, @RequestBody final long qty) {
-
-        this.positionService.reducePosition(id, qty);
-    }
-
-    @CrossOrigin
-    @RequestMapping(path = "/position/reset-positions", method = RequestMethod.POST)
-    public void resetCashBalances() {
-
-        this.positionService.resetPositions();
+        System.exit(0);
     }
 
 }
