@@ -404,10 +404,18 @@ public class OrderServiceImpl implements OrderService {
         Validate.notNull(intId, "Int id is null");
 
         Order order = this.orderRegistry.getOpenOrderByIntId(intId);
-        if (order == null) {
-            throw new ServiceException("Could not find open order with IntId " + intId);
+        if (order != null) {
+            cancelOrder(order);
+        } else {
+            order = this.orderRegistry.getByIntId(intId);
+            if (order == null) {
+                throw new ServiceException("Could not find order with IntId " + intId);
+            } else {
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("Order {} already completed", intId);
+                }
+            }
         }
-        cancelOrder(order);
     }
 
     /**
