@@ -451,7 +451,8 @@ public class PositionServiceImpl implements PositionService {
 
         Order order = this.orderService.createOrderByOrderPreference(this.coreConfig.getDefaultOrderPreference());
 
-        if (order.getIntId() == null) {
+        // Assign intId if un-subscribing automatically
+        if (unsubscribe && order.getIntId() == null) {
             Account account = order.getAccount();
             if (account == null) {
                 throw new ServiceException("Cannot execute an order without an account");
@@ -471,7 +472,7 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            if (unsubscribe) {
+            if (unsubscribe && order.getIntId() != null) {
                 String alias = "ON_INTERNAL_TRADE_COMPLETED_" + order.getIntId();
                 if (this.serverEngine.isDeployed(alias)) {
 
