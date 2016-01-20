@@ -15,20 +15,17 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.trade.OrderCompletionVO;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -37,9 +34,20 @@ import ch.algotrader.util.metric.MetricsUtil;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class TradePersistedCallback extends AbstractEngineCallback {
+final class TradePersistedCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TradePersistedCallback.class);
+
+    private final Engine engine;
+    private final String alias;
+    private final Consumer<List<OrderCompletionVO>> consumer;
+
+    TradePersistedCallback(final Engine engine, final String alias, final Consumer<List<OrderCompletionVO>> consumer) {
+
+        this.engine = engine;
+        this.alias = alias;
+        this.consumer = consumer;
+    }
 
     /**
      * Called by the "ON_TRADE_PERSISTED" statement. Should not be invoked directly.
@@ -48,35 +56,31 @@ public abstract class TradePersistedCallback extends AbstractEngineCallback {
 
         // get the securityIds sorted ascending
         List<OrderCompletionVO> orderCompletionList = Arrays.asList(orderCompletions);
-        Set<String> orderIntIds = orderCompletionList.stream()
-                .map(OrderCompletionVO::getOrderIntId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        // get the statement alias based on all security ids
-        String alias = "ON_TRADE_PERSISTED_" + StringUtils.join(orderIntIds, "_");
 
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
+            List<String> orderIntIds = orderCompletionList.stream()
+                    .map(OrderCompletionVO::getOrderIntId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onTradePersisted start {} {}", orderIntIds, strategyName);
         }
-        // call onTradePersisted
-        onTradePersisted(orderCompletionList);
+
+        if (this.consumer != null) {
+            this.consumer.accept(orderCompletionList);
+        }
 
         if (LOGGER.isDebugEnabled()) {
+            List<String> orderIntIds = orderCompletionList.stream()
+                    .map(OrderCompletionVO::getOrderIntId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onTradePersisted end {} {}", orderIntIds, strategyName);
         }
         MetricsUtil.accountEnd("TradePersisted." + strategyName, startTime);
     }
 
-    /**
-     * Will be executed by the Esper Engine as soon as all {@code orders} have been fully executed or cancelled
-     * and fully persisted. Needs to be overwritten by implementing classes.
-     */
-    public abstract void onTradePersisted(List<OrderCompletionVO> orderCompletionList) throws Exception;
 }

@@ -20,15 +20,15 @@ package ch.algotrader.esper;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.espertech.esperio.CoordinatedAdapter;
 
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.callback.TradePersistedCallback;
+import ch.algotrader.entity.PositionVO;
+import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 
 /**
  * Interface representing a CEP Engine.
@@ -229,38 +229,44 @@ public interface Engine {
     public Object getVariableValue(String variableName);
 
     /**
-     * Adds a {@link TradeCallback} to the given Engine that will be invoked as soon as all {@code orders} have been
+     * Adds a {@link BiConsumer} to the given Engine that will be invoked as soon as all {@code orders} have been
      * fully executed, rejected or cancelled.
      */
-    public void addTradeCallback(Collection<String> orders, TradeCallback callback);
+    public void addTradeCallback(Collection<String> orders, BiConsumer<String, List<OrderStatusVO>> consumer);
 
     /**
-     * Adds a {@link TradePersistedCallback} to the given Engine that will be invoked as soon as all {@code orders}
+     * Adds a callback to the given Engine that will throw an exception unless all {@code orders} have been fully
+     * executed.
+     */
+    public void addFullExecutionCallback(Collection<String> orders);
+
+    /**
+     * Adds a {@link Consumer} to the given Engine that will be invoked as soon as all {@code orders}
      * have been fully executed or cancelled and fully persisted.
      */
-    public void addTradePersistedCallback(Collection<String> orders, TradePersistedCallback callback);
+    public void addTradePersistedCallback(Collection<String> orders, Consumer<List<OrderCompletionVO>> consumer);
 
     /**
-     * Adds a {@link TickCallback} to the given Engine that will be invoked as soon as at least one Tick has arrived
+     * Adds a {@link BiConsumer} to the given Engine that will be invoked as soon as at least one Tick has arrived
      * for each of the specified {@code securities}
      */
-    public void addFirstTickCallback(Collection<Long> securities, TickCallback callback);
+    public void addFirstTickCallback(Collection<Long> securities, BiConsumer<String, List<TickVO>> consumer);
 
     /**
-     * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a new Position
+     * Adds a {@link Consumer} to the given Engine that will be invoked as soon as a new Position
      * on the given Security has been opened.
      */
-    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback);
+    public void addOpenPositionCallback(long securityId, Consumer<PositionVO> consumer);
 
     /**
-     * Adds a {@link OpenPositionCallback} to the given Engine that will be invoked as soon as a Position
+     * Adds a {@link Consumer} to the given Engine that will be invoked as soon as a Position
      * on the given Security has been closed.
      */
-    public void addClosePositionCallback(long securityId, ClosePositionCallback callback);
+    public void addClosePositionCallback(long securityId, Consumer<PositionVO> consumer);
 
     /**
-     * Adds a {@link TimerCallback} to the given Engine that will be invoked at the give time.
+     * Adds a {@link Consumer} to the given Engine that will be invoked at the give time.
      * An optional name can be added which will be appended to the statement name.
      */
-    public void addTimerCallback(Date dateTime, String name, TimerCallback callback);
+    public void addTimerCallback(Date dateTime, String name, Consumer<Date> consumer);
 }

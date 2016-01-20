@@ -15,40 +15,40 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.trade.OrderStatusVO;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link ch.algotrader.esper.Engine#addTradeCallback} have been
- * fully executed or cancelled.
+ * Base Esper Callback Class that will be invoked as soon as all {@code orders} passed to {@link BiConsumer}
+ * have been fully executed or cancelled.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class TradeCallback extends AbstractEngineCallback {
+final class TradeCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TradeCallback.class);
 
+    private final Engine engine;
+    private final String alias;
+    private final BiConsumer<String, List<OrderStatusVO>> consumer;
     private final boolean expectFullExecution;
 
-    /**
-     * param expectFullExecution if set to true an exception will be thrown unless all {@code orders} have been fully executed.
-     */
-    public TradeCallback(boolean expectFullExecution) {
 
+    TradeCallback(final Engine engine, final String alias, final boolean expectFullExecution, final BiConsumer<String, List<OrderStatusVO>> consumer) {
+        this.engine = engine;
+        this.alias = alias;
         this.expectFullExecution = expectFullExecution;
+        this.consumer = consumer;
     }
 
     /**
@@ -68,35 +68,31 @@ public abstract class TradeCallback extends AbstractEngineCallback {
 
         // get the securityIds sorted ascending
         List<OrderStatusVO> orderStatusList = Arrays.asList(orderStati);
-        Set<String> orderIntIds = orderStatusList.stream()
-                .map(OrderStatusVO::getIntId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        // get the statement alias based on all security ids
-        String alias = "ON_TRADE_COMPLETED_" + StringUtils.join(orderIntIds, "_");
 
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
+            List<String> orderIntIds = orderStatusList.stream()
+                    .map(OrderStatusVO::getIntId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onTradeCompleted start {} {}", orderIntIds, strategyName);
         }
-        // call orderCompleted
-        onTradeCompleted(orderStatusList);
+
+        if (this.consumer != null) {
+            this.consumer.accept(strategyName, orderStatusList);
+        }
 
         if (LOGGER.isDebugEnabled()) {
+            List<String> orderIntIds = orderStatusList.stream()
+                    .map(OrderStatusVO::getIntId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onTradeCompleted end {} {}", orderIntIds, strategyName);
         }
         MetricsUtil.accountEnd("TradeCallback." + strategyName, startTime);
     }
 
-    /**
-     * Will be exectued by the Esper Engine as soon as all {@code orders} have been fully exectured or cancelled.
-     * Needs to be overwritten by implementing classes.
-     */
-    public abstract void onTradeCompleted(List<OrderStatusVO> orderStatusList) throws Exception;
 }

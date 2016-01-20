@@ -15,23 +15,33 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
 
 import java.util.Date;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import ch.algotrader.esper.Engine;
 
 /**
  * Base Esper Callback Class that will be invoked on the give dateTime
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class TimerCallback extends AbstractEngineCallback {
+final class TimerCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TimerCallback.class);
+
+    private final Engine engine;
+    private final String alias;
+    private final Consumer<Date> consumer;
+
+    TimerCallback(final Engine engine, final String alias, final Consumer<Date> consumer) {
+
+        this.engine = engine;
+        this.alias = alias;
+        this.consumer = consumer;
+    }
 
     /**
      * Called by the "ON_TIMER" statement. Should not be invoked directly.
@@ -39,25 +49,21 @@ public abstract class TimerCallback extends AbstractEngineCallback {
     public void update(String strategyName, Date dateTime, String alias) throws Exception {
 
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{} start", alias);
         }
-        // call orderCompleted
-        onTimer(dateTime);
+
+        if (this.consumer != null) {
+            this.consumer.accept(dateTime);
+        }
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("{} end", alias);
         }
     }
 
-    /**
-     * Will be executed by the Esper Engine on the given time.
-     * Needs to be overwritten by implementing classes.
-     */
-    public abstract void onTimer(Date dateTime) throws Exception;
 }

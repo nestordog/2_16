@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import org.apache.commons.collections15.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -79,18 +81,15 @@ import com.espertech.esperio.AdapterCoordinatorImpl;
 import com.espertech.esperio.CoordinatedAdapter;
 
 import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.PositionVO;
+import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.esper.annotation.Condition;
 import ch.algotrader.esper.annotation.Listeners;
 import ch.algotrader.esper.annotation.RunTimeOnly;
 import ch.algotrader.esper.annotation.SimulationOnly;
 import ch.algotrader.esper.annotation.Subscriber;
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.EngineAwareCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.callback.TradePersistedCallback;
 import ch.algotrader.esper.io.CustomSender;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.metric.MetricsUtil;
@@ -629,8 +628,7 @@ public class EngineImpl extends AbstractEngine {
         return runtime.getVariableValue(variableName);
     }
 
-    @Override
-    public void addTradeCallback(Collection<String> orderIntIds, TradeCallback callback) {
+    private void addTradeCallback(final boolean expectFullExecution, final Collection<String> orderIntIds, final BiConsumer<String, List<OrderStatusVO>> consumer) {
 
         Validate.notEmpty(orderIntIds, "orderIntIds is empty");
 
@@ -645,12 +643,24 @@ public class EngineImpl extends AbstractEngine {
         } else {
 
             Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
-            deployStatement("prepared", "ON_TRADE_COMPLETED", alias, params, callback);
+            deployStatement("prepared", "ON_TRADE_COMPLETED", alias, params, new TradeCallback(this, alias, expectFullExecution, consumer));
         }
     }
 
     @Override
-    public void addTradePersistedCallback(Collection<String> orderIntIds, TradePersistedCallback callback) {
+    public void addTradeCallback(Collection<String> orderIntIds, BiConsumer<String, List<OrderStatusVO>> consumer) {
+
+        addTradeCallback(false, orderIntIds, consumer);
+    }
+
+    @Override
+    public void addFullExecutionCallback(Collection<String> orderIntIds) {
+
+        addTradeCallback(true, orderIntIds, null);
+    }
+
+    @Override
+    public void addTradePersistedCallback(Collection<String> orderIntIds, Consumer<List<OrderCompletionVO>> consumer) {
 
         Validate.notEmpty(orderIntIds, "orderIntIds is empty");
 
@@ -665,12 +675,12 @@ public class EngineImpl extends AbstractEngine {
         } else {
 
             Object[] params = new Object[] { orderIntIds.size(), orderIntIds };
-            deployStatement("prepared", "ON_TRADE_PERSISTED", alias, params, callback);
+            deployStatement("prepared", "ON_TRADE_PERSISTED", alias, params, new TradePersistedCallback(this, alias, consumer));
         }
     }
 
     @Override
-    public void addFirstTickCallback(Collection<Long> securityIds, TickCallback callback) {
+    public void addFirstTickCallback(Collection<Long> securityIds, BiConsumer<String, List<TickVO>> consumer) {
 
         Validate.notEmpty(securityIds, "orderIntIds is empty");
 
@@ -684,12 +694,12 @@ public class EngineImpl extends AbstractEngine {
         } else {
 
             long[] securityIdsArray = ArrayUtils.toPrimitive(securityIds.toArray(new Long[0]));
-            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[]{securityIds.size(), securityIdsArray}, callback);
+            deployStatement("prepared", "ON_FIRST_TICK", alias, new Object[]{securityIds.size(), securityIdsArray}, new TickCallback(this, alias, consumer));
         }
     }
 
     @Override
-    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, Consumer<PositionVO> consumer) {
 
         String alias = "ON_OPEN_POSITION_" + securityId;
 
@@ -700,12 +710,12 @@ public class EngineImpl extends AbstractEngine {
             }
         } else {
 
-            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[]{securityId}, callback);
+            deployStatement("prepared", "ON_OPEN_POSITION", alias, new Object[]{securityId}, new OpenPositionCallback(this, alias, consumer));
         }
     }
 
     @Override
-    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
+    public void addClosePositionCallback(long securityId, Consumer<PositionVO> consumer) {
 
         String alias = "ON_CLOSE_POSITION_" + securityId;
 
@@ -716,20 +726,16 @@ public class EngineImpl extends AbstractEngine {
             }
         } else {
 
-            deployStatement("prepared", "ON_CLOSE_POSITION", alias, new Object[] { securityId }, callback);
+            deployStatement("prepared", "ON_CLOSE_POSITION", alias, new Object[] { securityId }, new ClosePositionCallback(this, alias, consumer));
         }
     }
 
     @Override
-    public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
+    public void addTimerCallback(Date dateTime, String name, Consumer<Date> consumer) {
 
         // execute callback immediately if dateTime is in the past
         if (dateTime.compareTo(getCurrentTime()) < 0) {
-            try {
-                callback.onTimer(getCurrentTime());
-            } catch (Exception e) {
-                LOGGER.error("error executing timer callback", e);
-            }
+            consumer.accept(getCurrentTime());
         } else {
             String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
 
@@ -739,7 +745,7 @@ public class EngineImpl extends AbstractEngine {
             Object[] params = { alias, cal.get(Calendar.MINUTE), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.SECOND),
                     cal.get(Calendar.YEAR) };
 
-            deployStatement("prepared", "ON_TIMER", alias, params, callback, true);
+            deployStatement("prepared", "ON_TIMER", alias, params, new TimerCallback(this, alias, consumer), true);
         }
     }
 
@@ -798,9 +804,6 @@ public class EngineImpl extends AbstractEngine {
         // in live trading stop the statement before attaching (and restart afterwards)
         // to make sure that the subscriber receives the first event
         if (callback != null) {
-            if (callback instanceof EngineAwareCallback) {
-                ((EngineAwareCallback) callback).setEngine(this);
-            }
             if (this.simulation) {
                 statement.setSubscriber(callback);
             } else {

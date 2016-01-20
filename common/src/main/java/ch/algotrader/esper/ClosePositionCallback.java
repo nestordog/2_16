@@ -15,45 +15,54 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
+
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.PositionVO;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed to {@link ch.algotrader.esper.Engine#addClosePositionCallback} has been closed.
+ * Base Esper Callback Class that will be invoked as soon as a Position on the given Security passed
+ * to {@link Consumer} has been closed.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class ClosePositionCallback extends AbstractEngineCallback {
+final class ClosePositionCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(ClosePositionCallback.class);
+
+    private final Engine engine;
+    private final String alias;
+    private final Consumer<PositionVO> consumer;
+
+    ClosePositionCallback(final Engine engine, final String alias, final Consumer<PositionVO> consumer) {
+
+        this.engine = engine;
+        this.alias = alias;
+        this.consumer = consumer;
+    }
 
     /**
      * Called by the "ON_CLOSE_POSITION" statement. Should not be invoked directly.
      */
     public void update(PositionVO positionVO) throws Exception {
 
-        // get the statement alias based on all security ids
-        String alias = "ON_CLOSE_POSITION_" + positionVO.getSecurityId();
-
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("onClosePosition start {}", positionVO.getSecurityId());
         }
-        // call orderCompleted
-        onClosePosition(positionVO);
-
+        if (this.consumer != null) {
+            this.consumer.accept(positionVO);
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("onClosePosition end {}", positionVO.getSecurityId());
         }
@@ -61,9 +70,4 @@ public abstract class ClosePositionCallback extends AbstractEngineCallback {
         MetricsUtil.accountEnd("ClosePositionCallback." + positionVO.getStrategyId(), startTime);
     }
 
-    /**
-     * Will be exectued by the Esper Engine as soon as a Position on the given Security has been closed.
-     * Needs to be overwritten by implementing classes.
-     */
-    public abstract void onClosePosition(PositionVO positionVO) throws Exception;
 }

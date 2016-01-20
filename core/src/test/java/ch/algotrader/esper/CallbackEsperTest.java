@@ -25,9 +25,6 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.callback.TradePersistedCallback;
 
 public class CallbackEsperTest extends EsperTestBase {
 
@@ -60,13 +57,7 @@ public class CallbackEsperTest extends EsperTestBase {
                 2, new long[] {123L, 456L});
 
         final Queue<List<TickVO>> tickListQueue = new ConcurrentLinkedQueue<>();
-        statement.setSubscriber(new TickCallback() {
-            @Override
-            public void onFirstTick(final String strategyName, final List<TickVO> ticks) throws Exception {
-                tickListQueue.add(ticks);
-            }
-
-        });
+        statement.setSubscriber(new TickCallback(null, null, (s, ticks) -> tickListQueue.add(ticks)));
 
         TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), 123L, new BigDecimal("1.1"), new Date(), new BigDecimal("1.11"), new BigDecimal("1.09"), 0, 0, 0);
         this.epRuntime.sendEvent(tick1);
@@ -96,12 +87,7 @@ public class CallbackEsperTest extends EsperTestBase {
                 2, new String[] {"this-order", "that-order"});
 
         final Queue<List<OrderStatusVO>> orderStatusListQueue = new ConcurrentLinkedQueue<>();
-        statement.setSubscriber(new TradeCallback(false) {
-            @Override
-            public void onTradeCompleted(final List<OrderStatusVO> orderStatusList) throws Exception {
-                orderStatusListQueue.add(orderStatusList);
-            }
-        });
+        statement.setSubscriber(new TradeCallback(null, null, false, (s, orderStatusList) -> orderStatusListQueue.add(orderStatusList)));
 
         OrderStatusVO orderStatus1 = new OrderStatusVO(0L, new Date(), Status.EXECUTED, 10L, 20L, 0L, "this-order", 0L, 0L);
         this.epRuntime.sendEvent(orderStatus1);
@@ -234,12 +220,7 @@ public class CallbackEsperTest extends EsperTestBase {
                 2, new String[] {"this-order", "that-order"});
 
         final Queue<List<OrderCompletionVO>> orderComlpetionListQueue = new ConcurrentLinkedQueue<>();
-        statement.setSubscriber(new TradePersistedCallback() {
-            @Override
-            public void onTradePersisted(final List<OrderCompletionVO> orderCompletionList) throws Exception {
-                orderComlpetionListQueue.add(orderCompletionList);
-            }
-        });
+        statement.setSubscriber(new TradePersistedCallback(null, null, orderCompletionList -> orderComlpetionListQueue.add(orderCompletionList)));
 
         OrderCompletionVO orderCompletion1 = new OrderCompletionVO("this-order", "blah", 1, new Date(), Status.EXECUTED, 10L, 20L, null, null, null, null, 0, 0.0d);
         this.epRuntime.sendEvent(orderCompletion1);

@@ -15,32 +15,39 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
 
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.TickVO;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
  * Base Esper Callback Class that will be invoked as soon as at least one Tick has arrived for each of the {@code securities}
- * passed to {@link ch.algotrader.esper.Engine#addFirstTickCallback}
+ * passed to {@link BiConsumer}
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class TickCallback extends AbstractEngineCallback {
+final class TickCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(TickCallback.class);
+
+    private final Engine engine;
+    private final String alias;
+    private final BiConsumer<String, List<TickVO>> consumer;
+
+    TickCallback(final Engine engine, final String alias, final BiConsumer<String, List<TickVO>> consumer) {
+        this.engine = engine;
+        this.alias = alias;
+        this.consumer = consumer;
+    }
 
     /**
      * Called by the "ON_FIRST_TICK" statement. Should not be invoked directly.
@@ -49,37 +56,31 @@ public abstract class TickCallback extends AbstractEngineCallback {
 
         List<TickVO> tickList = Arrays.asList(ticks);
 
-        // get the securityIds sorted asscending
-        Set<Long> sortedSecurityIds = tickList.stream()
-                .map(MarketDataEventVO::getSecurityId)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
-
-        // get the statement alias based on all security ids
-        String alias = "ON_FIRST_TICK_" + StringUtils.join(sortedSecurityIds, "_");
-
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
+            List<Long> sortedSecurityIds = tickList.stream()
+                    .map(MarketDataEventVO::getSecurityId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onFirstTick start {}", sortedSecurityIds);
         }
-        // call orderCompleted
-        onFirstTick(strategyName, tickList);
+
+        if (this.consumer != null) {
+            this.consumer.accept(strategyName, tickList);
+        }
 
         if (LOGGER.isDebugEnabled()) {
+            List<Long> sortedSecurityIds = tickList.stream()
+                    .map(MarketDataEventVO::getSecurityId)
+                    .collect(Collectors.toList());
             LOGGER.debug("onFirstTick end {}", sortedSecurityIds);
         }
 
         MetricsUtil.accountEnd("TickCallback." + strategyName, startTime);
     }
 
-    /**
-     * Will be exectued by the Esper Engine as soon as at least one Tick has arrived for each of the {@code securities}.
-     * Needs to be overwritten by implementing classes.
-     */
-    public abstract void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception;
 }

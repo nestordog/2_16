@@ -20,15 +20,15 @@ package ch.algotrader.esper;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.espertech.esperio.CoordinatedAdapter;
 
-import ch.algotrader.esper.callback.ClosePositionCallback;
-import ch.algotrader.esper.callback.OpenPositionCallback;
-import ch.algotrader.esper.callback.TickCallback;
-import ch.algotrader.esper.callback.TimerCallback;
-import ch.algotrader.esper.callback.TradeCallback;
-import ch.algotrader.esper.callback.TradePersistedCallback;
+import ch.algotrader.entity.PositionVO;
+import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.trade.OrderCompletionVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 
 /**
  * Abstract implementation of an {@link Engine}
@@ -238,32 +238,37 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
-    public void addTradeCallback(Collection<String> orders, TradeCallback callback) {
+    public void addTradeCallback(Collection<String> orders, BiConsumer<String, List<OrderStatusVO>> consumer) {
 
     }
 
     @Override
-    public void addTradePersistedCallback(Collection<String> orders, TradePersistedCallback callback) {
+    public void addFullExecutionCallback(Collection<String> orders) {
 
     }
 
     @Override
-    public void addFirstTickCallback(Collection<Long> securities, TickCallback callback) {
+    public void addTradePersistedCallback(Collection<String> orders, Consumer<List<OrderCompletionVO>> consumer) {
 
     }
 
     @Override
-    public void addOpenPositionCallback(long securityId, OpenPositionCallback callback) {
+    public void addFirstTickCallback(Collection<Long> securities, BiConsumer<String, List<TickVO>> consumer) {
 
     }
 
     @Override
-    public void addClosePositionCallback(long securityId, ClosePositionCallback callback) {
+    public void addOpenPositionCallback(long securityId, Consumer<PositionVO> consumer) {
 
     }
 
     @Override
-    public void addTimerCallback(Date dateTime, String name, TimerCallback callback) {
+    public void addClosePositionCallback(long securityId, Consumer<PositionVO> consumer) {
+
+    }
+
+    @Override
+    public void addTimerCallback(Date dateTime, String name, Consumer<Date> consumer) {
 
     }
 

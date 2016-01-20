@@ -43,7 +43,6 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
@@ -56,7 +55,6 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateUtil;
@@ -183,27 +181,23 @@ public class OptionServiceImpl implements OptionService {
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        this.serverEngine.addFirstTickCallback(Collections.singleton(future.getId()), new TickCallback() {
-            @Override
-            public void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception {
+        this.serverEngine.addFirstTickCallback(Collections.singleton(future.getId()), (strategyName, ticks) -> {
+            // round to the number of contracts
+            int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
 
-                // round to the number of contracts
-                int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
+            if (qty != 0) {
+                // create the order
+                Order order = OptionServiceImpl.this.orderService.createOrderByOrderPreference(OptionServiceImpl.this.coreConfig.getDeltaHedgeOrderPreference());
+                order.setStrategy(server);
+                order.setSecurity(future);
+                order.setQuantity(Math.abs(qty));
+                order.setSide(qty > 0 ? Side.SELL : Side.BUY);
 
-                if (qty != 0) {
-                    // create the order
-                    Order order = OptionServiceImpl.this.orderService.createOrderByOrderPreference(OptionServiceImpl.this.coreConfig.getDeltaHedgeOrderPreference());
-                    order.setStrategy(server);
-                    order.setSecurity(future);
-                    order.setQuantity(Math.abs(qty));
-                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+                OptionServiceImpl.this.orderService.sendOrder(order);
+            } else {
 
-                    OptionServiceImpl.this.orderService.sendOrder(order);
-                } else {
-
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("no delta hedge necessary on {}", underlying);
-                    }
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("no delta hedge necessary on {}", underlying);
                 }
             }
         });

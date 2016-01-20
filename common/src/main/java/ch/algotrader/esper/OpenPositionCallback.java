@@ -15,54 +15,58 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.esper.callback;
+package ch.algotrader.esper;
+
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.entity.PositionVO;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
- * Base Esper Callback Class that will be invoked as soon as a new Position on the given Security passed to {@link ch.algotrader.esper.Engine#addOpenPositionCallback} has been opened.
+ * Base Esper Callback Class that will be invoked as soon as a new Position on the given Security passed
+ * to {@link Consumer} has been opened.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class OpenPositionCallback extends AbstractEngineCallback {
+final class OpenPositionCallback {
 
     private static final Logger LOGGER = LogManager.getLogger(OpenPositionCallback.class);
+
+    private final Engine engine;
+    private final String alias;
+    private final Consumer<PositionVO> consumer;
+
+    OpenPositionCallback(final Engine engine, final String alias, final Consumer<PositionVO> consumer) {
+
+        this.engine = engine;
+        this.alias = alias;
+        this.consumer = consumer;
+    }
 
     /**
      * Called by the "ON_OPEN_POSITION" statement. Should not be invoked directly.
      */
     public void update(PositionVO positionVO) throws Exception {
 
-        // get the statement alias based on all security ids
-        String alias = "ON_OPEN_POSITION_" + positionVO.getSecurityId();
-
         // undeploy the statement
-        Engine engine = getEngine();
-        if (engine != null) {
-            engine.undeployStatement(alias);
+        if (this.engine != null && this.alias != null) {
+            this.engine.undeployStatement(this.alias);
         }
 
         long startTime = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("onOpenPosition start {}", positionVO.getSecurityId());
         }
-        // call orderCompleted
-        onOpenPosition(positionVO);
-
+        if (this.consumer != null) {
+            this.consumer.accept(positionVO);
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("onOpenPosition end {}", positionVO.getSecurityId());
         }
         MetricsUtil.accountEnd("OpenPositionCallback." + positionVO.getStrategyId(), startTime);
     }
 
-    /**
-     * Will be exectued by the Esper Engine as soon as a new Position on the given Security has been opened.
-     * Needs to be overwritten by implementing classes.
-     */
-    public abstract void onOpenPosition(PositionVO positionVO) throws Exception;
 }
