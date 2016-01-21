@@ -2,11 +2,11 @@
 <Configuration status="off"> <!-- set status back to warn when LOG4J2-1160 has been resolved -->
     <Appenders>
         <Console name="StdOut" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d %-5p [%t] [%c{1}] %m %n"/>
+            <PatternLayout pattern="%d %-5p [%t] [%c] %m %n"/>
             <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="ACCEPT"/>
         </Console>
         <Console name="StdErr" target="SYSTEM_ERR">
-            <PatternLayout pattern="%d %-5p [%t] [%c{1}] %m %n"/>
+            <PatternLayout pattern="%d %-5p [%t] [%c] %m %n"/>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
         <!--
@@ -22,6 +22,9 @@
         </Root>
         <logger name="org.springframework" level="warn" />
         <logger name="org.springframework.beans.factory.support.DisposableBeanAdapter" level="error" />
+        <!-- mute Spring exception handler duplicate warnings-->
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error" />
+
         <logger name="org.hibernate" level="warn" />
         <logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="error" />
         <!-- logs error messages that are also logged by HibernateInterceptor -->
@@ -30,14 +33,16 @@
         <logger name="org.hibernate.util.JDBCExceptionReporter" level="warn" />
         <!-- mute SQL warning-->
         <logger name="org.hibernate.engine.jdbc.spi.SqlExceptionHelper" level="error" />
-
-        <logger name="org.hibernate.engine.StatefulPersistenceContext.ProxyWarnLog" level="error" />
-        <!-- Logs warnings when inserting position / cash balance records through native SQL -->
+        <!-- mute Narrowing proxy to class warnings -->
+        <logger name="org.hibernate.engine.internal.StatefulPersistenceContext" level="error" />
+        <!-- mute constraint violation warnings for INSERT IGNORE statements -->
         <logger name="org.hibernate.cache.ReadWriteCache" level="error" />
         <!-- mute ehcache warnings about soft-locked entry expiry -->
         <logger name="org.hibernate.cache.ehcache.internal.strategy.AbstractReadWriteEhcacheAccessStrategy" level="error" />
-        <!-- mute Spring exception handler duplicate warnings-->
-        <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver" level="error" />
+
+        <logger name="org.apache.activemq" level="warn" />
+        <!-- mute ActiveMQ transport I/O warnings such as channel inactivity-->
+        <logger name="org.apache.activemq.broker.TransportConnection.Transport" level="error" />
 
         <logger name="org.apache.commons" level="warn" />
         <logger name="net.sf.ehcache" level="warn" />
@@ -45,7 +50,6 @@
         <logger name="com.espertech.esper.util.MethodResolver" level="error" />
         <logger name="httpclient" level="warn" />
         <logger name="org.apache.http" level="warn" />
-        <logger name="org.apache.activemq" level="warn" />
         <logger name="org.eclipse.jetty" level="warn" />
         <logger name="org.mortbay" level="warn" />
         <logger name="com.mchange.v2" level="warn" />
