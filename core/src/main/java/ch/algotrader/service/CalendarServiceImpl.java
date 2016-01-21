@@ -259,9 +259,14 @@ public class CalendarServiceImpl implements CalendarService {
     private boolean isOpenInternal(final long exchangeId, final Date dateTime) {
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        if (exchange.getTradingHours().size() == 0) {
+            this.closeTimeMap.put(exchangeId, new Date(Long.MAX_VALUE));
+            return true;
+        }
+
         Date date = truncateToDayUsingTimeZone(dateTime, exchange.getTZ());
         TimeIntervals timeIntervals = getTimeIntervalsPlusMinusOneDay(exchange, date);
-        boolean isOpen = timeIntervals.contains(dateTime) || exchange.getTradingHours().size() == 0;
+        boolean isOpen = timeIntervals.contains(dateTime);
 
         if (isOpen) {
             this.openTimeMap.remove(exchangeId);
