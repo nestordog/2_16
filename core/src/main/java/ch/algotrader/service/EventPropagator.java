@@ -67,7 +67,11 @@ public class EventPropagator implements LifecycleEventListener {
         if (this.active) {
 
             long startTime = System.nanoTime();
+
             this.eventDispatcher.sendMarketDataEvent(marketDataEvent);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Propagated {}", marketDataEvent);
+            }
             MetricsUtil.accountEnd("PropagateMarketDataEventSubscriber.update", startTime);
         }
     }
@@ -75,12 +79,19 @@ public class EventPropagator implements LifecycleEventListener {
     public void propagateGenericEvent(final GenericEventVO genericEvent) {
 
         this.eventDispatcher.broadcast(genericEvent, EventRecipient.ALL_STRATEGIES);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Propagated {}", genericEvent);
+        }
     }
 
     public void propagateTradingStatusEvent(final TradingStatusEventVO tradingStatusEvent) {
 
         if (this.active) {
+
             this.eventDispatcher.broadcast(tradingStatusEvent, EventRecipient.ALL_STRATEGIES);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Propagated {}", tradingStatusEvent);
+            }
         }
     }
 
