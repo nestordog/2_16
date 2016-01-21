@@ -41,17 +41,18 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.util.DateTimeLegacy;
 
 /**
- * Cost Accounting Test.
+ * Cost Accounting Test according to the example provided by Trading Technologies
  *
- * Compare with "IT\Cost Accounting\Position Properties.xlsx"
+ * https://www.tradingtechnologies.com/help/fix-adapter-reference/pl-calculation-algorithm/understanding-pl-calculations/
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class CostAccountingTest {
+public class CostAccountingTestTT {
 
     private PositionTracker positionTracker;
     private Strategy strategy;
     private Security security;
+    private Position position;
 
     @Before
     public void setup() throws Exception {
@@ -60,40 +61,49 @@ public class CostAccountingTest {
 
         this.strategy = new StrategyImpl();
 
-        SecurityFamily family = new SecurityFamilyImpl();
-        family.setContractSize(10.0);
-        family.setScale(3);
+        SecurityFamily family1 = new SecurityFamilyImpl();
+        family1.setContractSize(1.0);
+        family1.setScale(2);
 
         this.security = new StockImpl();
-        this.security.setSecurityFamily(family);
+        this.security.setSecurityFamily(family1);
+
+        this.position = this.positionTracker.processFirstTransaction(createTransaction("08:00:00", TransactionType.BUY, 12, "100.00", "0.0"));
+        this.positionTracker.processTransaction(this.position, createTransaction("08:00:00", TransactionType.BUY, 17, "99.00", "0.0"));
+        this.positionTracker.processTransaction(this.position, createTransaction("08:00:00", TransactionType.BUY, 3, "103.00", "0.0"));
+
+        this.positionTracker.processTransaction(this.position, createTransaction("08:00:00", TransactionType.SELL, -9, "101.00", "0.0"));
+        this.positionTracker.processTransaction(this.position, createTransaction("08:00:00", TransactionType.SELL, -4, "105.00", "0.0"));
     }
 
     @Test
-    public void test() throws ParseException {
+    public void testScenario1() throws ParseException {
 
-        Position position = this.positionTracker.processFirstTransaction(createTransaction("08:00:00", TransactionType.BUY, 10, "100.000", "10.0"));
+        assertPosition(this.position, "99.00", 19, "99.75", "-14.25", "32.25");
 
-        assertPosition(position, "100.000", 10, "10010.00", "100.100", "10000.00", "-10.00", "0.00");
-        assertPosition(position, "105.000", 10, "10010.00", "100.100", "10500.00", "490.00", "0.00");
+        this.positionTracker.processTransaction(this.position, createTransaction("09:00:00", TransactionType.BUY, 10, "100.00", "0.0"));
+        assertPosition(this.position, 29, "99.84");
+    }
 
-        this.positionTracker.processTransaction(position, createTransaction("09:00:00", TransactionType.BUY, 2, "110.000", "2.0"));
+    @Test
+    public void testScenario2() throws ParseException {
 
-        assertPosition(position, "110.000", 12, "12212.00", "101.767", "13200.00", "988.00", "0.00");
-        assertPosition(position, "115.000", 12, "12212.00", "101.767", "13800.00", "1588.00", "0.00");
+        this.positionTracker.processTransaction(this.position, createTransaction("09:00:00", TransactionType.SELL, -12, "101.00", "0.0"));
+        assertPosition(this.position, "99.00", 7, "99.75", "-5.25", "47.25");
+    }
 
-        this.positionTracker.processTransaction(position, createTransaction("10:00:00", TransactionType.SELL, -12, "120.000", "12.0"));
+    @Test
+    public void testScenario3() throws ParseException {
 
-        assertPosition(position, "120.000", 0, "0.00", null, "0.00", "0.00", "2176.00");
-        assertPosition(position, "125.000", 0, "0.00", null, "0.00", "0.00", "2176.00");
+        this.positionTracker.processTransaction(this.position, createTransaction("09:00:00", TransactionType.SELL, -19, "101.00", "0.0"));
+        assertPosition(this.position, "99.00", 0, null, "0.00", "56.00");
+    }
 
-        this.positionTracker.processTransaction(position, createTransaction("11:00:00", TransactionType.SELL, -20, "130.000", "20.0"));
+    @Test
+    public void testScenario4() throws ParseException {
 
-        assertPosition(position, "130.000", -20, "-25980.00", "129.900", "-26000.00", "-20.00", "2176.00");
-        assertPosition(position, "135.000", -20, "-25980.00", "129.900", "-27000.00", "-1020.00", "2176.00");
-
-        this.positionTracker.processTransaction(position, createTransaction("12:00:00", TransactionType.BUY, 12, "140.000", "12.0"));
-
-        assertPosition(position, "140.000", -8, "-10392.00", "129.900", "-11200.00", "-808.00", "952.00");
+        this.positionTracker.processTransaction(this.position, createTransaction("09:00:00", TransactionType.SELL, -22, "101.00", "0.0"));
+        assertPosition(this.position, "99.00", -3, "101.00", "6.00", "56.00");
     }
 
     private Transaction createTransaction(String time, TransactionType type, long quantity, String price, String executionCommission) {
@@ -111,16 +121,20 @@ public class CostAccountingTest {
         return transaction;
     }
 
-    private void assertPosition(Position position, String price, long eQty, String eCost, String eAvgPrice, String eMarketValue, String eUnrealizedPL, String eRealizedPL) {
+    private void assertPosition(Position position, String price, long eQty, String eAvgPrice, String eUnrealizedPL, String eRealizedPL) {
 
         Tick tick = Tick.Factory.newInstance(null, null, null, new BigDecimal(price), null, null, null, 0, 0, 0);
 
         Assert.assertEquals(eQty, position.getQuantity());
-        Assert.assertEquals(getBigDecimal(eCost), position.getCost());
-        Assert.assertEquals(getBigDecimal(eMarketValue), position.getMarketValue(tick));
-        Assert.assertEquals(getBigDecimal(eUnrealizedPL), position.getUnrealizedPL(tick));
         Assert.assertEquals(getBigDecimal(eAvgPrice), position.getAveragePrice());
+        Assert.assertEquals(getBigDecimal(eUnrealizedPL), position.getUnrealizedPL(tick));
         Assert.assertEquals(getBigDecimal(eRealizedPL), position.getRealizedPL());
+    }
+
+    private void assertPosition(Position position, long eQty, String eAvgPrice) {
+
+        Assert.assertEquals(eQty, position.getQuantity());
+        Assert.assertEquals(getBigDecimal(eAvgPrice), position.getAveragePrice());
     }
 
     private Object getBigDecimal(String input) {
