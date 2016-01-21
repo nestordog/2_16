@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final Engine serverEngine;
 
-    private final TradeReport tradeReport;
+    private volatile TradeReport tradeReport;
 
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
@@ -127,7 +128,6 @@ public class TransactionServiceImpl implements TransactionService {
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-        this.tradeReport = new TradeReport();
     }
 
     /**
@@ -376,7 +376,7 @@ public class TransactionServiceImpl implements TransactionService {
                         RoundUtil.getBigDecimal(tradePerformance.getProfit()),
                         RoundUtil.getBigDecimal(tradePerformance.getProfitPct()));
             }
-            this.tradeReport.write(transaction, tradePerformance);
+            printTransaction(transaction, tradePerformance);
         } else {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("executed transaction: {}", transaction);
@@ -552,6 +552,22 @@ public class TransactionServiceImpl implements TransactionService {
     public String resetCashBalances() {
 
         return this.transactionPersistenceService.resetCashBalances();
+    }
+
+    private void printTransaction(final Transaction transaction, final TradePerformanceVO tradePerformance) {
+
+        if (!this.commonConfig.isDisableReports()) {
+            synchronized(this) {
+                try {
+                    if (this.tradeReport == null) {
+                        this.tradeReport = TradeReport.create();
+                    }
+                    this.tradeReport.write(transaction, tradePerformance);
+                } catch (IOException ex) {
+                    LOGGER.error(ex.getMessage(), ex);
+                }
+            }
+        }
     }
 
 }

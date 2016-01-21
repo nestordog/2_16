@@ -38,84 +38,60 @@ public class ListReporter extends Report {
     private final CellProcessor[] processor;
     private final CsvListWriter writer;
 
-    public ListReporter(File file, String[] header) {
+    public ListReporter(File file, String[] header)  throws IOException {
 
         this(file, header, null);
     }
 
-    protected ListReporter(File file, String[] header, CellProcessor[] processor) {
+    public ListReporter(File file, String[] header, CellProcessor[] processor) throws IOException {
 
-        try {
-            File parent = file.getParentFile();
-            if (!parent.exists()) {
-                FileUtils.forceMkdir(parent);
-            }
-
-            this.processor = processor;
-
-            this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
-
-            this.writer.writeHeader(header);
-
-            ReportManager.registerReport(this);
-        } catch (IOException e) {
-            throw new ReportException(e);
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            FileUtils.forceMkdir(parent);
         }
+
+        this.processor = processor;
+
+        this.writer = new CsvListWriter(new FileWriter(file, false), CsvPreference.EXCEL_PREFERENCE);
+
+        this.writer.writeHeader(header);
+
+        ReportManager.registerReport(this);
     }
 
-    public void write(List<?> row) {
+    public void write(List<?> row) throws IOException {
 
-        try {
-            if (this.processor != null) {
-                this.writer.write(row, this.processor);
-            } else {
-                this.writer.write(row);
-            }
-        } catch (IOException e) {
-            throw new ReportException(e);
-        }
-    }
-
-    public void writeAndFlush(List<?> row) {
-
-        try {
-            if (this.processor != null) {
-                this.writer.write(row, this.processor);
-            } else {
-                this.writer.write(row);
-            }
-            this.writer.flush();
-        } catch (IOException e) {
-            throw new ReportException(e);
-        }
-    }
-
-    public void write(Object... row) {
-
-        try {
+        if (this.processor != null) {
+            this.writer.write(row, this.processor);
+        } else {
             this.writer.write(row);
-        } catch (IOException e) {
-            throw new ReportException(e);
         }
     }
 
-    public void writeAndFlush(Object... row) {
+    public void writeAndFlush(List<?> row) throws IOException {
 
-        try {
+        if (this.processor != null) {
+            this.writer.write(row, this.processor);
+        } else {
             this.writer.write(row);
-            this.writer.flush();
-        } catch (IOException e) {
-            throw new ReportException(e);
         }
+        this.writer.flush();
+    }
+
+    public void write(Object... row) throws IOException {
+
+        this.writer.write(row);
+    }
+
+    public void writeAndFlush(Object... row) throws IOException {
+
+        this.writer.write(row);
+        this.writer.flush();
     }
 
     @Override
-    public void close() {
+    public void close() throws IOException {
 
-        try {
-            this.writer.close();
-        } catch (IOException e) {
-            throw new ReportException(e);
-        }
+        this.writer.close();
     }
 }

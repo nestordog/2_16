@@ -41,9 +41,9 @@ public final class CommonConfigBuilder {
     private boolean feedAllMarketDataFiles;
     private final int feedBatchSize;
     private File reportLocation;
+    private boolean disableReports;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
-    private boolean simulationLogTransactions;
     private boolean embedded;
     private Currency portfolioBaseCurrency;
     private int portfolioDigits;
@@ -107,6 +107,11 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setDisableReports(boolean disableReports) {
+        this.disableReports = disableReports;
+        return this;
+    }
+
     public CommonConfigBuilder setSimulation(final boolean simulation) {
         this.simulation = simulation;
         return this;
@@ -114,11 +119,6 @@ public final class CommonConfigBuilder {
 
     public CommonConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
         this.simulationInitialBalance = simulationInitialBalance;
-        return this;
-    }
-
-    public CommonConfigBuilder setSimulationLogTransactions(boolean simulationLogTransactions) {
-        this.simulationLogTransactions = simulationLogTransactions;
         return this;
     }
 
@@ -155,7 +155,7 @@ public final class CommonConfigBuilder {
     public CommonConfig build() {
         return new CommonConfig(
                 this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
-                this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
+                this.feedBatchSize, this.reportLocation, this.disableReports, this.simulation, this.simulationInitialBalance, this.embedded,
                 this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions);
     }
 

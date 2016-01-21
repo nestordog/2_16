@@ -18,6 +18,7 @@
 package ch.algotrader.report;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -30,21 +31,21 @@ import ch.algotrader.util.metric.MetricsUtil;
 public class PortfolioReport extends ListReporter {
 
     private final BigDecimal initialBalance;
-    private boolean initialized = false;
+    private volatile boolean initialized = false;
 
-    public static PortfolioReport create(final BigDecimal initialBalance) {
+    public static PortfolioReport create(final BigDecimal initialBalance) throws IOException {
         return new PortfolioReport(
                 Report.generateFile("PortfolioReport"),
                 new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" },
                 initialBalance);
     }
 
-    protected PortfolioReport(final File file, String[] header, final BigDecimal initialBalance) {
+    protected PortfolioReport(final File file, String[] header, final BigDecimal initialBalance) throws IOException {
         super(file, header);
         this.initialBalance = initialBalance;
     }
 
-    public void write(final Date currentDateTime, final PortfolioValueI portfolioValue) {
+    public void write(final Date currentDateTime, final PortfolioValueI portfolioValue)  throws IOException {
 
         long startTime = System.nanoTime();
 

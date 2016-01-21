@@ -18,6 +18,7 @@
 package ch.algotrader.report;
 
 import java.io.File;
+import java.io.IOException;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.enumeration.TransactionType;
@@ -29,15 +30,15 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class TradeReport extends ListReporter {
 
-    public static TradeReport create() {
+    public static TradeReport create() throws IOException {
         return new TradeReport(Report.generateFile("TradeReport"), new String[] { "dateTime", "type", "quantity", "security", "currency", "strategy", "profit", "profitPct", "winning" });
     }
 
-    protected TradeReport(File file, String[] header) {
+    protected TradeReport(File file, String[] header) throws IOException {
         super(file, header);
     }
 
-    public void write(Transaction transaction, TradePerformanceVO tradePerformance) {
+    public void write(Transaction transaction, TradePerformanceVO tradePerformance) throws IOException {
 
         writeAndFlush(formatDateTime(transaction.getDateTime()), //
                 transaction.getType() == TransactionType.SELL ? "LONG" : "SHORT", //

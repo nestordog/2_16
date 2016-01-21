@@ -45,6 +45,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("dataSource.feedAllMarketDataFiles", "true");
         CONFIG_MAP.put("dataSource.feedBatchSize", "20");
         CONFIG_MAP.put("report.reportLocation", "stuff/report-stuff");
+        CONFIG_MAP.put("report.disabled", "true");
         CONFIG_MAP.put("simulation", "true");
         CONFIG_MAP.put("simulation.initialBalance", "500.5");
         CONFIG_MAP.put("simulation.logTransactions", "true");

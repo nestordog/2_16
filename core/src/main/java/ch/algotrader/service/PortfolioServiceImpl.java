@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1222,11 +1224,20 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     public void printPortfolioValue(final PortfolioValueI portfolioValue) {
 
-        synchronized(this) {
-            if (this.portfolioReport == null) {
-                this.portfolioReport = PortfolioReport.create(this.commonConfig.getSimulationInitialBalance());
+        if (!this.commonConfig.isDisableReports()) {
+            synchronized(this) {
+                try {
+                    if (this.portfolioReport == null) {
+
+                        File reportLocation = this.commonConfig.getReportLocation();
+                        File reportFile = new File(reportLocation != null ? reportLocation : new File("."), "PortfolioReport.csv");
+                        this.portfolioReport = PortfolioReport.create(this.commonConfig.getSimulationInitialBalance());
+                    }
+                    this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
+                } catch (IOException ex) {
+                    LOGGER.error(ex.getMessage(), ex);
+                }
             }
-            this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
         }
     }
 
