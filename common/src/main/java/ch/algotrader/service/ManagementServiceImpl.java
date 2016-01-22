@@ -389,7 +389,12 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
     public double getStrategyAllocation() {
 
-        return this.lookupService.getStrategyByName(this.engine.getStrategyName()).getAllocation();
+        Strategy strategy = this.lookupService.getStrategyByName(this.engine.getStrategyName());
+        if (strategy != null) {
+            return strategy.getAllocation();
+        } else {
+            return 0.0;
+        }
 
     }
 
