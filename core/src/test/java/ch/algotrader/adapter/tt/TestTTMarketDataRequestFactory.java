@@ -77,12 +77,15 @@ public class TestTTMarketDataRequestFactory {
         Assert.assertEquals("CL", symGroup.getString(Symbol.FIELD));
         Assert.assertEquals("CME", symGroup.getString(SecurityExchange.FIELD));
 
-        Assert.assertEquals(2, marketDataRequest.getGroupCount(NoMDEntryTypes.FIELD));
+        Assert.assertEquals(3, marketDataRequest.getGroupCount(NoMDEntryTypes.FIELD));
         Group bidGroup = marketDataRequest.getGroup(1, NoMDEntryTypes.FIELD);
         Assert.assertEquals(MDEntryType.BID, bidGroup.getChar(MDEntryType.FIELD));
 
         Group offerGroup = marketDataRequest.getGroup(2, NoMDEntryTypes.FIELD);
         Assert.assertEquals(MDEntryType.OFFER, offerGroup.getChar(MDEntryType.FIELD));
+
+        Group tradeGroup = marketDataRequest.getGroup(3, NoMDEntryTypes.FIELD);
+        Assert.assertEquals(MDEntryType.TRADE, tradeGroup.getChar(MDEntryType.FIELD));
 
         Assert.assertEquals(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES), marketDataRequest.getSubscriptionRequestType());
     }

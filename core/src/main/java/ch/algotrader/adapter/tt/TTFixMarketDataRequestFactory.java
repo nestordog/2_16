@@ -73,6 +73,10 @@ public class TTFixMarketDataRequestFactory {
         offer.set(new MDEntryType(MDEntryType.OFFER));
         request.addGroup(offer);
 
+        MarketDataRequest.NoMDEntryTypes trade = new MarketDataRequest.NoMDEntryTypes();
+        trade.set(new MDEntryType(MDEntryType.TRADE));
+        request.addGroup(trade);
+
         MarketDataRequest.NoRelatedSym symbol = new MarketDataRequest.NoRelatedSym();
 
         SecurityFamily securityFamily = security.getSecurityFamily();
