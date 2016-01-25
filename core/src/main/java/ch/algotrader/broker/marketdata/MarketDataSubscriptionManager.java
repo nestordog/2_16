@@ -16,10 +16,13 @@
  * 8834 Schindellegi
  ***********************************************************************************/
 
-package ch.algotrader.broker.subscription;
+package ch.algotrader.broker.marketdata;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import ch.algotrader.broker.SubscriptionTopic;
+import ch.algotrader.broker.subscription.SubscriptionEventVO;
 
 public final class MarketDataSubscriptionManager {
 
@@ -27,7 +30,7 @@ public final class MarketDataSubscriptionManager {
 
     public void onSubscriptionEvent(final SubscriptionEventVO event) {
 
-        if (event.getBaseTopic().equalsIgnoreCase("tick")) {
+        if (event.getBaseTopic().equalsIgnoreCase(SubscriptionTopic.TICK.getBaseTopic())) {
 
             if (LOGGER.isDebugEnabled()) {
                 if (event.isSubscribe()) {

@@ -102,9 +102,11 @@ public class BrokerWiring {
     public EmbeddedActiveMQBroker createEmbeddedActiveMQBroker(
             @Value("${activeMQ.port}") final int activeMQPort,
             @Value("${activeMQ.ws.port}") final int activeMQWSPort,
+            @Value("${activeMQ.maxRatePerConnection}") final double maxRatePerConnection,
+            @Value("${activeMQ.minRatePerConsumer}") final double minRatePerConsumer,
             final MBeanServer mbeanServer) {
 
-        return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort, mbeanServer);
+        return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort, maxRatePerConnection, minRatePerConsumer, mbeanServer);
     }
 
     @Bean(name = "tickActiveMQTopic")

@@ -36,6 +36,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.broker.eviction.TopicEvictionPlugin;
+import ch.algotrader.broker.marketdata.ConsumerEventThrottler;
+import ch.algotrader.broker.marketdata.ThrottlingDispatchPolicy;
+import ch.algotrader.broker.marketdata.TickThrottlingPlugin;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
@@ -49,7 +52,7 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
     private final int port;
     private final int wsPort;
 
-    public EmbeddedActiveMQBroker(final int port, final int wsPort, final MBeanServer mbeanServer) {
+    public EmbeddedActiveMQBroker(final int port, final int wsPort, final double maxRatePerConnection, final double minRatePerConsumer, final MBeanServer mbeanServer) {
         this.port = port;
         this.wsPort = wsPort;
         this.broker = new BrokerService();
@@ -66,6 +69,8 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         this.broker.setPersistent(false);
         this.broker.setAdvisorySupport(true);
 
+        ConsumerEventThrottler tickThrottler = new ConsumerEventThrottler(maxRatePerConnection, minRatePerConsumer);
+
         PolicyMap policyMap = new PolicyMap();
         LastImageSubscriptionRecoveryPolicy policy = new LastImageSubscriptionRecoveryPolicy();
         List<DestinationMapEntry> entryList = new ArrayList<>();
@@ -74,12 +79,15 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
                 PolicyEntry policyEntry = new PolicyEntry();
                 policyEntry.setSubscriptionRecoveryPolicy(policy);
                 policyEntry.setDestination(new ActiveMQTopic(subscriptionTopic.getBaseTopic() +  ".>"));
+                if (subscriptionTopic == SubscriptionTopic.TICK) {
+                    policyEntry.setDispatchPolicy(new ThrottlingDispatchPolicy(tickThrottler));
+                }
                 entryList.add(policyEntry);
             }
         }
         policyMap.setPolicyEntries(entryList);
         this.broker.setDestinationPolicy(policyMap);
-        this.broker.setPlugins(new BrokerPlugin[]{new TopicEvictionPlugin()});
+        this.broker.setPlugins(new BrokerPlugin[]{new TopicEvictionPlugin(), new TickThrottlingPlugin(tickThrottler)});
     }
 
     public void start() throws Exception {
