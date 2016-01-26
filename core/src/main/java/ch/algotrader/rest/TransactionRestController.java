@@ -19,7 +19,6 @@
 package ch.algotrader.rest;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,8 +43,8 @@ public class TransactionRestController extends RestControllerBase {
     }
 
     @CrossOrigin
-    @RequestMapping(path = "/transaction/{id}", method = RequestMethod.POST)
-    public void createTransaction(@PathVariable final long id, @RequestBody TransactionVO transaction) {
+    @RequestMapping(path = "/transaction", method = RequestMethod.POST)
+    public void createTransaction(@RequestBody TransactionVO transaction) {
 
         Strategy strategy = this.lookupService.getStrategy(transaction.getStrategyId());
         if (strategy == null) {
