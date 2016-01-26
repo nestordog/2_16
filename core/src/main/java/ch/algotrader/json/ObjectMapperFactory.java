@@ -20,6 +20,7 @@ package ch.algotrader.json;
 
 import java.util.Date;
 
+import ch.algotrader.entity.TransactionVO;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -42,6 +43,7 @@ public class ObjectMapperFactory {
         module.setMixInAnnotation(StopOrderVO.class, StopOrderVOMixIn.class);
         module.setMixInAnnotation(StopLimitOrderVO.class, StopLimitOrderVOMixIn.class);
         module.setMixInAnnotation(MarketDataSubscriptionVO.class, MarketDataSubscriptionVOMixIn.class);
+        module.setMixInAnnotation(TransactionVO.class, TransactionVOMixin.class);
         return new ObjectMapper()
                 .registerModule(module)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

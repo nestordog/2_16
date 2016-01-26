@@ -50,13 +50,12 @@ public class TransactionRestController extends RestControllerBase {
         if (strategy == null) {
             throw new EntityNotFoundException("Strategy not found: " + transaction.getStrategyId());
         }
-        Account account = this.lookupService.getAccount(transaction.getStrategyId());
-        if (account == null) {
-            throw new EntityNotFoundException("Accounr not found: " + transaction.getAccountId());
-        }
+
+        String accountName = transaction.getAccountId() != 0 ? getAccountName(transaction.getAccountId()) : null;
+
         this.transactionService.createTransaction(transaction.getSecurityId(), strategy.getName(), transaction.getExtId(), transaction.getDateTime(),
                 transaction.getQuantity(), transaction.getPrice(), transaction.getExecutionCommission(), transaction.getClearingCommission(), transaction.getFee(), transaction.getCurrency(),
-                transaction.getType(), account.getName(), transaction.getDescription());
+                transaction.getType(), accountName, transaction.getDescription());
     }
 
     @CrossOrigin
@@ -71,6 +70,16 @@ public class TransactionRestController extends RestControllerBase {
     public void resetCashBalances() {
 
         this.transactionService.resetCashBalances();
+    }
+
+
+    private String getAccountName(long accountId){
+        Account account = this.lookupService.getAccount(accountId);
+        if (account == null) {
+            throw new EntityNotFoundException("Account not found: " + accountId);
+        }
+
+        return account.getName();
     }
 
 }

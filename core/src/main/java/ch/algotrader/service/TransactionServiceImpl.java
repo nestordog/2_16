@@ -326,7 +326,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalArgumentException("transaction type REBALANCE not allowed");
         }
 
-        Account account = this.accountDao.findByName(accountName);
+        Account account = accountName != null ? this.accountDao.findByName(accountName) : null;
 
         // create the transaction
         Transaction transaction = Transaction.Factory.newInstance();
