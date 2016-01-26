@@ -431,8 +431,8 @@
     <![CDATA[
         from TransactionImpl as t 
         join fetch t.strategy
-        join fetch t.security as s
-        join fetch s.securityFamily
+        left join fetch t.security as s
+        left join fetch s.securityFamily
         left join fetch t.account
         where t.strategy.name = :strategyName 
         and t.dateTime >= :curdate
