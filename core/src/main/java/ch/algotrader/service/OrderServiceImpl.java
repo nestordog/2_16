@@ -151,9 +151,9 @@ public class OrderServiceImpl implements OrderService {
         Validate.notEmpty(name, "Name is empty");
 
         OrderPreference orderPreference = this.orderPreferenceDao.findByName(name);
-
-        Validate.notNull(orderPreference, "unknown OrderPreference" + name == null ? "" : " " + name);
-
+        if (orderPreference == null) {
+            throw new ServiceException("Order preference '" + name + "' not found");
+        }
         Class<?> orderClazz;
         Order order;
         try {
@@ -186,12 +186,16 @@ public class OrderServiceImpl implements OrderService {
         Validate.notNull(order, "Order is null");
 
         // validate general properties
-        Validate.notNull(order.getSide(), "missing side for order " + order);
-        Validate.isTrue(order.getQuantity() != 0, "quanity cannot be zero for order " + order);
-        Validate.isTrue(order.getQuantity() > 0, "quantity has to be positive for order " + order);
-
+        if (order.getSide() == null) {
+            throw new OrderValidationException("Missing order side: " + order);
+        }
+        if (order.getQuantity() <= 0) {
+            throw new OrderValidationException("Order quantity cannot be zero or negative: " + order);
+        }
         if (order instanceof SimpleOrder) {
-            Validate.notNull(order.getAccount(), "missing account for order " + order);
+            if (order.getAccount() == null) {
+                throw new OrderValidationException("Missing order account: " + order);
+            }
         }
 
         // validate order specific properties
@@ -199,7 +203,9 @@ public class OrderServiceImpl implements OrderService {
 
         // check that the security is tradeable
         Security security = order.getSecurity();
-        Validate.isTrue(security.getSecurityFamily().isTradeable(), security + " is not tradeable");
+        if (!security.getSecurityFamily().isTradeable()) {
+            throw new OrderValidationException(security + " is not tradeable: " + order);
+        }
 
         // external validation of the order
         if (order instanceof SimpleOrder) {
