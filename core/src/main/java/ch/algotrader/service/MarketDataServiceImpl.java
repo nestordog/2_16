@@ -146,19 +146,22 @@ public class MarketDataServiceImpl implements MarketDataService {
                     }
                 }
             } else {
-                Engine serverEngine = this.engineManager.getServerEngine();
-                String strategyName = serverEngine.getStrategyName();
-                List<Security> serverSubscribed = this.securityDao.findSubscribedByFeedTypeAndStrategyInclFamily(feedType, strategyName);
-                for (Security security : serverSubscribed) {
 
-                    this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
+                List<Subscription> subscriptions = this.subscriptionDao.loadAll();
+                for (Subscription subscription: subscriptions) {
+                    Security security = subscription.getSecurity();
+                    Strategy strategy = subscription.getStrategy();
+                    String strategyName = strategy.getName();
+                    if (strategy.isServer() || strategy.isAutoActivate()) {
 
-                    final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, security.getId(), feedType, true);
-                    this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
+                        this.eventDispatcher.registerMarketDataSubscription(strategyName, security.getId());
 
-                    securities.add(security);
+                        final MarketDataSubscriptionVO event = new MarketDataSubscriptionVO(strategyName, security.getId(), feedType, true);
+                        this.eventDispatcher.broadcast(event, EventRecipient.ALL_STRATEGIES);
+
+                        securities.add(security);
+                    }
                 }
-                securities.addAll(securityDao.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily(feedType));
             }
 
             for (Security security : securities) {
