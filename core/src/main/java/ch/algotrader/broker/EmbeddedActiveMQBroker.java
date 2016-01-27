@@ -52,7 +52,11 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
     private final int port;
     private final int wsPort;
 
-    public EmbeddedActiveMQBroker(final int port, final int wsPort, final double maxRatePerConnection, final double minRatePerConsumer, final MBeanServer mbeanServer) {
+    public EmbeddedActiveMQBroker(
+            final int port, final int wsPort,
+            final double memUsagePc,
+            final double maxRatePerConnection, final double minRatePerConsumer,
+            final MBeanServer mbeanServer) {
         this.port = port;
         this.wsPort = wsPort;
         this.broker = new BrokerService();
@@ -68,6 +72,10 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         }
         this.broker.setPersistent(false);
         this.broker.setAdvisorySupport(true);
+
+        long jvmLimit = Runtime.getRuntime().maxMemory();
+        long activeMQMemLimit = (long) (jvmLimit * (memUsagePc > 0 && memUsagePc < 90 ? (memUsagePc / 100) : 0.7));
+        this.broker.getSystemUsage().getMemoryUsage().setLimit(activeMQMemLimit);
 
         ConsumerEventThrottler tickThrottler = new ConsumerEventThrottler(maxRatePerConnection, minRatePerConsumer);
 

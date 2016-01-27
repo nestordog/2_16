@@ -108,8 +108,11 @@ public class BrokerWiring {
         int activeMQWSPort = configParams.getInteger("activeMQ.ws.port", 61614);
         double maxRatePerConnection = configParams.getDouble("activeMQ.maxRatePerConnection", 50.0d);
         double minRatePerConsumer = configParams.getDouble("activeMQ.minRatePerConsumer", 0.1d);
+        double memUsagePc = configParams.getDouble("activeMQ.memoryUsage", 50.0d);
 
-        return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort, maxRatePerConnection, minRatePerConsumer, mbeanServer);
+        return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort,
+                memUsagePc, maxRatePerConnection, minRatePerConsumer,
+                mbeanServer);
     }
 
     @Bean(name = "tickActiveMQTopic")
