@@ -49,6 +49,7 @@ import ch.algotrader.broker.TopicPublisher;
 import ch.algotrader.broker.eviction.TopicEvictionRouter;
 import ch.algotrader.broker.eviction.TopicEvictionVO;
 import ch.algotrader.broker.subscription.TopicSubscriptionHandler;
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.TickVO;
@@ -100,11 +101,13 @@ public class BrokerWiring {
     @Profile(value = "embeddedBroker")
     @Bean(name = "internalBroker", initMethod = "start", destroyMethod = "stop")
     public EmbeddedActiveMQBroker createEmbeddedActiveMQBroker(
-            @Value("${activeMQ.port}") final int activeMQPort,
-            @Value("${activeMQ.ws.port}") final int activeMQWSPort,
-            @Value("${activeMQ.maxRatePerConnection}") final double maxRatePerConnection,
-            @Value("${activeMQ.minRatePerConsumer}") final double minRatePerConsumer,
+            final ConfigParams configParams,
             final MBeanServer mbeanServer) {
+
+        int activeMQPort = configParams.getInteger("activeMQ.port", 61616);
+        int activeMQWSPort = configParams.getInteger("activeMQ.ws.port", 61614);
+        double maxRatePerConnection = configParams.getDouble("activeMQ.maxRatePerConnection", 50.0d);
+        double minRatePerConsumer = configParams.getDouble("activeMQ.minRatePerConsumer", 0.1d);
 
         return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort, maxRatePerConnection, minRatePerConsumer, mbeanServer);
     }

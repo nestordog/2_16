@@ -21,10 +21,15 @@ package ch.algotrader.jetty;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.URL;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.RequestLogHandler;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -42,11 +47,13 @@ public class EmbeddedJettyServer implements InitializingServiceI {
     private final Logger LOGGER = LogManager.getLogger(EmbeddedJettyServer.class);
 
     private final int port;
+    private final String requestLog;
     private final ApplicationContext applicationContext;
     private final Server server;
 
-    public EmbeddedJettyServer(final int port, final ApplicationContext applicationContext) {
+    public EmbeddedJettyServer(final int port, final String requestLog, final ApplicationContext applicationContext) {
         this.port = port;
+        this.requestLog = requestLog;
         this.applicationContext = applicationContext;
         this.server = new Server();
     }
@@ -68,7 +75,18 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         context.setContextPath("/");
         context.addServlet(servletHolder, "/*");
 
-        this.server.setHandler(context);
+        if (this.requestLog != null) {
+            RequestLogHandler requestLogHandler = new RequestLogHandler();
+            NCSARequestLog requestLog = new NCSARequestLog(this.requestLog);
+            requestLog.setAppend(true);
+            requestLog.setExtended(false);
+            requestLogHandler.setRequestLog(requestLog);
+            HandlerCollection handlers = new HandlerCollection();
+            handlers.setHandlers(new Handler[]{ context, requestLogHandler });
+            this.server.setHandler(handlers);
+        } else {
+            this.server.setHandler(context);
+        }
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("HTTP connector on port {}", this.port);
@@ -81,17 +99,16 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         }
         channelConnector.start();
 
-        if (webAppContext.getEnvironment().acceptsProfiles("html5")) {
-            if (LOGGER.isInfoEnabled()) {
-                String hostName;
-                try {
-                    InetAddress localHost = InetAddress.getLocalHost();
-                    hostName = localHost.getHostName();
-                } catch (IOException ex) {
-                    hostName = "localhost";
-                }
-                LOGGER.info("Web UI available at {}", new URI("http", null, hostName, this.port, "/", null, null));
+        URL startPage = getClass().getResource("/html5/index.html");
+        if (startPage != null && LOGGER.isInfoEnabled()) {
+            String hostName;
+            try {
+                InetAddress localHost = InetAddress.getLocalHost();
+                hostName = localHost.getHostName();
+            } catch (IOException ex) {
+                hostName = "localhost";
             }
+            LOGGER.info("Web UI available at {}", new URI("http", null, hostName, this.port, "/", null, null));
         }
     }
 

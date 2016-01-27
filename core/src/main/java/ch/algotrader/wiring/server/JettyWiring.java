@@ -18,11 +18,11 @@
 
 package ch.algotrader.wiring.server;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.jetty.EmbeddedJettyServer;
 
 @Configuration
@@ -30,10 +30,13 @@ public class JettyWiring {
 
     @Bean(name = "jettyService", destroyMethod = "stop")
     public EmbeddedJettyServer createJettyService(
-            @Value("${http.port}") final int port,
+            final ConfigParams configParams,
             final ApplicationContext applicationContext) {
 
-        return new EmbeddedJettyServer(port, applicationContext);
+        int port = configParams.getInteger("jetty.port", 9090);
+        String requestFile = configParams.getString("jetty.requestLog");
+
+        return new EmbeddedJettyServer(port, requestFile, applicationContext);
     }
 
 }
