@@ -51,6 +51,8 @@ import ch.algotrader.entity.trade.StopOrder;
 @Transactional(propagation = Propagation.SUPPORTS)
 public class OrderPersistenceServiceImpl implements OrderPersistenceService {
 
+    private static final int MAX_REASON_LEN = 255;
+
     private static final Logger LOGGER = LogManager.getLogger(OrderPersistenceServiceImpl.class);
 
     private final OrderDao orderDao;
@@ -149,6 +151,13 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             this.orderDao.persist(order).setExtId(extId);
         }
         if (orderStatus.getId() == 0) {
+
+            // Truncate reason
+            String reason = orderStatus.getReason();
+            if (reason != null && reason.length() > MAX_REASON_LEN) {
+                orderStatus.setReason(reason.substring(0, MAX_REASON_LEN));
+            }
+
             this.orderStatusDao.save(orderStatus);
         }
     }
