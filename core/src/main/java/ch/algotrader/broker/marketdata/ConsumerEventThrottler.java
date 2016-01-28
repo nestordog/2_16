@@ -98,7 +98,7 @@ public final class ConsumerEventThrottler {
                 if (propagate) {
                     filteredConsumers.add(consumer);
                     if (this.consumerLastEvent.replace(consumerId, lastEvent, now)) {
-                        this.connectionLastEvent.put(connectionId, now);
+                        this.connectionLastEvent.compute(connectionId, (key, previous) -> previous == null || previous < now ? now : previous);
                     }
                     if (LOGGER.isTraceEnabled()) {
                         LOGGER.trace("Dispatching {} event for {}", activeMQDestination, connectionId);
