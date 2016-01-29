@@ -22,6 +22,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import ch.algotrader.config.CommonConfig;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.util.log4j.Log4JEventPropagator;
+
 @Configuration
 @Profile("html5")
 public class HtmlUIConfig {
@@ -30,6 +34,12 @@ public class HtmlUIConfig {
     public String createStaticResourceRoot() {
 
         return "classpath:html5/";
+    }
+
+    @Bean(name = "log4JEventPropagator")
+    public Log4JEventPropagator createLog4JEventPropagator(final EventDispatcher eventDispatcher, final CommonConfig commonConfig) {
+
+        return new Log4JEventPropagator(eventDispatcher, commonConfig);
     }
 
 }
