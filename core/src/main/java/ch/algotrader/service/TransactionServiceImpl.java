@@ -471,28 +471,20 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public void rebalancePortfolio() {
 
-        Strategy server = this.strategyDao.findServer();
         Collection<Strategy> strategies = this.strategyDao.loadAll();
         double portfolioNetLiqValue = this.portfolioService.getNetLiqValueDouble();
 
         double totalAllocation = 0.0;
-        double totalRebalanceAmount = 0.0;
         Collection<Transaction> transactions = new ArrayList<>();
         for (Strategy strategy : strategies) {
 
             totalAllocation += strategy.getAllocation();
-
-            if (strategy.isServer()) {
-                continue;
-            }
 
             double actualNetLiqValue = MathUtils.round(this.portfolioService.getNetLiqValueDouble(strategy.getName()), 2);
             double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
             double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
 
             if (Math.abs(rebalanceAmount) >= this.coreConfig.getRebalanceMinAmount().doubleValue()) {
-
-                totalRebalanceAmount += rebalanceAmount;
 
                 Transaction transaction = Transaction.Factory.newInstance();
                 transaction.setUuid(UUID.randomUUID().toString());
@@ -513,20 +505,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         // add REBALANCE transaction to offset totalRebalanceAmount
-        if (transactions.size() != 0) {
-
-            Transaction transaction = Transaction.Factory.newInstance();
-            transaction.setUuid(UUID.randomUUID().toString());
-            transaction.setDateTime(this.engineManager.getCurrentEPTime());
-            transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
-            transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
-            transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
-            transaction.setType(TransactionType.REBALANCE);
-            transaction.setStrategy(server);
-
-            transactions.add(transaction);
-
-        } else {
+        if (transactions.size() == 0) {
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("no rebalancing is performed because all rebalancing amounts are below min amount {}", this.coreConfig.getRebalanceMinAmount());
