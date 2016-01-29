@@ -323,36 +323,6 @@ represented by an instance of this class.]]></meta>
 
                 <type name="double"/>
             </property>
-            <set name="portfolioValues" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.]]></meta>
-                <cache usage="read-write" />
-                <key foreign-key="PORTFOLIO_VALUE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
-
-                </key>
-                <one-to-many class="ch.algotrader.entity.strategy.PortfolioValueImpl" not-found="exception"/>
-            </set>
-            <set name="cashBalances" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.]]></meta>
-                <cache usage="read-write" />
-                <key foreign-key="CASH_BALANCE_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
-
-                </key>
-                <one-to-many class="ch.algotrader.entity.strategy.CashBalanceImpl" not-found="exception"/>
-            </set>
-            <set name="measurements" order-by="STRATEGY_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-                <meta attribute="field-description"><![CDATA[Represents a running Strategy within the system. In addition the AlgoTrader Server is also
-represented by an instance of this class.]]></meta>
-                <cache usage="read-write" />
-                <key foreign-key="MEASUREMENT_STRATEGY_FKC">
-                    <column name="STRATEGY_FK" sql-type="BIGINT"/>
-
-                </key>
-                <one-to-many class="ch.algotrader.entity.strategy.MeasurementImpl" not-found="exception"/>
-            </set>
         </union-subclass>
     </class>
 </hibernate-mapping>

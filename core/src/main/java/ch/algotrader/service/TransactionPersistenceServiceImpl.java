@@ -237,9 +237,6 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
                 this.cashBalanceDao.save(cashBalance);
 
-                // reverse-associate with strategy (after cashBalance has received an id)
-                strategy.getCashBalances().add(cashBalance);
-
                 String info = "created cashBalance " + cashBalance;
                 LOGGER.info(info);
                 buffer.append(info + "\n");
@@ -251,7 +248,6 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         for (CashBalance cashBalance : existingCashBalances) {
 
             Strategy strategy = cashBalance.getStrategy();
-            strategy.getCashBalances().remove(cashBalance);
 
             String info = "removed cashBalance " + cashBalance;
             LOGGER.info(info);
