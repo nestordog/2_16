@@ -235,10 +235,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
      */
     private void sendOrModifyOrder(SimpleOrder order) {
 
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
-
         // get the contract
         Contract contract = IBUtil.getContract(order.getSecurity());
 
