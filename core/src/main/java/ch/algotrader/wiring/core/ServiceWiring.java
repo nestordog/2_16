@@ -242,15 +242,13 @@ public class ServiceWiring {
     public TransactionService createTransactionService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final TransactionPersistenceService transactionPersistenceService,
-            final PortfolioService portfolioService,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
             final EventDispatcher eventDispatcher,
-            final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new TransactionServiceImpl(commonConfig, coreConfig, transactionPersistenceService, portfolioService, strategyDao, securityDao, accountDao, eventDispatcher, engineManager, serverEngine);
+        return new TransactionServiceImpl(commonConfig, coreConfig, transactionPersistenceService, strategyDao, securityDao, accountDao, eventDispatcher, serverEngine);
     }
 
     @Bean(name = "marketDataService")

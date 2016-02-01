@@ -90,7 +90,7 @@ public class SimulatorTest {
 
         // setup reference data
         String strategyName = "STRAT_1";
-        Strategy strategy = Strategy.Factory.newInstance(strategyName, false, 1.0);
+        Strategy strategy = Strategy.Factory.newInstance(strategyName, false);
 
         Currency currency = Currency.USD;
 

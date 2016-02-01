@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
@@ -54,12 +56,14 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OperationMode;
+import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
@@ -82,6 +86,7 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -209,8 +214,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         // reset the db
         this.resetService.resetSimulation();
 
-        // rebalance portfolio (to distribute initial CREDIT to strategies)
-        this.transactionService.rebalancePortfolio();
+        rebalancePortfolio(strategyGroup);
 
         // init coordination
         this.serverEngine.initCoordination();
@@ -278,10 +282,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private void initStrategies(final StrategyGroup strategyGroup) {
         //add or update strategy for each group item
         for (final String strategyName : strategyGroup.getStrategyNames()) {
-            final double weight = strategyGroup.getWeight(strategyName);
-            final Strategy strategy = this.strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
+            final Strategy strategy = this.strategyPersistenceService.getOrCreateStrategy(strategyName);
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Update strategy '{}' with allocation {}", strategy.getName(), strategy.getAllocation());
+                LOGGER.info("Update strategy '{}'", strategy.getName());
             }
         }
     }
@@ -470,6 +473,39 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
         } else {
             throw new SimulationExecutorException("incorrect parameter for dataSetType: " + marketDataType);
+        }
+    }
+
+    private void rebalancePortfolio(final StrategyGroup strategyGroup) {
+
+        double portfolioNetLiqValue = this.portfolioService.getNetLiqValueDouble();
+        double totalAllocation = 0.0;
+        Set<String> strategyNames = strategyGroup.getStrategyNames();
+        for (String strategyName: strategyNames) {
+
+            Strategy strategy = this.lookupService.getStrategyByName(strategyName);
+            double weight = strategyGroup.getWeight(strategyName);
+            totalAllocation += weight;
+
+            double actualNetLiqValue = MathUtils.round(this.portfolioService.getNetLiqValueDouble(strategyName), 2);
+            double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * weight, 2);
+            double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
+
+            Transaction transaction = Transaction.Factory.newInstance();
+            transaction.setUuid(UUID.randomUUID().toString());
+            transaction.setDateTime(this.engineManager.getCurrentEPTime());
+            transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
+            transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
+            transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
+            transaction.setType(TransactionType.REBALANCE);
+            transaction.setStrategy(strategy);
+
+            this.transactionService.recordTransaction(transaction);
+        }
+
+        // check allocations add up to 1.0
+        if (MathUtils.round(totalAllocation, 2) != 1.0) {
+            throw new IllegalStateException("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
         }
     }
 

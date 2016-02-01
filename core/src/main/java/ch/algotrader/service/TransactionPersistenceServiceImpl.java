@@ -171,21 +171,6 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void saveTransactions(final Collection<Transaction> transactions) {
-
-        Validate.notNull(transactions, "Transaction list is null");
-
-        for (Transaction transaction : transactions) {
-
-            saveTransaction(transaction);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public String resetCashBalances() {
 
         // get all existing cashBalances

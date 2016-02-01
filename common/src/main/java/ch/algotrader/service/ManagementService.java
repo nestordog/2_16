@@ -81,11 +81,6 @@ public interface ManagementService {
     public Map<String, Object> getProperties();
 
     /**
-     * Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)
-     */
-    public double getStrategyAllocation();
-
-    /**
      * Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)
      */
     public BigDecimal getStrategyCashBalance();

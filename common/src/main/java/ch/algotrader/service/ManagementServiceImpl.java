@@ -386,22 +386,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
-    public double getStrategyAllocation() {
-
-        Strategy strategy = this.lookupService.getStrategyByName(this.engine.getStrategyName());
-        if (strategy != null) {
-            return strategy.getAllocation();
-        } else {
-            return 0.0;
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 

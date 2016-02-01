@@ -315,14 +315,6 @@ represented by an instance of this class.]]></meta>
 
                 <type name="boolean"/>
             </property>
-            <property name="allocation">
-                <meta attribute="field-description"><![CDATA[Allocation assigned to this strategy
-<p>
-<i>Note: the total of all Allocations needs to be 1.0</i>]]></meta>
-                <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE"/>
-
-                <type name="double"/>
-            </property>
         </union-subclass>
     </class>
 </hibernate-mapping>

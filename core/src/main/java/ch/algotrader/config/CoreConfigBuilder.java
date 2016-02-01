@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
-import java.math.BigDecimal;
-
 /**
  * Factory for Algotrader core platform configuration objects.
  *
@@ -31,7 +29,6 @@ public final class CoreConfigBuilder {
     private boolean simulateFuturesByGenericFutures;
     private int transactionDisplayCount;
     private int intervalDays;
-    private BigDecimal rebalanceMinAmount;
     private String defaultFeedType;
     private String defaultOrderPreference;
     private boolean fxFutureHedgeEnabled;
@@ -44,7 +41,6 @@ public final class CoreConfigBuilder {
     private boolean positionCheckDisabled;
 
     CoreConfigBuilder() {
-        this.rebalanceMinAmount = new BigDecimal("1000");
         this.defaultFeedType = "IB";
         this.defaultOrderPreference = "FX";
         this.fxHedgeOrderPreference = "FX";
@@ -77,11 +73,6 @@ public final class CoreConfigBuilder {
 
     public CoreConfigBuilder setIntervalDays(int intervalDays) {
         this.intervalDays = intervalDays;
-        return this;
-    }
-
-    public CoreConfigBuilder setRebalanceMinAmount(BigDecimal rebalanceMinAmount) {
-        this.rebalanceMinAmount = rebalanceMinAmount;
         return this;
     }
 
@@ -137,9 +128,9 @@ public final class CoreConfigBuilder {
 
     public CoreConfig build() {
         return new CoreConfig(simulateOptions, simulateFuturesByUnderlying, simulateFuturesByGenericFutures, transactionDisplayCount,
-                intervalDays, rebalanceMinAmount, defaultFeedType, defaultOrderPreference,
-                fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration, fxHedgeMinAmount, fxHedgeBatchSize, fxHedgeOrderPreference,
-                deltaHedgeMinTimeToExpiration, deltaHedgeOrderPreference, positionCheckDisabled);
+                intervalDays, defaultFeedType, defaultOrderPreference, fxFutureHedgeEnabled, fxFutureHedgeMinTimeToExpiration,
+                fxHedgeMinAmount, fxHedgeBatchSize, fxHedgeOrderPreference,  deltaHedgeMinTimeToExpiration, deltaHedgeOrderPreference,
+                positionCheckDisabled);
     }
 
 }

@@ -55,7 +55,6 @@ public class PortfolioValueVOProducerTest {
         portfolioValue.setSecuritiesCurrentValue(new BigDecimal("2.2"));
         portfolioValue.setCashBalance(new BigDecimal("3.3"));
         portfolioValue.setLeverage(5.5);
-        portfolioValue.setAllocation(6.6);
         portfolioValue.setCashFlow(new BigDecimal("7.7"));
 
         PortfolioValueVO portfolioValueVO = this.instance.convert(portfolioValue);
@@ -67,7 +66,6 @@ public class PortfolioValueVOProducerTest {
         Assert.assertEquals(portfolioValue.getSecuritiesCurrentValue(), portfolioValueVO.getSecuritiesCurrentValue());
         Assert.assertEquals(portfolioValue.getCashBalance(), portfolioValueVO.getCashBalance());
         Assert.assertEquals(new Double(portfolioValue.getLeverage()), new Double(portfolioValueVO.getLeverage()));
-        Assert.assertEquals(new Double(portfolioValue.getAllocation()), new Double(portfolioValueVO.getAllocation()));
         Assert.assertEquals(portfolioValue.getCashFlow(), portfolioValueVO.getCashFlow());
     }
 

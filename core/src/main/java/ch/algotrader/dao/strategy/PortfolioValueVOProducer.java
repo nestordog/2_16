@@ -42,7 +42,6 @@ public class PortfolioValueVOProducer implements EntityConverter<PortfolioValue,
         vo.setSecuritiesCurrentValue(entity.getSecuritiesCurrentValue());
         vo.setCashBalance(entity.getCashBalance());
         vo.setLeverage(entity.getLeverage());
-        vo.setAllocation(entity.getAllocation());
         vo.setCashFlow(entity.getCashFlow());
 
         return vo;

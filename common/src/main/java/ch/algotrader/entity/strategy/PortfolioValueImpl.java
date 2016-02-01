@@ -18,6 +18,7 @@
 package ch.algotrader.entity.strategy;
 
 import java.util.Date;
+
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -63,8 +64,6 @@ public class PortfolioValueImpl extends PortfolioValue {
         buffer.append(getCashBalance());
         buffer.append(",leverage=");
         buffer.append(RoundUtil.getBigDecimal(getLeverage()));
-        buffer.append(",allocation=");
-        buffer.append(RoundUtil.getBigDecimal(getAllocation()));
 
         if (getCashFlow() != null) {
             buffer.append(",cashFlow=");

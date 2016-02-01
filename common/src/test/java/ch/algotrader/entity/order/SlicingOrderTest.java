@@ -168,7 +168,7 @@ public class SlicingOrderTest {
     private SlicingOrder createInstance() {
 
         Security security = Mockito.mock(Security.class);
-        Strategy strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false, 0);
+        Strategy strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false);
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance("", Currency.USD, 1, 2, "0<0.01", true, false);
 
         Mockito.when(security.getSecurityFamily()).thenReturn(securityFamily);

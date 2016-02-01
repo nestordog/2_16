@@ -705,7 +705,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
         portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
         portfolioValue.setLeverage(Double.isNaN(leverage) ? 0 : leverage);
-        portfolioValue.setAllocation(strategy.getAllocation());
 
         return portfolioValue;
 

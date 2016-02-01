@@ -18,8 +18,6 @@
 
 package ch.algotrader.config;
 
-import java.math.BigDecimal;
-
 /**
  * Algotrader core configuration object.
  *
@@ -32,7 +30,6 @@ public final class CoreConfig {
     private final boolean simulateFuturesByGenericFutures;
     private final int transactionDisplayCount;
     private final int intervalDays;
-    private final BigDecimal rebalanceMinAmount;
     private final String defaultFeedType;
     private final String defaultOrderPreference;
     private final boolean fxFutureHedgeEnabled;
@@ -50,7 +47,6 @@ public final class CoreConfig {
             @ConfigName("statement.simulateFuturesByGenericFutures") boolean simulateFuturesByGenericFutures,
             @ConfigName("misc.transactionDisplayCount") int transactionDisplayCount,
             @ConfigName("misc.intervalDays") int intervalDays,
-            @ConfigName("misc.rebalanceMinAmount") BigDecimal rebalanceMinAmount,
             @ConfigName("misc.defaultFeedType") String defaultFeedType,
             @ConfigName("misc.defaultOrderPreference") String defaultOrderPreference,
             @ConfigName("fx.futureHedgeEnabled") boolean fxFutureHedgeEnabled,
@@ -66,7 +62,6 @@ public final class CoreConfig {
         this.simulateFuturesByGenericFutures = simulateFuturesByGenericFutures;
         this.transactionDisplayCount = transactionDisplayCount;
         this.intervalDays = intervalDays;
-        this.rebalanceMinAmount = rebalanceMinAmount;
         this.defaultFeedType = defaultFeedType;
         this.defaultOrderPreference = defaultOrderPreference;
         this.fxFutureHedgeEnabled = fxFutureHedgeEnabled;
@@ -97,10 +92,6 @@ public final class CoreConfig {
 
     public int getIntervalDays() {
         return intervalDays;
-    }
-
-    public BigDecimal getRebalanceMinAmount() {
-        return rebalanceMinAmount;
     }
 
     public String getDefaultFeedType() {
@@ -151,7 +142,6 @@ public final class CoreConfig {
         sb.append(", simulateFuturesByGenericFutures=").append(simulateFuturesByGenericFutures);
         sb.append(", transactionDisplayCount=").append(transactionDisplayCount);
         sb.append(", intervalDays=").append(intervalDays);
-        sb.append(", rebalanceMinAmount=").append(rebalanceMinAmount);
         sb.append(", defaultFeedType=").append(defaultFeedType);
         sb.append(", defaultOrderPreference=").append(defaultOrderPreference);
         sb.append(", fxFutureHedgeEnabled=").append(fxFutureHedgeEnabled);

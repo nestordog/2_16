@@ -59,13 +59,6 @@ public class TransactionRestController extends RestControllerBase {
     }
 
     @CrossOrigin
-    @RequestMapping(path = "/transaction/rebalance-portfolio", method = RequestMethod.POST)
-    public void createTransaction() {
-
-        this.transactionService.rebalancePortfolio();
-    }
-
-    @CrossOrigin
     @RequestMapping(path = "/transaction/reset-cache-balances", method = RequestMethod.POST)
     public void resetCashBalances() {
 

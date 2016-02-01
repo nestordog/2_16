@@ -179,18 +179,6 @@ public class ServerManagementServiceImpl implements ServerManagementService {
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line with the defined Strategy-Allocation.")
-    @ManagedOperationParameters({})
-    public void rebalancePortfolio() {
-
-        this.transactionService.rebalancePortfolio();
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedOperation(description = "Calculates all Cash Balances and Position quantities based on Transactions in the database and makes adjustments if necessary")
     @ManagedOperationParameters({})
     public String resetPositionsAndCashBalances() {

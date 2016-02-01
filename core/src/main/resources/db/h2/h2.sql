@@ -41,7 +41,6 @@ CREATE TABLE "strategy" (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
   `NAME` varchar(30) NOT NULL,
   `AUTO_ACTIVATE` bit(1) NOT NULL,
-  `ALLOCATION` double NOT NULL,
   `VERSION` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   UNIQUE KEY (`NAME`)
@@ -481,7 +480,6 @@ CREATE TABLE "portfolio_value" (
   `CASH_BALANCE` decimal(15,6) NOT NULL,
   `NET_LIQ_VALUE` decimal(15,6) NOT NULL,
   `LEVERAGE` double NOT NULL,
-  `ALLOCATION` double NOT NULL,
   `CASH_FLOW` decimal(15,6) DEFAULT NULL,
   `STRATEGY_FK` bigint(20) NOT NULL,
   PRIMARY KEY (`ID`),
@@ -653,7 +651,7 @@ CREATE TABLE "measurement" (
 ) ;
 
 
-INSERT INTO "strategy" (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `VERSION`) VALUES (1,'SERVER','1',0,0);
+INSERT INTO "strategy" (`ID`, `NAME`, `AUTO_ACTIVATE`, `VERSION`) VALUES (1,'SERVER','1',0);
 
 INSERT INTO "cash_balance" (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`, `VERSION`) VALUES (1,'USD',1000000.00,1,1);
 

@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.config;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +69,6 @@ public class CoreConfigBeanFactoryTest {
         Assert.assertEquals(true, coreConfig.isSimulateFuturesByGenericFutures());
         Assert.assertEquals(20, coreConfig.getTransactionDisplayCount());
         Assert.assertEquals(4, coreConfig.getIntervalDays());
-        Assert.assertEquals(new BigDecimal("1000"), coreConfig.getRebalanceMinAmount());
         Assert.assertEquals(FeedType.IB.name(), coreConfig.getDefaultFeedType());
         Assert.assertEquals(true, coreConfig.isFxFutureHedgeEnabled());
         Assert.assertEquals(604800000, coreConfig.getFxFutureHedgeMinTimeToExpiration());

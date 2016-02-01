@@ -34,6 +34,11 @@ import ch.algotrader.enumeration.TransactionType;
 public interface TransactionService {
 
     /**
+     * Records given transaction.
+     */
+    public void recordTransaction(Transaction transaction);
+
+    /**
      * Creates a Transaction based on a {@link Fill}
      */
     public void createTransaction(Fill fill);
@@ -81,13 +86,6 @@ public interface TransactionService {
      * Logs aggregated Information of all Fills belonging to one Order from the given insert stream.
      */
     public void logFillSummary(Map<?, ?>[] insertStream, Map<?, ?>[] removeStream);
-
-    /**
-     * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line
-     * with the defined Strategy-Allocation.
-     */
-    public void rebalancePortfolio();
-
 
     /**
      * Calculates all Cash Balances based on Transactions in the database and makes adjustments if
