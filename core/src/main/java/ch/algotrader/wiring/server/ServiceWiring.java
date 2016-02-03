@@ -102,6 +102,8 @@ import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PositionServiceImpl;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.PropertyServiceImpl;
+import ch.algotrader.service.ResetService;
+import ch.algotrader.service.ResetServiceImpl;
 import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
@@ -449,6 +451,31 @@ public class ServiceWiring {
             final Engine serverEngine) {
 
         return new H2TransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+    }
+
+    @Bean(name = "resetService")
+    public ResetService createResetService(
+            final CoreConfig coreConfig,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final OrderPropertyDao orderPropertyDao,
+            final FutureDao futureDao,
+            final TransactionDao transactionDao,
+            final PositionDao positionDao,
+            final SubscriptionDao subscriptionDao,
+            final OptionDao optionDao,
+            final StrategyDao strategyDao,
+            final CashBalanceDao cashBalanceDao,
+            final CombinationDao combinationDao,
+            final ComponentDao componentDao,
+            final PropertyDao propertyDao,
+            final MeasurementDao measurementDao,
+            final PortfolioValueDao portfolioValueDao,
+            final BarDao barDao,
+            final TickDao tickDao) {
+
+        return new ResetServiceImpl(coreConfig, orderDao, orderStatusDao, orderPropertyDao, futureDao, transactionDao, positionDao, subscriptionDao, optionDao, strategyDao, cashBalanceDao,
+                combinationDao, componentDao, propertyDao, measurementDao, portfolioValueDao, barDao, tickDao);
     }
 
 }
