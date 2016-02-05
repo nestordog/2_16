@@ -21,7 +21,9 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
@@ -387,6 +389,8 @@ public class PositionServiceImpl implements PositionService {
             }
         }
 
+        Set<Position> actualPositions = new HashSet<>(this.positionDao.loadAll());
+
         // update positions
         StringBuilder buffer = new StringBuilder();
         for (Position targetOpenPosition : positionMap.values()) {
@@ -396,8 +400,7 @@ public class PositionServiceImpl implements PositionService {
             // create if it does not exist
             if (actualOpenPosition == null) {
 
-                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()
-                        + " does not exist";
+                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()  + " does not exist";
                 LOGGER.warn(warning);
                 buffer.append(warning + "\n");
 
@@ -415,7 +418,7 @@ public class PositionServiceImpl implements PositionService {
                 }
 
                 // check cost
-                if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
+                if (actualOpenPosition.getCost().compareTo(targetOpenPosition.getCost()) != 0) {
 
                     BigDecimal existingCost = actualOpenPosition.getCost();
                     actualOpenPosition.setCost(targetOpenPosition.getCost());
@@ -426,7 +429,7 @@ public class PositionServiceImpl implements PositionService {
                 }
 
                 // check realizedPL
-                if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
+                if (actualOpenPosition.getRealizedPL().compareTo(targetOpenPosition.getRealizedPL()) != 0) {
 
                     BigDecimal existingRealizedPL = actualOpenPosition.getRealizedPL();
                     actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
@@ -435,7 +438,19 @@ public class PositionServiceImpl implements PositionService {
                     LOGGER.warn(warning);
                     buffer.append(warning + "\n");
                 }
+
+                actualPositions.remove(actualOpenPosition);
             }
+        }
+
+        // remove obsolete positions
+        if (!actualPositions.isEmpty()) {
+            for (Position position : actualPositions) {
+                String warning = "deleted obsolete position " + position.getId();
+                LOGGER.warn(warning);
+                buffer.append(warning + "\n");
+            }
+            this.positionDao.deleteAll(actualPositions);
         }
 
         return buffer.toString();
