@@ -159,16 +159,17 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
                 }
             }
         }
-        this.localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
+        this.localEventBroadcaster.broadcast(marketDataEvent);
     }
 
     @Override
-    public void sendEvent(final String engineName, final Object obj) {
+    public void sendEvent(final String engineName, final Object event) {
         // check if it is a local engine
         final Engine engine = this.engineManager.lookup(engineName);
         if (engine != null) {
-            engine.sendEvent(obj);
+            engine.sendEvent(event);
         }
+        this.localEventBroadcaster.broadcast(event);
     }
 
 }
