@@ -103,7 +103,7 @@ public final class DateTimePatterns {
                 .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
                 .appendLiteral('/')
                 .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
-                .toFormatter(Locale.ROOT);
+                .toFormatter(Locale.ENGLISH);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class DateTimePatterns {
     static {
         MONTH_LONG = new DateTimeFormatterBuilder()
                 .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
-                .toFormatter(Locale.ROOT);
+                .toFormatter(Locale.ENGLISH);
     }
 
     /**
