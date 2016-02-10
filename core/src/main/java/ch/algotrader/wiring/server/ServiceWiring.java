@@ -21,6 +21,7 @@ package ch.algotrader.wiring.server;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import ch.algotrader.config.ConfigParams;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -251,6 +252,7 @@ public class ServiceWiring {
     @Bean(name = "marketDataService")
     public MarketDataService createMarketDataService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
+            final ConfigParams configParams,
             final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
@@ -265,7 +267,7 @@ public class ServiceWiring {
         Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
+        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
                 eventDispatcher, marketDataCache, serviceMap2);
     }
 

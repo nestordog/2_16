@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.security.SecurityFamily;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,8 +83,11 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final Map<String, ExternalMarketDataService> externalMarketDataServiceMap;
 
+    private final Boolean normaliseMarketData;
+
     public MarketDataServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
+            final ConfigParams configParams,
             final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
@@ -94,6 +100,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
+        Validate.notNull(configParams, "ConfigParams is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
@@ -115,6 +122,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.eventDispatcher = eventDispatcher;
         this.marketDataCache = marketDataCache;
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
+        this.normaliseMarketData = configParams.getBoolean("misc.normaliseMarketData", false);
     }
 
     /**
@@ -386,4 +394,32 @@ public class MarketDataServiceImpl implements MarketDataService {
         return security.accept(TickValidationVisitor.INSTANCE, tick);
     }
 
+    @Override
+    public TickVO normaliseTick(TickVO tick) {
+        if(normaliseMarketData && tick != null){
+
+            Security security = this.securityDao.get(tick.getSecurityId());
+            if(security != null){
+                SecurityFamily securityFamily = security.getSecurityFamily();
+                BigDecimal multiplier = BigDecimal.valueOf(securityFamily.getPriceMultiplier(tick.getFeedType()));
+
+                BigDecimal last = tick.getLast() != null ? tick.getLast().multiply(multiplier) : tick.getLast();
+                BigDecimal bid = tick.getBid() != null ? tick.getBid().multiply(multiplier) : tick.getBid();
+                BigDecimal ask = tick.getAsk() != null ? tick.getAsk().multiply(multiplier) : tick.getAsk();
+
+                return new TickVO(tick.getId(),
+                    tick.getDateTime(),
+                    tick.getFeedType(),
+                    tick.getSecurityId(),
+                    last,
+                    tick.getLastDateTime(),
+                    bid,
+                    ask,
+                    tick.getVolBid(),
+                    tick.getVolAsk(),
+                    tick.getVol());
+            }
+        }
+        return tick;
+    }
 }

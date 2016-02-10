@@ -117,6 +117,7 @@ public class IBEsperTest extends EsperTestBase {
 
         Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(true);
+        Mockito.when(this.marketDataService.normaliseTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         this.epRuntime.sendEvent(subscribeEvent1);
