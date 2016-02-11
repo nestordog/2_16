@@ -560,6 +560,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 LOGGER.info(message);
                 break;
 
+            case 404:
+
+                // Shares for this order are not immediately available for short sale.
+                // The order will be held while we attempt to locate the shares.
+                LOGGER.warn(message);
+                break;
+
             case 434:
 
                 // The order size cannot be zero
