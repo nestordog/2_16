@@ -48,27 +48,27 @@ public interface OrderService {
     /**
      * Sends an Order.
      */
-    public void sendOrder(Order order);
+    public String sendOrder(Order order);
 
     /**
      * Sends an Order.
      */
-    public void sendOrder(OrderVO order);
+    public String sendOrder(OrderVO order);
 
     /**
      * Sends multiple Orders.
      */
-    public void sendOrders(Collection<Order> orders);
+    public Collection<String> sendOrders(Collection<Order> orders);
 
     /**
      * Cancels an Order.
      */
-    public void cancelOrder(Order order);
+    public String cancelOrder(Order order);
 
     /**
      * Cancels an Order by its {@code intId}.
      */
-    public void cancelOrder(String intId);
+    public String cancelOrder(String intId);
 
     /**
      * Cancels all Orders.
@@ -78,18 +78,18 @@ public interface OrderService {
     /**
      * Modifies an Order by overwriting the current Order with the Order passed to this method.
      */
-    public void modifyOrder(Order order);
+    public String modifyOrder(Order order);
 
     /**
      * Modifies an Order defined by its {@code intId} by overwriting the current Order with the
      * defined {@code properties}.
      */
-    public void modifyOrder(String intId, Map<String, String> properties);
+    public String modifyOrder(String intId, Map<String, String> properties);
 
     /**
      * Modifies an Order by overwriting the current Order with the Order passed to this method.
      */
-    public void modifyOrder(OrderVO order);
+    public String modifyOrder(OrderVO order);
 
     /**
      * Generates next order intId for the given account.

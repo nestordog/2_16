@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -168,7 +169,7 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void sendOrder(final Order order) {
+    public String sendOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -194,9 +195,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (order instanceof SimpleOrder) {
-            this.simpleOrderService.sendOrder((SimpleOrder) order);
+            return this.simpleOrderService.sendOrder((SimpleOrder) order);
         } else if (order instanceof AlgoOrder) {
-            this.algoOrderService.sendOrder((AlgoOrder) order);
+            return this.algoOrderService.sendOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
         }
@@ -206,11 +207,13 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void sendOrders(final Collection<Order> orders) {
+    public List<String> sendOrders(final Collection<Order> orders) {
 
+        List<String> ids = new ArrayList<>(orders.size());
         for (Order order : orders) {
-            sendOrder(order);
+            ids.add(sendOrder(order));
         }
+        return ids;
 
     }
 
@@ -218,14 +221,14 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void cancelOrder(final Order order) {
+    public String cancelOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
 
         if (order instanceof SimpleOrder) {
-            this.simpleOrderService.cancelOrder((SimpleOrder) order);
+            return this.simpleOrderService.cancelOrder((SimpleOrder) order);
         } else if (order instanceof AlgoOrder) {
-            this.algoOrderService.cancelOrder((AlgoOrder) order);
+            return this.algoOrderService.cancelOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
         }
@@ -235,13 +238,13 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void cancelOrder(final String intId) {
+    public String cancelOrder(final String intId) {
 
         Validate.notNull(intId, "Int id is null");
 
         Order order = this.orderBook.getOpenOrderByIntId(intId);
         if (order != null) {
-            cancelOrder(order);
+            return cancelOrder(order);
         } else {
             order = this.orderBook.getByIntId(intId);
             if (order == null) {
@@ -251,6 +254,7 @@ public class OrderServiceImpl implements OrderService {
                     LOGGER.info("Order {} already completed", intId);
                 }
             }
+            return null;
         }
     }
 
@@ -274,14 +278,14 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void modifyOrder(final Order order) {
+    public String modifyOrder(final Order order) {
 
         Validate.notNull(order, "Order is null");
 
         if (order instanceof SimpleOrder) {
-            this.simpleOrderService.modifyOrder((SimpleOrder) order);
+            return this.simpleOrderService.modifyOrder((SimpleOrder) order);
         } else if (order instanceof AlgoOrder) {
-            this.algoOrderService.modifyOrder((AlgoOrder) order);
+            return this.algoOrderService.modifyOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
         }
@@ -291,7 +295,7 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public void modifyOrder(final String intId, final Map<String, String> properties) {
+    public String modifyOrder(final String intId, final Map<String, String> properties) {
 
         Validate.notNull(intId, "Int id is null");
         Validate.notNull(properties, "Properties is null");
@@ -308,7 +312,7 @@ public class OrderServiceImpl implements OrderService {
             throw new ServiceException(ex);
         }
 
-        modifyOrder(newOrder);
+        return modifyOrder(newOrder);
     }
 
     /**
@@ -469,15 +473,15 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void sendOrder(final OrderVO order) {
+    public String sendOrder(final OrderVO order) {
 
-        this.simpleOrderService.sendOrder(convert(order));
+        return this.simpleOrderService.sendOrder(convert(order));
     }
 
     @Override
-    public void modifyOrder(OrderVO order) {
+    public String modifyOrder(OrderVO order) {
 
-        this.simpleOrderService.sendOrder(convert(order));
+        return this.simpleOrderService.sendOrder(convert(order));
     }
 
     /**

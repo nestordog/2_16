@@ -118,7 +118,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
     }
 
     @Override
-    public final void sendOrder(final T algoOrder) {
+    public final String sendOrder(final T algoOrder) {
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
@@ -127,23 +127,27 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             throw new ServiceException("Order intId is null");
         }
         handleSendOrder(algoOrder, getAlgoOrderState(algoOrder).orElseThrow(() -> new ServiceException("Unknown order " + intId)));
+
+        return null;
     }
 
     protected abstract void handleSendOrder(final T algoOrder, final S algoOrderState);
 
     @Override
-    public final void modifyOrder(final T algoOrder) {
+    public final String modifyOrder(final T algoOrder) {
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
         String intId = algoOrder.getIntId();
         handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder).orElseThrow(() -> new ServiceException("Unknown order " + intId)));
+
+        return null;
     }
 
     protected abstract void handleModifyOrder(final T algoOrder, final S algoOrderState);
 
     @Override
-    public final void cancelOrder(final T algoOrder) {
+    public final String cancelOrder(final T algoOrder) {
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
@@ -170,6 +174,8 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         }
 
         this.algoOrderStates.remove(intId);
+
+        return null;
     }
 
     protected abstract void handleCancelOrder(final T order, final S algoOrderState);

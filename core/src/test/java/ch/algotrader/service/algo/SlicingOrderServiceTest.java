@@ -86,16 +86,19 @@ public class SlicingOrderServiceTest {
             }
 
             @Override
-            public void sendOrder(SimpleOrder order) {
+            public String sendOrder(SimpleOrder order) {
                 slice = order;
+                return null;
             }
 
             @Override
-            public void cancelOrder(SimpleOrder order) {
+            public String cancelOrder(SimpleOrder order) {
+                return null;
             }
 
             @Override
-            public void modifyOrder(SimpleOrder order) {
+            public String modifyOrder(SimpleOrder order) {
+                return null;
             }
 
             @Override

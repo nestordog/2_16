@@ -89,14 +89,16 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
      * {@inheritDoc}
      */
     @Override
-    public void sendOrder(final AlgoOrder order) {
+    public String sendOrder(final AlgoOrder order) {
 
         Validate.notNull(order, "Order is null");
 
         AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
 
-        if (order.getIntId() == null) {
-            order.setIntId(getNextOrderId(order.getAccount()));
+        String intId = order.getIntId();
+        if (intId == null) {
+            intId = getNextOrderId(order.getAccount());
+            order.setIntId(intId);
         }
         // validate the order before sending it
         try {
@@ -119,10 +121,11 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         algoOrderExecService.sendOrder(order);
 
+        return intId;
     }
 
     @Override
-    public void modifyOrder(final AlgoOrder order) {
+    public String modifyOrder(final AlgoOrder order) {
 
         String intId = order.getIntId();
         Order existingOrder = this.orderBook.getOpenOrderByIntId(intId);
@@ -130,7 +133,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("algo order {} is not open", intId);
             }
-            return;
+            return null;
         }
         if (!Objects.equals(order.getAccount(), existingOrder.getAccount())) {
             throw new ServiceException("Algo order account of cannot be modified");
@@ -153,13 +156,15 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         algoOrderExecService.modifyOrder(order);
 
         this.orderBook.replace(order);
+
+        return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void cancelOrder(final AlgoOrder order) {
+    public String cancelOrder(final AlgoOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -169,6 +174,8 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("cancelled algo order: {}", order);
         }
+
+        return null;
     }
 
     /**

@@ -71,7 +71,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     }
 
     @Override
-    public void sendOrder(SimpleOrder order) {
+    public String sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -127,6 +127,8 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         fill.setFee(getFee(order));
 
         this.orderExecutionService.handleFill(fill);
+
+        return intId;
     }
 
     /**
@@ -207,13 +209,13 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order) {
+    public String cancelOrder(SimpleOrder order) {
 
         throw new UnsupportedOperationException("cancel order not supported in simulation");
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order) {
+    public String modifyOrder(SimpleOrder order) {
 
         throw new UnsupportedOperationException("modify order not supported in simulation");
     }

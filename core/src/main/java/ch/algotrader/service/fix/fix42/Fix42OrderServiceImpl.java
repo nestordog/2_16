@@ -72,7 +72,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
     }
 
     @Override
-    public void sendOrder(SimpleOrder order) {
+    public String sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -94,10 +94,11 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         // send the message
         sendOrder(order, message);
 
+        return clOrdID;
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order) {
+    public String modifyOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -118,10 +119,11 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         // send the message
         sendOrder(order, replaceRequest);
 
+        return clOrdID;
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order) {
+    public String cancelOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -135,6 +137,8 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         // send the message
         sendOrder(order, cancelRequest);
+
+        return clOrdID;
     }
 
     /**

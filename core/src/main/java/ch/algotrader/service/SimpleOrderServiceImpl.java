@@ -93,7 +93,7 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
      * {@inheritDoc}
      */
     @Override
-    public void sendOrder(final SimpleOrder order) {
+    public String sendOrder(final SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -115,16 +115,18 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
             order.setTif(TIF.DAY);
         }
         SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
-        simpleOrderExecService.sendOrder(order);
+        String intId = simpleOrderExecService.sendOrder(order);
 
         this.serverEngine.sendEvent(order);
+
+        return intId;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void cancelOrder(final SimpleOrder order) {
+    public String cancelOrder(final SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -134,14 +136,14 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         }
 
         SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
-        simpleOrderExecService.cancelOrder(order);
+        return simpleOrderExecService.cancelOrder(order);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void modifyOrder(final SimpleOrder order) {
+    public String modifyOrder(final SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -168,9 +170,11 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
             order.setTif(TIF.DAY);
         }
         SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
-        simpleOrderExecService.modifyOrder(newOrder);
+        String intId = simpleOrderExecService.modifyOrder(newOrder);
 
         this.serverEngine.sendEvent(newOrder);
+
+        return intId;
     }
 
     /**

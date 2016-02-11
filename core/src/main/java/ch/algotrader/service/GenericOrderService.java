@@ -40,17 +40,17 @@ public interface GenericOrderService<T extends Order> {
     /**
      * Sends the order.
      */
-    void sendOrder(T order);
+    String sendOrder(T order);
 
     /**
      * Cancels the order.
      */
-    void cancelOrder(T order);
+    String cancelOrder(T order);
 
     /**
      * Modifies an existing order by overwriting with the given order.
      */
-    void modifyOrder(T order);
+    String modifyOrder(T order);
 
     /**
      * Generates next order intId for the given account.

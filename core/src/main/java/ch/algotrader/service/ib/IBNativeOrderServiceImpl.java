@@ -127,7 +127,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
     }
 
     @Override
-    public void sendOrder(SimpleOrder order) {
+    public String sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -161,6 +161,8 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
                     throw new ServiceException(ex);
                 }
             }
+
+            return intId;
         } finally {
             this.lock.unlock();
         }
@@ -168,7 +170,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order) {
+    public String modifyOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -189,6 +191,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
 
             sendOrModifyOrder(order);
 
+            return null;
         } finally {
             this.lock.unlock();
         }
@@ -196,7 +199,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order) {
+    public String cancelOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -209,6 +212,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
                 LOGGER.info("requested order cancellation for order: {}", order);
             }
 
+            return null;
         } finally {
             this.lock.unlock();
         }
