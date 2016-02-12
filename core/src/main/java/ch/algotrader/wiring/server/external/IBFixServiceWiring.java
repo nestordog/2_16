@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.external;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,7 +62,7 @@ public class IBFixServiceWiring {
     @Bean(name = "iBFixAllocationService")
     public IBFixAllocationService createIBFixAllocationService(
             final ManagedFixAdapter fixAdapter,
-            final BlockingQueue<IBCustomMessage> iBAllocationMessageQueue,
+            final LinkedBlockingDeque<IBCustomMessage> iBAllocationMessageQueue,
             final LookupService lookupService) {
 
         return new IBFixAllocationServiceImpl(fixAdapter, iBAllocationMessageQueue, lookupService);
