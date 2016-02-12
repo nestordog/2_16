@@ -33,7 +33,15 @@ public abstract class StrategyStarter {
 
     private static final Logger LOGGER = LogManager.getLogger(StrategyStarter.class);
 
+    private static final String ACTIVEMQ_SERIALIZABLE_PACKAGES = "org.apache.activemq.SERIALIZABLE_PACKAGES";
+
     public static void main(String[] args) throws Exception {
+
+        // Compensate for ActiveMQ security configuration awkwardness
+        if (System.getProperty(ACTIVEMQ_SERIALIZABLE_PACKAGES) == null) {
+            System.setProperty(ACTIVEMQ_SERIALIZABLE_PACKAGES,
+                    "java.lang,java.math,javax.security,java.util,org.apache.activemq,ch.algotrader");
+        }
 
         ConfigParams configParams = ConfigLocator.instance().getConfigParams();
         String strategyName = configParams.getString("strategyName");
