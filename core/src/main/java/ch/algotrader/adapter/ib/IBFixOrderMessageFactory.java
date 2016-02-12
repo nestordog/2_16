@@ -17,21 +17,21 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
-import ch.algotrader.entity.security.Security;
-import org.apache.commons.lang.Validate;
-
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.security.Option;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.SimpleOrder;
-import quickfix.field.ExDestination;
-import quickfix.field.HandlInst;
-import quickfix.field.CustomerOrFirm;
+import org.apache.commons.lang.Validate;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
 import quickfix.field.AllocationProfile;
 import quickfix.field.ClearingAccount;
+import quickfix.field.ContractMultiplier;
+import quickfix.field.CustomerOrFirm;
+import quickfix.field.ExDestination;
+import quickfix.field.HandlInst;
 import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -69,6 +69,8 @@ public class IBFixOrderMessageFactory extends GenericFix42OrderMessageFactory {
         if(exchangeCode != null){
             message.set(new ExDestination(exchangeCode));
         }
+
+        message.removeField(ContractMultiplier.FIELD);
 
         // handling for financial advisor account groups
         if (order.getAccount().getExtAccountGroup() != null) {
