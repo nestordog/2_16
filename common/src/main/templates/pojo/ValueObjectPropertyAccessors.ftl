@@ -1,4 +1,17 @@
 <#-- // Property accessors -->
+<#if pojo.hasSubclasses() && !pojo.isSubclass() && pojo.isAbstract()>
+    public abstract String getObjectType();
+
+</#if>
+<#if (pojo.isSubclass() || pojo.hasSubclasses()) && !pojo.isAbstract()>
+<#if pojo.isSubclass()>
+    @Override
+</#if>
+    public String getObjectType() {
+        return "${pojo.getDeclarationName()}";
+    }
+
+</#if>
 <#foreach property in pojo.getAllPropertiesIterator()>
 <#if pojo.getMetaAttribAsBool(property, "gen-property", true)>
 <#if !c2h.isCollection(property) && !property.equals(pojo.getVersionProperty())>

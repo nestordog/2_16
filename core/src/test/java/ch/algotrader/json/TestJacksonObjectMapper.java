@@ -57,7 +57,8 @@ public class TestJacksonObjectMapper {
 
         String s = writer.toString();
         Assert.assertEquals("{\"id\":0,\"intId\":null,\"extId\":null,\"dateTime\":null,\"side\":\"BUY\",\"quantity\":1000," +
-                "\"tif\":null,\"tifDateTime\":null,\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1}", s);
+                "\"tif\":null,\"tifDateTime\":null,\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1," +
+                "\"objectType\":\"MarketOrder\"}", s);
     }
 
     @Test
@@ -71,7 +72,8 @@ public class TestJacksonObjectMapper {
 
         String s = writer.toString();
         Assert.assertEquals("{\"id\":0,\"intId\":\"this\",\"extId\":\"that\",\"dateTime\":null,\"side\":\"BUY\",\"quantity\":1000," +
-                "\"tif\":\"GTD\",\"tifDateTime\":1447185600000,\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1}", s);
+                "\"tif\":\"GTD\",\"tifDateTime\":1447185600000,\"exchangeId\":0,\"securityId\":10,\"accountId\":101,\"strategyId\":1," +
+                "\"objectType\":\"MarketOrder\"}", s);
     }
 
     @Test

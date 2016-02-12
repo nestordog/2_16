@@ -71,6 +71,7 @@ public class TestMetaGeneratorGenerator {
         JsonNode propertiesNode = securityNode.get("properties");
         Assert.assertNotNull(propertiesNode);
         Assert.assertTrue(propertiesNode.has("symbol"));
+        Assert.assertTrue(propertiesNode.has("objectType"));
         JsonNode schemasNode = securityNode.get("schemas");
         Assert.assertNotNull(schemasNode);
         Assert.assertTrue(schemasNode instanceof POJONode);
@@ -83,6 +84,7 @@ public class TestMetaGeneratorGenerator {
         JsonNode propertiesNode2 = stockNode.get("properties");
         Assert.assertNotNull(propertiesNode2);
         Assert.assertTrue(propertiesNode2.has("gics"));
+        Assert.assertFalse(propertiesNode2.has("objectType"));
     }
 
 }

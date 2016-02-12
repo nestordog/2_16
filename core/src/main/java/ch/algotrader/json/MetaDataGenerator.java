@@ -43,7 +43,14 @@ public class MetaDataGenerator {
 
         @Override
         public boolean hasIgnoreMarker(final AnnotatedMember m) {
-            return m.getDeclaringClass() == clz || super.hasIgnoreMarker(m);
+
+            if (m.getDeclaringClass() == clz) {
+                return true;
+            }
+            if ("getObjectType".equals(m.getName())) {
+                return true;
+            }
+            return super.hasIgnoreMarker(m);
         }
     }
 
