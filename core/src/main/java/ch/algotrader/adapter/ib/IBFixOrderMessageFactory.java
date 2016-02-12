@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.ib;
 
+import ch.algotrader.entity.security.Security;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageFactory;
@@ -24,12 +25,13 @@ import ch.algotrader.adapter.fix.fix42.GenericFix42SymbologyResolver;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.trade.SimpleOrder;
+import quickfix.field.ExDestination;
+import quickfix.field.HandlInst;
+import quickfix.field.CustomerOrFirm;
 import quickfix.field.AllocationGroup;
 import quickfix.field.AllocationMethod;
 import quickfix.field.AllocationProfile;
 import quickfix.field.ClearingAccount;
-import quickfix.field.CustomerOrFirm;
-import quickfix.field.HandlInst;
 import quickfix.field.OpenClose;
 import quickfix.fix42.NewOrderSingle;
 import quickfix.fix42.OrderCancelReplaceRequest;
@@ -59,6 +61,14 @@ public class IBFixOrderMessageFactory extends GenericFix42OrderMessageFactory {
 
         message.set(new HandlInst('1'));
         message.set(new CustomerOrFirm(0));
+
+        Security security = order.getSecurity();
+
+        // exchange
+        String exchangeCode = security.getSecurityFamily().getExchange().getIbCode();
+        if(exchangeCode != null){
+            message.set(new ExDestination(exchangeCode));
+        }
 
         // handling for financial advisor account groups
         if (order.getAccount().getExtAccountGroup() != null) {
