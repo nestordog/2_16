@@ -46,7 +46,7 @@
             <directory>../core/bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>run.bat</include>
+                <include>*run.bat</include>
             </includes>
             <lineEnding>windows</lineEnding>
         </fileSet>
@@ -54,7 +54,7 @@
             <directory>../core/bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>run.sh</include>
+                <include>*run.sh</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
@@ -63,6 +63,10 @@
             <directory>../core/flyway</directory>
             <outputDirectory>flyway</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>../core/src/main/samples</directory>
+            <outputDirectory>samples</outputDirectory>
+        </fileSet>        
     </fileSets>
     <dependencySets>
         <dependencySet>

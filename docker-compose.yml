@@ -1,0 +1,32 @@
+algotrader:
+  image: algotrader
+  container_name: algotrader
+  hostname: docker.algotrader.ch
+  links:
+    - mysql
+    - ibgateway
+  ports:
+    - 9090:9090
+    - 61614:61614
+
+ibgateway:
+  image: ibgateway
+  container_name: ibgateway
+  environment:
+    TWS_USERNAME: edemo
+    TWS_PASSWORD: demouser
+
+mysql:
+  image: mysql
+  container_name: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: algotrader
+
+docker-ui:
+  image: dockerui/dockerui
+  container_name: dockerui
+  ports:
+    - 9000:9000  
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
