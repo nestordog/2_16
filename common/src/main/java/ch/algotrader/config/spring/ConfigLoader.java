@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -95,6 +96,16 @@ public final class ConfigLoader {
                 ConfigLoader.loadResource(paramMap, resource);
             }
         }
+
+        String strategyName = System.getProperty("strategyName");
+        if (strategyName != null) {
+
+            Resource resource = resourceResolver.getResource("classpath:/conf-" + strategyName.toLowerCase(Locale.ROOT) + ".properties");
+            if (resource != null && resource.exists()) {
+                ConfigLoader.loadResource(paramMap, resource);
+            }
+        }
+
         return paramMap;
     }
 
