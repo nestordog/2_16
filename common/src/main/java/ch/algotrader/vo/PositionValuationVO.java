@@ -28,22 +28,18 @@ public class PositionValuationVO implements Serializable {
 
   private static final long serialVersionUID = 8575812755346489673L;
 
-  private final long id;
   private final BigDecimal marketPrice;
   private final BigDecimal marketValue;
   private final BigDecimal averagePrice;
   private final BigDecimal unrealizedPL;
 
-  public PositionValuationVO(long id, BigDecimal marketPrice, BigDecimal marketValue, BigDecimal averagePrice, BigDecimal unrealizedPL) {
+  public PositionValuationVO(BigDecimal marketPrice, BigDecimal marketValue, BigDecimal averagePrice, BigDecimal unrealizedPL) {
     super();
-    this.id = id;
     this.marketPrice = marketPrice;
     this.marketValue = marketValue;
     this.averagePrice = averagePrice;
     this.unrealizedPL = unrealizedPL;
   }
-
-  public long getId() {return id;}
 
   public BigDecimal getMarketPrice() {
     return this.marketPrice;
