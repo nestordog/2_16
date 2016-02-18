@@ -24,7 +24,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../core/src/main/resources/</directory>
+            <directory>src/main/resources/</directory>
             <outputDirectory>conf</outputDirectory>
             <includes>
                 <include>conf-core.properties</include>
@@ -35,15 +35,7 @@
             </includes>
         </fileSet>
         <fileSet>
-            <directory>../client/bin/</directory>
-            <outputDirectory>bin</outputDirectory>
-            <includes>
-                <include>client.bat</include>
-            </includes>
-            <lineEnding>windows</lineEnding>
-        </fileSet>
-        <fileSet>
-            <directory>../core/bin/</directory>
+            <directory>bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*run.bat</include>
@@ -51,7 +43,7 @@
             <lineEnding>windows</lineEnding>
         </fileSet>
         <fileSet>
-            <directory>../core/bin/</directory>
+            <directory>bin/</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
                 <include>*run.sh</include>
@@ -60,11 +52,11 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../core/flyway</directory>
+            <directory>flyway</directory>
             <outputDirectory>flyway</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>../core/src/main/samples</directory>
+            <directory>src/main/samples</directory>
             <outputDirectory>samples</outputDirectory>
         </fileSet>        
     </fileSets>

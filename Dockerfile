@@ -25,7 +25,7 @@ RUN rm -rf flyway-$FLYWAY_VERSION
 RUN ln -s /usr/local/flyway/flyway /usr/local/bin/flyway
 
 WORKDIR /usr/local/algotrader
-ADD assembly/target/algotrader-assembly-*-bin.tar.gz .
+ADD core/target/algotrader-core-*-bin.tar.gz .
 
 EXPOSE 9090
 EXPOSE 61614

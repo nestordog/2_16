@@ -1,10 +1,7 @@
 #!/bin/bash
 
 # wait for MySql to be available
-until mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "SHOW TABLES;" > /dev/null
-do
-  sleep 1s
-done
+until mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "SHOW TABLES;" > /dev/null 2>&1; do sleep 1s; done
 
 # invoke flyway migrate (on first startup only)
 if [ ! -f flyway/INIT ]; then
@@ -18,6 +15,7 @@ fi
 if [[ `mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "SELECT COUNT(id) FROM security;"` == 0 ]]; then
   if [ "$1" = "-i" ]; then
     mysql -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME < samples/db/mysql/mysql-data.sql
+	echo "imported mysql sample data"
   fi
 fi
 
