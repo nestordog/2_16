@@ -99,27 +99,23 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void persistOrder(final Order order) {
 
-        try {
-            if (order instanceof MarketOrder) {
-                this.marketOrderDao.save((MarketOrder) order);
-            } else if (order instanceof LimitOrder) {
-                this.limitOrderDao.save((LimitOrder) order);
-            } else if (order instanceof StopOrder) {
-                this.stopOrderDao.save((StopOrder) order);
-            } else if (order instanceof StopLimitOrder) {
-                this.stopLimitOrderDao.save((StopLimitOrder) order);
-            } else {
-                throw new IllegalStateException("Unexpected order type " + order.getClass());
-            }
+        if (order instanceof MarketOrder) {
+            this.marketOrderDao.save((MarketOrder) order);
+        } else if (order instanceof LimitOrder) {
+            this.limitOrderDao.save((LimitOrder) order);
+        } else if (order instanceof StopOrder) {
+            this.stopOrderDao.save((StopOrder) order);
+        } else if (order instanceof StopLimitOrder) {
+            this.stopLimitOrderDao.save((StopLimitOrder) order);
+        } else {
+            throw new IllegalStateException("Unexpected order type " + order.getClass());
+        }
 
-            // save order properties
-            if (order.getOrderProperties() != null && !order.getOrderProperties().isEmpty()) {
-                for (OrderProperty orderProperty : order.getOrderProperties().values()) {
-                    this.orderPropertyDao.save(orderProperty);
-                }
+        // save order properties
+        if (order.getOrderProperties() != null && !order.getOrderProperties().isEmpty()) {
+            for (OrderProperty orderProperty : order.getOrderProperties().values()) {
+                this.orderPropertyDao.save(orderProperty);
             }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save Order", e);
         }
     }
 
@@ -133,31 +129,27 @@ public class OrderPersistenceServiceImpl implements OrderPersistenceService {
             LOGGER.error("OrderStatus may not be updated");
             return;
         }
-        try {
-            Order order = orderStatus.getOrder();
-            if (order == null) {
-                LOGGER.error("OrderStatus does not have an order associated with it");
-                return;
+        Order order = orderStatus.getOrder();
+        if (order == null) {
+            LOGGER.error("OrderStatus does not have an order associated with it");
+            return;
+        }
+        if (order.getId() == 0 ) {
+            // reload persistent order instance
+            String intId = order.getIntId();
+            Order persistentOrder = this.orderDao.findByIntId(intId);
+            if (persistentOrder == null) {
+                throw new ServiceException("Order with IntId " + intId + " has not been persisted");
             }
-            if (order.getId() == 0 ) {
-                // reload persistent order instance
-                String intId = order.getIntId();
-                Order persistentOrder = this.orderDao.findByIntId(intId);
-                if (persistentOrder == null) {
-                    throw new ServiceException("Order with IntId " + intId + " has not been persisted");
-                }
-                orderStatus.setOrder(persistentOrder);
-            }
-            String extId = orderStatus.getExtId();
-            if (extId != null && order.getExtId() == null) {
-                order.setExtId(extId);
-                this.orderDao.persist(order).setExtId(extId);
-            }
-            if (orderStatus.getId() == 0) {
-                this.orderStatusDao.save(orderStatus);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Failed to save OrderStatus", e);
+            orderStatus.setOrder(persistentOrder);
+        }
+        String extId = orderStatus.getExtId();
+        if (extId != null && order.getExtId() == null) {
+            order.setExtId(extId);
+            this.orderDao.persist(order).setExtId(extId);
+        }
+        if (orderStatus.getId() == 0) {
+            this.orderStatusDao.save(orderStatus);
         }
     }
 
