@@ -5,7 +5,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -453,43 +452,6 @@ public class SlicingEsperTest extends EsperTestBase {
         coordinator.start();
 
         Assert.assertNull(orderQueue.poll());
-    }
-
-    @Test
-    public void testSlicingInitialOrder() throws Exception {
-
-        deployModule(this.epService,
-                getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(this.epService,
-                getClass().getResource("/module-trades.epl"), "SEND_INITIAL_ALGO_ORDERS");
-
-        final Queue<Collection<Order>> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            @SuppressWarnings("unused")
-            public void update(final Collection<Order> event) {
-                orderQueue.add(event);
-            }
-        });
-
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
-                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-        this.epRuntime.sendEvent(tick1);
-
-        SlicingOrder algoOrder = new SlicingOrder();
-        algoOrder.setIntId("my-algo-order");
-        algoOrder.setSecurity(this.eurusd);
-        algoOrder.setSide(Side.BUY);
-        algoOrder.setQuantity(200);
-        algoOrder.setMinDuration(5);
-        algoOrder.setMaxDuration(10);
-
-        this.epRuntime.sendEvent(algoOrder);
-
-        Collection<Order> orders = orderQueue.poll();
-        Assert.assertNotNull(orders);
-        Assert.assertEquals(1, orders.size());
     }
 
     @Test

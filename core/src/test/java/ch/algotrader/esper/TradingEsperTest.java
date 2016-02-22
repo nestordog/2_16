@@ -5,7 +5,6 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -38,17 +37,13 @@ import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
@@ -391,41 +386,6 @@ public class TradingEsperTest extends EsperTestBase {
         String msg = notificationQueue.poll();
         Assert.assertNotNull(msg);
         Assert.assertTrue(msg.startsWith("missing reply on order:"));
-    }
-
-    @Test
-    public void testAlgoOrderInitialOrders() throws Exception {
-
-        deployModule(this.epService,
-                getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(this.epService,
-                getClass().getResource("/module-trades.epl"), "SEND_INITIAL_ALGO_ORDERS");
-
-        final Queue<Collection<Order>> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            @SuppressWarnings("unused")
-            public void update(final Collection<Order> event) {
-                orderQueue.add(event);
-            }
-        });
-
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
-                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-        this.epRuntime.sendEvent(tick1);
-
-        SlicingOrder algoOrder = new SlicingOrder();
-        algoOrder.setSecurity(this.eurusd);
-        algoOrder.setSide(Side.BUY);
-        algoOrder.setQuantity(200);
-        algoOrder.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
-
-        this.epRuntime.sendEvent(algoOrder);
-
-        Collection<Order> orders = orderQueue.poll();
-        Assert.assertNotNull(orders);
-        Assert.assertEquals(1, orders.size());
     }
 
     @Test

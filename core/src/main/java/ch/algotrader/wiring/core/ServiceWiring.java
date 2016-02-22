@@ -18,6 +18,7 @@
 
 package ch.algotrader.wiring.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,10 @@ import ch.algotrader.dao.trade.OrderPropertyDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.dao.trade.StopLimitOrderDao;
 import ch.algotrader.dao.trade.StopOrderDao;
+import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.SlicingOrder;
+import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
+import ch.algotrader.entity.trade.VariableIncrementalOrder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -125,6 +130,8 @@ import ch.algotrader.service.TickPersister;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.TransactionServiceImpl;
+import ch.algotrader.service.algo.AlgoOrderExecService;
+import ch.algotrader.service.algo.DefaultAlgoOrderExecService;
 import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
 import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
 
@@ -346,7 +353,13 @@ public class ServiceWiring {
             final EventDispatcher eventDispatcher,
             final Engine serverEngine) {
 
-        return new AlgoOrderServiceImpl(simpleOrderService, marketDataCacheService, orderBook, eventDispatcher, serverEngine);
+        DefaultAlgoOrderExecService defaultAlgoExecService = new DefaultAlgoOrderExecService(marketDataCacheService);
+        Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap = new HashMap<>();
+        algoExecServiceMap.put(SlicingOrder.class, defaultAlgoExecService);
+        algoExecServiceMap.put(TickwiseIncrementalOrder.class, defaultAlgoExecService);
+        algoExecServiceMap.put(VariableIncrementalOrder.class, defaultAlgoExecService);
+
+        return new AlgoOrderServiceImpl(simpleOrderService, orderBook, eventDispatcher, serverEngine, algoExecServiceMap);
     }
 
     @Bean(name = "orderService")

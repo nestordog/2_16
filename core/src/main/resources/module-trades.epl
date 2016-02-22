@@ -44,23 +44,6 @@ select
 from
     pattern[every timer:at (0, 0, *, *, *)];
 
-// ------------------------------ALGO ORDERS--------------------------------
-
-@Name('SEND_INITIAL_ALGO_ORDERS')
-@RunTimeOnly
-@Subscriber(className='orderService#sendOrders')
-select
-    currentOrder.getInitialOrders(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.TickI))
-from
-    ch.algotrader.entity.trade.AlgoOrder as currentOrder unidirectional,
-    MarketDataWindow as marketDataWindow
-where
-	marketDataWindow.securityId = currentOrder.security.id
-order by
-	marketDataWindow.marketDataEvent.dateTime desc
-limit
-	1;
-
 // ------------------------------LOGGING / PROPAGATION--------------------------------
 
 @Name('LOG_TRANSACTION_SUMMARY')

@@ -18,6 +18,9 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
@@ -27,8 +30,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
@@ -41,6 +42,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderBook;
+import ch.algotrader.service.algo.AlgoOrderExecService;
 
 /**
  * Internal Algo order service intended to initiate algo order operations
@@ -60,32 +62,31 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
     private final SimpleOrderService simpleOrderService;
 
-    private final MarketDataCacheService marketDataCacheService;
-
     private final OrderBook orderBook;
 
     private final EventDispatcher eventDispatcher;
 
     private final Engine serverEngine;
 
+    private final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap;
+
     public AlgoOrderServiceImpl(
             final SimpleOrderService simpleOrderService,
-            final MarketDataCacheService marketDataCacheService,
             final OrderBook orderBook,
             final EventDispatcher eventDispatcher,
-            final Engine serverEngine) {
+            final Engine serverEngine,
+            final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap) {
 
         Validate.notNull(simpleOrderService, "ServerOrderService is null");
-        Validate.notNull(marketDataCacheService, "MarketDataCache is null");
         Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.simpleOrderService = simpleOrderService;
-        this.marketDataCacheService = marketDataCacheService;
         this.orderBook = orderBook;
         this.eventDispatcher = eventDispatcher;
         this.serverEngine = serverEngine;
+        this.algoExecServiceMap = new ConcurrentHashMap<>(algoExecServiceMap);
     }
 
     /**
@@ -113,12 +114,8 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
             throw new OrderValidationException(security + " is not tradeable: " + order);
         }
 
-        MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
-        if (marketDataEvent == null) {
-            throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
-        } else if (!(marketDataEvent instanceof TickVO)) {
-            throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-        }
+        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        algoOrderExecService.validate(order);
     }
 
     /**
@@ -148,6 +145,14 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         this.orderBook.add(order);
 
         this.serverEngine.sendEvent(order);
+
+        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        List<SimpleOrder> initialOrders = algoOrderExecService.getInitialOrders(order);
+        if (!initialOrders.isEmpty()) {
+            for (SimpleOrder initialOrder: initialOrders) {
+                this.simpleOrderService.sendOrder(initialOrder);
+            }
+        }
     }
 
     @Override
@@ -198,6 +203,15 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
     @Override
     public String getNextOrderId(final Account account) {
         return "a" + Long.toString(ORDER_COUNT.incrementAndGet());
+    }
+
+    private AlgoOrderExecService<? super AlgoOrder> getAlgoExecService(final Class<? extends AlgoOrder> clazz) {
+
+        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = this.algoExecServiceMap.get(clazz);
+        if (algoOrderExecService == null) {
+            throw new ServiceException("Unsupported algo order class: " + clazz);
+        }
+        return algoOrderExecService;
     }
 
     private void propagateOrderStatus(final OrderStatus orderStatus) {
