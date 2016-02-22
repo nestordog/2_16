@@ -24,6 +24,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
@@ -40,6 +42,9 @@ import ch.algotrader.event.EventBroadcaster;
 * @version $Revision$ $Date$
 */
 public class DistributedEventDispatcherImpl implements EventDispatcher, MessageListener {
+
+    private static final Logger EVENT_LOGGER = LogManager.getLogger("ch.algotrader.event.dispatch.mq.EVENTS");
+    private static final Logger MARKET_DATA_LOGGER = LogManager.getLogger("ch.algotrader.event.dispatch.mq.MARKET_DATA");
 
     private final EventBroadcaster localEventBroadcaster;
     private final EngineManager engineManager;
@@ -77,6 +82,9 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
         } else {
             Objects.requireNonNull(this.strategyTemplate, "Strategy template is null");
             this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
+            if (EVENT_LOGGER.isTraceEnabled()) {
+                EVENT_LOGGER.trace("outgoing: " + obj);
+            }
         }
     }
 
@@ -118,6 +126,9 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
             message.setStringProperty("clazz", event.getClass().getName());
             return message;
         });
+        if (EVENT_LOGGER.isTraceEnabled()) {
+            EVENT_LOGGER.trace("outgoing: " + event);
+        }
     }
 
     @Override
@@ -158,7 +169,9 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
             message.setLongProperty("securityId", marketDataEvent.getSecurityId());
             return message;
         });
-
+        if (MARKET_DATA_LOGGER.isTraceEnabled()) {
+            MARKET_DATA_LOGGER.trace("outgoing: " + marketDataEvent);
+        }
         broadcastLocalEventListeners(marketDataEvent);
     }
 
@@ -167,6 +180,11 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
         try {
             Object event = this.messageConverter.fromMessage(message);
+            if (MARKET_DATA_LOGGER.isInfoEnabled() && message instanceof MarketDataEventVO) {
+                MARKET_DATA_LOGGER.trace("incoming: " + message);
+            } else if (EVENT_LOGGER.isTraceEnabled()) {
+                EVENT_LOGGER.trace("incoming: " + message);
+            }
             broadcastLocal(event);
         } catch (JMSException ex) {
             throw new EventDispatchException("Failure de-serializing message content", ex);
