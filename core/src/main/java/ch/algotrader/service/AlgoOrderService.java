@@ -17,23 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
+import ch.algotrader.entity.trade.AlgoOrder;
 
 /**
+ * Internal Algo order service intended to initiate algo order operations
+ * such as submission of a new order, modification or cancellation of
+ * an existing order, order validation.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public interface ExternalOrderService extends GenericOrderService<SimpleOrder> {
-
-    /**
-     * Returns the order service type associated with this ExternalOrderService.
-     */
-    String getOrderServiceType();
-
-    /**
-     * Returns default time-in-force value.
-     */
-    TIF getDefaultTIF(SimpleOrderType orderType);
+public interface AlgoOrderService extends GenericOrderService<AlgoOrder> {
 
 }

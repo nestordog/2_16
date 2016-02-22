@@ -68,6 +68,8 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.DefaultOrderBook;
 import ch.algotrader.ordermgmt.OrderBook;
+import ch.algotrader.service.AlgoOrderService;
+import ch.algotrader.service.AlgoOrderServiceImpl;
 import ch.algotrader.service.CalendarService;
 import ch.algotrader.service.CalendarServiceImpl;
 import ch.algotrader.service.CombinationService;
@@ -113,6 +115,8 @@ import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
 import ch.algotrader.service.ServerStateLoaderService;
 import ch.algotrader.service.ServerStateLoaderServiceImpl;
+import ch.algotrader.service.SimpleOrderService;
+import ch.algotrader.service.SimpleOrderServiceImpl;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.StrategyPersistenceServiceImpl;
 import ch.algotrader.service.SubscriptionService;
@@ -321,18 +325,9 @@ public class ServiceWiring {
         return new OrderExecutionServiceImpl(commonConfig, orderPersistService, orderBook, eventDispatcher, engineManager, serverEngine);
     }
 
-    @Bean(name = "orderService")
-    public OrderService createOrderService(final CommonConfig commonConfig,
-            final MarketDataCacheService marketDataCacheService,
-            final OrderDao orderDao,
-            final StrategyDao strategyDao,
-            final SecurityDao securityDao,
-            final AccountDao accountDao,
-            final ExchangeDao exchangeDao,
-            final OrderPreferenceDao orderPreferenceDao,
-            final OrderBook orderBook,
-            final EventDispatcher eventDispatcher,
-            final EngineManager engineManager,
+    @Bean(name = "simpleOrderService")
+    public SimpleOrderService createServerOrderService(
+            final CommonConfig commonConfig,
             final Engine serverEngine,
             final ApplicationContext applicationContext) {
 
@@ -340,8 +335,34 @@ public class ServiceWiring {
         Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
-        return new OrderServiceImpl(commonConfig, marketDataCacheService, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
-                orderBook, eventDispatcher, engineManager, serverEngine, serviceMap2);
+        return new SimpleOrderServiceImpl(commonConfig, serverEngine, serviceMap2);
+    }
+
+    @Bean(name = "algoOrderService")
+    public AlgoOrderService createAlgoOrderService(
+            final SimpleOrderService simpleOrderService,
+            final MarketDataCacheService marketDataCacheService,
+            final OrderBook orderBook,
+            final EventDispatcher eventDispatcher,
+            final Engine serverEngine) {
+
+        return new AlgoOrderServiceImpl(simpleOrderService, marketDataCacheService, orderBook, eventDispatcher, serverEngine);
+    }
+
+    @Bean(name = "orderService")
+    public OrderService createOrderService(
+            final SimpleOrderService simpleOrderService,
+            final AlgoOrderService algoOrderService,
+            final OrderDao orderDao,
+            final StrategyDao strategyDao,
+            final SecurityDao securityDao,
+            final AccountDao accountDao,
+            final ExchangeDao exchangeDao,
+            final OrderPreferenceDao orderPreferenceDao,
+            final OrderBook orderBook) {
+
+        return new OrderServiceImpl(simpleOrderService, algoOrderService, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
+                orderBook);
     }
 
     @Bean(name = "combinationService")

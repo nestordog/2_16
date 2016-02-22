@@ -20,8 +20,6 @@ package ch.algotrader.service;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +27,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.exchange.ExchangeDao;
@@ -38,10 +35,6 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderPreferenceDao;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.TickVO;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
@@ -51,7 +44,6 @@ import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderPreference;
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
@@ -59,12 +51,6 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderVO;
-import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.util.BeanUtil;
 
@@ -76,10 +62,6 @@ public class OrderServiceImpl implements OrderService {
 
     private static final Logger LOGGER = LogManager.getLogger(OrderServiceImpl.class);
     private static final Logger NOTIFICATION_LOGGER = LogManager.getLogger("ch.algotrader.service.NOTIFICATION");
-
-    private final CommonConfig commonConfig;
-
-    private final MarketDataCacheService marketDataCacheService;
 
     private final OrderDao orderDao;
 
@@ -93,45 +75,35 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderPreferenceDao orderPreferenceDao;
 
+    private final SimpleOrderService simpleOrderService;
+
+    private final AlgoOrderService algoOrderService;
+
     private final OrderBook orderBook;
 
-    private final EventDispatcher eventDispatcher;
-
-    private final EngineManager engineManager;
-
-    private final Engine serverEngine;
-
-    private final Map<String, ExternalOrderService> externalOrderServiceMap;
-
-    public OrderServiceImpl(final CommonConfig commonConfig,
-            final MarketDataCacheService marketDataCacheService,
+    public OrderServiceImpl(
+            final SimpleOrderService simpleOrderService,
+            final AlgoOrderService algoOrderService,
             final OrderDao orderDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
             final ExchangeDao exchangeDao,
             final OrderPreferenceDao orderPreferenceDao,
-            final OrderBook orderBook,
-            final EventDispatcher eventDispatcher,
-            final EngineManager engineManager,
-            final Engine serverEngine,
-            final Map<String, ExternalOrderService> externalOrderServiceMap) {
+            final OrderBook orderBook) {
 
-        Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
+        Validate.notNull(simpleOrderService, "ServerOrderService is null");
+        Validate.notNull(algoOrderService, "AlgoOrderService is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(exchangeDao, "ExchangeDao is null");
         Validate.notNull(orderPreferenceDao, "OrderPreferenceDao is null");
-        Validate.notNull(orderBook, "OpenOrderRegistry is null");
-        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
-        Validate.notNull(engineManager, "EngineManager is null");
-        Validate.notNull(serverEngine, "Engine is null");
+        Validate.notNull(orderBook, "orderBook is null");
 
-        this.commonConfig = commonConfig;
-        this.marketDataCacheService = marketDataCacheService;
+        this.simpleOrderService = simpleOrderService;
+        this.algoOrderService = algoOrderService;
         this.orderDao = orderDao;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
@@ -139,10 +111,6 @@ public class OrderServiceImpl implements OrderService {
         this.exchangeDao = exchangeDao;
         this.orderPreferenceDao = orderPreferenceDao;
         this.orderBook = orderBook;
-        this.eventDispatcher = eventDispatcher;
-        this.engineManager = engineManager;
-        this.serverEngine = serverEngine;
-        this.externalOrderServiceMap = new ConcurrentHashMap<>(externalOrderServiceMap);
     }
 
     @Override
@@ -185,50 +153,13 @@ public class OrderServiceImpl implements OrderService {
 
         Validate.notNull(order, "Order is null");
 
-        // validate general properties
-        if (order.getSide() == null) {
-            throw new OrderValidationException("Missing order side: " + order);
-        }
-        if (order.getQuantity() <= 0) {
-            throw new OrderValidationException("Order quantity cannot be zero or negative: " + order);
-        }
         if (order instanceof SimpleOrder) {
-            if (order.getAccount() == null) {
-                throw new OrderValidationException("Missing order account: " + order);
-            }
-        }
-
-        // validate order specific properties
-        order.validate();
-
-        // check that the security is tradeable
-        Security security = order.getSecurity();
-        if (!security.getSecurityFamily().isTradeable()) {
-            throw new OrderValidationException(security + " is not tradeable: " + order);
-        }
-
-        // external validation of the order
-        if (order instanceof SimpleOrder) {
-
-            getExternalOrderService(order.getAccount()).validateOrder((SimpleOrder) order);
-
+            this.simpleOrderService.validateOrder((SimpleOrder) order);
         } else if (order instanceof AlgoOrder) {
-
-//            // check market data for AlgoOrders
-//            if (security.getSubscriptions().size() == 0) {
-//                throw new OrderValidationException(security + " is not subscribed for " + order);
-//            }
-
-            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
-            if (marketDataEvent == null) {
-                throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
-            } else if (!(marketDataEvent instanceof TickVO)) {
-                throw new OrderValidationException("only ticks are supported, " + marketDataEvent.getClass() + " are not supported");
-            }
+            this.algoOrderService.validateOrder((AlgoOrder) order);
+        } else {
+            throw new ServiceException("Unexpected order class: " + order.getClass());
         }
-
-        // TODO add internal validations (i.e. limit, amount, etc.)
-
     }
 
     /**
@@ -260,72 +191,12 @@ public class OrderServiceImpl implements OrderService {
             order.initializeExchange(HibernateInitializer.INSTANCE);
         }
 
-        // validate the order before sending it
-        try {
-            validateOrder(order);
-        } catch (OrderValidationException ex) {
-            throw new ServiceException(ex);
-        }
-
-        if (order instanceof AlgoOrder) {
-            sendAlgoOrder((AlgoOrder) order);
-        } else if (order instanceof SimpleOrder){
-            sendSimpleOrder((SimpleOrder) order);
+        if (order instanceof SimpleOrder) {
+            this.simpleOrderService.sendOrder((SimpleOrder) order);
+        } else if (order instanceof AlgoOrder) {
+            this.algoOrderService.sendOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
-        }
-    }
-
-    private void sendAlgoOrder(final AlgoOrder order) {
-
-        if (order.getDateTime() == null) {
-            order.setDateTime(this.engineManager.getCurrentEPTime());
-        }
-        order.setIntId(AlgoIdGenerator.getInstance().getNextOrderId());
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("send algo order: {}", order);
-        }
-
-        this.orderBook.add(order);
-
-        this.serverEngine.sendEvent(order);
-    }
-
-    private void sendSimpleOrder(final SimpleOrder order) {
-
-        Account account = order.getAccount();
-        if (account == null) {
-            throw new ServiceException("Order with missing account");
-        }
-
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-
-        enforceTif(order, externalOrderService);
-        externalOrderService.sendOrder(order);
-
-        this.serverEngine.sendEvent(order);
-    }
-
-    private void enforceTif(final SimpleOrder order, final ExternalOrderService externalOrderService) {
-
-        if (order.getDateTime() == null) {
-            order.setDateTime(this.engineManager.getCurrentEPTime());
-        }
-        if (order.getTif() == null) {
-            SimpleOrderType orderType;
-            if (order instanceof MarketOrder) {
-                orderType = SimpleOrderType.MARKET;
-            } else if (order instanceof LimitOrder) {
-                orderType = SimpleOrderType.LIMIT;
-            } else if (order instanceof StopOrder) {
-                orderType = SimpleOrderType.STOP;
-            } else if (order instanceof StopLimitOrder) {
-                orderType = SimpleOrderType.STOP_LIMIT;
-            } else {
-                throw new ServiceException("Unsupported simple order class: " + order.getClass());
-            }
-            order.setTif(externalOrderService.getDefaultTIF(orderType));
         }
     }
 
@@ -349,56 +220,13 @@ public class OrderServiceImpl implements OrderService {
 
         Validate.notNull(order, "Order is null");
 
-        if (order instanceof AlgoOrder) {
-            cancelAlgoOrder((AlgoOrder) order);
-        } else if (order instanceof SimpleOrder){
-            cancelSimpleOrder((SimpleOrder) order);
+        if (order instanceof SimpleOrder) {
+            this.simpleOrderService.cancelOrder((SimpleOrder) order);
+        } else if (order instanceof AlgoOrder) {
+            this.algoOrderService.cancelOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
         }
-
-    }
-
-    private void cancelAlgoOrder(AlgoOrder order) {
-
-        String algoOrderId = order.getIntId();
-        ExecutionStatusVO executionStatus = this.orderBook.getStatusByIntId(algoOrderId);
-        if (executionStatus != null) {
-            OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-            algoOrderStatus.setIntId(algoOrderId);
-            algoOrderStatus.setStatus(Status.CANCELED);
-            algoOrderStatus.setFilledQuantity(executionStatus.getFilledQuantity());
-            algoOrderStatus.setRemainingQuantity(executionStatus.getRemainingQuantity());
-            algoOrderStatus.setOrder(order);
-
-            this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
-                    algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
-
-            propagateOrderStatus(algoOrderStatus);
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("cancelled algo order: {}", order);
-            }
-        }
-
-        Collection<Order> openOrders = this.orderBook.getOpenOrdersByParentIntId(order.getIntId());
-        for (Order childOrder: openOrders) {
-            if (childOrder instanceof SimpleOrder) {
-                Account account = order.getAccount();
-                getExternalOrderService(account).cancelOrder((SimpleOrder) childOrder);
-            }
-        }
-    }
-
-    private void cancelSimpleOrder(final SimpleOrder order) {
-
-        Account account = order.getAccount();
-        if (account == null) {
-            throw new ServiceException("Order with missing account");
-        }
-
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        externalOrderService.cancelOrder(order);
     }
 
     /**
@@ -448,40 +276,13 @@ public class OrderServiceImpl implements OrderService {
 
         Validate.notNull(order, "Order is null");
 
-        if (order instanceof AlgoOrder) {
-            throw new ServiceException("Modification of AlgoOrders is not permitted");
-        } else if (order instanceof SimpleOrder){
-
-            SimpleOrder newOrder;
-            if (order.getId() != 0) {
-                try {
-                    newOrder = BeanUtil.clone((SimpleOrder) order);
-                    newOrder.setId(0);
-                } catch (ReflectiveOperationException ex) {
-                    throw new ServiceException(ex);
-                }
-            } else {
-                newOrder = (SimpleOrder) order;
-            }
-
-            modifySimpleOrder(newOrder);
+        if (order instanceof SimpleOrder) {
+            this.simpleOrderService.modifyOrder((SimpleOrder) order);
+        } else if (order instanceof AlgoOrder) {
+            this.algoOrderService.modifyOrder((AlgoOrder) order);
         } else {
             throw new ServiceException("Unexpected order class: " + order.getClass());
         }
-    }
-
-    private void modifySimpleOrder(final SimpleOrder order) {
-
-        Account account = order.getAccount();
-        if (account == null) {
-            throw new ServiceException("Order with missing account");
-        }
-
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        enforceTif(order, externalOrderService);
-        externalOrderService.modifyOrder(order);
-
-        this.serverEngine.sendEvent(order);
     }
 
     /**
@@ -508,20 +309,6 @@ public class OrderServiceImpl implements OrderService {
         modifyOrder(newOrder);
     }
 
-    private void propagateOrderStatus(final OrderStatus orderStatus) {
-
-        // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(orderStatus);
-
-        // also send the order to the strategy that placed the order
-        Order order = orderStatus.getOrder();
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -532,7 +319,7 @@ public class OrderServiceImpl implements OrderService {
         if (account == null) {
             throw new ServiceException("Unknown account id: " + accountId);
         }
-        return getExternalOrderService(account).getNextOrderId(account);
+        return this.simpleOrderService.getNextOrderId(account);
     }
 
     /**
@@ -613,44 +400,6 @@ public class OrderServiceImpl implements OrderService {
         this.orderBook.evictCompleted();
     }
 
-    private ExternalOrderService getExternalOrderService(Account account) {
-
-        Validate.notNull(account, "Account is null");
-
-        String orderServiceType;
-
-        if (this.commonConfig.isSimulation()) {
-            orderServiceType = OrderServiceType.SIMULATION.name();
-        } else {
-            orderServiceType = account.getOrderServiceType();
-        }
-
-        ExternalOrderService externalOrderService = this.externalOrderServiceMap.get(orderServiceType);
-        if (externalOrderService == null) {
-            throw new ServiceException("No ExternalOrderService found for service type " + orderServiceType);
-        }
-        return externalOrderService;
-    }
-
-    private static final class AlgoIdGenerator {
-
-        private static AlgoIdGenerator instance;
-
-        private final AtomicLong orderId = new AtomicLong(0);
-
-        public static synchronized AlgoIdGenerator getInstance() {
-
-            if (instance == null) {
-                instance = new AlgoIdGenerator();
-            }
-            return instance;
-        }
-
-        public String getNextOrderId() {
-            return "a" + Long.toString(this.orderId.incrementAndGet());
-        }
-    }
-
     private SimpleOrder convert(final OrderVO orderVO) {
 
         SimpleOrder order;
@@ -713,13 +462,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void sendOrder(final OrderVO order) {
 
-        sendSimpleOrder(convert(order));
+        this.simpleOrderService.sendOrder(convert(order));
     }
 
     @Override
     public void modifyOrder(OrderVO order) {
 
-        modifySimpleOrder(convert(order));
+        this.simpleOrderService.sendOrder(convert(order));
     }
 
     /**
