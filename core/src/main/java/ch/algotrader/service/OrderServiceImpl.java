@@ -323,7 +323,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.orderRegistry.add(order);
 
-        propagateOrder(order);
+        this.serverEngine.sendEvent(order);
     }
 
     private void sendSimpleOrder(final SimpleOrder order) {
@@ -338,7 +338,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         enforceTif(order, externalOrderService);
         externalOrderService.sendOrder(order);
 
-        propagateOrder(order);
+        this.serverEngine.sendEvent(order);
     }
 
     private void enforceTif(final SimpleOrder order, final ExternalOrderService externalOrderService) {
@@ -507,7 +507,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         enforceTif(order, externalOrderService);
         externalOrderService.modifyOrder(order);
 
-        propagateOrder(order);
+        this.serverEngine.sendEvent(order);
     }
 
     /**
@@ -532,19 +532,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
 
         modifyOrder(newOrder);
-    }
-
-    private void propagateOrder(final Order order) {
-
-        // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(order);
-
-        // also send the order to the strategy that placed the order
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
-        }
     }
 
     private void propagateOrderStatus(final OrderStatus orderStatus) {
