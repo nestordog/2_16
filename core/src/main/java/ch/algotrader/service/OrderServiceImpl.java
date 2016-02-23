@@ -335,6 +335,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
 
+        enforceTif(order, externalOrderService);
+        externalOrderService.sendOrder(order);
+
+        propagateOrder(order);
+    }
+
+    private void enforceTif(final SimpleOrder order, final ExternalOrderService externalOrderService) {
+
         if (order.getDateTime() == null) {
             order.setDateTime(this.engineManager.getCurrentEPTime());
         }
@@ -353,10 +361,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             }
             order.setTif(externalOrderService.getDefaultTIF(orderType));
         }
-
-        externalOrderService.sendOrder(order);
-
-        propagateOrder(order);
     }
 
     /**
@@ -498,11 +502,9 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
-        if (order.getDateTime() == null) {
-            order.setDateTime(this.engineManager.getCurrentEPTime());
-        }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
+        enforceTif(order, externalOrderService);
         externalOrderService.modifyOrder(order);
 
         propagateOrder(order);
