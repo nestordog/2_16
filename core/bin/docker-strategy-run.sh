@@ -6,7 +6,7 @@ case "$1" in
     # wait for MySql to be available
     until mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "SHOW TABLES;" > /dev/null 2>&1; do sleep 1s; done
 
-    # invoke flyway migrate (on first startup only in embedded mode only)
+    # invoke flyway migrate (on first startup in embedded mode only)
     if [ ! -f /usr/local/algotrader/flyway/INIT ]; then
       pushd /usr/local/algotrader/flyway
       flyway -url=jdbc:mysql://$DATABASE_HOST:$DATABASE_PORT migrate
