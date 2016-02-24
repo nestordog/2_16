@@ -34,6 +34,7 @@ import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderVO;
+import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrderVO;
 import ch.algotrader.service.OrderService;
@@ -133,7 +134,7 @@ public class OrderRestController extends RestControllerBase {
     @RequestMapping(path = "/execution/next-order-id", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public String getNextOrderId(@RequestBody final long accountId) {
 
-        return this.orderService.getNextOrderId(accountId);
+        return this.orderService.getNextOrderId(SimpleOrder.class, accountId);
     }
 
 }

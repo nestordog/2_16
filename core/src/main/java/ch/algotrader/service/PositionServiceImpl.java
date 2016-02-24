@@ -345,7 +345,7 @@ public class PositionServiceImpl implements PositionService {
             if (account == null) {
                 throw new ServiceException("Cannot execute an order without an account");
             }
-            String intId = this.orderService.getNextOrderId(account.getId());
+            String intId = this.orderService.getNextOrderId(order.getClass(), account.getId());
             order.setIntId(intId);
         }
 

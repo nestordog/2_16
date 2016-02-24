@@ -23,6 +23,7 @@ import java.util.Map;
 
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderI;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
@@ -93,7 +94,7 @@ public interface OrderService {
     /**
      * Generates next order intId for the given account.
      */
-    public String getNextOrderId(long accountId);
+    public String getNextOrderId(Class<? extends OrderI> orderClass, long accountId);
 
     /**
      * Returns details of currently open orders.

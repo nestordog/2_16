@@ -42,11 +42,13 @@ import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderI;
 import ch.algotrader.entity.trade.OrderPreference;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.SimpleOrderI;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrder;
@@ -313,13 +315,20 @@ public class OrderServiceImpl implements OrderService {
      * {@inheritDoc}
      */
     @Override
-    public String getNextOrderId(final long accountId) {
+    public String getNextOrderId(final Class<? extends OrderI> orderClass, final long accountId) {
 
         Account account = this.accountDao.load(accountId);
         if (account == null) {
             throw new ServiceException("Unknown account id: " + accountId);
         }
-        return this.simpleOrderService.getNextOrderId(account);
+        if (SimpleOrderI.class.isAssignableFrom(orderClass)) {
+            return this.simpleOrderService.getNextOrderId(account);
+        } else if (AlgoOrder.class.isAssignableFrom(orderClass)) {
+            return this.algoOrderService.getNextOrderId(account);
+        } else {
+            throw new ServiceException("Unexpected order class: " + orderClass);
+        }
+
     }
 
     /**
