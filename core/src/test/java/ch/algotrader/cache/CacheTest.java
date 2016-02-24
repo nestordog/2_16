@@ -57,8 +57,6 @@ import ch.algotrader.entity.property.PropertyImpl;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
-import ch.algotrader.entity.security.Index;
-import ch.algotrader.entity.security.IndexImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
@@ -68,7 +66,6 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.LimitOrderVOBuilder;
 import ch.algotrader.entity.trade.OrderVO;
-import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
@@ -83,7 +80,6 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderService;
-import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.wiring.DefaultConfigTestBase;
@@ -116,7 +112,6 @@ public class CacheTest extends DefaultConfigTestBase {
     private static long strategyId1;
     private static long securityId1; // EUR.USD
     private static long securityId2; // USD.CHF
-    private static long securityId3; // NON_TRADEABLE
     private static long accountId1;
 
     @BeforeClass
@@ -203,13 +198,6 @@ public class CacheTest extends DefaultConfigTestBase {
         security2.setSecurityFamily(family1);
         security2.setUnderlying(security1);
         securityId2 = (Long) session.save(security2);
-
-        Index security3 = new IndexImpl();
-        security3.setSymbol("NON-TRADEABLE");
-        security3.setSecurityFamily(family2);
-        security3.setUnderlying(security1);
-        security3.setAssetClass(AssetClass.EQUITY);
-        securityId3 = (Long) session.save(security3);
 
         Strategy strategy1 = new StrategyImpl();
         strategy1.setName(STRATEGY_NAME);
@@ -409,32 +397,6 @@ public class CacheTest extends DefaultConfigTestBase {
         Assert.assertEquals(position2, position3);
         Assert.assertSame(position2, position3);
 
-    }
-
-    @Test
-    public void testNonTradeablePosition() {
-
-        PositionService positionService = context.getBean(PositionService.class);
-
-        Security security = cache.get(SecurityImpl.class, securityId3);
-
-        long positionId = txTemplate.execute(txStatus ->
-                positionService.createNonTradeablePosition(STRATEGY_NAME, securityId3, 1000000).getId());
-
-        txTemplate.execute(txStatus ->
-                positionService.modifyNonTradeablePosition(positionId, 2000000));
-
-        Position position1 = cache.get(PositionImpl.class, positionId);
-        Assert.assertNotNull(position1);
-        Assert.assertEquals(2000000, position1.getQuantity());
-
-        txTemplate.execute(txStatus -> {
-            positionService.deleteNonTradeablePosition(positionId, false);
-            return null;
-        });
-
-        Position position2 = cache.get(PositionImpl.class, positionId);
-        Assert.assertNull(position2);
     }
 
     @Test

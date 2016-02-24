@@ -166,15 +166,13 @@ public class ServiceWiring {
             final OrderService orderService,
             final MarketDataCacheService marketDataCacheService,
             final PositionDao positionDao,
-            final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
-            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, marketDataCacheService, positionDao, securityDao, strategyDao,
-                transactionDao, eventDispatcher, engineManager, serverEngine);
+        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, marketDataCacheService, positionDao, strategyDao, transactionDao,
+                engineManager, serverEngine);
     }
 
     @Bean(name = "futureService")
