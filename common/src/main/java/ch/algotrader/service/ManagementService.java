@@ -185,6 +185,11 @@ public interface ManagementService {
     public void closePosition(long positionId);
 
     /**
+     * Closes all positions of this strategy by using the defined default OrderPreference
+     */
+    public void closeAllPositions();
+
+    /**
      * Reduces the Position by the specified amount by using the defined default OrderPreference
      */
     public void reducePosition(long positionId, int quantity);
