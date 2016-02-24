@@ -26,8 +26,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import ch.algotrader.esper.Engine;
+import ch.algotrader.service.AlgoOrderService;
 import ch.algotrader.service.ForexService;
-import ch.algotrader.service.LookupService;
+import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.service.TransactionService;
 
 /**
@@ -51,10 +52,12 @@ public class ServerEnginePostInitWiring {
                     Engine serverEngine = applicationContext.getBean("serverEngine", Engine.class);
                     TransactionService transactionService = applicationContext.getBean("transactionService", TransactionService.class);
                     ForexService forexService = applicationContext.getBean("forexService", ForexService.class);
-                    LookupService lookupService = applicationContext.getBean("lookupService", LookupService.class);
+                    SimpleOrderService simpleOrderService = applicationContext.getBean("simpleOrderService", SimpleOrderService.class);
+                    AlgoOrderService algoOrderService = applicationContext.getBean("algoOrderService", AlgoOrderService.class);
                     serverEngine.setVariableValue("transactionService", transactionService);
                     serverEngine.setVariableValue("forexService", forexService);
-                    serverEngine.setVariableValue("lookupService", lookupService);
+                    serverEngine.setVariableValue("simpleOrderService", simpleOrderService);
+                    serverEngine.setVariableValue("algoOrderService", algoOrderService);
                 }
             }
         };

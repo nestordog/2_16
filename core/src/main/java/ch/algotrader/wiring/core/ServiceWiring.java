@@ -347,6 +347,7 @@ public class ServiceWiring {
 
     @Bean(name = "algoOrderService")
     public AlgoOrderService createAlgoOrderService(
+            final CommonConfig commonConfig,
             final SimpleOrderService simpleOrderService,
             final MarketDataCacheService marketDataCacheService,
             final OrderBook orderBook,
@@ -359,7 +360,7 @@ public class ServiceWiring {
         algoExecServiceMap.put(TickwiseIncrementalOrder.class, defaultAlgoExecService);
         algoExecServiceMap.put(VariableIncrementalOrder.class, defaultAlgoExecService);
 
-        return new AlgoOrderServiceImpl(simpleOrderService, orderBook, eventDispatcher, serverEngine, algoExecServiceMap);
+        return new AlgoOrderServiceImpl(commonConfig, simpleOrderService, orderBook, eventDispatcher, serverEngine, algoExecServiceMap);
     }
 
     @Bean(name = "orderService")

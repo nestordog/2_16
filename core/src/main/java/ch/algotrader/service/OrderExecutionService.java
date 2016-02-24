@@ -26,7 +26,12 @@ import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 
 /**
+ * Internal order execution service intended to handle persistence and propagation
+ * of various trading events such as order status update and order fills as well
+ * as maintain order execution status in the order book.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public interface OrderExecutionService {
 

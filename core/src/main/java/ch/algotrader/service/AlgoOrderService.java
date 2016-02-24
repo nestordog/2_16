@@ -18,15 +18,28 @@
 package ch.algotrader.service;
 
 import ch.algotrader.entity.trade.AlgoOrder;
+import ch.algotrader.entity.trade.Fill;
+import ch.algotrader.entity.trade.OrderStatus;
 
 /**
  * Internal Algo order service intended to initiate algo order operations
  * such as submission of a new order, modification or cancellation of
- * an existing order, order validation.
+ * an existing order, order validation, as well as handle child order status
+ * updates and fills.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public interface AlgoOrderService extends GenericOrderService<AlgoOrder> {
+
+    /**
+     * Handles child order status.
+     */
+    void handleChildOrderStatus(OrderStatus order);
+
+    /**
+     * Handles child order status.
+     */
+    void handleChildFill(Fill fill);
 
 }

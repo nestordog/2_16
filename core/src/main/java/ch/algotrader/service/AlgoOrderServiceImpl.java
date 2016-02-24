@@ -29,11 +29,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderValidationException;
@@ -60,6 +62,8 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
     private final static AtomicLong ORDER_COUNT = new AtomicLong(0);
 
+    private final CommonConfig commonConfig;
+
     private final SimpleOrderService simpleOrderService;
 
     private final OrderBook orderBook;
@@ -71,17 +75,20 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
     private final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap;
 
     public AlgoOrderServiceImpl(
+            final CommonConfig commonConfig,
             final SimpleOrderService simpleOrderService,
             final OrderBook orderBook,
             final EventDispatcher eventDispatcher,
             final Engine serverEngine,
             final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap) {
 
+        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(simpleOrderService, "ServerOrderService is null");
         Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(serverEngine, "Engine is null");
 
+        this.commonConfig = commonConfig;
         this.simpleOrderService = simpleOrderService;
         this.orderBook = orderBook;
         this.eventDispatcher = eventDispatcher;
@@ -182,7 +189,15 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
             this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
                     algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
 
-            propagateOrderStatus(algoOrderStatus);
+            // send the order into the AlgoTrader Server engine to be correlated with fills
+            this.serverEngine.sendEvent(algoOrderStatus);
+
+            // also send the order to the strategy that placed the order
+            Strategy strategy = order.getStrategy();
+            if (!strategy.isServer()) {
+
+                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+            }
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("cancelled algo order: {}", order);
@@ -214,18 +229,79 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         return algoOrderExecService;
     }
 
-    private void propagateOrderStatus(final OrderStatus orderStatus) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void handleChildOrderStatus(final OrderStatus orderStatus) {
 
-        // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(orderStatus);
-
-        // also send the order to the strategy that placed the order
         Order order = orderStatus.getOrder();
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
+        Order parentOrder = order.getParentOrder();
+        if (parentOrder instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
 
-            this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
+            String algoOrderId = parentOrder.getIntId();
+            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
+            if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(Status.SUBMITTED);
+                algoOrderStatus.setIntId(algoOrderId);
+                algoOrderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(0L);
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
+                algoOrderStatus.setOrder(parentOrder);
+
+                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+                Strategy strategy = order.getStrategy();
+
+                this.serverEngine.sendEvent(algoOrderStatus);
+                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+
+                if (!this.commonConfig.isSimulation()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("propagated orderStatus: {}", algoOrderStatus);
+                    }
+                }
+            }
         }
     }
 
+    @Override
+    public void handleChildFill(final Fill fill) {
+
+        Order order = fill.getOrder();
+        Order parentOrder = order.getParentOrder();
+        if (parentOrder instanceof AlgoOrder) {
+
+            String algoOrderId = parentOrder.getIntId();
+            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
+            if (execStatus != null) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
+                algoOrderStatus.setIntId(algoOrderId);
+                algoOrderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(execStatus.getFilledQuantity() + fill.getQuantity());
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
+                algoOrderStatus.setOrder(parentOrder);
+
+                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
+                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+
+                Strategy strategy = order.getStrategy();
+
+                this.serverEngine.sendEvent(algoOrderStatus);
+                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+
+                if (!this.commonConfig.isSimulation()) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("propagated orderStatus: {}", algoOrderStatus);
+                    }
+                }
+            }
+        }
+
+    }
 }

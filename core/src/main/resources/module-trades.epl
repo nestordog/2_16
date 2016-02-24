@@ -64,3 +64,19 @@ select
     *
 from
     OrderCompletionVO;
+
+// ------------------------------COMMON ALGOS--------------------------------
+
+@Name('ALGO_CHILD_ORDER_STATUS')
+@Subscriber(className='algoOrderService#handleChildOrderStatus')
+select
+    *
+from
+    OrderStatus(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.AlgoOrder));
+
+@Name('ALGO_CHILD_ORDER_FILL')
+@Subscriber(className='algoOrderService#handleChildFill')
+select
+    *
+from
+    Fill(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.AlgoOrder));
