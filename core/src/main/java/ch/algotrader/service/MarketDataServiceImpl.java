@@ -78,7 +78,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     private final EventDispatcher eventDispatcher;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final Map<String, ExternalMarketDataService> externalMarketDataServiceMap;
 
@@ -93,7 +93,7 @@ public class MarketDataServiceImpl implements MarketDataService {
             final ForexDao forexDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final Map<String, ExternalMarketDataService> externalMarketDataServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
@@ -105,7 +105,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         Validate.notNull(forexDao, "ForexDao is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(externalMarketDataServiceMap, "Map<String, ExternalMarketDataService> is null");
 
         this.commonConfig = commonConfig;
@@ -116,7 +116,7 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.forexDao = forexDao;
         this.engineManager = engineManager;
         this.eventDispatcher = eventDispatcher;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
         this.normaliseMarketData = configParams.getBoolean("misc.normaliseMarketData", false);
     }
@@ -356,7 +356,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        Map<Long, MarketDataEventVO> currentMarketDataEvents = this.marketDataCache.getCurrentMarketDataEvents();
+        Map<Long, MarketDataEventVO> currentMarketDataEvents = this.marketDataCacheService.getCurrentMarketDataEvents();
         List<Subscription> subscriptions = this.subscriptionDao.findByStrategy(strategyName);
         for (Subscription subscription: subscriptions) {
             long securityId = subscription.getSecurity().getId();

@@ -79,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final CommonConfig commonConfig;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final OrderDao orderDao;
 
@@ -104,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
     private final Map<String, ExternalOrderService> externalOrderServiceMap;
 
     public OrderServiceImpl(final CommonConfig commonConfig,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final OrderDao orderDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
@@ -118,7 +118,7 @@ public class OrderServiceImpl implements OrderService {
             final Map<String, ExternalOrderService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(orderDao, "OrderDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
@@ -131,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.orderDao = orderDao;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
@@ -219,7 +219,7 @@ public class OrderServiceImpl implements OrderService {
 //                throw new OrderValidationException(security + " is not subscribed for " + order);
 //            }
 
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
             if (marketDataEvent == null) {
                 throw new OrderValidationException("no marketDataEvent available to initialize SlicingOrder");
             } else if (!(marketDataEvent instanceof TickVO)) {

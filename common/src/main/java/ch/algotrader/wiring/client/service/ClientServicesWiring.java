@@ -30,8 +30,8 @@ import ch.algotrader.lifecycle.LifecycleManager;
 import ch.algotrader.lifecycle.LifecycleManagerImpl;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.LookupServiceImpl;
-import ch.algotrader.service.MarketDataCache;
-import ch.algotrader.service.MarketDataCacheImpl;
+import ch.algotrader.service.MarketDataCacheService;
+import ch.algotrader.service.MarketDataCacheServiceImpl;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.SubscriptionServiceImpl;
@@ -52,13 +52,13 @@ public class ClientServicesWiring {
         return new SubscriptionServiceImpl(commonConfig, marketDataService, lookupService, engineManager);
     }
 
-    @Bean(name = "marketDataCache")
-    public MarketDataCache createMarketDataCache(
+    @Bean(name = "marketDataCacheService")
+    public MarketDataCacheService createMarketDataCacheService(
             final CommonConfig commonConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new MarketDataCacheImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), 1);
+        return new MarketDataCacheServiceImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), 1);
     }
 
     @Bean(name = "lifecycleManager")

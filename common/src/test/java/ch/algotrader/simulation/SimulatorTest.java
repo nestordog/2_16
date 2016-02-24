@@ -61,7 +61,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -80,7 +80,7 @@ public class SimulatorTest {
 
         this.eventDispatcher = mock(EventDispatcher.class);
 
-        this.simulator = new Simulator(mock(MarketDataCache.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
+        this.simulator = new Simulator(mock(MarketDataCacheService.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
 
         doReturn(new Date()).when(engineManager).getCurrentEPTime();
     }

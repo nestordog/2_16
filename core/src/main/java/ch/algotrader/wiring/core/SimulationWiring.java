@@ -29,7 +29,7 @@ import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
@@ -74,11 +74,11 @@ public class SimulationWiring {
             final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new SimulationOrderServiceImpl(orderBook, orderExecutionService, transactionService, marketDataCache, engineManager, serverEngine);
+        return new SimulationOrderServiceImpl(orderBook, orderExecutionService, transactionService, marketDataCacheService, engineManager, serverEngine);
     }
 
 }

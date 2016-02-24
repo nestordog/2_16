@@ -91,7 +91,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     private final SessionFactory sessionFactory;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final GenericDao genericDao;
 
@@ -132,7 +132,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     public PortfolioServiceImpl(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -146,7 +146,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(genericDao, "GenericDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
@@ -160,7 +160,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.sessionFactory = sessionFactory;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.genericDao = genericDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
@@ -599,10 +599,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         Collection<Position> positions = this.positionDao.findOpenTradeablePositions();
         for (Position position : positions) {
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
             MarketDataEventVO underlyingMarketDataEvent = null;
             if (position.getSecurity().getUnderlying() != null) {
-                underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+                underlyingMarketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
             exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime()).doubleValue();
         }
@@ -621,10 +621,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         double exposure = 0.0;
         List<Position> positions = this.positionDao.findOpenTradeablePositionsByStrategy(strategyName);
         for (Position position : positions) {
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
             MarketDataEventVO underlyingMarketDataEvent = null;
             if (position.getSecurity().getUnderlying() != null) {
-                underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+                underlyingMarketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
             }
             exposure += position.getExposure(marketDataEvent, underlyingMarketDataEvent, this.engineManager.getCurrentEPTime()).doubleValue();
         }
@@ -836,13 +836,13 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all cashBalances
         double amount = 0.0;
         for (CashBalance cashBalance : cashBalances) {
-            amount += cashBalance.getAmount().doubleValue() * this.marketDataCache.getForexRateBase(cashBalance.getCurrency());
+            amount += cashBalance.getAmount().doubleValue() * this.marketDataCacheService.getForexRateBase(cashBalance.getCurrency());
         }
 
         // sum of all FX positions
         for (Position position : positions) {
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
-            amount += position.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(position.getSecurity());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            amount += position.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCacheService.getForexRateBase(position.getSecurity());
         }
 
         return amount;
@@ -908,8 +908,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             Security security = openPosition.getSecurity();
             if (!(security instanceof Forex)) {
-                MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
-                amount += openPosition.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
+                MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
+                amount += openPosition.getMarketValue(marketDataEvent).doubleValue() * this.marketDataCacheService.getForexRateBase(openPosition.getSecurity());
             }
         }
         return amount;
@@ -967,8 +967,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
-            amount += openPosition.getUnrealizedPL(marketDataEvent).doubleValue() * this.marketDataCache.getForexRateBase(openPosition.getSecurity());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            amount += openPosition.getUnrealizedPL(marketDataEvent).doubleValue() * this.marketDataCacheService.getForexRateBase(openPosition.getSecurity());
         }
         return amount;
     }
@@ -990,7 +990,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             position.initializeSecurity(HibernateInitializer.INSTANCE);
 
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
 
             if (currencyAmount.getAmount() != null) {
@@ -1013,7 +1013,7 @@ public class PortfolioServiceImpl implements PortfolioService {
             double cash = cashMap.containsKey(currency) ? cashMap.get(currency) : 0.0;
             double securities = securitiesMap.containsKey(currency) ? securitiesMap.get(currency) : 0.0;
             double netLiqValue = cash + securities;
-            double exchangeRate = this.marketDataCache.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double exchangeRate = this.marketDataCacheService.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
             double unrealizedPL = unrealizedPLMap.containsKey(currency) ? unrealizedPLMap.get(currency) : 0.0;
             double cashBase = cash * exchangeRate;
             double securitiesBase = securities * exchangeRate;
@@ -1046,7 +1046,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
             position.initializeSecurity(HibernateInitializer.INSTANCE);
 
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
             CurrencyAmountVO currencyAmount = position.getAttribution(marketDataEvent);
             if (currencyAmount.getAmount() != null) {
                 currencyMap.increment(currencyAmount.getCurrency(), currencyAmount.getAmount().doubleValue());
@@ -1061,7 +1061,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         for (Currency currency : currencies) {
 
             double amount = currencyMap.getDouble(currency);
-            double exchangeRate = this.marketDataCache.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
+            double exchangeRate = this.marketDataCacheService.getForexRate(currency, this.commonConfig.getPortfolioBaseCurrency());
             double amountBase = amount * exchangeRate;
 
             FxExposureVO exposure = new FxExposureVO();

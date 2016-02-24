@@ -83,8 +83,8 @@ import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LazyLoaderServiceImpl;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.LookupServiceImpl;
-import ch.algotrader.service.MarketDataCache;
-import ch.algotrader.service.MarketDataCacheImpl;
+import ch.algotrader.service.MarketDataCacheService;
+import ch.algotrader.service.MarketDataCacheServiceImpl;
 import ch.algotrader.service.MarketDataPersistenceService;
 import ch.algotrader.service.MarketDataPersistenceServiceImpl;
 import ch.algotrader.service.MarketDataService;
@@ -143,7 +143,7 @@ public class ServiceWiring {
     public PortfolioService createPortfolioService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final SessionFactory sessionFactory,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final GenericDao genericDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
@@ -154,7 +154,7 @@ public class ServiceWiring {
             final ForexDao forexDao,
             final EngineManager engineManager) {
 
-        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, marketDataCache, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
+        return new PortfolioServiceImpl(commonConfig, coreConfig, sessionFactory, marketDataCacheService, genericDao, strategyDao, transactionDao, positionDao, cashBalanceDao,
                 portfolioValueDao, tickDao, forexDao, engineManager);
     }
 
@@ -164,7 +164,7 @@ public class ServiceWiring {
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final PositionDao positionDao,
             final SecurityDao securityDao,
             final StrategyDao strategyDao,
@@ -173,7 +173,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, marketDataCache, positionDao, securityDao, strategyDao,
+        return new PositionServiceImpl(commonConfig, coreConfig, transactionService, marketDataService, orderService, marketDataCacheService, positionDao, securityDao, strategyDao,
                 transactionDao, eventDispatcher, engineManager, serverEngine);
     }
 
@@ -205,7 +205,7 @@ public class ServiceWiring {
             final MarketDataService marketDataService,
             final FutureService futureService,
             final OrderService orderService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final SecurityDao securityDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
@@ -216,7 +216,7 @@ public class ServiceWiring {
             final EngineManager engineManager,
             final Engine serverEngine) {
 
-        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, marketDataCache, securityDao, optionFamilyDao, optionDao, positionDao,
+        return new OptionServiceImpl(commonConfig, coreConfig, marketDataService, futureService, orderService, marketDataCacheService, securityDao, optionFamilyDao, optionDao, positionDao,
                 subscriptionDao, futureFamilyDao, strategyDao, engineManager, serverEngine);
     }
 
@@ -261,7 +261,7 @@ public class ServiceWiring {
             final ForexDao forexDao,
             final EngineManager engineManager,
             final EventDispatcher eventDispatcher,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final ApplicationContext applicationContext) {
 
         Map<String, ExternalMarketDataService> serviceMap1 = applicationContext.getBeansOfType(ExternalMarketDataService.class);
@@ -269,7 +269,7 @@ public class ServiceWiring {
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
         return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, securityDao, strategyDao, subscriptionDao, forexDao,
-                engineManager, eventDispatcher, marketDataCache, serviceMap2);
+                engineManager, eventDispatcher, marketDataCacheService, serviceMap2);
     }
 
     @Bean(name = "marketDataPersistenceService")
@@ -325,7 +325,7 @@ public class ServiceWiring {
 
     @Bean(name = "orderService")
     public OrderService createOrderService(final CommonConfig commonConfig,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final OrderDao orderDao,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
@@ -342,7 +342,7 @@ public class ServiceWiring {
         Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
 
-        return new OrderServiceImpl(commonConfig, marketDataCache, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
+        return new OrderServiceImpl(commonConfig, marketDataCacheService, orderDao, strategyDao, securityDao, accountDao, exchangeDao, orderPreferenceDao,
                 orderBook, eventDispatcher, engineManager, serverEngine, serviceMap2);
     }
 
@@ -394,14 +394,14 @@ public class ServiceWiring {
         return new SubscriptionServiceImpl(commonConfig, marketDataService, lookupService, engineManager);
     }
 
-    @Bean(name = "marketDataCache")
-    public MarketDataCache createMarketDataCache(
+    @Bean(name = "marketDataCacheService")
+    public MarketDataCacheService createMarketDataCacheService(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new MarketDataCacheImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), coreConfig.getIntervalDays());
+        return new MarketDataCacheServiceImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), coreConfig.getIntervalDays());
     }
 
     @Bean(name = "strategyPersistenceService")

@@ -68,7 +68,7 @@ public class StrategyService implements
     private FutureService futureService;
     private HistoricalDataService historicalDataService;
     private LookupService lookupService;
-    private MarketDataCache marketDataCache;
+    private MarketDataCacheService marketDataCacheService;
     private MarketDataService marketDataService;
     private MeasurementService measurementService;
     private OptionService optionService;
@@ -130,12 +130,12 @@ public class StrategyService implements
         this.lookupService = lookupService;
     }
 
-    public MarketDataCache getMarketDataCache() {
-        return this.marketDataCache;
+    public MarketDataCacheService getMarketDataCacheService() {
+        return this.marketDataCacheService;
     }
 
-    public void setMarketDataCache(MarketDataCache marketDataCache) {
-        this.marketDataCache = marketDataCache;
+    public void setMarketDataCacheService(MarketDataCacheService marketDataCacheService) {
+        this.marketDataCacheService = marketDataCacheService;
     }
 
     public MarketDataService getMarketDataService() {

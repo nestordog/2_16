@@ -108,7 +108,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
     private final LookupService lookupService;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final PortfolioService portfolioService;
 
@@ -132,7 +132,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -145,7 +145,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -158,7 +158,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.portfolioService = portfolioService;
         this.orderService = orderService;
         this.positionService = positionService;
@@ -304,7 +304,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
                         new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
-        PositionVOProducer converter = new PositionVOProducer(this.marketDataCache);
+        PositionVOProducer converter = new PositionVOProducer(this.marketDataCacheService);
         return CollectionUtils.collect(positions, converter::convert);
     }
 
@@ -346,7 +346,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscribedSecurity.getFirst();
                 String feedType = subscribedSecurity.getSecond();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         } else {
@@ -357,7 +357,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscription.getSecurity();
                 String feedType = subscription.getFeedType();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         }

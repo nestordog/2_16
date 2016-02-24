@@ -44,9 +44,9 @@ import ch.algotrader.event.listener.TickEventListener;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, BarEventListener {
+public class MarketDataCacheServiceImpl implements MarketDataCacheService, TickEventListener, BarEventListener {
 
-    private static final Logger LOGGER = LogManager.getLogger(MarketDataCacheImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(MarketDataCacheServiceImpl.class);
 
     private final EngineManager engineManager;
     private final LookupService lookupService;
@@ -56,7 +56,7 @@ public class MarketDataCacheImpl implements MarketDataCache, TickEventListener, 
     private final ConcurrentMap<Long, MarketDataEventVO> lastMarketDataEventBySecurityId;
     private final ConcurrentMap<EnumSet<Currency>, Forex> forexMap;
 
-    public MarketDataCacheImpl(
+    public MarketDataCacheServiceImpl(
             final EngineManager engineManager,
             final LookupService lookupService,
             final Currency baseCurrency,

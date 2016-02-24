@@ -39,7 +39,7 @@ import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.ordermgmt.OrderBook;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
 
@@ -48,7 +48,7 @@ import ch.algotrader.service.TransactionService;
  */
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
     private final OrderBook orderBook;
     private final OrderExecutionService orderExecutionService;
     private final TransactionService transactionService;
@@ -61,14 +61,14 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(orderExecutionService, "OrderExecutionService is null");
         Validate.notNull(transactionService, "TransactionService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -77,7 +77,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         this.transactionService = transactionService;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.counter = new AtomicLong(0);
         this.seqnum = new AtomicLong(0);
     }
@@ -164,7 +164,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
             return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }

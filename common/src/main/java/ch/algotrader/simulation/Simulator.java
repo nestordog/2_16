@@ -51,7 +51,7 @@ import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.vo.CurrencyAmountVO;
@@ -74,19 +74,19 @@ public class Simulator {
     private final MultiMap<String, Position> positionsByStrategy;
     private final MultiMap<Security, Position> positionsBySecurity;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
     private final PositionTracker positionTracker;
     private final EventDispatcher eventDispatcher;
     private final EngineManager engineManager;
 
-    public Simulator(final MarketDataCache marketDataCache, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
+    public Simulator(final MarketDataCacheService marketDataCacheService, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
 
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(positionTracker, "PositionTracker is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
 
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.positionTracker = positionTracker;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
@@ -97,8 +97,8 @@ public class Simulator {
         this.positionsBySecurity = new MultiHashMap<>();
     }
 
-    protected MarketDataCache getMarketDataCache() {
-        return this.marketDataCache;
+    protected MarketDataCacheService getMarketDataCacheService() {
+        return this.marketDataCacheService;
     }
 
     public void clear() {
@@ -386,7 +386,7 @@ public class Simulator {
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            final MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            final MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
             amount += openPosition.getMarketValue(marketDataEvent).doubleValue();
         }
         return amount;

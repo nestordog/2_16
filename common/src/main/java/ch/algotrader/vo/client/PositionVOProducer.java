@@ -25,17 +25,17 @@ import ch.algotrader.dao.EntityConverter;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.property.Property;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class PositionVOProducer implements EntityConverter<Position, PositionVO> {
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
-    public PositionVOProducer(final MarketDataCache marketDataCache) {
-        this.marketDataCache = marketDataCache;
+    public PositionVOProducer(final MarketDataCacheService marketDataCacheService) {
+        this.marketDataCacheService = marketDataCacheService;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class PositionVOProducer implements EntityConverter<Position, PositionVO>
 
         Validate.notNull(entity, "Position is null");
 
-        MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(entity.getSecurity().getId());
+        MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(entity.getSecurity().getId());
 
         PositionVO vo = new PositionVO();
 

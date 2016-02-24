@@ -28,7 +28,7 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.ManagementService;
 import ch.algotrader.service.ManagementServiceImpl;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PortfolioChartService;
@@ -52,7 +52,7 @@ public class ServerJMXServiceWiring {
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -61,7 +61,7 @@ public class ServerJMXServiceWiring {
             final MarketDataService marketDataService,
             final ConfigParams configParams) {
 
-        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, marketDataCache, portfolioService, orderService, positionService,
+        return new ManagementServiceImpl(commonConfig, engineManager, subscriptionService, lookupService, marketDataCacheService, portfolioService, orderService, positionService,
                 combinationService, propertyService, marketDataService, configParams);
     }
 

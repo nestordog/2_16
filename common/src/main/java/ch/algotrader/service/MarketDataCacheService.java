@@ -29,7 +29,7 @@ import ch.algotrader.enumeration.Currency;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface MarketDataCache {
+public interface MarketDataCacheService {
 
     /**
      * Returns all last market events for all securities,

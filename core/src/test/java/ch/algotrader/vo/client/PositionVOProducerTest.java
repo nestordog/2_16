@@ -36,7 +36,7 @@ import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.service.MarketDataCacheService;
 
 /**
 * Unit tests for {@link PositionVOProducer}.
@@ -47,15 +47,15 @@ import ch.algotrader.service.MarketDataCache;
 */
 public class PositionVOProducerTest {
 
-    private MarketDataCache marketDataCache;
+    private MarketDataCacheService marketDataCacheService;
 
     private PositionVOProducer instance;
 
     @Before
     public void setup() throws Exception {
 
-        this.marketDataCache = Mockito.mock(MarketDataCache.class);
-        this.instance = new PositionVOProducer(this.marketDataCache);
+        this.marketDataCacheService = Mockito.mock(MarketDataCacheService.class);
+        this.instance = new PositionVOProducer(this.marketDataCacheService);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PositionVOProducerTest {
         int scale = position.getSecurity().getSecurityFamily().getScale();
 
         TickVO tick = new TickVO(0L, new Date(), FeedType.SIM.name(), 101, new BigDecimal("1.1"), new Date(), new BigDecimal("1.12"), new BigDecimal("1.09"), 1, 2, 3);
-        Mockito.when(this.marketDataCache.getCurrentMarketDataEvent(101L)).thenReturn(tick);
+        Mockito.when(this.marketDataCacheService.getCurrentMarketDataEvent(101L)).thenReturn(tick);
 
         PositionVO vo = this.instance.convert(position);
 
