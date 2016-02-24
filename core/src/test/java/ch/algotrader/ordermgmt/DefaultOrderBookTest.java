@@ -26,10 +26,10 @@ import org.junit.Test;
 
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Status;
 
 public class DefaultOrderBookTest {
@@ -51,7 +51,7 @@ public class DefaultOrderBookTest {
         this.impl.add(order);
         final Order order1 = this.impl.getByIntId("Blah");
         Assert.assertSame(order, order1);
-        final ExecutionStatusVO status1 = this.impl.getStatusByIntId("Blah");
+        final OrderStatusVO status1 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status1);
         Assert.assertEquals(Status.OPEN, status1.getStatus());
         Assert.assertEquals("Blah", status1.getIntId());
@@ -83,7 +83,7 @@ public class DefaultOrderBookTest {
 
         this.impl.add(order);
         this.impl.updateExecutionStatus("Blah", Status.SUBMITTED, 0L, 123L);
-        final ExecutionStatusVO status1 = this.impl.getStatusByIntId("Blah");
+        final OrderStatusVO status1 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status1);
         Assert.assertEquals(Status.SUBMITTED, status1.getStatus());
         Assert.assertEquals("Blah", status1.getIntId());
@@ -91,7 +91,7 @@ public class DefaultOrderBookTest {
         Assert.assertEquals(123L, status1.getRemainingQuantity());
 
         this.impl.updateExecutionStatus("Blah", Status.PARTIALLY_EXECUTED, 23L, 100L);
-        final ExecutionStatusVO status2 = this.impl.getStatusByIntId("Blah");
+        final OrderStatusVO status2 = this.impl.getStatusByIntId("Blah");
         Assert.assertNotNull(status2);
         Assert.assertEquals(Status.PARTIALLY_EXECUTED, status2.getStatus());
         Assert.assertEquals("Blah", status2.getIntId());

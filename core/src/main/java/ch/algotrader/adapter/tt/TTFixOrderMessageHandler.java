@@ -27,20 +27,20 @@ import java.util.TimeZone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
@@ -114,7 +114,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         OrderDetailsVO orderDetails = orderIntId != null ? this.orderExecutionService.getOpenOrderDetailsByIntId(orderIntId) : null;
         if (orderDetails != null) {
 
-            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            OrderStatusVO executionStatus = orderDetails.getOrderStatus();
             Order order = orderDetails.getOrder();
             OrderStatus orderStatus = createStatus(executionReport, order);
             if (executionStatus.getStatus() != orderStatus.getStatus()
@@ -349,7 +349,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             if (orderDetails != null) {
                 // internal fill
                 Order order = orderDetails.getOrder();
-                ExecutionStatusVO execStatus = orderDetails.getExecutionStatus();
+                OrderStatusVO execStatus = orderDetails.getOrderStatus();
 
                 long lastQty = (long) executionReport.getLastShares().getValue();
                 long cumQty = execStatus.getFilledQuantity() + lastQty;

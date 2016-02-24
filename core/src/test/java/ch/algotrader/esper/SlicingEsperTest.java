@@ -3,7 +3,6 @@ package ch.algotrader.esper;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,10 +38,10 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
@@ -501,7 +500,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:07"));
 
         Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new ExecutionStatusVO("my-algo-order", Status.OPEN, 40L, 199L, LocalDateTime.now()));
+                new OrderStatusVO(0L, null, Status.OPEN, 40L, 199L, 0L, "my-algo-order", 0L, 0L));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
         CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(tick1, algoOrder, childOrder, orderStatus1),

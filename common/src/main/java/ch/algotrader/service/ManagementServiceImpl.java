@@ -60,7 +60,6 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -251,16 +250,16 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      */
     @Override
     @ManagedAttribute(description = "Gets recently executed Orders")
-    public Collection<OrderStatusVO> getDataRecentOrders() {
+    public Collection<ch.algotrader.vo.client.OrderStatusVO> getDataRecentOrders() {
         return convert(this.orderService.getRecentOrderDetails());
     }
 
     private OrderStatusVO convert(final OrderDetailsVO entry) {
 
         Order order = entry.getOrder();
-        ExecutionStatusVO details = entry.getExecutionStatus();
+        ch.algotrader.entity.trade.OrderStatusVO execStatus = entry.getOrderStatus();
 
-        OrderStatusVO orderStatusVO = new OrderStatusVO();
+        ch.algotrader.vo.client.OrderStatusVO orderStatusVO = new OrderStatusVO();
         orderStatusVO.setSide(order.getSide());
         orderStatusVO.setQuantity(order.getQuantity());
         orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
@@ -271,9 +270,9 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         orderStatusVO.setTif(order.getTif() != null ? order.getTif().toString() : "");
         orderStatusVO.setIntId(order.getIntId());
         orderStatusVO.setExtId(order.getExtId());
-        orderStatusVO.setStatus(details.getStatus());
-        orderStatusVO.setFilledQuantity(details.getFilledQuantity());
-        orderStatusVO.setRemainingQuantity(details.getRemainingQuantity());
+        orderStatusVO.setStatus(execStatus.getStatus());
+        orderStatusVO.setFilledQuantity(execStatus.getFilledQuantity());
+        orderStatusVO.setRemainingQuantity(execStatus.getRemainingQuantity());
         orderStatusVO.setDescription(order.getExtDescription());
 
         return orderStatusVO;

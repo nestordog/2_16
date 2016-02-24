@@ -41,7 +41,6 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
@@ -51,6 +50,7 @@ import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.ExpirationType;
@@ -699,7 +699,7 @@ public class TestTTFixOrderMessageHandler {
         order.setSecurity(this.future2);
         order.setAccount(this.account);
         order.setQuantity(6);
-        ExecutionStatusVO executionStatus = new ExecutionStatusVO("ttt3.0", Status.SUBMITTED, 1, 5, null);
+        OrderStatusVO executionStatus = new OrderStatusVO(0L, null, Status.SUBMITTED, 1L, 5L, 0L, "ttt3.0", 0L, 0L);
 
         Mockito.when(this.lookupService.getTransactionByExtId(Mockito.anyString())).thenReturn(null);
         Mockito.when(this.orderExecutionService.lookupIntId("065ZT3025")).thenReturn("ttt3.0");

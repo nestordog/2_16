@@ -47,11 +47,11 @@ import com.ib.client.Execution;
 
 import ch.algotrader.adapter.AutoIncrementIdGenerator;
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
@@ -131,7 +131,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         IBExecution executionEntry;
         OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
-            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+            executionEntry = this.executions.getOpen(intId, orderDetails.getOrderStatus());
         } else {
             LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
@@ -208,7 +208,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         IBExecution executionEntry;
         OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
-            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+            executionEntry = this.executions.getOpen(intId, orderDetails.getOrderStatus());
         } else {
             return;
         }
@@ -679,7 +679,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         if (orderDetails != null) {
 
-            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            OrderStatusVO executionStatus = orderDetails.getOrderStatus();
             IBExecution executionEntry = this.executions.getOpen(intId, executionStatus);
             OrderStatus orderStatus = null;
             synchronized (executionEntry) {

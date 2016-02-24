@@ -21,9 +21,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 
@@ -109,7 +109,7 @@ public interface OrderService {
      * Returns execution status of the order with the given {@code IntId} or {@code null}
      * if an order with this {@code IntId} has been fully executed.
      */
-    ExecutionStatusVO getStatusByIntId(String intId);
+    OrderStatusVO getStatusByIntId(String intId);
 
     /**
      * Gets an open order by its {@code intId}.

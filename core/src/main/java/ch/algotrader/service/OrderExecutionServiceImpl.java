@@ -28,13 +28,13 @@ import ch.algotrader.broker.SubscriptionTopic;
 import ch.algotrader.broker.eviction.TopicEvictionVO;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -227,7 +227,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
      * {@inheritDoc}
      */
     @Override
-    public ExecutionStatusVO getStatusByIntId(final String intId) {
+    public OrderStatusVO getStatusByIntId(final String intId) {
 
         Validate.notEmpty(intId, "Order IntId is empty");
 

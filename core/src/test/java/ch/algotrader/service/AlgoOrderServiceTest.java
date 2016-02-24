@@ -37,7 +37,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -130,7 +129,7 @@ public class AlgoOrderServiceTest {
 
         Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
         Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.OPEN, 1L, 24L, null));
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.OPEN, 1L, 24L, 0L, "a1.0", 0L, 0L));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleChildOrderStatus(orderStatus1);
@@ -189,7 +188,7 @@ public class AlgoOrderServiceTest {
 
         Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
         Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 5L, 20L, null));
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.PARTIALLY_EXECUTED, 5L, 20L, 0L, "a1.0", 0L, 0L));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleChildFill(fill1);
@@ -247,7 +246,7 @@ public class AlgoOrderServiceTest {
 
         Mockito.when(this.orderBook.getOpenOrderByIntId("Blah")).thenReturn(order);
         Mockito.when(this.orderBook.getOpenOrderByIntId("a1.0")).thenReturn(algoOrder);
-        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new ExecutionStatusVO("a1.0", Status.PARTIALLY_EXECUTED, 18L, 7L, null));
+        Mockito.when(this.orderBook.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.PARTIALLY_EXECUTED, 18L, 7L, 0L, "a1.0", 0L, 0L));
         Mockito.when(this.engine.getCurrentTime()).thenReturn(currentTime);
 
         this.impl.handleChildFill(fill1);

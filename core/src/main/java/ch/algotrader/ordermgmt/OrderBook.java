@@ -19,9 +19,9 @@ package ch.algotrader.ordermgmt;
 
 import java.util.List;
 
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Status;
 
 /**
@@ -63,7 +63,7 @@ public interface OrderBook {
      * Returns execution status of the order with the given {@code IntId} or {@code null} if no order
      * with the given {@code IntId} can be found in the registry.
      */
-    ExecutionStatusVO getStatusByIntId(String intId);
+    OrderStatusVO getStatusByIntId(String intId);
 
     /**
      * Updates execution status of the order with the given {@code IntId} and optional {@code ExtId}.

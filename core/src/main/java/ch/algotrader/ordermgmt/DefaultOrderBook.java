@@ -17,8 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -33,9 +33,9 @@ import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Status;
 
 /**
@@ -67,7 +67,7 @@ public class DefaultOrderBook implements OrderBook {
         Validate.notNull(intId, "Order IntId is null");
 
         if (this.orderExecMap.putIfAbsent(intId, new OrderDetailsVO(order,
-                new ExecutionStatusVO(intId, Status.OPEN, 0L, order.getQuantity(), LocalDateTime.now()))) != null) {
+                new OrderStatusVO(0, new Date(), Status.OPEN, 0L, order.getQuantity(), 0L, intId, 0L, 0L))) != null) {
             throw new OrderRegistryException("Entry with IntId " + intId + " already present");
         }
         if (this.orderMap.putIfAbsent(intId, order) != null) {
@@ -108,12 +108,12 @@ public class DefaultOrderBook implements OrderBook {
     }
 
     @Override
-    public ExecutionStatusVO getStatusByIntId(final String intId) {
+    public OrderStatusVO getStatusByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");
 
         OrderDetailsVO entry = this.orderExecMap.get(intId);
-        return entry != null ? entry.getExecutionStatus() : null;
+        return entry != null ? entry.getOrderStatus() : null;
     }
 
     @Override
@@ -125,7 +125,7 @@ public class DefaultOrderBook implements OrderBook {
             throw new OrderRegistryException("Entry with IntId " + intId + " not found");
         }
         OrderDetailsVO updatedEntry = new OrderDetailsVO(entry.getOrder(),
-                new ExecutionStatusVO(intId, status, filledQuantity, remainingQuantity, LocalDateTime.now()));
+                new OrderStatusVO(0, new Date(), status, filledQuantity, remainingQuantity, 0L, intId, 0L, 0L));
         if (status == Status.EXECUTED || status == Status.CANCELED || status == Status.REJECTED) {
             this.completedOrders.addFirst(updatedEntry);
             this.orderExecMap.remove(intId);

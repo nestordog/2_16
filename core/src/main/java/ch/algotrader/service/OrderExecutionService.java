@@ -17,13 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 
 /**
  * Internal order execution service intended to handle persistence and propagation
@@ -74,7 +74,7 @@ public interface OrderExecutionService {
      * Returns execution status of the order with the given {@code IntId} or {@code null}
      * if an order with this {@code IntId} has been fully executed.
      */
-    ExecutionStatusVO getStatusByIntId(String intId);
+    OrderStatusVO getStatusByIntId(String intId);
 
     /**
      * Gets an open order by its {@code intId}.

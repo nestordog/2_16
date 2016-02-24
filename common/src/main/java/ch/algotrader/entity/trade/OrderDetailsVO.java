@@ -29,19 +29,19 @@ public class OrderDetailsVO implements Serializable {
     private static final long serialVersionUID = 8772503592015087599L;
 
     private final Order order;
-    private final ExecutionStatusVO executionStatus;
+    private final OrderStatusVO orderStatus;
 
-    public OrderDetailsVO(final Order order, final ExecutionStatusVO executionStatus) {
+    public OrderDetailsVO(final Order order, final OrderStatusVO orderStatus) {
         this.order = order;
-        this.executionStatus = executionStatus;
+        this.orderStatus = orderStatus;
     }
 
     public Order getOrder() {
         return order;
     }
 
-    public ExecutionStatusVO getExecutionStatus() {
-        return executionStatus;
+    public OrderStatusVO getOrderStatus() {
+        return orderStatus;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class OrderDetailsVO implements Serializable {
             return false;
         } else if (getClass() == obj.getClass()) {
             OrderDetailsVO that = (OrderDetailsVO) obj;
-            return this.executionStatus.getIntId().equals(that.executionStatus.getIntId());
+            return this.orderStatus.getIntId().equals(that.orderStatus.getIntId());
         } else {
             return false;
         }
@@ -60,14 +60,14 @@ public class OrderDetailsVO implements Serializable {
 
     @Override
     public int hashCode() {
-        return this.executionStatus.getIntId().hashCode();
+        return this.orderStatus.getIntId().hashCode();
     }
 
     @Override
     public String toString() {
         return "{" +
                 "order=" + order +
-                ", status=" + executionStatus +
+                ", status=" + orderStatus +
                 '}';
     }
 

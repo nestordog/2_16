@@ -22,7 +22,7 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.SimpleOrderType;
@@ -77,7 +77,7 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
         String intId = order.getIntId();
-        ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(intId);
+        OrderStatusVO execStatus = this.orderBook.getStatusByIntId(intId);
         if (execStatus != null) {
             replaceRequest.setDouble(CumQty.FIELD, execStatus.getFilledQuantity());
         }

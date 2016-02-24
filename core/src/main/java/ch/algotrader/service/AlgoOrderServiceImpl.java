@@ -34,10 +34,10 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Status;
@@ -177,7 +177,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         Validate.notNull(order, "Order is null");
 
         String algoOrderId = order.getIntId();
-        ExecutionStatusVO executionStatus = this.orderBook.getStatusByIntId(algoOrderId);
+        OrderStatusVO executionStatus = this.orderBook.getStatusByIntId(algoOrderId);
         if (executionStatus != null) {
             OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
             algoOrderStatus.setIntId(algoOrderId);
@@ -240,7 +240,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         if (parentOrder instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
 
             String algoOrderId = parentOrder.getIntId();
-            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
+            OrderStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
                 OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
                 algoOrderStatus.setStatus(Status.SUBMITTED);
@@ -276,7 +276,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         if (parentOrder instanceof AlgoOrder) {
 
             String algoOrderId = parentOrder.getIntId();
-            ExecutionStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
+            OrderStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null) {
                 OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
                 algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
