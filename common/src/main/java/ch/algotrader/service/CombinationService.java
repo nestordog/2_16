@@ -18,7 +18,6 @@
 package ch.algotrader.service;
 
 import ch.algotrader.entity.security.Combination;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.CombinationType;
 
 /**
@@ -63,35 +62,6 @@ public interface CombinationService {
      * {code combinationId}.
      */
     public Combination removeComponent(long combinationId, long securityId);
-
-    /**
-     * Closes a Combination by processing the following steps:
-     * <ul>
-     * <li>Reduce all associated Positions by the amount specified by the corresponding Components.</li>
-     * <li>Close an eventual non-tradeable Position based on the specified Combination</li>
-     * <li>Delete the specified Combination</li>
-     * </ul>
-     * Note: The Position is not just closed by calling {@link PositionService#closePosition},
-     * because the Position {@code quantity} denoted by the Component might not represent the entire
-     * Position size. Instead the {@code quantity} is reduced by the specified amount.
-     */
-    public void closeCombination(long combinationId, String strategyName);
-
-    /**
-     * Reduces a Combination by the specified ratio by processing the following steps:
-     * <ul>
-     * <li>Reduce all Components {@code quantities} by the specified ratio</li>
-     * <li>Reduce all associated Positions by the specified ratio</li>
-     * </ul>
-     * Note: In case the ratio is >= 1.0, the Combination is closed
-     */
-    public Combination reduceCombination(long combinationId, String strategyName, double ratio);
-
-    /**
-     * Delete all Combinations that are subscribed by the specified Strategy, contain exclusively
-     * Components with {@code quantity = 0} and have Components of the specified {@code type}.
-     */
-    public void deleteCombinationsWithZeroQty(String strategyName, Class<? extends Security> type);
 
     /**
      * Updates the Component Window. This method should only be called after manually manipulating

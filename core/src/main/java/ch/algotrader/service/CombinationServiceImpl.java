@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,18 +25,15 @@ import org.apache.commons.collections15.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.security.CombinationDao;
 import ch.algotrader.dao.security.ComponentDao;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
-import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Component;
@@ -46,7 +42,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.vo.InsertComponentEventVO;
 
 /**
@@ -60,17 +55,11 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
 
     private final CommonConfig commonConfig;
 
-    private final SessionFactory sessionFactory;
-
-    private final PositionService positionService;
-
     private final MarketDataService marketDataService;
 
     private final SubscriptionDao subscriptionDao;
 
     private final CombinationDao combinationDao;
-
-    private final PositionDao positionDao;
 
     private final SecurityDao securityDao;
 
@@ -81,36 +70,27 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
     private final Engine serverEngine;
 
     public CombinationServiceImpl(final CommonConfig commonConfig,
-            final SessionFactory sessionFactory,
-            final PositionService positionService,
             final MarketDataService marketDataService,
             final SubscriptionDao subscriptionDao,
             final CombinationDao combinationDao,
-            final PositionDao positionDao,
             final SecurityDao securityDao,
             final ComponentDao componentDao,
             final SecurityFamilyDao securityFamilyDao,
             final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(sessionFactory, "SessionFactory is null");
-        Validate.notNull(positionService, "PositionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(combinationDao, "CombinationDao is null");
-        Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(componentDao, "ComponentDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
-        this.sessionFactory = sessionFactory;
-        this.positionService = positionService;
         this.marketDataService = marketDataService;
         this.combinationDao = combinationDao;
         this.subscriptionDao = subscriptionDao;
-        this.positionDao = positionDao;
         this.securityDao = securityDao;
         this.componentDao = componentDao;
         this.securityFamilyDao = securityFamilyDao;
@@ -282,126 +262,6 @@ public class CombinationServiceImpl implements CombinationService, InitializingS
         }
 
         return combination;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void closeCombination(final long combinationId, final String strategyName) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        Combination combination = this.combinationDao.get(combinationId);
-
-        if (combination == null) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("combination does not exist: {}", combinationId);
-            }
-            return;
-        }
-
-        // reduce all associated positions by the specified amount
-        // Note: positions are not closed, because other combinations might relate to them as well
-        for (Component component : combination.getComponents()) {
-
-            if (component.getQuantity() != 0) {
-
-                Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
-
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("reduce position {} by {}", position.getId(), component.getQuantity());
-                }
-
-                this.positionService.reducePosition(position.getId(), component.getQuantity());
-            }
-        }
-
-        // close non-tradeable position on the combination
-        Position position = this.positionDao.findBySecurityAndStrategy(combinationId, strategyName);
-        if (position != null) {
-            this.positionService.deleteNonTradeablePosition(position.getId(), true);
-        }
-
-        // delete the combination
-        deleteCombination(combination.getId());
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Combination reduceCombination(final long combinationId, final String strategyName, final double ratio) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        if (ratio >= 1.0) {
-            closeCombination(combinationId, strategyName);
-            return null;
-        } else if (ratio < 0) {
-            throw new IllegalArgumentException("ratio cannot be smaller than zero");
-        } else {
-
-            Combination combination = this.combinationDao.get(combinationId);
-            if (combination == null) {
-                throw new IllegalArgumentException("combination does not exist: " + combinationId);
-            }
-
-            if (ratio != 0) {
-
-                // reduce all associated positions by the specified ratio
-                // Note: positions are not closed, because other combinations might relate to them as well
-                for (Component component : combination.getComponents()) {
-
-                    long quantity = -Math.round(component.getQuantity() * ratio);
-                    long absQuantity = Math.abs(quantity);
-
-                    // adjust the component
-                    addOrRemoveComponentQuantity(combinationId, component.getSecurity().getId(), quantity, true);
-
-                    Position position = this.positionDao.findBySecurityAndStrategy(component.getSecurity().getId(), strategyName);
-
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("reduce position {} of combination {} by {}", position.getId(), combination, absQuantity);
-                    }
-
-                    // reduce the position
-                    this.positionService.reducePosition(position.getId(), absQuantity);
-                }
-            }
-
-            return combination;
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteCombinationsWithZeroQty(final String strategyName, final Class<? extends Security> type) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-        Validate.notNull(type, "Type is null");
-
-        int discriminator = HibernateUtil.getDisriminatorValue(this.sessionFactory, type);
-        Collection<Combination> combinations = this.combinationDao.findSubscribedByStrategyAndComponentTypeWithZeroQty(strategyName, type);
-
-        if (combinations.size() > 0) {
-
-            for (Combination combination : combinations) {
-                deleteCombination(combination.getId());
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("deleted zero quantity combinations: {}", combinations);
-            }
-        }
 
     }
 

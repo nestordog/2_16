@@ -707,22 +707,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Reduce the Component quantities and the associated Position by the specified ratio")
-    @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "combination", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
-            @ManagedOperationParameter(name = "ratio", description = "ratio") })
-    public void reduceCombination(final String combination, final double ratio) {
-
-        Validate.notEmpty(combination, "Combination is empty");
-
-        this.combinationService.reduceCombination(getSecurityId(combination), this.engine.getStrategyName(), ratio);
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedOperation(description = "Set the value of the specified Esper variable")
     @ManagedOperationParameters({ @ManagedOperationParameter(name = "variableName", description = "variableName"), @ManagedOperationParameter(name = "value", description = "value") })
     public void setVariableValue(final String variableName, final String value) {

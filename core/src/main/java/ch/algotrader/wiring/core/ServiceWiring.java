@@ -348,19 +348,16 @@ public class ServiceWiring {
 
     @Bean(name = "combinationService")
     public CombinationService createCombinationService(final CommonConfig commonConfig,
-            final SessionFactory sessionFactory,
-            final PositionService positionService,
             final MarketDataService marketDataService,
             final SubscriptionDao subscriptionDao,
             final CombinationDao combinationDao,
-            final PositionDao positionDao,
             final SecurityDao securityDao,
             final ComponentDao componentDao,
             final SecurityFamilyDao securityFamilyDao,
             final Engine serverEngine) {
 
-        return new CombinationServiceImpl(commonConfig, sessionFactory, positionService, marketDataService, subscriptionDao, combinationDao, positionDao, securityDao,
-                componentDao, securityFamilyDao, serverEngine);
+        return new CombinationServiceImpl(commonConfig, marketDataService, subscriptionDao, combinationDao, securityDao, componentDao,
+                securityFamilyDao, serverEngine);
     }
 
     @Bean(name = "measurementService")
