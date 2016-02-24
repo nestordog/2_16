@@ -45,7 +45,7 @@ public class MarketDataRestController extends RestControllerBase {
     @RequestMapping(path = "/subscription/marketdata/supported-feed", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<String> getSupportedFeeds() {
 
-        return this.marketDataService.getSupportedFeeds().stream()
+        return this.marketDataService.getSupportedFeedTypes().stream()
                 .sorted().collect(Collectors.toList());
     }
 

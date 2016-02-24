@@ -81,12 +81,12 @@ public interface MarketDataService {
     /**
      * Returns all supported data feeds.
      */
-    Set<String> getSupportedFeeds();
+    Set<String> getSupportedFeedTypes();
 
     /**
      * Returns {@code true} if the data feed is supported.
      */
-    boolean isSupportedFeed(String feedType);
+    boolean isSupportedFeedType(String feedType);
 
     /**
      * Verifies if the tick is valid for the security associated with it.

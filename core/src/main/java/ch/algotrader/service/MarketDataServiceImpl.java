@@ -391,12 +391,12 @@ public class MarketDataServiceImpl implements MarketDataService {
     }
 
     @Override
-    public Set<String> getSupportedFeeds() {
+    public Set<String> getSupportedFeedTypes() {
         return new HashSet<>(this.externalMarketDataServiceMap.keySet());
     }
 
     @Override
-    public boolean isSupportedFeed(String feedType) {
+    public boolean isSupportedFeedType(String feedType) {
 
         return this.externalMarketDataServiceMap.containsKey(feedType);
     }
