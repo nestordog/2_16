@@ -196,14 +196,10 @@ public class TestFTXOrderMessageFactory {
     @Test
     public void testTIFResolution() throws Exception {
 
+        Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(TIF.DAY));
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(TIF.GTC));
         Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), this.requestFactory.resolveTimeInForce(TIF.IOC));
         Assert.assertEquals(new TimeInForce(TimeInForce.FILL_OR_KILL), this.requestFactory.resolveTimeInForce(TIF.FOK));
-        try {
-            this.requestFactory.resolveTimeInForce(TIF.DAY);
-            Assert.fail("FixApplicationException expected");
-        } catch (BrokerAdapterException ignore) {
-        }
         try {
             this.requestFactory.resolveTimeInForce(TIF.GTD);
             Assert.fail("FixApplicationException expected");

@@ -19,6 +19,17 @@ package ch.algotrader.adapter.lmax;
 
 import java.util.Date;
 
+import ch.algotrader.adapter.BrokerAdapterException;
+import ch.algotrader.adapter.fix.FixUtil;
+import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.entity.trade.MarketOrder;
+import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.StopOrder;
+import ch.algotrader.enumeration.TIF;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.ClOrdID;
 import quickfix.field.OrdType;
 import quickfix.field.OrderQty;
@@ -32,17 +43,6 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.BrokerAdapterException;
-import ch.algotrader.adapter.fix.FixUtil;
-import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
-import ch.algotrader.entity.security.Forex;
-import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.enumeration.TIF;
-import ch.algotrader.util.PriceUtil;
 
 /**
  *  LMAX order message factory.
@@ -60,6 +60,10 @@ public class LMAXFixOrderMessageFactory implements Fix44OrderMessageFactory {
         }
         if (order instanceof MarketOrder) {
 
+            if (tif == TIF.DAY) {
+
+                return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
+            }
             if (tif != TIF.IOC && tif != TIF.FOK) {
 
                 throw new BrokerAdapterException("Time in force '" + tif + "' is not supported by LMAX for market orders");

@@ -36,8 +36,6 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.enumeration.InitializingServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.OrderPersistenceService;
@@ -171,14 +169,6 @@ public abstract class FixOrderServiceImpl implements FixOrderService, Initializi
     @Override
     public final String getNextOrderId(final Account account) {
         return getFixAdapter().getNextOrderId(account);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        return TIF.DAY;
     }
 
     @Override

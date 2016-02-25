@@ -45,6 +45,9 @@ public class FTXFixOrderMessageFactory extends GenericFix44OrderMessageFactory {
     @Override
     protected TimeInForce resolveTimeInForce(final TIF tif) {
         switch (tif) {
+            case DAY:
+                // DAY time-in-force not supported, use GTC instead.
+                return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
             case GTC:
                 return new TimeInForce(TimeInForce.GOOD_TILL_CANCEL);
             case IOC:

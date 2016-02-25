@@ -43,9 +43,7 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalOrderService;
 import ch.algotrader.service.InitializationPriority;
@@ -253,14 +251,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
     @Override
     public String getOrderServiceType() {
         return OrderServiceType.IB_NATIVE.name();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        return TIF.DAY;
     }
 
 }

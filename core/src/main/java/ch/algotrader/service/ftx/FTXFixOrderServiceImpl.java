@@ -25,8 +25,6 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
@@ -85,11 +83,6 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-    }
-
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        return TIF.GTC;
     }
 
 }

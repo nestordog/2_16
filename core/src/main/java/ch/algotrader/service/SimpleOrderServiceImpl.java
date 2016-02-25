@@ -27,14 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
-import ch.algotrader.entity.trade.LimitOrder;
-import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.entity.trade.StopLimitOrder;
-import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
+import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.util.BeanUtil;
 
@@ -112,33 +108,16 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        enforceTif(order, externalOrderService);
-        externalOrderService.sendOrder(order);
-
-        this.serverEngine.sendEvent(order);
-    }
-
-    private void enforceTif(final SimpleOrder order, final ExternalOrderService externalOrderService) {
-
         if (order.getDateTime() == null) {
             order.setDateTime(this.serverEngine.getCurrentTime());
         }
         if (order.getTif() == null) {
-            SimpleOrderType orderType;
-            if (order instanceof MarketOrder) {
-                orderType = SimpleOrderType.MARKET;
-            } else if (order instanceof LimitOrder) {
-                orderType = SimpleOrderType.LIMIT;
-            } else if (order instanceof StopOrder) {
-                orderType = SimpleOrderType.STOP;
-            } else if (order instanceof StopLimitOrder) {
-                orderType = SimpleOrderType.STOP_LIMIT;
-            } else {
-                throw new ServiceException("Unsupported simple order class: " + order.getClass());
-            }
-            order.setTif(externalOrderService.getDefaultTIF(orderType));
+            order.setTif(TIF.DAY);
         }
+        ExternalOrderService externalOrderService = getExternalOrderService(account);
+        externalOrderService.sendOrder(order);
+
+        this.serverEngine.sendEvent(order);
     }
 
     /**
@@ -182,8 +161,13 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
+        if (order.getDateTime() == null) {
+            order.setDateTime(this.serverEngine.getCurrentTime());
+        }
+        if (order.getTif() == null) {
+            order.setTif(TIF.DAY);
+        }
         ExternalOrderService externalOrderService = getExternalOrderService(account);
-        enforceTif(order, externalOrderService);
         externalOrderService.modifyOrder(newOrder);
 
         this.serverEngine.sendEvent(newOrder);

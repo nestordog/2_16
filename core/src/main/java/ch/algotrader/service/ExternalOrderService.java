@@ -18,8 +18,6 @@
 package ch.algotrader.service;
 
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -30,10 +28,5 @@ public interface ExternalOrderService extends GenericOrderService<SimpleOrder> {
      * Returns the order service type associated with this ExternalOrderService.
      */
     String getOrderServiceType();
-
-    /**
-     * Returns default time-in-force value.
-     */
-    TIF getDefaultTIF(SimpleOrderType orderType);
 
 }

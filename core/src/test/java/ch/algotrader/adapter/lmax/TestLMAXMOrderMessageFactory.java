@@ -319,12 +319,11 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
     }
 
-    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderDAY() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.DAY);
-        this.requestFactory.resolveTimeInForce(order);
+        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
     @Test(expected = BrokerAdapterException.class)

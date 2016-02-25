@@ -24,8 +24,6 @@ import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
@@ -74,15 +72,6 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-    }
-
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        if (type == SimpleOrderType.MARKET) {
-            return TIF.IOC;
-        } else {
-            return TIF.DAY;
-        }
     }
 
 }
