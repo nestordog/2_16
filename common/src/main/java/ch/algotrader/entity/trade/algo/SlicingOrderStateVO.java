@@ -15,31 +15,40 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.entity.trade.algo;
 
-import ch.algotrader.entity.trade.Fill;
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.algo.AlgoOrder;
+import java.util.ArrayList;
+import java.util.List;
+
+import ch.algotrader.entity.marketData.TickI;
+import ch.algotrader.entity.trade.LimitOrder;
+import ch.algotrader.util.collection.Pair;
 
 /**
- * Internal Algo order service intended to initiate algo order operations
- * such as submission of a new order, modification or cancellation of
- * an existing order, order validation, as well as handle child order status
- * updates and fills.
- *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public interface AlgoOrderService extends GenericOrderService<AlgoOrder> {
+public class SlicingOrderStateVO extends AlgoOrderStateVO {
 
-    /**
-     * Handles child order status.
-     */
-    void handleChildOrderStatus(OrderStatus order);
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * Handles child order status.
-     */
-    void handleChildFill(Fill fill);
+    private int currentOffsetTicks = 1;
+
+    private final List<Pair<LimitOrder, TickI>> pairs = new ArrayList<>();
+
+    public int getCurrentOffsetTicks() {
+        return this.currentOffsetTicks;
+    }
+
+    public void setCurrentOffsetTicks(int currentOffsetTicks) {
+        this.currentOffsetTicks = currentOffsetTicks;
+    }
+
+    public void addPair(Pair<LimitOrder, TickI> pair) {
+        this.pairs.add(pair);
+    }
+
+    public List<Pair<LimitOrder, TickI>> getPairs() {
+        return this.pairs;
+    }
 
 }

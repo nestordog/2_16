@@ -18,7 +18,6 @@
 package ch.algotrader.service;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,13 +32,13 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
+import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -72,7 +71,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
     private final Engine serverEngine;
 
-    private final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap;
+    private final Map<Class<? extends AlgoOrder>, AlgoOrderExecService> algoExecServiceMap;
 
     public AlgoOrderServiceImpl(
             final CommonConfig commonConfig,
@@ -80,7 +79,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
             final OrderBook orderBook,
             final EventDispatcher eventDispatcher,
             final Engine serverEngine,
-            final Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap) {
+            final Map<Class<? extends AlgoOrder>, AlgoOrderExecService> algoExecServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(simpleOrderService, "ServerOrderService is null");
@@ -121,8 +120,8 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
             throw new OrderValidationException(security + " is not tradeable: " + order);
         }
 
-        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
-        algoOrderExecService.validate(order);
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        algoOrderExecService.validateOrder(order);
     }
 
     /**
@@ -153,19 +152,18 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         this.serverEngine.sendEvent(order);
 
-        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
-        List<SimpleOrder> initialOrders = algoOrderExecService.getInitialOrders(order);
-        if (!initialOrders.isEmpty()) {
-            for (SimpleOrder initialOrder: initialOrders) {
-                this.simpleOrderService.sendOrder(initialOrder);
-            }
-        }
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        algoOrderExecService.sendOrder(order);
+
     }
 
     @Override
     public void modifyOrder(final AlgoOrder order) {
 
-        throw new ServiceException("Modification of algo orders not supported");
+        // Todo modify order
+
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        algoOrderExecService.modifyOrder(order);
     }
 
     /**
@@ -210,6 +208,9 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
                 this.simpleOrderService.cancelOrder((SimpleOrder) childOrder);
             }
         }
+
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+        algoOrderExecService.cancelOrder(order);
     }
 
     /**
@@ -220,15 +221,6 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         return "a" + Long.toString(ORDER_COUNT.incrementAndGet());
     }
 
-    private AlgoOrderExecService<? super AlgoOrder> getAlgoExecService(final Class<? extends AlgoOrder> clazz) {
-
-        AlgoOrderExecService<? super AlgoOrder> algoOrderExecService = this.algoExecServiceMap.get(clazz);
-        if (algoOrderExecService == null) {
-            throw new ServiceException("Unsupported algo order class: " + clazz);
-        }
-        return algoOrderExecService;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -236,10 +228,10 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
     public void handleChildOrderStatus(final OrderStatus orderStatus) {
 
         Order order = orderStatus.getOrder();
-        Order parentOrder = order.getParentOrder();
-        if (parentOrder instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
+        if (order.getParentOrder() instanceof AlgoOrder && orderStatus.getStatus() == Status.SUBMITTED) {
 
-            String algoOrderId = parentOrder.getIntId();
+            AlgoOrder algoOrder = (AlgoOrder) order.getParentOrder();
+            String algoOrderId = algoOrder.getIntId();
             OrderStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
                 OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
@@ -249,15 +241,17 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
                 algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
                 algoOrderStatus.setFilledQuantity(0L);
                 algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
-                algoOrderStatus.setOrder(parentOrder);
+                algoOrderStatus.setOrder(algoOrder);
 
-                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
-                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(), algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
 
                 Strategy strategy = order.getStrategy();
 
                 this.serverEngine.sendEvent(algoOrderStatus);
                 this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+
+                AlgoOrderExecService algoOrderExecService = getAlgoExecService(algoOrder.getClass());
+                algoOrderExecService.handleOrderStatus(algoOrderStatus);
 
                 if (!this.commonConfig.isSimulation()) {
                     if (LOGGER.isDebugEnabled()) {
@@ -272,36 +266,49 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
     public void handleChildFill(final Fill fill) {
 
         Order order = fill.getOrder();
-        Order parentOrder = order.getParentOrder();
-        if (parentOrder instanceof AlgoOrder) {
+        if (order.getParentOrder() instanceof AlgoOrder) {
 
-            String algoOrderId = parentOrder.getIntId();
+            AlgoOrder algoOrder = (AlgoOrder) order.getParentOrder();
+            String algoOrderId = algoOrder.getIntId();
             OrderStatusVO execStatus = this.orderBook.getStatusByIntId(algoOrderId);
             if (execStatus != null) {
-                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-                algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
-                algoOrderStatus.setIntId(algoOrderId);
-                algoOrderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
-                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
-                algoOrderStatus.setFilledQuantity(execStatus.getFilledQuantity() + fill.getQuantity());
-                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
-                algoOrderStatus.setOrder(parentOrder);
+                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
+                orderStatus.setIntId(algoOrderId);
+                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                orderStatus.setDateTime(orderStatus.getExtDateTime());
+                orderStatus.setFilledQuantity(execStatus.getFilledQuantity() + fill.getQuantity());
+                orderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
+                orderStatus.setOrder(algoOrder);
 
-                this.orderBook.updateExecutionStatus(algoOrderId, null, algoOrderStatus.getStatus(),
-                        algoOrderStatus.getFilledQuantity(), algoOrderStatus.getRemainingQuantity());
+                this.orderBook.updateExecutionStatus(algoOrderId, null, orderStatus.getStatus(),
+                        orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
 
                 Strategy strategy = order.getStrategy();
 
-                this.serverEngine.sendEvent(algoOrderStatus);
-                this.eventDispatcher.sendEvent(strategy.getName(), algoOrderStatus.convertToVO());
+                this.serverEngine.sendEvent(orderStatus);
+                this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
+
+                AlgoOrderExecService algoOrderExecService = getAlgoExecService(algoOrder.getClass());
+                algoOrderExecService.handleOrderStatus(orderStatus);
 
                 if (!this.commonConfig.isSimulation()) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("propagated orderStatus: {}", algoOrderStatus);
+                        LOGGER.debug("propagated orderStatus: {}", orderStatus);
                     }
                 }
             }
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    private AlgoOrderExecService<AlgoOrder> getAlgoExecService(final Class<? extends AlgoOrder> clazz) {
+
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = this.algoExecServiceMap.get(clazz);
+        if (algoOrderExecService == null) {
+            throw new ServiceException("Unsupported algo order class: " + clazz);
+        }
+        return algoOrderExecService;
     }
 }

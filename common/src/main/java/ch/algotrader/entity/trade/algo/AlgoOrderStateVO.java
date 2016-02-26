@@ -15,27 +15,28 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service.algo;
+package ch.algotrader.entity.trade.algo;
 
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.algo.AlgoOrder;
-import ch.algotrader.service.GenericOrderService;
+import java.io.Serializable;
 
 /**
- * Algo execution service.
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
- */
-public interface AlgoOrderExecService<T extends AlgoOrder> extends GenericOrderService<T> {
+ * Contains the current state of an AlgoOrder
+  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+*/
+public abstract class AlgoOrderStateVO implements Serializable {
 
-    /**
-     * Returns the algo order type associated with this AlgoOrderExecService.
-     */
-    Class<? extends AlgoOrder> getAlgoOrderType();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * handle order status updates of this algo order
-     */
-    void handleOrderStatus(OrderStatus orderStatus);
+    private String intId;
+
+    public String getIntId() {
+        return this.intId;
+    }
+
+    public void setIntId(String order) {
+        this.intId = order;
+    }
 
 }
+
+

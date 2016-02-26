@@ -15,20 +15,26 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.entity.trade;
+package ch.algotrader.entity.trade.algo;
 
+import ch.algotrader.entity.trade.OrderImpl;
+import ch.algotrader.entity.trade.OrderVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public abstract class IncrementalOrder extends AlgoOrder {
+public abstract class AlgoOrder extends OrderImpl {
 
-    private static final long serialVersionUID = -3834520928717471963L;
+    private static final long serialVersionUID = 5310975560518020161L;
 
-    /**
-     * Checks if the current limit price is within the defined limits.
-     * @return boolean
-     */
-    public abstract boolean checkLimit();
+    @Override
+    public boolean isAlgoOrder() {
+        return true;
+    }
+
+    @Override
+    public OrderVO convertToVO() {
+        throw new UnsupportedOperationException();
+    }
 
 }

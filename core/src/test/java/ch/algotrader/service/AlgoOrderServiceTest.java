@@ -21,6 +21,7 @@ package ch.algotrader.service;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,13 +37,14 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
-import ch.algotrader.entity.trade.SlicingOrder;
+import ch.algotrader.entity.trade.algo.AlgoOrder;
+import ch.algotrader.entity.trade.algo.SlicingOrder;
+import ch.algotrader.entity.trade.algo.SlicingOrderStateVO;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
@@ -50,6 +52,8 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderBook;
+import ch.algotrader.service.algo.AbstractAlgoOrderExecService;
+import ch.algotrader.service.algo.AlgoOrderExecService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -98,8 +102,31 @@ public class AlgoOrderServiceTest {
         this.stock.setSecurityFamily(this.family);
 
         CommonConfig commonConfig = CommonConfigBuilder.create().setSimulation(false).build();
-        this.impl = new AlgoOrderServiceImpl(commonConfig, this.simpleOrderService, this.orderBook,
-                this.eventDispatcher, this.engine, Collections.emptyMap());
+        
+        AlgoOrderExecService algoOrderExecService = new AbstractAlgoOrderExecService<SlicingOrder, SlicingOrderStateVO>() {
+
+            @Override
+            public Class<? extends AlgoOrder> getAlgoOrderType() {
+                return SlicingOrder.class;
+            }
+
+            @Override
+            protected SlicingOrderStateVO createAlgoOrderState(final SlicingOrder algoOrder) {
+                return new SlicingOrderStateVO();
+            }
+
+            @Override
+            public void handleValidateOrder(final SlicingOrder algoOrder, final SlicingOrderStateVO algoOrderState) {
+            }
+
+            @Override
+            public void handleSendOrder(SlicingOrder algoOrder, final SlicingOrderStateVO algoOrderState) {
+            }
+
+        };
+
+        Map<Class<? extends AlgoOrder>, AlgoOrderExecService> algoExecServcies = Collections.singletonMap(SlicingOrder.class, algoOrderExecService);
+        this.impl = new AlgoOrderServiceImpl(commonConfig, this.simpleOrderService, this.orderBook, this.eventDispatcher, this.engine, algoExecServcies);
     }
 
     @Test

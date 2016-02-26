@@ -15,27 +15,26 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service.algo;
+package ch.algotrader.entity.trade.algo;
 
-import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.algo.AlgoOrder;
-import ch.algotrader.service.GenericOrderService;
+import java.math.BigDecimal;
 
 /**
- * Algo execution service.
- *
- * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface AlgoOrderExecService<T extends AlgoOrder> extends GenericOrderService<T> {
+public class VariableIncrementalOrderStateVO extends IncrementalOrderStateVO {
 
-    /**
-     * Returns the algo order type associated with this AlgoOrderExecService.
-     */
-    Class<? extends AlgoOrder> getAlgoOrderType();
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * handle order status updates of this algo order
-     */
-    void handleOrderStatus(OrderStatus orderStatus);
+    private final double increment;
+
+    public VariableIncrementalOrderStateVO(BigDecimal startLimit, BigDecimal endLimit, BigDecimal currentLimit, double increment) {
+        super(startLimit, endLimit, currentLimit);
+        this.increment = increment;
+    }
+
+    public double getIncrement() {
+        return this.increment;
+    }
 
 }

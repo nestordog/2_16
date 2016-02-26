@@ -72,11 +72,11 @@ from
 select
     *
 from
-    OrderStatus(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.AlgoOrder));
+    OrderStatus(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.algo.AlgoOrder));
 
 @Name('ALGO_CHILD_ORDER_FILL')
 @Subscriber(className='algoOrderService#handleChildFill')
 select
     *
 from
-    Fill(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.AlgoOrder));
+    Fill(instanceof(`order`.parentOrder, ch.algotrader.entity.trade.algo.AlgoOrder));

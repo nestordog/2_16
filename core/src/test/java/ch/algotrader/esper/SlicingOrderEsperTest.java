@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,7 +18,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.espertech.esper.client.Configuration;
@@ -36,13 +36,13 @@ import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.marketData.TickVOBuilder;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
-import ch.algotrader.entity.trade.OrderStatusVO;
-import ch.algotrader.entity.trade.SlicingOrder;
+import ch.algotrader.entity.trade.algo.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
@@ -52,7 +52,7 @@ import ch.algotrader.service.OrderService;
 import ch.algotrader.util.DateTimeLegacy;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SlicingEsperTest extends EsperTestBase {
+public class SlicingOrderEsperTest extends EsperTestBase {
 
     @Mock
     private OrderService orderService;
@@ -104,6 +104,7 @@ public class SlicingEsperTest extends EsperTestBase {
         config.configure("/META-INF/esper-common.cfg.xml");
         config.configure("/META-INF/esper-core.cfg.xml");
         config.getEngineDefaults().getExpression().setMathContext(new MathContext(3, RoundingMode.HALF_EVEN));
+        config.getEngineDefaults().getThreading().setInternalTimerEnabled(false);
 
         this.epService = EPServiceProviderManager.getDefaultProvider(config);
         this.epRuntime = this.epService.getEPRuntime();
@@ -183,8 +184,8 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:01:00"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1), "dateTime");
+
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -229,12 +230,11 @@ public class SlicingEsperTest extends EsperTestBase {
         OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
         orderStatus1.setIntId("my-child-order");
         orderStatus1.setOrder(childOrder);
-        orderStatus1.setStatus(Status.CANCELED);
+        orderStatus1.setStatus(Status.EXECUTED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -283,8 +283,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -332,15 +331,8 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setStatus(Status.CANCELED);
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:03"));
 
-        OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
-        orderStatus2.setIntId("my-child-order");
-        orderStatus2.setOrder(childOrder);
-        orderStatus2.setStatus(Status.PARTIALLY_EXECUTED);
-        orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:04"));
-
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1, orderStatus2),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -389,8 +381,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -445,8 +436,7 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:05"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1, orderStatus2),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(childOrder, orderStatus1, orderStatus2), "dateTime");
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
@@ -456,8 +446,6 @@ public class SlicingEsperTest extends EsperTestBase {
     @Test
     public void testSlicingNextOrder() throws Exception {
 
-        deployModule(this.epService,
-                getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
         deployModule(this.epService,
                 getClass().getResource("/module-algo-slicing.epl"), "SLICING_NEXT_ORDER");
 
@@ -471,10 +459,14 @@ public class SlicingEsperTest extends EsperTestBase {
             }
         });
 
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
-                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-
         this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+
+        TickVO tick1 = TickVOBuilder.create() //
+                .setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01")) //
+                .setFeedType(FeedType.IB.name()) //
+                .setSecurityId(this.eurusd.getId()) //
+                .setLast(new BigDecimal("1.11")) //
+                .build();
 
         SlicingOrder algoOrder = new SlicingOrder();
         algoOrder.setIntId("my-algo-order");
@@ -482,8 +474,8 @@ public class SlicingEsperTest extends EsperTestBase {
         algoOrder.setSide(Side.BUY);
         algoOrder.setQuantity(200);
         algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
-        algoOrder.setMinDuration(5);
-        algoOrder.setMaxDuration(10);
+        algoOrder.setMinDelay(5);
+        algoOrder.setMaxDelay(5);
 
         MarketOrder childOrder = MarketOrder.Factory.newInstance();
         childOrder.setIntId("my-child-order");
@@ -497,19 +489,76 @@ public class SlicingEsperTest extends EsperTestBase {
         orderStatus1.setIntId("my-child-order");
         orderStatus1.setOrder(childOrder);
         orderStatus1.setStatus(Status.EXECUTED);
-        orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:07"));
+        orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
 
-        Mockito.when(this.orderService.getStatusByIntId("my-algo-order")).thenReturn(
-                new OrderStatusVO(0L, null, Status.OPEN, 40L, 199L, 0L, "my-algo-order", 0L, 0L));
+        Map<String, Date> time1 = Collections.singletonMap("dateTime", DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:07"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(tick1, algoOrder, childOrder, orderStatus1),
-                "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(tick1, algoOrder, childOrder, orderStatus1, time1), "dateTime");
+
         coordinator.coordinate(inputAdapter);
         coordinator.start();
 
         Order nextOrder = orderQueue.poll();
-        Assert.assertNotNull(nextOrder);
+        Assert.assertSame(algoOrder, nextOrder);
+    }
+
+    @Test
+    public void testSlicingNextOrderSlicingOrderExecuted() throws Exception {
+
+        deployModule(this.epService, getClass().getResource("/module-algo-slicing.epl"), "SLICING_NEXT_ORDER");
+
+        final Queue<Order> orderQueue = new ConcurrentLinkedQueue<>();
+        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SLICING_NEXT_ORDER");
+        Assert.assertNotNull(statement1);
+        statement1.setSubscriber(new Object() {
+            @SuppressWarnings("unused")
+            public void update(final Order event) {
+                orderQueue.add(event);
+            }
+        });
+
+        this.epRuntime.sendEvent(new CurrentTimeEvent(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:00").getTime()));
+
+        SlicingOrder algoOrder = new SlicingOrder();
+        algoOrder.setIntId("my-algo-order");
+        algoOrder.setSecurity(this.eurusd);
+        algoOrder.setSide(Side.BUY);
+        algoOrder.setQuantity(200);
+        algoOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
+        algoOrder.setMinDuration(5);
+        algoOrder.setMaxDuration(5);
+        algoOrder.setMinDelay(5);
+        algoOrder.setMaxDelay(5);
+
+        MarketOrder childOrder = MarketOrder.Factory.newInstance();
+        childOrder.setIntId("my-child-order");
+        childOrder.setParentOrder(algoOrder);
+        childOrder.setSecurity(this.eurusd);
+        childOrder.setQuantity(40);
+        childOrder.setSide(Side.BUY);
+        childOrder.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:01"));
+
+        OrderStatus orderStatus1 = OrderStatus.Factory.newInstance();
+        orderStatus1.setIntId("my-child-order");
+        orderStatus1.setOrder(childOrder);
+        orderStatus1.setStatus(Status.EXECUTED);
+        orderStatus1.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:03"));
+
+        OrderStatus orderStatus2 = OrderStatus.Factory.newInstance();
+        orderStatus2.setIntId("my-algo-order");
+        orderStatus2.setOrder(algoOrder);
+        orderStatus2.setStatus(Status.EXECUTED);
+        orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
+
+        AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(algoOrder, childOrder, orderStatus1, orderStatus2), "dateTime");
+
+        coordinator.coordinate(inputAdapter);
+        coordinator.start();
+
+        Order nextOrder = orderQueue.poll();
+        Assert.assertNull(nextOrder);
     }
 
 }

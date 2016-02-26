@@ -1,30 +1,20 @@
 // ------------------------------ Incremental Limit Order ---------------------------------------
 
-@Name('INCREMENTAL_MODIFY_ORDER')
+@Name('TICKWISE_INCREMENTAL_ADJUST_LIMIT')
 @RunTimeOnly
-@Subscriber(className='orderService#modifyOrder')
+@Subscriber(className='tickwiseIncrementalOrderService#adjustLimit')
 select
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).modifyOrder(cast(marketDataWindow.marketDataEvent, ch.algotrader.entity.marketData.Tick))
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder)
 from
-    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))] unidirectional,
-    MarketDataWindow as marketDataWindow
-where
-    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit()
-and
-	marketDataWindow.securityId = currentOrder.security.id 
-order by 
-	marketDataWindow.marketDataEvent.dateTime desc 
-limit 
-	1;        
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder))
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))];
 
-@Name('INCREMENTAL_CANCEL_ORDER')
+@Name('VARIABLE_INCREMENTAL_ADJUST_LIMIT')
 @RunTimeOnly
-@Subscriber(className='orderService#cancelOrder')
+@Subscriber(className='variableIncrementalOrderService#adjustLimit')
 select
-    currentOrder.parentOrder
+    cast(currentOrder.parentOrder, ch.algotrader.entity.trade.algo.VariableIncrementalOrder)
 from
-    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.IncrementalOrder))
-        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))]
-where
-    not cast(currentOrder.parentOrder, ch.algotrader.entity.trade.IncrementalOrder).checkLimit();
+    pattern [every currentOrder=`Order`(instanceof(parentOrder,ch.algotrader.entity.trade.algo.VariableIncrementalOrder))
+        -> (timer:interval(5 sec) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = currentOrder.intId))];
+        

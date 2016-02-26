@@ -35,7 +35,6 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.dao.trade.OrderPreferenceDao;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.trade.AlgoOrder;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderVO;
 import ch.algotrader.entity.trade.MarketOrder;
@@ -53,6 +52,7 @@ import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopLimitOrderVO;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.StopOrderVO;
+import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.util.BeanUtil;
 

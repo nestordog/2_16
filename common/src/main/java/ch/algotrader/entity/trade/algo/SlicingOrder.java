@@ -15,20 +15,9 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.entity.trade;
+package ch.algotrader.entity.trade.algo;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import ch.algotrader.entity.marketData.TickI;
-import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.enumeration.Side;
-import ch.algotrader.util.collection.Pair;
+import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -36,8 +25,6 @@ import ch.algotrader.util.collection.Pair;
 public class SlicingOrder extends AlgoOrder {
 
     private static final long serialVersionUID = -9017761050542085585L;
-
-    private static final Logger LOGGER = LogManager.getLogger(SlicingOrder.class);
 
     private double minVolPct;
 
@@ -54,10 +41,6 @@ public class SlicingOrder extends AlgoOrder {
     private double minDelay;
 
     private double maxDelay;
-
-    private int currentOffsetTicks = 1;
-
-    private final List<Pair<LimitOrder, TickI>> pairs = new ArrayList<>();
 
     /**
      * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of
@@ -209,7 +192,6 @@ public class SlicingOrder extends AlgoOrder {
             ",qty=" + getMinQuantity() + "-" + getMaxQuantity() +
             ",duration=" + getMinDuration() + "-" + getMaxDuration() +
             ",delay=" + getMinDelay() + "-" + getMaxDelay() +
-            ",currentOffsetTicks=" + this.currentOffsetTicks +
             " " + getOrderProperties();
         //@formatter:on
     }
@@ -240,127 +222,4 @@ public class SlicingOrder extends AlgoOrder {
         }
     }
 
-    @Override
-    public List<SimpleOrder> getInitialOrders(TickI tick) {
-
-        return Collections.singletonList(nextOrder(getQuantity(), tick));
-    }
-
-    public void increaseOffsetTicks() {
-        this.currentOffsetTicks = this.currentOffsetTicks + 1;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("increaseOffsetTicks of {} to {}", getDescription(), this.currentOffsetTicks);
-        }
-    }
-
-    public void decreaseOffsetTicks() {
-        this.currentOffsetTicks = Math.max(this.currentOffsetTicks - 1, 0);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("decreaseOffsetTicks of {} to {}", getDescription(), this.currentOffsetTicks);
-        }
-    }
-
-    @Override
-    public SimpleOrder nextOrder(long remainingQuantity, TickI tick) {
-
-        SecurityFamily family = getSecurity().getSecurityFamily();
-
-        // limit (at least one tick above market but do not exceed the market)
-        BigDecimal limit;
-        long marketVolume;
-        if (Side.BUY.equals(getSide())) {
-
-            marketVolume = tick.getVolAsk();
-            limit = family.adjustPrice(null, tick.getAsk(), -this.currentOffsetTicks);
-
-            if (limit.compareTo(tick.getBid()) <= 0.0) {
-                limit = family.adjustPrice(null, tick.getBid(), 1);
-                this.currentOffsetTicks = family.getSpreadTicks(null, tick.getBid(), tick.getAsk()) - 1;
-            }
-
-            if (limit.compareTo(tick.getAsk()) > 0.0) {
-                limit = tick.getAsk();
-                this.currentOffsetTicks = 0;
-            }
-
-        } else {
-
-            marketVolume = tick.getVolBid();
-            limit = family.adjustPrice(null, tick.getBid(), this.currentOffsetTicks);
-
-            if (limit.compareTo(tick.getAsk()) >= 0.0) {
-                limit = family.adjustPrice(null, tick.getAsk(), -1);
-                this.currentOffsetTicks = family.getSpreadTicks(null, tick.getBid(), tick.getAsk()) - 1;
-            }
-
-            if (limit.compareTo(tick.getBid()) < 0.0) {
-                limit = tick.getBid();
-                this.currentOffsetTicks = 0;
-            }
-        }
-
-        // ignore maxVolPct / maxQuantity if they are zero
-        double maxVolPct = getMaxVolPct() == 0.0 ? Double.MAX_VALUE : getMaxVolPct();
-        long maxQuantity = getMaxQuantity() == 0 ? Long.MAX_VALUE : getMaxQuantity();
-
-        // evaluate the order minimum and maximum qty
-        long orderMinQty = Math.max(Math.round(marketVolume * getMinVolPct()), getMinQuantity());
-        long orderMaxQty = Math.min(Math.round(marketVolume * maxVolPct), maxQuantity);
-
-        // orderMinQty cannot be greater than orderMaxQty
-        if (orderMinQty > orderMaxQty) {
-            orderMinQty = orderMaxQty;
-        }
-
-        // randomize the quantity between orderMinQty and orderMaxQty
-        long quantity = Math.round(orderMinQty + Math.random() * (orderMaxQty - orderMinQty));
-
-        // make sure that the remainingQty after the next slice is greater than minQuantity
-        long remainingQuantityAfterSlice = remainingQuantity - quantity;
-        if (getMinQuantity() > 0 && getMaxQuantity() > 0 && remainingQuantityAfterSlice > 0 && remainingQuantityAfterSlice < getMinQuantity()) {
-
-            // if quantity is below half between minQuantity and maxQuantity
-            if (quantity < (getMinQuantity() + getMaxQuantity()) / 2.0) {
-
-                // take full remaining quantity but not more than orderMaxQty
-                quantity = Math.min(remainingQuantity, orderMaxQty);
-            } else {
-
-                // make sure remaining after slice quantity is greater than minQuantity
-                quantity = remainingQuantity - getMinQuantity();
-            }
-        }
-
-        // qty should be at least one
-        quantity = Math.max(quantity, 1);
-
-        // qty should be maximium remainingQuantity
-        quantity = Math.min(quantity, remainingQuantity);
-
-        // create the limit order
-        LimitOrder order = LimitOrder.Factory.newInstance();
-        order.setSecurity(this.getSecurity());
-        order.setStrategy(this.getStrategy());
-        order.setSide(this.getSide());
-        order.setQuantity(quantity);
-        order.setLimit(limit);
-        order.setAccount(this.getAccount());
-
-        // associate the childOrder with the parentOrder(this)
-        order.setParentOrder(this);
-
-        // store the current order and tick
-        this.pairs.add(new Pair<>(order, tick));
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("next slice for {},currentOffsetTicks={},qty={},vol={},limit={},bid={},ask={}", getDescription(), this.currentOffsetTicks, order.getQuantity(),
-                    (Side.BUY.equals(order.getSide()) ? tick.getVolAsk() : tick.getVolBid()), limit, tick.getBid(), tick.getAsk());
-        }
-        return order;
-    }
-
-    @Override
-    public OrderVO convertToVO() {
-        throw new UnsupportedOperationException();
-    }
 }

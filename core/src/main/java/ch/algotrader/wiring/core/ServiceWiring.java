@@ -18,7 +18,6 @@
 
 package ch.algotrader.wiring.core;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -64,10 +63,7 @@ import ch.algotrader.dao.trade.OrderPropertyDao;
 import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.dao.trade.StopLimitOrderDao;
 import ch.algotrader.dao.trade.StopOrderDao;
-import ch.algotrader.entity.trade.AlgoOrder;
-import ch.algotrader.entity.trade.SlicingOrder;
-import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
-import ch.algotrader.entity.trade.VariableIncrementalOrder;
+import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -131,7 +127,9 @@ import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.TransactionServiceImpl;
 import ch.algotrader.service.algo.AlgoOrderExecService;
-import ch.algotrader.service.algo.DefaultAlgoOrderExecService;
+import ch.algotrader.service.algo.SlicingOrderService;
+import ch.algotrader.service.algo.TickwiseIncrementalOrderService;
+import ch.algotrader.service.algo.VariableIncrementalOrderService;
 import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
 import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
 
@@ -349,18 +347,43 @@ public class ServiceWiring {
     public AlgoOrderService createAlgoOrderService(
             final CommonConfig commonConfig,
             final SimpleOrderService simpleOrderService,
-            final MarketDataCacheService marketDataCacheService,
             final OrderBook orderBook,
             final EventDispatcher eventDispatcher,
-            final Engine serverEngine) {
+            final Engine serverEngine,
+            final ApplicationContext applicationContext) {
 
-        DefaultAlgoOrderExecService defaultAlgoExecService = new DefaultAlgoOrderExecService(marketDataCacheService);
-        Map<Class<?>, AlgoOrderExecService<? super AlgoOrder>> algoExecServiceMap = new HashMap<>();
-        algoExecServiceMap.put(SlicingOrder.class, defaultAlgoExecService);
-        algoExecServiceMap.put(TickwiseIncrementalOrder.class, defaultAlgoExecService);
-        algoExecServiceMap.put(VariableIncrementalOrder.class, defaultAlgoExecService);
+        Map<String, AlgoOrderExecService> serviceMap1 = applicationContext.getBeansOfType(AlgoOrderExecService.class);
+        Map<Class<? extends AlgoOrder>, AlgoOrderExecService> serviceMap2 = serviceMap1.values().stream()
+                .collect(Collectors.toMap(AlgoOrderExecService::getAlgoOrderType, service -> service));
 
-        return new AlgoOrderServiceImpl(commonConfig, simpleOrderService, orderBook, eventDispatcher, serverEngine, algoExecServiceMap);
+        return new AlgoOrderServiceImpl(commonConfig, simpleOrderService, orderBook, eventDispatcher, serverEngine, serviceMap2);
+    }
+
+    @Bean(name = "slicingOrderService")
+    public SlicingOrderService createSlicingOrderService(
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService,
+            final OrderBook orderBook) {
+
+        return new SlicingOrderService(marketDataCacheService, simpleOrderService, orderBook);
+    }
+
+    @Bean(name = "tickwiseIncrementalOrderService")
+    public TickwiseIncrementalOrderService createTickwiseIncrementalOrderService(
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService,
+            final OrderService orderService) {
+
+        return new TickwiseIncrementalOrderService(marketDataCacheService, simpleOrderService, orderService);
+    }
+
+    @Bean(name = "variableIncrementalOrderService")
+    public VariableIncrementalOrderService createVariableIncrementalOrderService(
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService,
+            final OrderService orderService) {
+
+        return new VariableIncrementalOrderService(marketDataCacheService, simpleOrderService, orderService);
     }
 
     @Bean(name = "orderService")
