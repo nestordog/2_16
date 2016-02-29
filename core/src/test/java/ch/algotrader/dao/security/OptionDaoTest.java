@@ -411,7 +411,7 @@ public class OptionDaoTest extends InMemoryDBTest {
         Option option2 = new OptionImpl();
         option2.setSecurityFamily(this.family2);
         option2.setExpiration(cal1.getTime());
-        option2.setStrike(new BigDecimal(111));
+        option2.setStrike(new BigDecimal(222));
         option2.setOptionType(OptionType.CALL);
         option2.setUnderlying(this.forex1);
 
