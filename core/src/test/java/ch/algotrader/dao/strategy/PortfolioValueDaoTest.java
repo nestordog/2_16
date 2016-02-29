@@ -71,7 +71,7 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
 
         this.orderPreference = new OrderPreferenceImpl();
         this.orderPreference.setName("Primary");
-        this.orderPreference.setOrderType(OrderType.DISTRIBUTIONAL);
+        this.orderPreference.setOrderType(OrderType.SLICING);
 
         this.family = new SecurityFamilyImpl();
         this.family.setName("Forex1");
