@@ -549,10 +549,12 @@ public class SlicingOrderEsperTest extends EsperTestBase {
         orderStatus2.setIntId("my-algo-order");
         orderStatus2.setOrder(algoOrder);
         orderStatus2.setStatus(Status.EXECUTED);
-        orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:02"));
+        orderStatus2.setDateTime(DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:04"));
+
+        Map<String, Date> time1 = Collections.singletonMap("dateTime", DateTimeLegacy.parseAsLocalDateTime("2015-01-01 12:00:10"));
 
         AdapterCoordinator coordinator = new AdapterCoordinatorImpl(this.epService, true, true, true);
-        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(algoOrder, childOrder, orderStatus1, orderStatus2), "dateTime");
+        CollectionInputAdapter inputAdapter = new CollectionInputAdapter(Arrays.asList(algoOrder, childOrder, orderStatus1, orderStatus2, time1), "dateTime");
 
         coordinator.coordinate(inputAdapter);
         coordinator.start();

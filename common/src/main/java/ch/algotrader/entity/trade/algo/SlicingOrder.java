@@ -188,11 +188,11 @@ public class SlicingOrder extends AlgoOrder {
     public String getExtDescription() {
 
         //@formatter:off
-            return "vol=" + getMinVolPct() + "-" + getMaxVolPct() +
-            ",qty=" + getMinQuantity() + "-" + getMaxQuantity() +
-            ",duration=" + getMinDuration() + "-" + getMaxDuration() +
-            ",delay=" + getMinDelay() + "-" + getMaxDelay() +
-            " " + getOrderProperties();
+            return "vol=" + this.minVolPct + "-" + this.maxVolPct +
+            ",qty=" + this.minQuantity + "-" + this.maxQuantity +
+            ",duration=" + this.minDuration + "-" + this.maxDuration +
+            ",delay=" + this.minDelay + "-" + this.maxDelay +
+            "," + getOrderProperties();
         //@formatter:on
     }
 
@@ -200,24 +200,24 @@ public class SlicingOrder extends AlgoOrder {
     public void validate() throws OrderValidationException {
 
         // check greater than
-        if (getMinVolPct() > getMaxVolPct()) {
+        if (this.minVolPct > this.maxVolPct) {
             throw new OrderValidationException("minVolPct cannot be greater than maxVolPct for " + getDescription());
-        } else if (getMinQuantity() > getMaxQuantity()) {
+        } else if (this.minQuantity > this.maxQuantity) {
             throw new OrderValidationException("minQuantity cannot be greater than maxQuantity for " + getDescription());
-        } else if (getMaxQuantity() < 2 * getMinQuantity()) {
+        } else if (this.maxQuantity < 2 * this.minQuantity) {
             throw new OrderValidationException("maxQuantity must be greater than 3 x minQuantity " + getDescription());
-        } else if (getMinDuration() > getMaxDuration()) {
+        } else if (this.minDuration > this.maxDuration) {
             throw new OrderValidationException("minDuration cannot be greater than maxDuration for " + getDescription());
-        } else if (getMinDelay() > getMaxDelay()) {
+        } else if (this.minDelay > this.maxDelay) {
             throw new OrderValidationException("minDelay cannot be greater than maxDelay for " + getDescription());
         }
 
         // check zero
-        if (getMaxVolPct() == 0 && getMaxQuantity() == 0) {
+        if (this.maxVolPct == 0 && this.maxQuantity == 0) {
             throw new OrderValidationException("either maxVolPct or maxQuantity have to be defined for " + getDescription());
-        } else if (getMaxDuration() == 0) {
+        } else if (this.maxDuration == 0) {
             throw new OrderValidationException("maxDuration cannot be zero for " + getDescription());
-        } else if (getMaxDelay() == 0) {
+        } else if (this.maxDelay == 0) {
             throw new OrderValidationException("maxDelay cannot be zero for " + getDescription());
         }
     }

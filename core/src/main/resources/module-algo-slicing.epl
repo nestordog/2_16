@@ -44,3 +44,14 @@ from
             -> every (OrderStatus(status = Status.EXECUTED or status = Status.CANCELED, `order`.parentOrder.intId = slicingOrder.intId)
             -> (timer:interval(slicingOrder.minDelay + (slicingOrder.maxDelay - slicingOrder.minDelay) * Math.random())
                and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId = slicingOrder.intId)))];
+               
+@Name('SLICING_STORE_FILL')
+@RunTimeOnly
+@Subscriber(className='slicingOrderService#storeFill')
+select
+    fill
+from
+    // every SlicingOrder -> every (Fill and not OrderStatusSlicing)
+    pattern [every slicingOrder=ch.algotrader.entity.trade.algo.SlicingOrder
+            -> every (fill=Fill(`order`.parentOrder.intId = slicingOrder.intId)
+            and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId = slicingOrder.intId))];
