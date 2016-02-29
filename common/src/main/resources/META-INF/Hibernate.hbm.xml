@@ -1396,12 +1396,11 @@
 
     <sql-query name='OrderStatus.findPending'>
     <![CDATA[
-        select os.* 
-        from order_status os 
-        left join order_status os2 on (substring_index(os.int_id, '.', 1) = substring_index(os2.int_id, '.', 1) 
-        and (os.date_time < os2.date_time or (os.date_time = os2.date_time and os.sequence_number < os2.sequence_number))) 
-        where os2.id is null 
-        and (os.status = 'OPEN' or os.status = 'SUBMITTED' or os.status = 'PARTIALLY_EXECUTED') 
+        select os.*
+            from (select max(UNIX_TIMESTAMP(os2.`date_time`) * 1000000000 + os2.`sequence_number`) as max_date_time_sequence
+                        from `order_status` os2 group by substring_index(os2.int_id, '.', 1)) as os2
+            inner join `order_status` as os on UNIX_TIMESTAMP(os.`date_time`) * 1000000000 + os.`sequence_number` = os2.max_date_time_sequence
+            and (os.`status` = 'OPEN' or os.`status` = 'SUBMITTED' or os.`status` = 'PARTIALLY_EXECUTED')
     ]]>
     </sql-query>
 
