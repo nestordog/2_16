@@ -80,6 +80,10 @@ public class CollectionInputAdapter extends AbstractCoordinatedAdapter {
                     Object baseObject = this.iterator.next();
                     Date date = (Date) PropertyUtils.getProperty(baseObject, this.timeStampColumn);
 
+                    if (date == null) {
+                        throw new IllegalStateException("missing time stamp");
+                    }
+
                     return new SendableBaseObjectEvent(baseObject, date.getTime(), this.scheduleSlot);
                 } catch (Exception e) {
                     throw new EPException("problem getting timestamp column", e);
