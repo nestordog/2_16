@@ -22,10 +22,10 @@ import ch.algotrader.entity.trade.SimpleOrder;
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface ExternalOrderService extends GenericOrderService<SimpleOrder> {
+public interface SimpleOrderExecService extends GenericOrderService<SimpleOrder> {
 
     /**
-     * Returns the order service type associated with this ExternalOrderService.
+     * Returns the order service type associated with this order execution service.
      */
     String getOrderServiceType();
 

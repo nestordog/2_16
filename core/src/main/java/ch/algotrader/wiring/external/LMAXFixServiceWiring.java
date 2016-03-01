@@ -33,7 +33,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.lmax.LMAXDropCopyAllocationServiceImpl;
 import ch.algotrader.service.lmax.LMAXFixMarketDataServiceImpl;
@@ -57,7 +57,7 @@ public class LMAXFixServiceWiring {
 
     @Profile("lMAXFix")
     @Bean(name = "lMAXFixOrderService")
-    public ExternalOrderService createLMAXFixOrderService(
+    public SimpleOrderExecService createLMAXFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,

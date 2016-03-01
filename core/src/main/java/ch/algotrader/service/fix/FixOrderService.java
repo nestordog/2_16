@@ -18,13 +18,13 @@
 package ch.algotrader.service.fix;
 
 import ch.algotrader.entity.trade.Order;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import quickfix.Message;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface FixOrderService extends ExternalOrderService {
+public interface FixOrderService extends SimpleOrderExecService {
 
     /**
      * Sends Order to the external Broker.

@@ -77,7 +77,7 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
 import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
@@ -336,9 +336,9 @@ public class ServiceWiring {
             final Engine serverEngine,
             final ApplicationContext applicationContext) {
 
-        Map<String, ExternalOrderService> serviceMap1 = applicationContext.getBeansOfType(ExternalOrderService.class);
-        Map<String, ExternalOrderService> serviceMap2 = serviceMap1.values().stream()
-                .collect(Collectors.toMap(ExternalOrderService::getOrderServiceType, service -> service));
+        Map<String, SimpleOrderExecService> serviceMap1 = applicationContext.getBeansOfType(SimpleOrderExecService.class);
+        Map<String, SimpleOrderExecService> serviceMap2 = serviceMap1.values().stream()
+                .collect(Collectors.toMap(SimpleOrderExecService::getOrderServiceType, service -> service));
 
         return new SimpleOrderServiceImpl(commonConfig, serverEngine, serviceMap2);
     }

@@ -30,7 +30,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ftx.FTXFixMarketDataServiceImpl;
 import ch.algotrader.service.ftx.FTXFixOrderServiceImpl;
@@ -43,7 +43,7 @@ public class FTXFixServiceWiring {
 
     @Profile("fTXFix")
     @Bean(name = "fTXFixOrderService")
-    public ExternalOrderService createFTXFixOrderService(
+    public SimpleOrderExecService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,

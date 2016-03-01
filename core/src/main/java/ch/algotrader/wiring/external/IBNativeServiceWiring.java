@@ -44,7 +44,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ReferenceDataService;
@@ -74,7 +74,7 @@ public class IBNativeServiceWiring {
 
     @Profile("iBNative")
     @Bean(name = "iBNativeOrderService")
-    public ExternalOrderService createIBNativeOrderService(
+    public SimpleOrderExecService createIBNativeOrderService(
             final IBSession iBSession,
             final AutoIncrementIdGenerator iBOrderIdGenerator,
             final OrderBook orderBook,

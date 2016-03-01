@@ -44,11 +44,11 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
 
     private final Engine serverEngine;
 
-    private final Map<String, ExternalOrderService> externalOrderServiceMap;
+    private final Map<String, SimpleOrderExecService> externalOrderServiceMap;
 
     public SimpleOrderServiceImpl(final CommonConfig commonConfig,
                                   final Engine serverEngine,
-                                  final Map<String, ExternalOrderService> externalOrderServiceMap) {
+                                  final Map<String, SimpleOrderExecService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
@@ -86,7 +86,7 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
             throw new OrderValidationException(security + " is not tradeable: " + order);
         }
 
-        getExternalOrderService(order.getAccount()).validateOrder(order);
+        getOrderExecService(order.getAccount()).validateOrder(order);
     }
 
     /**
@@ -114,8 +114,8 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         if (order.getTif() == null) {
             order.setTif(TIF.DAY);
         }
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        externalOrderService.sendOrder(order);
+        SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
+        simpleOrderExecService.sendOrder(order);
 
         this.serverEngine.sendEvent(order);
     }
@@ -133,8 +133,8 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
             throw new ServiceException("Order with missing account");
         }
 
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        externalOrderService.cancelOrder(order);
+        SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
+        simpleOrderExecService.cancelOrder(order);
     }
 
     /**
@@ -167,8 +167,8 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         if (order.getTif() == null) {
             order.setTif(TIF.DAY);
         }
-        ExternalOrderService externalOrderService = getExternalOrderService(account);
-        externalOrderService.modifyOrder(newOrder);
+        SimpleOrderExecService simpleOrderExecService = getOrderExecService(account);
+        simpleOrderExecService.modifyOrder(newOrder);
 
         this.serverEngine.sendEvent(newOrder);
     }
@@ -179,10 +179,10 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
     @Override
     public String getNextOrderId(final Account account) {
 
-        return getExternalOrderService(account).getNextOrderId(account);
+        return getOrderExecService(account).getNextOrderId(account);
     }
 
-    private ExternalOrderService getExternalOrderService(Account account) {
+    private SimpleOrderExecService getOrderExecService(Account account) {
 
         Validate.notNull(account, "Account is null");
 
@@ -194,11 +194,11 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
             orderServiceType = account.getOrderServiceType();
         }
 
-        ExternalOrderService externalOrderService = this.externalOrderServiceMap.get(orderServiceType);
-        if (externalOrderService == null) {
+        SimpleOrderExecService simpleOrderExecService = this.externalOrderServiceMap.get(orderServiceType);
+        if (simpleOrderExecService == null) {
             throw new ServiceException("No ExternalOrderService found for service type " + orderServiceType);
         }
-        return externalOrderService;
+        return simpleOrderExecService;
     }
 
 }

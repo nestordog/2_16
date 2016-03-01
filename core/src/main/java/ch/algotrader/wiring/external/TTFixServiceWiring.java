@@ -37,7 +37,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.fix.FixStatelessService;
@@ -65,7 +65,7 @@ public class TTFixServiceWiring {
 
     @Profile("tTFix")
     @Bean(name = "tTFixOrderService")
-    public ExternalOrderService createTTFixOrderService(
+    public SimpleOrderExecService createTTFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,

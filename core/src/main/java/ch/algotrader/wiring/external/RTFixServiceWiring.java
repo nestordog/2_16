@@ -26,7 +26,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.ordermgmt.OrderBook;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.rt.RTFixOrderServiceImpl;
 
@@ -38,7 +38,7 @@ import ch.algotrader.service.rt.RTFixOrderServiceImpl;
 public class RTFixServiceWiring {
 
     @Bean(name = "rTFixOrderService")
-    public ExternalOrderService rTFixOrderService(
+    public SimpleOrderExecService rTFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,

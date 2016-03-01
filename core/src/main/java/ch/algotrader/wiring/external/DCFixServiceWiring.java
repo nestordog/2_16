@@ -30,7 +30,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.dc.DCFixMarketDataServiceImpl;
 import ch.algotrader.service.dc.DCFixOrderServiceImpl;
@@ -43,7 +43,7 @@ public class DCFixServiceWiring {
 
     @Profile("dCFix")
     @Bean(name = "dCFixOrderService")
-    public ExternalOrderService createDCFixOrderService(
+    public SimpleOrderExecService createDCFixOrderService(
             final ManagedFixAdapter fixAdapter,
             final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,

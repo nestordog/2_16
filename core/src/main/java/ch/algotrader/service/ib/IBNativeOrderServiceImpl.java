@@ -45,7 +45,7 @@ import ch.algotrader.enumeration.InitializingServiceType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.ordermgmt.OrderBook;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.InitializationPriority;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.OrderPersistenceService;
@@ -56,7 +56,7 @@ import ch.algotrader.service.ServiceException;
  */
 @InitializationPriority(InitializingServiceType.BROKER_INTERFACE)
 @Transactional(propagation = Propagation.SUPPORTS)
-public class IBNativeOrderServiceImpl implements ExternalOrderService, InitializingServiceI {
+public class IBNativeOrderServiceImpl implements SimpleOrderExecService, InitializingServiceI {
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeOrderServiceImpl.class);
 
