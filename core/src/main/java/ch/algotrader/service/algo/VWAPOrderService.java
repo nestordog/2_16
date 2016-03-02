@@ -18,6 +18,7 @@
 package ch.algotrader.service.algo;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -67,6 +69,7 @@ import ch.algotrader.util.RoundUtil;
 public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VWAPOrderStateVO> {
 
     private static final double MIN_PARTICIPATION = 0.5;
+    private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
 
     private static final Logger LOGGER = LogManager.getLogger(VWAPOrderService.class);
 
@@ -96,7 +99,12 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     }
 
     @Override
-    protected VWAPOrderStateVO createAlgoOrderState(final VWAPOrder algoOrder) {
+    protected VWAPOrderStateVO createAlgoOrderState(final VWAPOrder algoOrder) throws OrderValidationException {
+
+        return createAlgoOrderState(algoOrder, new Date());
+    }
+
+    VWAPOrderStateVO createAlgoOrderState(final VWAPOrder algoOrder, final Date dateTime) throws OrderValidationException {
 
         Validate.notNull(algoOrder, "vwapOrder missing");
 
@@ -129,21 +137,33 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         // verify start and end time
         if (algoOrder.getStartTime() == null) {
             if (this.calendarService.isOpen(exchange.getId())) {
-                algoOrder.setStartTime(LocalTime.now());
+                algoOrder.setStartTime(dateTime);
             } else {
                 Date nextOpenTime = this.calendarService.getNextOpenTime(exchange.getId());
-                algoOrder.setStartTime(DateTimeLegacy.toLocalTime(nextOpenTime));
+                algoOrder.setStartTime(nextOpenTime);
             }
         }
 
+        Date closeTime = this.calendarService.getNextCloseTime(exchange.getId());
         if (algoOrder.getEndTime() == null) {
-            Date closeTime = this.calendarService.getNextCloseTime(exchange.getId());
-            algoOrder.setEndTime(DateTimeLegacy.toLocalTime(closeTime));
+            algoOrder.setEndTime(closeTime);
+        }
+
+        if (algoOrder.getStartTime().compareTo(dateTime) < 0) {
+            throw new OrderValidationException("startTime needs to be in the future " + algoOrder);
+        } else if (algoOrder.getEndTime().compareTo(dateTime) <= 0) {
+            throw new OrderValidationException("endTime needs to be in the future " + algoOrder);
+        } else if (algoOrder.getEndTime().compareTo(closeTime) > 0) {
+            throw new OrderValidationException("endTime needs to be before next market closeTime for " + algoOrder);
+        } else if (algoOrder.getEndTime().compareTo(algoOrder.getStartTime()) <= 0) {
+            throw new OrderValidationException("endTime needs to be after startTime for " + algoOrder);
         }
 
         int historicalVolume = 0;
-        LocalTime firstBucketStart = buckets.floorKey(algoOrder.getStartTime());
-        LocalTime lastBucketStart = buckets.floorKey(algoOrder.getEndTime());
+        LocalTime startTime = DateTimeLegacy.toLocalTime(algoOrder.getStartTime());
+        LocalTime endTime = DateTimeLegacy.toLocalTime(algoOrder.getEndTime());
+        LocalTime firstBucketStart = buckets.floorKey(startTime);
+        LocalTime lastBucketStart = buckets.floorKey(endTime);
 
         SortedMap<LocalTime, Long> subBuckets = buckets.subMap(firstBucketStart, true, lastBucketStart, true);
         for (Map.Entry<LocalTime, Long> bucket : subBuckets.entrySet()) {
@@ -153,10 +173,10 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
 
             if (bucket.getKey().equals(firstBucketStart)) {
                 LocalTime firstBucketEnd = firstBucketStart.plus(algoOrder.getBucketSize().getValue(), ChronoUnit.MILLIS);
-                double fraction = (double) ChronoUnit.MILLIS.between(algoOrder.getStartTime(), firstBucketEnd) / algoOrder.getBucketSize().getValue();
+                double fraction = (double) ChronoUnit.MILLIS.between(startTime, firstBucketEnd) / algoOrder.getBucketSize().getValue();
                 historicalVolume += vol * fraction;
             } else if (bucket.getKey().equals(lastBucketStart)) {
-                double fraction = (double) ChronoUnit.MILLIS.between(lastBucketStart, algoOrder.getEndTime()) / algoOrder.getBucketSize().getValue();
+                double fraction = (double) ChronoUnit.MILLIS.between(lastBucketStart, endTime) / algoOrder.getBucketSize().getValue();
                 historicalVolume += vol * fraction;
             } else {
                 historicalVolume += vol;
@@ -164,26 +184,22 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         }
 
         double participation = algoOrder.getQuantity() / (double) historicalVolume;
+
+        if (participation > MIN_PARTICIPATION) {
+            throw new OrderValidationException("participation rate " + twoDigitFormat.format(participation * 100.0) + "% is above 50% of historical market volume for " + algoOrder);
+        }
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.debug("participation of {} is {}%", algoOrder.getDescription(), twoDigitFormat.format(participation * 100.0));
+        }
+
         return new VWAPOrderStateVO(participation, buckets);
     }
 
     @Override
-    public void handleValidateOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) throws OrderValidationException {
-
-        Validate.notNull(algoOrderState, "algoOrderState missing");
-        if (algoOrderState.getParticipation() > MIN_PARTICIPATION) {
-            throw new OrderValidationException("participation rate is above 50% of historical market volume");
-        }
-
-        Exchange exchange = algoOrder.getSecurity().getSecurityFamily().getExchange();
-        LocalTime closeTime = DateTimeLegacy.toLocalTime(this.calendarService.getNextCloseTime(exchange.getId()));
-        if (algoOrder.getEndTime().compareTo(closeTime) > 0) {
-            throw new OrderValidationException("endTime cannot be after market close time");
-        }
-    }
-
-    @Override
     public void handleSendOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) {
+
+        sendNextOrder(algoOrder, algoOrderState, new Date());
     }
 
     @Override
@@ -196,12 +212,16 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
 
     public void sendNextOrder(VWAPOrder algoOrder, Date dateTime) {
 
-        VWAPOrderStateVO orderState = getAlgoOrderState(algoOrder);
-        OrderStatusVO orderStatus = this.orderExecutionService.getStatusByIntId(algoOrder.getIntId());
-
-        if (orderState == null || orderStatus == null) {
-            return; // VWAP calculation not finished yet
+        Optional<VWAPOrderStateVO> optional = getAlgoOrderState(algoOrder);
+        if (optional.isPresent()) {
+            VWAPOrderStateVO orderState = optional.get();
+            sendNextOrder(algoOrder, orderState, dateTime);
         }
+    }
+
+    void sendNextOrder(VWAPOrder algoOrder, VWAPOrderStateVO orderState, Date dateTime) {
+
+        OrderStatusVO orderStatus = this.orderExecutionService.getStatusByIntId(algoOrder.getIntId());
 
         long bucketVolume = orderState.getBucketVolume(DateTimeLegacy.toLocalTime(dateTime));
         long targetVolume = Math.round(orderState.getParticipation() * bucketVolume);
@@ -244,14 +264,14 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         }
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(algoOrder.getDescription() + getResults(algoOrder, algoOrderState));
+            LOGGER.info(algoOrder.getDescription() + "," + getResults(algoOrder, algoOrderState, new Date()));
         }
     }
 
-    Map<String, Object> getResults(VWAPOrder algoOrder, VWAPOrderStateVO algoOrderState) {
+    Map<String, Object> getResults(VWAPOrder algoOrder, VWAPOrderStateVO algoOrderState, Date dateTime) {
 
         SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
-        int minutes = (int) ChronoUnit.MINUTES.between(algoOrder.getStartTime(), LocalTime.now());
+        int minutes = (int) (dateTime.getTime() - algoOrder.getStartTime().getTime()) / 60000;
 
         List<Bar> bars = this.historicalDataService.getHistoricalBars(algoOrder.getSecurity().getId(), //
                 new Date(), //

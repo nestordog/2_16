@@ -17,9 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade.algo;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
+import java.time.ZoneId;
+import java.util.Date;
 
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.enumeration.Duration;
@@ -29,7 +31,7 @@ import ch.algotrader.enumeration.Duration;
  */
 public class VWAPOrder extends AlgoOrder {
 
-    private static final DateTimeFormatter TIME_PATTERN = DateTimeFormatter.ofPattern("HH:mm");
+    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm");
 
     private static final long serialVersionUID = -9017761050542085585L;
 
@@ -41,9 +43,9 @@ public class VWAPOrder extends AlgoOrder {
 
     private double maxInterval;
 
-    private LocalTime startTime;
+    private Date startTime;
 
-    private LocalTime endTime;
+    private Date endTime;
 
     private double qtyRandomFactor;
 
@@ -106,7 +108,7 @@ public class VWAPOrder extends AlgoOrder {
     /**
      * algo start time (optional)
      */
-    public LocalTime getStartTime() {
+    public Date getStartTime() {
         return this.startTime;
     }
 
@@ -114,13 +116,13 @@ public class VWAPOrder extends AlgoOrder {
      * algo start time (optional)
      */
     public String getStart() {
-        return this.startTime.format(TIME_PATTERN);
+        return TIME_FORMAT.format(this.startTime);
     }
 
     /**
      * algo start time (optional)
      */
-    public void setStartTime(LocalTime startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
@@ -128,13 +130,13 @@ public class VWAPOrder extends AlgoOrder {
      * algo start time (optional)
      */
     public void setStart(String startTime) {
-        this.startTime = LocalTime.parse(startTime);
+        this.startTime = Date.from(LocalTime.parse(startTime).atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**
      * algo end time (optional)
      */
-    public LocalTime getEndTime() {
+    public Date getEndTime() {
         return this.endTime;
     }
 
@@ -142,13 +144,13 @@ public class VWAPOrder extends AlgoOrder {
      * algo end time (optional)
      */
     public String getEnd() {
-        return this.endTime.format(TIME_PATTERN);
+        return TIME_FORMAT.format(this.endTime);
     }
 
     /**
      * algo end time (optional)
      */
-    public void setEndTime(LocalTime endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
@@ -156,7 +158,7 @@ public class VWAPOrder extends AlgoOrder {
      * algo end time (optional)
      */
     public void setEnd(String endTime) {
-        this.endTime = LocalTime.parse(endTime);
+        this.endTime = Date.from(LocalTime.parse(endTime).atDate(LocalDate.now()).atZone(ZoneId.systemDefault()).toInstant());
     }
 
     /**
@@ -182,7 +184,7 @@ public class VWAPOrder extends AlgoOrder {
         if (this.startTime == null || this.endTime == null) {
             return 0;
         } else {
-            return (int) ChronoUnit.MINUTES.between(this.startTime, this.endTime);
+            return (int) (this.endTime.getTime() - this.startTime.getTime()) / 60000;
         }
     }
 
@@ -192,8 +194,8 @@ public class VWAPOrder extends AlgoOrder {
         //@formatter:off
         return "buckets=" + this.bucketSize + "/" + this.lookbackPeriod + "days" +
         ",interval=" + this.minInterval + "-" + this.maxInterval +
-        (this.startTime != null && this.endTime != null? (",timeWindow=" + getStart() + "-" + getEnd()) : "") +
-        ",qtyRandomFactor=" + this.qtyRandomFactor +
+        (this.startTime != null && this.endTime != null? (",time=" + getStart() + "-" + getEnd()) : "") +
+        ",rnd=" + this.qtyRandomFactor +
         " " + getOrderProperties();
         //@formatter:on
     }

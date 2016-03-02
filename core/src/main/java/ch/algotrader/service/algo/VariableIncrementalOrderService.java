@@ -18,6 +18,7 @@
 package ch.algotrader.service.algo;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.Validate;
@@ -120,48 +121,48 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
     @Override
     protected void handleCancelOrder(final VariableIncrementalOrder order, final VariableIncrementalOrderStateVO algoOrderState) {
 
-        LimitOrder limitOrder = algoOrderState.getLimitOrder();
-        if (limitOrder != null) {
-            this.simpleOrderService.cancelOrder(limitOrder);
-        }
     }
 
     public void adjustLimit(final VariableIncrementalOrder algoOrder) {
 
-        VariableIncrementalOrderStateVO orderState = getAlgoOrderState(algoOrder);
+        Optional<VariableIncrementalOrderStateVO> optional = getAlgoOrderState(algoOrder);
+        if (optional.isPresent()) {
 
-        // check limit
-        if (!checkLimit(algoOrder, orderState)) {
-            cancelOrder(algoOrder);
-            return;
+            VariableIncrementalOrderStateVO orderState = optional.get();
+
+            // check limit
+            if (!checkLimit(algoOrder, orderState)) {
+                cancelOrder(algoOrder);
+                return;
+            }
+
+            SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
+
+            if (algoOrder.getSide().equals(Side.BUY)) {
+
+                double tickSize = family.getTickSize(null, orderState.getCurrentLimit().doubleValue(), true);
+                double increment = RoundUtil.roundToNextN(orderState.getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
+                BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
+                orderState.setCurrentLimit(orderState.getCurrentLimit().add(roundedIncrement));
+            } else {
+
+                double tickSize = family.getTickSize(null, orderState.getCurrentLimit().doubleValue(), false);
+                double increment = RoundUtil.roundToNextN(orderState.getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
+                BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
+                orderState.setCurrentLimit(orderState.getCurrentLimit().subtract(roundedIncrement));
+            }
+
+            LimitOrder modifiedOrder;
+            try {
+                modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
+                modifiedOrder.setId(0L);
+            } catch (Exception ex) {
+                throw new ServiceException(ex);
+            }
+
+            modifiedOrder.setLimit(orderState.getCurrentLimit());
+            this.simpleOrderService.modifyOrder(modifiedOrder);
         }
-
-        SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
-
-        if (algoOrder.getSide().equals(Side.BUY)) {
-
-            double tickSize = family.getTickSize(null, orderState.getCurrentLimit().doubleValue(), true);
-            double increment = RoundUtil.roundToNextN(orderState.getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
-            orderState.setCurrentLimit(orderState.getCurrentLimit().add(roundedIncrement));
-        } else {
-
-            double tickSize = family.getTickSize(null, orderState.getCurrentLimit().doubleValue(), false);
-            double increment = RoundUtil.roundToNextN(orderState.getIncrement(), tickSize, BigDecimal.ROUND_CEILING);
-            BigDecimal roundedIncrement = RoundUtil.getBigDecimal(increment, family.getScale(null));
-            orderState.setCurrentLimit(orderState.getCurrentLimit().subtract(roundedIncrement));
-        }
-
-        LimitOrder modifiedOrder;
-        try {
-            modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-            modifiedOrder.setId(0L);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-
-        modifiedOrder.setLimit(orderState.getCurrentLimit());
-        this.simpleOrderService.modifyOrder(modifiedOrder);
     }
 
     private boolean checkLimit(AlgoOrder algoOrder, VariableIncrementalOrderStateVO orderState) {

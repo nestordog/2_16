@@ -77,4 +77,9 @@ public class SlicingOrderStateVO extends AlgoOrderStateVO {
     public List<Fill> getFillsByIntOrderId(String intId) {
         return this.fillsByIntId.get(intId);
     }
+
+    @Override
+    public String toString() {
+        return "currentOffsetTicks=" + this.currentOffsetTicks;
+    }
 }

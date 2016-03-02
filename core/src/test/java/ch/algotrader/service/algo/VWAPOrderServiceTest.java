@@ -19,7 +19,6 @@ package ch.algotrader.service.algo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -203,7 +202,7 @@ public class VWAPOrderServiceTest {
     }
 
     @Test
-    public void testCreateOrderState() {
+    public void testCreateOrderState() throws OrderValidationException {
 
         VWAPOrder vwapOrder = createOrder();
 
@@ -212,16 +211,16 @@ public class VWAPOrderServiceTest {
         vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
-        vwapOrder.setStartTime(LocalTime.of(11, 0));
-        vwapOrder.setEndTime(LocalTime.of(15, 0));
+        vwapOrder.setStartTime(DateUtil.dateForYMDHMS(2016, 1, 1, 11, 0, 0));
+        vwapOrder.setEndTime(DateUtil.dateForYMDHMS(2016, 1, 1, 15, 0, 0));
 
-        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder);
+        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder, DateUtil.dateForYMDHMS(2016, 1, 1, 10, 0, 0));
 
         Assert.assertEquals(0.4878, orderState.getParticipation(), 0.001);
     }
 
     @Test
-    public void testSendOrderNoStartEndTime() {
+    public void testSendOrderNoStartEndTime() throws OrderValidationException {
 
         VWAPOrder vwapOrder = createOrder();
 
@@ -231,7 +230,7 @@ public class VWAPOrderServiceTest {
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
 
-        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder);
+        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder, DateUtil.dateForYMDHMS(2016, 1, 1, 9, 0, 0));
 
         Assert.assertEquals(510, vwapOrder.getDuration());
 
@@ -239,21 +238,21 @@ public class VWAPOrderServiceTest {
     }
 
     @Test
-    public void testSendOrderOddStartAndEnd() {
+    public void testSendOrderOddStartAndEnd() throws OrderValidationException {
 
         VWAPOrder vwapOrder = createOrder();
 
-        vwapOrder.setQuantity(50000);
+        vwapOrder.setQuantity(25000);
         vwapOrder.setBucketSize(this.bucketSize);
         vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
-        vwapOrder.setStartTime(LocalTime.of(11, 5));
-        vwapOrder.setEndTime(LocalTime.of(14, 52, 30));
+        vwapOrder.setStartTime(DateUtil.dateForYMDHMS(2016, 1, 1, 11, 5, 0));
+        vwapOrder.setEndTime(DateUtil.dateForYMDHMS(2016, 1, 1, 14, 52, 30));
 
-        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder);
+        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder, DateUtil.dateForYMDHMS(2016, 1, 1, 10, 0, 0));
 
-        Assert.assertEquals(0.5170, orderState.getParticipation(), 0.001);
+        Assert.assertEquals(0.2585, orderState.getParticipation(), 0.001);
     }
 
     @Test
@@ -270,16 +269,16 @@ public class VWAPOrderServiceTest {
         OrderStatusVO orderStatus = OrderStatusVOBuilder.create().setRemainingQuantity(1000).build();
         Mockito.when(this.orderExecutionService.getStatusByIntId(vwapOrder.getIntId())).thenReturn(orderStatus);
 
-        this.vwapOrderService.validateOrder(vwapOrder);
-        this.vwapOrderService.sendOrder(vwapOrder);
+        Date dateTime = DateUtil.dateForYMDHMS(2016, 1, 1, 9, 0, 0);
 
-        this.vwapOrderService.sendNextOrder(vwapOrder, DateUtil.dateForYMDHMS(2016, 1, 1, 11, 30, 0));
+        VWAPOrderStateVO orderState = this.vwapOrderService.createAlgoOrderState(vwapOrder, dateTime);
+        this.vwapOrderService.sendNextOrder(vwapOrder, orderState, dateTime);
 
         ArgumentCaptor<SimpleOrder> argument = ArgumentCaptor.forClass(SimpleOrder.class);
         Mockito.verify(this.simpleOrderService, Mockito.times(1)).sendOrder(argument.capture());
         SimpleOrder childOrder = argument.getValue();
 
-        Assert.assertEquals(83, childOrder.getQuantity());
+        Assert.assertEquals(125, childOrder.getQuantity());
     }
 
     @Test
@@ -292,8 +291,8 @@ public class VWAPOrderServiceTest {
         vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
-        vwapOrder.setStartTime(LocalTime.of(11, 0));
-        vwapOrder.setEndTime(LocalTime.of(11, 10));
+        vwapOrder.setStartTime(DateUtil.dateForYMDHMS(2016, 1, 1, 11, 0, 0));
+        vwapOrder.setEndTime(DateUtil.dateForYMDHMS(2016, 1, 1, 11, 10, 0));
         
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setOrder(vwapOrder);
@@ -332,7 +331,7 @@ public class VWAPOrderServiceTest {
         algoOrderState.storeFill(createFill(12, "70.3035"));
         algoOrderState.storeFill(createFill(11, "70.0386"));
 
-        Map<String, Object> results = this.vwapOrderService.getResults(vwapOrder, algoOrderState);
+        Map<String, Object> results = this.vwapOrderService.getResults(vwapOrder, algoOrderState, DateUtil.dateForYMDHMS(2016, 1, 1, 11, 10, 0));
 
         Assert.assertEquals(3, results.size());
         Assert.assertEquals(new BigDecimal("69.93"), results.get("price"));

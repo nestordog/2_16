@@ -18,6 +18,7 @@
 package ch.algotrader.service.algo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -59,9 +60,9 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         this.algoOrderStates = new ConcurrentHashMap<>();
     }
 
-    protected abstract S createAlgoOrderState(final T algoOrder);
+    protected abstract S createAlgoOrderState(final T algoOrder) throws OrderValidationException;
 
-    protected S getAlgoOrderState(final AlgoOrder algoOrder) {
+    protected final Optional<S> getAlgoOrderState(final AlgoOrder algoOrder) {
         String intId = algoOrder.getIntId();
         if (intId == null) {
             throw new ServiceException("Order intId is null");
@@ -69,15 +70,12 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         return getAlgoOrderState(intId);
     }
 
-    protected S getAlgoOrderState(final String intId) {
+    protected final Optional<S> getAlgoOrderState(final String intId) {
         S algoOrderState = this.algoOrderStates.get(intId);
-        if (algoOrderState == null) {
-            throw new ServiceException("Unexpected algoOrder intId: " + intId);
-        }
-        return algoOrderState;
+        return Optional.ofNullable(algoOrderState);
     }
 
-    protected void removeAlgoOrderState(final AlgoOrder algoOrder) {
+    protected final void removeAlgoOrderState(final AlgoOrder algoOrder) {
         this.algoOrderStates.remove(algoOrder.getIntId());
     }
 
@@ -91,20 +89,6 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         if (algoOrderState == null) {
             algoOrderState = createAlgoOrderState(algoOrder);
         }
-        handleValidateOrder(algoOrder, algoOrderState);
-        if (intId != null) {
-            this.algoOrderStates.putIfAbsent(intId, algoOrderState);
-        }
-    }
-
-    protected void handleValidateOrder(final T algoOrder, final S algoOrderState) throws OrderValidationException {
-        // validate general properties
-        if (algoOrder.getSide() == null) {
-            throw new OrderValidationException("Missing order side: " + algoOrder);
-        }
-        if (algoOrder.getQuantity() <= 0) {
-            throw new OrderValidationException("Order quantity cannot be zero or negative: " + algoOrder);
-        }
 
         // validate order specific properties
         algoOrder.validate();
@@ -113,6 +97,22 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         Security security = algoOrder.getSecurity();
         if (!security.getSecurityFamily().isTradeable()) {
             throw new OrderValidationException(security + " is not tradeable: " + algoOrder);
+        }
+
+        handleValidateOrder(algoOrder, algoOrderState);
+        if (intId != null) {
+            this.algoOrderStates.putIfAbsent(intId, algoOrderState);
+        }
+    }
+
+    protected void handleValidateOrder(final T algoOrder, final S algoOrderState) throws OrderValidationException {
+
+        // validate general properties
+        if (algoOrder.getSide() == null) {
+            throw new OrderValidationException("Missing order side: " + algoOrder);
+        }
+        if (algoOrder.getQuantity() <= 0) {
+            throw new OrderValidationException("Order quantity cannot be zero or negative: " + algoOrder);
         }
     }
 
@@ -125,7 +125,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         if (intId == null) {
             throw new ServiceException("Order intId is null");
         }
-        handleSendOrder(algoOrder, getAlgoOrderState(algoOrder));
+        handleSendOrder(algoOrder, getAlgoOrderState(algoOrder).get());
     }
 
     protected abstract void handleSendOrder(final T algoOrder, final S algoOrderState);
@@ -135,7 +135,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
-        handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder));
+        handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder).get());
     }
 
     protected abstract void handleModifyOrder(final T algoOrder, final S algoOrderState);
@@ -145,7 +145,15 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
-        handleCancelOrder(algoOrder, getAlgoOrderState(algoOrder));
+        handleCancelOrder(algoOrder, getAlgoOrderState(algoOrder).get());
+
+        String algoIntId = algoOrder.getIntId();
+        List<Order> openChildOrders = this.orderExecutionService.getOpenOrdersByParentIntId(algoIntId);
+        for (Order childOrder : openChildOrders) {
+            if (childOrder instanceof SimpleOrder) {
+                this.simpleOrderService.cancelOrder((SimpleOrder) childOrder);
+            }
+        }
 
         String algoOrderId = algoOrder.getIntId();
         OrderStatusVO executionStatus = this.orderExecutionService.getStatusByIntId(algoOrderId);
@@ -163,16 +171,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         this.algoOrderStates.remove(algoOrderId);
     }
 
-    protected void handleCancelOrder(final T order, final S algoOrderState) {
-
-        String algoIntId = order.getIntId();
-        List<Order> openChildOrders = this.orderExecutionService.getOpenOrdersByParentIntId(algoIntId);
-        for (Order childOrder: openChildOrders) {
-            if (childOrder instanceof SimpleOrder) {
-                this.simpleOrderService.cancelOrder((SimpleOrder) childOrder);
-            }
-        }
-    }
+    protected abstract void handleCancelOrder(final T order, final S algoOrderState);
 
     @Override
     public String getNextOrderId(final Account account) {
@@ -187,22 +186,12 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         if (algoOrderState == null) {
             return;
         }
-        if (orderStatus.getStatus() == Status.SUBMITTED) {
 
-            OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
-            if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
-                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-                algoOrderStatus.setStatus(Status.SUBMITTED);
-                algoOrderStatus.setIntId(intId);
-                algoOrderStatus.setExtDateTime(algoOrderStatus.getExtDateTime());
-                algoOrderStatus.setFilledQuantity(0L);
-                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
-                algoOrderStatus.setOrder(algoOrder);
+        OrderStatus algoOrderStatus = createAlgoOrderStatusOnSubmit(algoOrder, orderStatus, intId);
+        if (algoOrderStatus != null) {
 
-                this.orderExecutionService.handleOrderStatus(algoOrderStatus);
-
-                handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
-            }
+            this.orderExecutionService.handleOrderStatus(algoOrderStatus);
+            handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
         }
 
         handleChildOrderStatus(algoOrder, algoOrderState, orderStatus);
@@ -216,9 +205,48 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         if (algoOrderState == null) {
             return;
         }
+
+        handleChildFill(algoOrder, algoOrderState, fill);
+
+        OrderStatus algoOrderStatus = createAlgoOrderStatusOnFill(algoOrder, algoOrderState, fill);
+        if (algoOrderStatus != null) {
+
+            this.orderExecutionService.handleOrderStatus(algoOrderStatus);
+            handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
+
+            if (algoOrderStatus.getStatus() == Status.EXECUTED) {
+                this.algoOrderStates.remove(intId);
+            }
+        }
+    }
+
+    protected OrderStatus createAlgoOrderStatusOnSubmit(final T algoOrder, final OrderStatus orderStatus, String intId) {
+
+        OrderStatus algoOrderStatus = null;
+        if (orderStatus.getStatus() == Status.SUBMITTED) {
+
+            OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
+            if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
+                algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(Status.SUBMITTED);
+                algoOrderStatus.setIntId(intId);
+                algoOrderStatus.setExtDateTime(orderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(0L);
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
+                algoOrderStatus.setOrder(algoOrder);
+
+            }
+        }
+        return algoOrderStatus;
+    }
+
+    protected OrderStatus createAlgoOrderStatusOnFill(final T algoOrder, final S algoOrderState, final Fill fill) {
+
+        OrderStatus algoOrderStatus = null;
+        String intId = algoOrder.getIntId();
         OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
         if (execStatus != null) {
-            OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+            algoOrderStatus = OrderStatus.Factory.newInstance();
             algoOrderStatus.setStatus(execStatus.getRemainingQuantity() - fill.getQuantity() > 0 ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
             algoOrderStatus.setIntId(intId);
             algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
@@ -226,22 +254,14 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
             algoOrderStatus.setOrder(algoOrder);
 
-            this.orderExecutionService.handleOrderStatus(algoOrderStatus);
-
-            handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
-
-            if (algoOrderStatus.getStatus() == Status.EXECUTED) {
-                this.algoOrderStates.remove(intId);
-            }
         }
-
-        handleChildFill(algoOrder, algoOrderState, fill);
-    }
-
-    protected void handleOrderStatus(T algoOrder, final S algoOrderState, final OrderStatus orderStatus) {
+        return algoOrderStatus;
     }
 
     protected void handleChildFill(final T algoOrder, final S algoOrderState, final Fill fill) {
+    }
+
+    protected void handleOrderStatus(T algoOrder, final S algoOrderState, final OrderStatus orderStatus) {
     }
 
     protected void handleChildOrderStatus(final T algoOrder, final S algoOrderState, final OrderStatus orderStatus) {

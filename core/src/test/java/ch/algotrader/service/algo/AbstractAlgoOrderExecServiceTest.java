@@ -126,6 +126,10 @@ public class AbstractAlgoOrderExecServiceTest {
             @Override
             protected void handleModifyOrder(SimpleAlgoOrder order, SimpleOrderStateVO algoOrderState) {
             }
+
+            @Override
+            protected void handleCancelOrder(SimpleAlgoOrder order, SimpleOrderStateVO algoOrderState) {
+            }
         };
     }
 

@@ -58,4 +58,9 @@ public class VWAPOrderStateVO extends AlgoOrderStateVO {
         return this.fills;
     }
 
+    @Override
+    public String toString() {
+        return "participationRate=" + this.participation;
+    }
+
 }

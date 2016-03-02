@@ -18,6 +18,7 @@
 package ch.algotrader.service.algo;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.Validate;
@@ -137,39 +138,39 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
     @Override
     protected void handleCancelOrder(final TickwiseIncrementalOrder order, final IncrementalOrderStateVO algoOrderState) {
 
-        LimitOrder limitOrder = algoOrderState.getLimitOrder();
-        if (limitOrder != null) {
-            this.simpleOrderService.cancelOrder(limitOrder);
-        }
     }
 
     public void adjustLimit(final TickwiseIncrementalOrder algoOrder) {
 
-        IncrementalOrderStateVO orderState = getAlgoOrderState(algoOrder);
+        Optional<IncrementalOrderStateVO> optional = getAlgoOrderState(algoOrder);
+        if (optional.isPresent()) {
 
-        // check limit
-        if (!checkLimit(algoOrder, orderState)) {
-            cancelOrder(algoOrder);
-            return;
+            IncrementalOrderStateVO orderState = optional.get();
+
+            // check limit
+            if (!checkLimit(algoOrder, orderState)) {
+                cancelOrder(algoOrder);
+                return;
+            }
+
+            SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
+            if (algoOrder.getSide().equals(Side.BUY)) {
+                orderState.setCurrentLimit(family.adjustPrice(null, orderState.getCurrentLimit(), 1));
+            } else {
+                orderState.setCurrentLimit(family.adjustPrice(null, orderState.getCurrentLimit(), -1));
+            }
+
+            LimitOrder modifiedOrder;
+            try {
+                modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
+                modifiedOrder.setId(0L);
+            } catch (Exception ex) {
+                throw new ServiceException(ex);
+            }
+
+            modifiedOrder.setLimit(orderState.getCurrentLimit());
+            this.simpleOrderService.modifyOrder(modifiedOrder);
         }
-
-        SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
-        if (algoOrder.getSide().equals(Side.BUY)) {
-            orderState.setCurrentLimit(family.adjustPrice(null, orderState.getCurrentLimit(), 1));
-        } else {
-            orderState.setCurrentLimit(family.adjustPrice(null, orderState.getCurrentLimit(), -1));
-        }
-
-        LimitOrder modifiedOrder;
-        try {
-            modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-            modifiedOrder.setId(0L);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-
-        modifiedOrder.setLimit(orderState.getCurrentLimit());
-        this.simpleOrderService.modifyOrder(modifiedOrder);
     }
 
     private boolean checkLimit(AlgoOrder algoOrder, IncrementalOrderStateVO orderState) {

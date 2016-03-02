@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -93,12 +94,17 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    protected void handleCancelOrder(final SlicingOrder order, final SlicingOrderStateVO algoOrderState) {
+    }
+
     public void increaseOffsetTicks(SlicingOrder slicingOrder) {
 
         Validate.notNull(slicingOrder, "slicingOrder missing");
 
-        SlicingOrderStateVO orderState = getAlgoOrderState(slicingOrder);
-        if (orderState != null) {
+        Optional<SlicingOrderStateVO> optional = getAlgoOrderState(slicingOrder);
+        if (optional.isPresent()) {
+            SlicingOrderStateVO orderState = optional.get();
             orderState.setCurrentOffsetTicks(orderState.getCurrentOffsetTicks() + 1);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("increaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
@@ -110,8 +116,9 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
 
         Validate.notNull(slicingOrder, "slicingOrder missing");
 
-        SlicingOrderStateVO orderState = getAlgoOrderState(slicingOrder);
-        if (orderState != null) {
+        Optional<SlicingOrderStateVO> optional = getAlgoOrderState(slicingOrder);
+        if (optional.isPresent()) {
+            SlicingOrderStateVO orderState = optional.get();
             orderState.setCurrentOffsetTicks(Math.max(orderState.getCurrentOffsetTicks() - 1, 0));
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("decreaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
@@ -121,7 +128,10 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
 
     public void sendNextOrder(SlicingOrder slicingOrder) {
 
-        sendNextOrder(slicingOrder, getAlgoOrderState(slicingOrder));
+        Optional<SlicingOrderStateVO> optional = getAlgoOrderState(slicingOrder);
+        if (optional.isPresent()) {
+            sendNextOrder(slicingOrder, optional.get());
+        }
     }
 
     private void sendNextOrder(SlicingOrder slicingOrder, SlicingOrderStateVO slicingOrderState) {
@@ -255,77 +265,85 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         }
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(algoOrder.getDescription() + getResults(algoOrder, algoOrderState));
+            LOGGER.info(algoOrder.getDescription() + "," + getResults(algoOrder, algoOrderState));
         }
     }
 
     Map<String, Object> getResults(SlicingOrder slicingOrder, SlicingOrderStateVO algoOrderState) {
+
         List<Pair<LimitOrder, TickI>> pairs = algoOrderState.getPairs();
         List<Fill> fills = algoOrderState.getFills();
         String broker = slicingOrder.getAccount().getBroker();
         SecurityFamily securityFamily = slicingOrder.getSecurity().getSecurityFamily();
 
-        long startTime = (pairs.get(0).getFirst()).getDateTime().getTime();
-        Fill lastFill = fills.get(fills.size() - 1);
-        long totalTime = lastFill.getDateTime().getTime() - startTime;
-
-        long totalTimeToFill = 0;
         int orderCount = pairs.size();
-        int fillCount = 0;
-        int filledOrderCount = 0;
-        double sumOrderQtyToMarketVol = 0;
-        double sumFilledQtyToMarketVol = 0;
-        double sumFilledQtyToOrderQty = 0;
-        double sumOffsetOrderToMarket = 0;
-        double sumOffsetFillToOrder = 0;
-
-        for (Pair<LimitOrder, TickI> pair : pairs) {
-
-            TickI tick = pair.getSecond();
-            LimitOrder order = pair.getFirst();
-
-            double marketVol = order.getSide().equals(Side.BUY) ? tick.getVolAsk() : tick.getVolBid();
-            double orderQty = order.getQuantity();
-
-            BigDecimal marketPrice = order.getSide().equals(Side.BUY) ? tick.getAsk() : tick.getBid();
-            BigDecimal orderPrice = order.getLimit();
-
-            sumOrderQtyToMarketVol += order.getQuantity() / marketVol;
-            filledOrderCount = fills.size() > 0 ? ++filledOrderCount : filledOrderCount;
-
-            List<Fill> fillsByIntOrderId = algoOrderState.getFillsByIntOrderId(order.getIntId());
-            if (fillsByIntOrderId != null) {
-                for (Fill fill : fillsByIntOrderId) {
-
-                    double filledQty = fill.getQuantity();
-                    BigDecimal fillPrice = fill.getPrice();
-
-                    fillCount++;
-
-                    totalTimeToFill += fill.getDateTime().getTime() - order.getDateTime().getTime();
-
-                    sumOrderQtyToMarketVol += orderQty / marketVol;
-                    sumFilledQtyToOrderQty += filledQty / orderQty;
-                    sumFilledQtyToMarketVol += filledQty / marketVol;
-
-                    sumOffsetOrderToMarket += Math.abs(securityFamily.getSpreadTicks(broker, orderPrice, marketPrice));
-                    sumOffsetFillToOrder += Math.abs(securityFamily.getSpreadTicks(broker, fillPrice, orderPrice));
-                }
-            }
-
-        }
 
         Map<String, Object> results = new HashMap<>();
-        results.put("totalTime(msec)", totalTime);
-        results.put("avgTimeToFill(msec)", (int) (totalTimeToFill / fillCount));
-        results.put("orderCount", orderCount);
-        results.put("filledOrderCount", filledOrderCount);
-        results.put("filledOrder%", twoDigitFormat.format(filledOrderCount / orderCount * 100.0));
-        results.put("avgOrderQtyToMarketVol%", twoDigitFormat.format(sumOrderQtyToMarketVol / fillCount * 100.0));
-        results.put("avgFilledQtyToOrderQty%", twoDigitFormat.format(sumFilledQtyToOrderQty / fillCount * 100.0));
-        results.put("avgFilledQtyToMarketVol%", twoDigitFormat.format(sumFilledQtyToMarketVol / fillCount * 100.0));
-        results.put("avgOffsetOrderToMarket", twoDigitFormat.format(sumOffsetOrderToMarket / fillCount));
-        results.put("avgOffsetFillToOrder", twoDigitFormat.format(sumOffsetFillToOrder / fillCount));
+        if (fills.size() > 0) {
+
+            long startTime = (pairs.get(0).getFirst()).getDateTime().getTime();
+            Fill lastFill = fills.get(fills.size() - 1);
+            long totalTime = lastFill.getDateTime().getTime() - startTime;
+
+            long totalTimeToFill = 0;
+            int fillCount = 0;
+            int filledOrderCount = 0;
+            double sumOrderQtyToMarketVol = 0;
+            double sumFilledQtyToMarketVol = 0;
+            double sumFilledQtyToOrderQty = 0;
+            double sumOffsetOrderToMarket = 0;
+            double sumOffsetFillToOrder = 0;
+
+            for (Pair<LimitOrder, TickI> pair : pairs) {
+
+                TickI tick = pair.getSecond();
+                LimitOrder order = pair.getFirst();
+
+                double marketVol = order.getSide().equals(Side.BUY) ? tick.getVolAsk() : tick.getVolBid();
+                double orderQty = order.getQuantity();
+
+                BigDecimal marketPrice = order.getSide().equals(Side.BUY) ? tick.getAsk() : tick.getBid();
+                BigDecimal orderPrice = order.getLimit();
+
+                sumOrderQtyToMarketVol += order.getQuantity() / marketVol;
+                filledOrderCount = fills.size() > 0 ? ++filledOrderCount : filledOrderCount;
+
+                List<Fill> fillsByIntOrderId = algoOrderState.getFillsByIntOrderId(order.getIntId());
+                if (fillsByIntOrderId != null) {
+                    for (Fill fill : fillsByIntOrderId) {
+
+                        double filledQty = fill.getQuantity();
+                        BigDecimal fillPrice = fill.getPrice();
+
+                        fillCount++;
+
+                        totalTimeToFill += fill.getDateTime().getTime() - order.getDateTime().getTime();
+
+                        sumOrderQtyToMarketVol += orderQty / marketVol;
+                        sumFilledQtyToOrderQty += filledQty / orderQty;
+                        sumFilledQtyToMarketVol += filledQty / marketVol;
+
+                        sumOffsetOrderToMarket += Math.abs(securityFamily.getSpreadTicks(broker, orderPrice, marketPrice));
+                        sumOffsetFillToOrder += Math.abs(securityFamily.getSpreadTicks(broker, fillPrice, orderPrice));
+                    }
+                }
+
+            }
+
+            results.put("totalTime(msec)", totalTime);
+            results.put("avgTimeToFill(msec)", (int) (totalTimeToFill / fillCount));
+            results.put("orderCount", orderCount);
+            results.put("filledOrderCount", filledOrderCount);
+            results.put("filledOrder%", twoDigitFormat.format(filledOrderCount / orderCount * 100.0));
+            results.put("avgOrderQtyToMarketVol%", twoDigitFormat.format(sumOrderQtyToMarketVol / fillCount * 100.0));
+            results.put("avgFilledQtyToOrderQty%", twoDigitFormat.format(sumFilledQtyToOrderQty / fillCount * 100.0));
+            results.put("avgFilledQtyToMarketVol%", twoDigitFormat.format(sumFilledQtyToMarketVol / fillCount * 100.0));
+            results.put("avgOffsetOrderToMarket", twoDigitFormat.format(sumOffsetOrderToMarket / fillCount));
+            results.put("avgOffsetFillToOrder", twoDigitFormat.format(sumOffsetFillToOrder / fillCount));
+        } else {
+            results.put("orderCount", orderCount);
+        }
+
         return results;
     }
 
