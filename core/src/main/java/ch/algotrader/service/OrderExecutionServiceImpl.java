@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang.Validate;
@@ -212,6 +213,17 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
     public String lookupIntId(final String extId) {
 
         return this.orderBook.lookupIntId(extId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Order> getOpenOrdersByParentIntId(final String parentIntId) {
+
+        Validate.notEmpty(parentIntId, "Parent order IntId is empty");
+
+        return this.orderBook.getOpenOrdersByParentIntId(parentIntId);
     }
 
     /**

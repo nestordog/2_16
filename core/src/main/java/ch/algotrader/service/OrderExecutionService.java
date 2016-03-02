@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.List;
+
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
@@ -64,6 +66,11 @@ public interface OrderExecutionService {
      * Looks up  {@code IntId} by {@code ExtId}.
      */
     String lookupIntId(String extId);
+
+    /**
+     * Returns all open child orders of the parent order with the given {@code IntId}.
+     */
+    List<Order> getOpenOrdersByParentIntId(String parentIntId);
 
     /**
      * Gets an open order details by its {@code intId}.

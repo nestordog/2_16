@@ -15,13 +15,12 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.service.algo;
 
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -40,16 +39,15 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVOBuilder;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.algo.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.Status;
-import ch.algotrader.ordermgmt.OrderBook;
-import ch.algotrader.service.algo.SlicingOrderService;
+import ch.algotrader.service.MarketDataCacheService;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -62,9 +60,9 @@ public class SlicingOrderServiceTest {
     private static final int ITERATIONS = 50;
     private static final Random random = new Random();
 
+    private static OrderExecutionService orderExecutionService;
     private static MarketDataCacheService marketDataCacheService;
     private static SimpleOrderService simpleOrderService;
-    private static OrderBook orderBook;
     private static SlicingOrderService slicingOrderService;
 
     private static Security security;
@@ -77,9 +75,9 @@ public class SlicingOrderServiceTest {
 
     @BeforeClass
     public static void setup() {
-        
+
+        orderExecutionService = Mockito.mock(OrderExecutionService.class);
         marketDataCacheService = Mockito.mock(MarketDataCacheService.class);
-        orderBook = Mockito.mock(OrderBook.class);
 
         simpleOrderService = new SimpleOrderService() {
 
@@ -106,7 +104,7 @@ public class SlicingOrderServiceTest {
             }
         };
 
-        slicingOrderService = new SlicingOrderService(marketDataCacheService, simpleOrderService, orderBook);
+        slicingOrderService = new SlicingOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
 
         SecurityFamily securityFamily = SecurityFamily.Factory.newInstance("", Currency.USD, 1, 2, "0<0.01", true, false);
         security = Stock.Factory.newInstance(securityFamily);
@@ -115,13 +113,10 @@ public class SlicingOrderServiceTest {
 
         strategy = Strategy.Factory.newInstance("TEST_STRATEGY", false);
 
-        when(marketDataCacheService.getCurrentMarketDataEvent(security.getId())).then(i -> {
-            return tick;
-        });
+        when(marketDataCacheService.getCurrentMarketDataEvent(security.getId())).then(i -> tick);
         
-        when(orderBook.getStatusByIntId(intId)).then(invocation -> {
-            return OrderStatusVOBuilder.create().setRemainingQuantity(remainingQty).build();
-        });
+        when(orderExecutionService.getStatusByIntId(intId)).then(invocation ->
+                OrderStatusVOBuilder.create().setRemainingQuantity(remainingQty).build());
     }
 
     @Test
@@ -254,8 +249,7 @@ public class SlicingOrderServiceTest {
         }
 
         // order executed
-        OrderStatus orderStatusExecuted = OrderStatus.Factory.newInstance(new Date(), Status.EXECUTED, order.getQuantity(), 0l, 0l, intId, 0l, order);
-        slicingOrderService.handleOrderStatus(orderStatusExecuted);
+        slicingOrderService.removeAlgoOrderState(order);
     }
 
     private void verifyAndFill(final SlicingOrder order) {

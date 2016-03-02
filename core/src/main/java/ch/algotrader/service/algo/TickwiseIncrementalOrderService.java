@@ -31,7 +31,8 @@ import ch.algotrader.entity.trade.algo.IncrementalOrderStateVO;
 import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.SimpleOrderService;
 
 /**
@@ -41,17 +42,17 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
 
     private final MarketDataCacheService marketDataCacheService;
     private final SimpleOrderService simpleOrderService;
-    private final OrderService orderService;
 
-    public TickwiseIncrementalOrderService(final MarketDataCacheService marketDataCacheService, final SimpleOrderService simpleOrderService, final OrderService algoOrderService) {
+    public TickwiseIncrementalOrderService(
+            final OrderExecutionService orderExecutionService,
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService) {
+        super(orderExecutionService, simpleOrderService);
 
         Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
-        Validate.notNull(simpleOrderService, "SimpleOrderService is null");
-        Validate.notNull(algoOrderService, "AlgoOrderService is null");
 
         this.marketDataCacheService = marketDataCacheService;
         this.simpleOrderService = simpleOrderService;
-        this.orderService = algoOrderService;
     }
 
     @Override
@@ -111,10 +112,6 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
     }
 
     @Override
-    public void handleValidateOrder(final TickwiseIncrementalOrder algoOrder, final IncrementalOrderStateVO algoOrderState) {
-    }
-
-    @Override
     public void handleSendOrder(final TickwiseIncrementalOrder algoOrder, final IncrementalOrderStateVO algoOrderState) {
 
         Security security = algoOrder.getSecurity();
@@ -132,13 +129,27 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
         this.simpleOrderService.sendOrder(limitOrder);
     }
 
+    @Override
+    protected void handleModifyOrder(final TickwiseIncrementalOrder order, final IncrementalOrderStateVO algoOrderState) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void handleCancelOrder(final TickwiseIncrementalOrder order, final IncrementalOrderStateVO algoOrderState) {
+
+        LimitOrder limitOrder = algoOrderState.getLimitOrder();
+        if (limitOrder != null) {
+            this.simpleOrderService.cancelOrder(limitOrder);
+        }
+    }
+
     public void adjustLimit(final TickwiseIncrementalOrder algoOrder) {
 
         IncrementalOrderStateVO orderState = getAlgoOrderState(algoOrder);
 
         // check limit
         if (!checkLimit(algoOrder, orderState)) {
-            this.orderService.cancelOrder(algoOrder);
+            cancelOrder(algoOrder);
             return;
         }
 
@@ -152,8 +163,9 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
         LimitOrder modifiedOrder;
         try {
             modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            modifiedOrder.setId(0L);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
         }
 
         modifiedOrder.setLimit(orderState.getCurrentLimit());

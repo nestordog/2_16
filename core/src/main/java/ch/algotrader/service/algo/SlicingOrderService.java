@@ -32,8 +32,8 @@ import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.SlicingOrder;
 import ch.algotrader.entity.trade.algo.SlicingOrderStateVO;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.MarketDataCacheService;
+import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.util.collection.Pair;
 
@@ -44,19 +44,22 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
 
     private static final Logger LOGGER = LogManager.getLogger(SlicingOrderService.class);
 
+    private final OrderExecutionService orderExecutionService;
     private final MarketDataCacheService marketDataCacheService;
     private final SimpleOrderService simpleOrderService;
-    private final OrderBook orderBook;
 
-    public SlicingOrderService(final MarketDataCacheService marketDataCacheService, final SimpleOrderService simpleOrderService, final OrderBook orderBook) {
+    public SlicingOrderService(
+            final OrderExecutionService orderExecutionService,
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService) {
+
+        super(orderExecutionService, simpleOrderService);
 
         Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
-        Validate.notNull(simpleOrderService, "SimpleOrderService is null");
-        Validate.notNull(orderBook, "OrderBook is null");
 
+        this.orderExecutionService = orderExecutionService;
         this.marketDataCacheService = marketDataCacheService;
         this.simpleOrderService = simpleOrderService;
-        this.orderBook = orderBook;
     }
 
     @Override
@@ -70,13 +73,14 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
     }
 
     @Override
-    public void handleValidateOrder(final SlicingOrder algoOrder, final SlicingOrderStateVO algoOrderState) {
-    }
-
-    @Override
     public void handleSendOrder(final SlicingOrder algoOrder, final SlicingOrderStateVO slicingOrderState) {
 
         sendNextOrder(algoOrder, slicingOrderState);
+    }
+
+    @Override
+    protected void handleModifyOrder(final SlicingOrder order, final SlicingOrderStateVO algoOrderState) {
+        throw new UnsupportedOperationException();
     }
 
     public void increaseOffsetTicks(SlicingOrder slicingOrder) {
@@ -121,7 +125,7 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         SecurityFamily family = security.getSecurityFamily();
 
         long remainingQuantity;
-        OrderStatusVO orderStatus = this.orderBook.getStatusByIntId(slicingOrder.getIntId());
+        OrderStatusVO orderStatus = this.orderExecutionService.getStatusByIntId(slicingOrder.getIntId());
         if (orderStatus != null) {
             remainingQuantity = orderStatus.getRemainingQuantity();
         } else {

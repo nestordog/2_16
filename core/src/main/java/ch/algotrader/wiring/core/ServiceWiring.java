@@ -77,7 +77,6 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.CombinationServiceImpl;
 import ch.algotrader.service.EventPropagator;
 import ch.algotrader.service.ExternalMarketDataService;
-import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
@@ -116,6 +115,7 @@ import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
 import ch.algotrader.service.ServerStateLoaderService;
 import ch.algotrader.service.ServerStateLoaderServiceImpl;
+import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.service.SimpleOrderServiceImpl;
 import ch.algotrader.service.StrategyPersistenceService;
@@ -345,10 +345,7 @@ public class ServiceWiring {
 
     @Bean(name = "algoOrderService")
     public AlgoOrderService createAlgoOrderService(
-            final CommonConfig commonConfig,
-            final SimpleOrderService simpleOrderService,
             final OrderBook orderBook,
-            final EventDispatcher eventDispatcher,
             final Engine serverEngine,
             final ApplicationContext applicationContext) {
 
@@ -356,34 +353,35 @@ public class ServiceWiring {
         Map<Class<? extends AlgoOrder>, AlgoOrderExecService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(AlgoOrderExecService::getAlgoOrderType, service -> service));
 
-        return new AlgoOrderServiceImpl(commonConfig, simpleOrderService, orderBook, eventDispatcher, serverEngine, serviceMap2);
+        return new AlgoOrderServiceImpl(orderBook, serverEngine, serviceMap2);
     }
 
     @Bean(name = "slicingOrderService")
     public SlicingOrderService createSlicingOrderService(
+            final OrderExecutionService orderExecutionService,
             final MarketDataCacheService marketDataCacheService,
             final SimpleOrderService simpleOrderService,
             final OrderBook orderBook) {
 
-        return new SlicingOrderService(marketDataCacheService, simpleOrderService, orderBook);
+        return new SlicingOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
     }
 
     @Bean(name = "tickwiseIncrementalOrderService")
     public TickwiseIncrementalOrderService createTickwiseIncrementalOrderService(
+            final OrderExecutionService orderExecutionService,
             final MarketDataCacheService marketDataCacheService,
-            final SimpleOrderService simpleOrderService,
-            final OrderService orderService) {
+            final SimpleOrderService simpleOrderService) {
 
-        return new TickwiseIncrementalOrderService(marketDataCacheService, simpleOrderService, orderService);
+        return new TickwiseIncrementalOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
     }
 
     @Bean(name = "variableIncrementalOrderService")
     public VariableIncrementalOrderService createVariableIncrementalOrderService(
+            final OrderExecutionService orderExecutionService,
             final MarketDataCacheService marketDataCacheService,
-            final SimpleOrderService simpleOrderService,
-            final OrderService orderService) {
+            final SimpleOrderService simpleOrderService) {
 
-        return new VariableIncrementalOrderService(marketDataCacheService, simpleOrderService, orderService);
+        return new VariableIncrementalOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
     }
 
     @Bean(name = "orderService")

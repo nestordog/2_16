@@ -27,12 +27,12 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
-import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
 import ch.algotrader.entity.trade.algo.VariableIncrementalOrder;
 import ch.algotrader.entity.trade.algo.VariableIncrementalOrderStateVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;
-import ch.algotrader.service.OrderService;
+import ch.algotrader.service.OrderExecutionService;
+import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.util.RoundUtil;
 
@@ -43,17 +43,17 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
 
     private final MarketDataCacheService marketDataCacheService;
     private final SimpleOrderService simpleOrderService;
-    private final OrderService orderService;
 
-    public VariableIncrementalOrderService(final MarketDataCacheService marketDataCacheService, final SimpleOrderService simpleOrderService, final OrderService orderService) {
+    public VariableIncrementalOrderService(
+            final OrderExecutionService orderExecutionService,
+            final MarketDataCacheService marketDataCacheService,
+            final SimpleOrderService simpleOrderService) {
+        super(orderExecutionService, simpleOrderService);
 
         Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
-        Validate.notNull(simpleOrderService, "SimpleOrderService is null");
-        Validate.notNull(orderService, "AlgoOrderService is null");
 
         this.marketDataCacheService = marketDataCacheService;
         this.simpleOrderService = simpleOrderService;
-        this.orderService = orderService;
     }
 
     @Override
@@ -95,10 +95,6 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
     }
 
     @Override
-    public void handleValidateOrder(final VariableIncrementalOrder algoOrder, final VariableIncrementalOrderStateVO algoOrderState) {
-    }
-
-    @Override
     public void handleSendOrder(final VariableIncrementalOrder algoOrder, final VariableIncrementalOrderStateVO algoOrderState) {
 
         Security security = algoOrder.getSecurity();
@@ -116,13 +112,27 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
 
         this.simpleOrderService.sendOrder(limitOrder);}
 
-    public void adjustLimit(final TickwiseIncrementalOrder algoOrder) {
+    @Override
+    protected void handleModifyOrder(final VariableIncrementalOrder order, final VariableIncrementalOrderStateVO algoOrderState) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void handleCancelOrder(final VariableIncrementalOrder order, final VariableIncrementalOrderStateVO algoOrderState) {
+
+        LimitOrder limitOrder = algoOrderState.getLimitOrder();
+        if (limitOrder != null) {
+            this.simpleOrderService.cancelOrder(limitOrder);
+        }
+    }
+
+    public void adjustLimit(final VariableIncrementalOrder algoOrder) {
 
         VariableIncrementalOrderStateVO orderState = getAlgoOrderState(algoOrder);
 
         // check limit
         if (!checkLimit(algoOrder, orderState)) {
-            this.orderService.cancelOrder(algoOrder);
+            cancelOrder(algoOrder);
             return;
         }
 
@@ -145,8 +155,9 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
         LimitOrder modifiedOrder;
         try {
             modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            modifiedOrder.setId(0L);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
         }
 
         modifiedOrder.setLimit(orderState.getCurrentLimit());

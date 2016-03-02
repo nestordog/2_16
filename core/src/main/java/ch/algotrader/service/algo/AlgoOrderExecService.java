@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.algo;
 
+import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.service.GenericOrderService;
@@ -34,8 +35,13 @@ public interface AlgoOrderExecService<T extends AlgoOrder> extends GenericOrderS
     Class<? extends AlgoOrder> getAlgoOrderType();
 
     /**
-     * handle order status updates of this algo order
+     * Handles order status updates of the child order
      */
-    void handleOrderStatus(OrderStatus orderStatus);
+    void handleChildOrderStatus(T order, OrderStatus orderStatus);
+
+    /**
+     * Handles fill of the child order
+     */
+    void handleChildFill(T order, Fill fill);
 
 }
