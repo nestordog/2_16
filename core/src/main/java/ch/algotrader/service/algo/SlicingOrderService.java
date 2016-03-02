@@ -19,6 +19,7 @@ package ch.algotrader.service.algo;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -251,7 +252,7 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
     @Override
     public void handleOrderStatus(OrderStatus orderStatus, SlicingOrderStateVO algoOrderState) {
 
-        if (orderStatus.getStatus() != Status.EXECUTED) {
+        if (!EnumSet.of(Status.EXECUTED, Status.CANCELED).contains(orderStatus.getStatus())) {
             return;
         }
 

@@ -81,6 +81,7 @@ import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.FutureServiceImpl;
+import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LazyLoaderServiceImpl;
 import ch.algotrader.service.LookupService;
@@ -129,6 +130,7 @@ import ch.algotrader.service.TransactionServiceImpl;
 import ch.algotrader.service.algo.AlgoOrderExecService;
 import ch.algotrader.service.algo.SlicingOrderService;
 import ch.algotrader.service.algo.TickwiseIncrementalOrderService;
+import ch.algotrader.service.algo.VWAPOrderService;
 import ch.algotrader.service.algo.VariableIncrementalOrderService;
 import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
 import ch.algotrader.service.mysql.MySqlTransactionPersistenceServiceImpl;
@@ -364,6 +366,16 @@ public class ServiceWiring {
             final OrderBook orderBook) {
 
         return new SlicingOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
+    }
+
+    @Bean(name = "vWAPOrderService")
+    public VWAPOrderService createVWAPOrderService(
+            final OrderExecutionService orderExecutionService,
+            final HistoricalDataService historicalDataService,
+            final CalendarService calendarService,
+            final SimpleOrderService simpleOrderService) {
+
+        return new VWAPOrderService(orderExecutionService, historicalDataService, calendarService, simpleOrderService);
     }
 
     @Bean(name = "tickwiseIncrementalOrderService")

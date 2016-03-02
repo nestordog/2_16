@@ -33,6 +33,8 @@ public enum OrderType {
 
     SLICING("ch.algotrader.entity.trade.algo.SlicingOrder"),
 
+    VWAP("ch.algotrader.entity.trade.algo.VWAPOrder"),
+
     TICKWISE_INCREMENTAL("ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder"),
 
     VARIABLE_INCREMENTAL("ch.algotrader.entity.trade.algo.VariableIncrementalOrder");
