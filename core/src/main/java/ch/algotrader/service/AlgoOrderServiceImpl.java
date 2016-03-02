@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -81,23 +80,6 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         Validate.notNull(order, "Order is null");
 
-        // validate general properties
-        if (order.getSide() == null) {
-            throw new OrderValidationException("Missing order side: " + order);
-        }
-        if (order.getQuantity() <= 0) {
-            throw new OrderValidationException("Order quantity cannot be zero or negative: " + order);
-        }
-
-        // validate order specific properties
-        order.validate();
-
-        // check that the security is tradeable
-        Security security = order.getSecurity();
-        if (!security.getSecurityFamily().isTradeable()) {
-            throw new OrderValidationException(security + " is not tradeable: " + order);
-        }
-
         AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
         algoOrderExecService.validateOrder(order);
     }
@@ -110,9 +92,14 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         Validate.notNull(order, "Order is null");
 
+        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
+
+        if (order.getIntId() == null) {
+            order.setIntId(getNextOrderId(order.getAccount()));
+        }
         // validate the order before sending it
         try {
-            validateOrder(order);
+            algoOrderExecService.validateOrder(order);
         } catch (OrderValidationException ex) {
             throw new ServiceException(ex);
         }
@@ -120,7 +107,6 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
         if (order.getDateTime() == null) {
             order.setDateTime(this.serverEngine.getCurrentTime());
         }
-        order.setIntId(getNextOrderId(order.getAccount()));
 
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("send algo order: {}", order);
@@ -130,7 +116,6 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         this.serverEngine.sendEvent(order);
 
-        AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
         algoOrderExecService.sendOrder(order);
 
     }

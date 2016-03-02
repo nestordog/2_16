@@ -37,9 +37,9 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
+import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.AlgoOrderStateVO;
-import ch.algotrader.entity.trade.algo.SlicingOrder;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
@@ -50,6 +50,21 @@ import ch.algotrader.service.SimpleOrderService;
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public class AbstractAlgoOrderExecServiceTest {
+
+    static class SimpleAlgoOrder extends AlgoOrder {
+
+        private static final long serialVersionUID = 6958526132387582996L;
+
+        @Override
+        public String getExtDescription() {
+            return "";
+        }
+
+        @Override
+        public void validate() throws OrderValidationException {
+        }
+
+    }
 
     static class SimpleOrderStateVO extends AlgoOrderStateVO {
 
@@ -67,7 +82,7 @@ public class AbstractAlgoOrderExecServiceTest {
     private Exchange exchange;
     private Stock stock;
 
-    private AbstractAlgoOrderExecService<AlgoOrder, SimpleOrderStateVO> impl;
+    private AbstractAlgoOrderExecService<SimpleAlgoOrder, SimpleOrderStateVO> impl;
 
     @Before
     public void setup() throws Exception {
@@ -92,24 +107,24 @@ public class AbstractAlgoOrderExecServiceTest {
         this.stock.setSymbol("GOOG");
         this.stock.setSecurityFamily(this.family);
 
-        this.impl = new AbstractAlgoOrderExecService<AlgoOrder, SimpleOrderStateVO>(this.orderExecutionService, this.simpleOrderService) {
+        this.impl = new AbstractAlgoOrderExecService<SimpleAlgoOrder, SimpleOrderStateVO>(this.orderExecutionService, this.simpleOrderService) {
 
             @Override
             public Class<? extends AlgoOrder> getAlgoOrderType() {
-                return SlicingOrder.class;
+                return SimpleAlgoOrder.class;
             }
 
             @Override
-            protected SimpleOrderStateVO createAlgoOrderState(AlgoOrder algoOrder) {
+            protected SimpleOrderStateVO createAlgoOrderState(SimpleAlgoOrder algoOrder) {
                 return new SimpleOrderStateVO();
             }
 
             @Override
-            public void handleSendOrder(AlgoOrder algoOrder, SimpleOrderStateVO algoOrderState) {
+            public void handleSendOrder(SimpleAlgoOrder algoOrder, SimpleOrderStateVO algoOrderState) {
             }
 
             @Override
-            protected void handleModifyOrder(AlgoOrder order, SimpleOrderStateVO algoOrderState) {
+            protected void handleModifyOrder(SimpleAlgoOrder order, SimpleOrderStateVO algoOrderState) {
             }
         };
     }
@@ -117,12 +132,17 @@ public class AbstractAlgoOrderExecServiceTest {
     @Test
     public void testAlgoOrderCancel() throws Exception {
 
-        AlgoOrder algoOrder = new SlicingOrder();
+        SimpleAlgoOrder algoOrder = new SimpleAlgoOrder();
         algoOrder.setIntId("a1.0");
+        algoOrder.setSide(Side.BUY);
+        algoOrder.setQuantity(25L);
+        algoOrder.setStrategy(this.strategy);
+        algoOrder.setSecurity(this.stock);
 
         MarketOrder order = MarketOrder.Factory.newInstance();
         order.setIntId("Blah");
         order.setQuantity(25L);
+        order.setSide(Side.BUY);
         order.setStrategy(this.strategy);
         order.setSecurity(this.stock);
         order.setParentOrder(algoOrder);
@@ -150,12 +170,17 @@ public class AbstractAlgoOrderExecServiceTest {
     @Test
     public void testAlgoOrderSubmittedPropagation() throws Exception {
 
-        AlgoOrder algoOrder = new SlicingOrder();
+        SimpleAlgoOrder algoOrder = new SimpleAlgoOrder();
         algoOrder.setIntId("a1.0");
+        algoOrder.setSide(Side.BUY);
+        algoOrder.setQuantity(25L);
+        algoOrder.setStrategy(this.strategy);
+        algoOrder.setSecurity(this.stock);
 
         MarketOrder order = MarketOrder.Factory.newInstance();
         order.setIntId("Blah");
         order.setQuantity(25L);
+        order.setSide(Side.BUY);
         order.setStrategy(this.strategy);
         order.setSecurity(this.stock);
         order.setParentOrder(algoOrder);
@@ -190,12 +215,17 @@ public class AbstractAlgoOrderExecServiceTest {
     @Test
     public void testAlgoPartialFillPropagation() throws Exception {
 
-        AlgoOrder algoOrder = new SlicingOrder();
+        SimpleAlgoOrder algoOrder = new SimpleAlgoOrder();
         algoOrder.setIntId("a1.0");
+        algoOrder.setSide(Side.BUY);
+        algoOrder.setQuantity(25L);
+        algoOrder.setStrategy(this.strategy);
+        algoOrder.setSecurity(this.stock);
 
         MarketOrder order = MarketOrder.Factory.newInstance();
         order.setIntId("Blah");
         order.setQuantity(25L);
+        order.setSide(Side.BUY);
         order.setStrategy(this.strategy);
         order.setSecurity(this.stock);
         order.setParentOrder(algoOrder);
@@ -229,12 +259,17 @@ public class AbstractAlgoOrderExecServiceTest {
     @Test
     public void testAlgoFillPropagation() throws Exception {
 
-        AlgoOrder algoOrder = new SlicingOrder();
+        SimpleAlgoOrder algoOrder = new SimpleAlgoOrder();
         algoOrder.setIntId("a1.0");
+        algoOrder.setSide(Side.BUY);
+        algoOrder.setQuantity(25L);
+        algoOrder.setStrategy(this.strategy);
+        algoOrder.setSecurity(this.stock);
 
         MarketOrder order = MarketOrder.Factory.newInstance();
         order.setIntId("Blah");
         order.setQuantity(25L);
+        order.setSide(Side.BUY);
         order.setStrategy(this.strategy);
         order.setSecurity(this.stock);
         order.setParentOrder(algoOrder);

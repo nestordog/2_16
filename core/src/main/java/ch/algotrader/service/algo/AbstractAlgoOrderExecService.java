@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
@@ -86,18 +87,33 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
         String intId = algoOrder.getIntId();
-        if (intId == null) {
-            throw new ServiceException("Order intId is null");
-        }
-        S algoOrderState = this.algoOrderStates.get(intId);
+        S algoOrderState = intId != null ? this.algoOrderStates.get(intId) : null;
         if (algoOrderState == null) {
             algoOrderState = createAlgoOrderState(algoOrder);
         }
         handleValidateOrder(algoOrder, algoOrderState);
-        this.algoOrderStates.putIfAbsent(intId, algoOrderState);
+        if (intId != null) {
+            this.algoOrderStates.putIfAbsent(intId, algoOrderState);
+        }
     }
 
     protected void handleValidateOrder(final T algoOrder, final S algoOrderState) throws OrderValidationException {
+        // validate general properties
+        if (algoOrder.getSide() == null) {
+            throw new OrderValidationException("Missing order side: " + algoOrder);
+        }
+        if (algoOrder.getQuantity() <= 0) {
+            throw new OrderValidationException("Order quantity cannot be zero or negative: " + algoOrder);
+        }
+
+        // validate order specific properties
+        algoOrder.validate();
+
+        // check that the security is tradeable
+        Security security = algoOrder.getSecurity();
+        if (!security.getSecurityFamily().isTradeable()) {
+            throw new OrderValidationException(security + " is not tradeable: " + algoOrder);
+        }
     }
 
     @Override
