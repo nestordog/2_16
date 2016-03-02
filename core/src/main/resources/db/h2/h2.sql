@@ -516,6 +516,7 @@ CREATE TABLE "bar" (
   `LOW` decimal(13,6) NOT NULL,
   `CLOSE` decimal(13,6) NOT NULL,
   `VOL` int(11) NOT NULL,
+  `VWAP` decimal(13,6) DEFAULT NULL,
   `BAR_SIZE` varchar(100) NOT NULL,
   `FEED_TYPE` varchar(100) DEFAULT NULL,
   `SECURITY_FK` bigint(20) NOT NULL,

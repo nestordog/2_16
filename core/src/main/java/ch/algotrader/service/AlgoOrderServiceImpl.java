@@ -179,7 +179,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
             AlgoOrder algoOrder = (AlgoOrder) order.getParentOrder();
             AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(algoOrder.getClass());
-            algoOrderExecService.handleChildOrderStatus(algoOrder, orderStatus);
+            algoOrderExecService.onChildOrderStatus(algoOrder, orderStatus);
         }
 
     }
@@ -192,7 +192,7 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
             AlgoOrder algoOrder = (AlgoOrder) order.getParentOrder();
             AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(algoOrder.getClass());
-            algoOrderExecService.handleChildFill(algoOrder, fill);
+            algoOrderExecService.onChildFill(algoOrder, fill);
         }
 
     }

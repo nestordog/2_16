@@ -82,6 +82,7 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderService;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.service.noop.NoopHistoricalDataServiceImpl;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
@@ -140,6 +141,8 @@ public class CacheTest extends DefaultConfigTestBase {
 
         ExternalMarketDataService externalMarketDataService = Mockito.mock(ExternalMarketDataService.class);
         context.getDefaultListableBeanFactory().registerSingleton("externalMarketDataService", externalMarketDataService);
+
+        context.getDefaultListableBeanFactory().registerSingleton("historicalDataService", new NoopHistoricalDataServiceImpl());
 
         Mockito.when(externalMarketDataService.getFeedType()).thenReturn(FeedType.IB.name());
 

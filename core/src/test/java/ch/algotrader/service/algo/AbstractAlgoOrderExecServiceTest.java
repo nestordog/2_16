@@ -175,7 +175,7 @@ public class AbstractAlgoOrderExecServiceTest {
         Mockito.when(this.orderExecutionService.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.OPEN, 0L, 24L, 0L, "a1.0", 0L, 0L));
 
         this.impl.validateOrder(algoOrder);
-        this.impl.handleChildOrderStatus(algoOrder, orderStatus1);
+        this.impl.onChildOrderStatus(algoOrder, orderStatus1);
 
         ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
@@ -214,7 +214,7 @@ public class AbstractAlgoOrderExecServiceTest {
         Mockito.when(this.orderExecutionService.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.PARTIALLY_EXECUTED, 5L, 20L, 0L, "a1.0", 0L, 0L));
 
         this.impl.validateOrder(algoOrder);
-        this.impl.handleChildFill(algoOrder, fill1);
+        this.impl.onChildFill(algoOrder, fill1);
 
         ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
@@ -253,7 +253,7 @@ public class AbstractAlgoOrderExecServiceTest {
         Mockito.when(this.orderExecutionService.getStatusByIntId("a1.0")).thenReturn(new OrderStatusVO(0L, null, Status.PARTIALLY_EXECUTED, 18L, 7L, 0L, "a1.0", 0L, 0L));
 
         this.impl.validateOrder(algoOrder);
-        this.impl.handleChildFill(algoOrder, fill1);
+        this.impl.onChildFill(algoOrder, fill1);
 
         ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());

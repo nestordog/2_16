@@ -46,6 +46,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
+import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.VWAPOrder;
 import ch.algotrader.entity.trade.algo.VWAPOrderStateVO;
@@ -65,6 +66,8 @@ import ch.algotrader.util.RoundUtil;
  */
 public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VWAPOrderStateVO> {
 
+    private static final double MIN_PARTICIPATION = 0.5;
+
     private static final Logger LOGGER = LogManager.getLogger(VWAPOrderService.class);
 
     private final OrderExecutionService orderExecutionService;
@@ -74,7 +77,7 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
 
     public VWAPOrderService(final OrderExecutionService orderExecutionService, final HistoricalDataService historicalDataService, final CalendarService calendarService, final SimpleOrderService simpleOrderService) {
 
-        super(orderExecutionService);
+        super(orderExecutionService, simpleOrderService);
 
         Validate.notNull(orderExecutionService, "OrderExecutionService is null");
         Validate.notNull(historicalDataService, "HistoricalDataService is null");
@@ -93,20 +96,20 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     }
 
     @Override
-    protected VWAPOrderStateVO createAlgoOrderState(final VWAPOrder vwapOrder) {
+    protected VWAPOrderStateVO createAlgoOrderState(final VWAPOrder algoOrder) {
 
-        Validate.notNull(vwapOrder, "vwapOrder missing");
+        Validate.notNull(algoOrder, "vwapOrder missing");
 
-        Security security = vwapOrder.getSecurity();
+        Security security = algoOrder.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
         Exchange exchange = family.getExchange();
 
         List<Bar> bars = this.historicalDataService.getHistoricalBars(
                 security.getId(), //
                 DateUtils.truncate(new Date(), Calendar.DATE), //
-                vwapOrder.getLookbackDays(), //
+                algoOrder.getLookbackPeriod(), //
                 TimePeriod.DAY, //
-                vwapOrder.getBucketSize(), //
+                algoOrder.getBucketSize(), //
                 MarketDataEventType.TRADES, //
                 Collections.emptyMap());
 
@@ -124,23 +127,23 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         }
 
         // verify start and end time
-        if (vwapOrder.getStartTime() == null) {
+        if (algoOrder.getStartTime() == null) {
             if (this.calendarService.isOpen(exchange.getId())) {
-                vwapOrder.setStartTime(LocalTime.now());
+                algoOrder.setStartTime(LocalTime.now());
             } else {
                 Date nextOpenTime = this.calendarService.getNextOpenTime(exchange.getId());
-                vwapOrder.setStartTime(DateTimeLegacy.toLocalTime(nextOpenTime));
+                algoOrder.setStartTime(DateTimeLegacy.toLocalTime(nextOpenTime));
             }
         }
 
-        if (vwapOrder.getEndTime() == null) {
+        if (algoOrder.getEndTime() == null) {
             Date closeTime = this.calendarService.getNextCloseTime(exchange.getId());
-            vwapOrder.setEndTime(DateTimeLegacy.toLocalTime(closeTime));
+            algoOrder.setEndTime(DateTimeLegacy.toLocalTime(closeTime));
         }
 
         int historicalVolume = 0;
-        LocalTime firstBucketStart = buckets.floorKey(vwapOrder.getStartTime());
-        LocalTime lastBucketStart = buckets.floorKey(vwapOrder.getEndTime());
+        LocalTime firstBucketStart = buckets.floorKey(algoOrder.getStartTime());
+        LocalTime lastBucketStart = buckets.floorKey(algoOrder.getEndTime());
 
         SortedMap<LocalTime, Long> subBuckets = buckets.subMap(firstBucketStart, true, lastBucketStart, true);
         for (Map.Entry<LocalTime, Long> bucket : subBuckets.entrySet()) {
@@ -149,23 +152,34 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
             bucket.setValue(vol);
 
             if (bucket.getKey().equals(firstBucketStart)) {
-                LocalTime firstBucketEnd = firstBucketStart.plus(vwapOrder.getBucketSize().getValue(), ChronoUnit.MILLIS);
-                double fraction = (double) ChronoUnit.MILLIS.between(vwapOrder.getStartTime(), firstBucketEnd) / vwapOrder.getBucketSize().getValue();
+                LocalTime firstBucketEnd = firstBucketStart.plus(algoOrder.getBucketSize().getValue(), ChronoUnit.MILLIS);
+                double fraction = (double) ChronoUnit.MILLIS.between(algoOrder.getStartTime(), firstBucketEnd) / algoOrder.getBucketSize().getValue();
                 historicalVolume += vol * fraction;
             } else if (bucket.getKey().equals(lastBucketStart)) {
-                double fraction = (double) ChronoUnit.MILLIS.between(lastBucketStart, vwapOrder.getEndTime()) / vwapOrder.getBucketSize().getValue();
+                double fraction = (double) ChronoUnit.MILLIS.between(lastBucketStart, algoOrder.getEndTime()) / algoOrder.getBucketSize().getValue();
                 historicalVolume += vol * fraction;
             } else {
                 historicalVolume += vol;
             }
         }
 
-        double participation = vwapOrder.getQuantity() / (double) historicalVolume;
+        double participation = algoOrder.getQuantity() / (double) historicalVolume;
         return new VWAPOrderStateVO(participation, buckets);
     }
 
     @Override
-    public void handleValidateOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) {
+    public void handleValidateOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) throws OrderValidationException {
+
+        Validate.notNull(algoOrderState, "algoOrderState missing");
+        if (algoOrderState.getParticipation() > MIN_PARTICIPATION) {
+            throw new OrderValidationException("participation rate is above 50% of historical market volume");
+        }
+
+        Exchange exchange = algoOrder.getSecurity().getSecurityFamily().getExchange();
+        LocalTime closeTime = DateTimeLegacy.toLocalTime(this.calendarService.getNextCloseTime(exchange.getId()));
+        if (algoOrder.getEndTime().compareTo(closeTime) > 0) {
+            throw new OrderValidationException("endTime cannot be after market close time");
+        }
     }
 
     @Override
@@ -173,11 +187,11 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     }
 
     @Override
-    protected void handleModifyOrder(final VWAPOrder order, final VWAPOrderStateVO algoOrderState) {
+    protected void handleModifyOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) {
     }
 
     @Override
-    protected void handleCancelOrder(final VWAPOrder order, final VWAPOrderStateVO algoOrderState) {
+    protected void handleCancelOrder(final VWAPOrder algoOrder, final VWAPOrderStateVO algoOrderState) {
     }
 
     public void sendNextOrder(VWAPOrder algoOrder, Date dateTime) {
@@ -210,31 +224,28 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         order.setParentOrder(algoOrder);
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("next childOrder for {}");
+            LOGGER.info("next childOrder for {},quantity={},bucketVolume={},targetVolume={}", algoOrder.getDescription(), quantity, bucketVolume, targetVolume);
         }
 
         this.simpleOrderService.sendOrder(order);
     }
 
-    public void storeFill(Fill fill) {
+    @Override
+    public void handleChildFill(VWAPOrder algoOrder, VWAPOrderStateVO orderState, Fill fill) {
 
-        VWAPOrder algoOrder = (VWAPOrder) fill.getOrder().getParentOrder();
-        VWAPOrderStateVO orderState = getAlgoOrderState(algoOrder);
         orderState.storeFill(fill);
     }
 
     @Override
-    public void handleOrderStatus(OrderStatus orderStatus, VWAPOrderStateVO algoOrderState) {
+    public void handleOrderStatus(VWAPOrder algoOrder, VWAPOrderStateVO algoOrderState, OrderStatus orderStatus) {
 
         if (!EnumSet.of(Status.EXECUTED, Status.CANCELED).contains(orderStatus.getStatus())) {
             return;
         }
 
-        VWAPOrder algoOrder = (VWAPOrder) orderStatus.getOrder();
-        Map<String, Object> results = getResults(algoOrder, algoOrderState);
-        LOGGER.info(algoOrder.getDescription() + results);
-
-        super.handleOrderStatus(orderStatus, algoOrderState);
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(algoOrder.getDescription() + getResults(algoOrder, algoOrderState));
+        }
     }
 
     Map<String, Object> getResults(VWAPOrder algoOrder, VWAPOrderStateVO algoOrderState) {

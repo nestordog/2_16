@@ -37,11 +37,11 @@ public interface AlgoOrderExecService<T extends AlgoOrder> extends GenericOrderS
     /**
      * Handles order status updates of the child order
      */
-    void handleChildOrderStatus(T order, OrderStatus orderStatus);
+    void onChildOrderStatus(T order, OrderStatus orderStatus);
 
     /**
      * Handles fill of the child order
      */
-    void handleChildFill(T order, Fill fill);
+    void onChildFill(T order, Fill fill);
 
 }

@@ -195,7 +195,7 @@ public class VWAPOrderServiceTest {
         VWAPOrder order = createOrder();
         order.setQuantity(50000);
         order.setBucketSize(Duration.MIN_15);
-        order.setLookbackDays(1);
+        order.setLookbackPeriod(1);
         order.setMinInterval(60);
         order.setMaxInterval(60);
 
@@ -209,7 +209,7 @@ public class VWAPOrderServiceTest {
 
         vwapOrder.setQuantity(50000);
         vwapOrder.setBucketSize(this.bucketSize);
-        vwapOrder.setLookbackDays(this.lookBackDays);
+        vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
         vwapOrder.setStartTime(LocalTime.of(11, 0));
@@ -227,7 +227,7 @@ public class VWAPOrderServiceTest {
 
         vwapOrder.setQuantity(50000);
         vwapOrder.setBucketSize(this.bucketSize);
-        vwapOrder.setLookbackDays(this.lookBackDays);
+        vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
 
@@ -245,7 +245,7 @@ public class VWAPOrderServiceTest {
 
         vwapOrder.setQuantity(50000);
         vwapOrder.setBucketSize(this.bucketSize);
-        vwapOrder.setLookbackDays(this.lookBackDays);
+        vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
         vwapOrder.setStartTime(LocalTime.of(11, 5));
@@ -263,7 +263,7 @@ public class VWAPOrderServiceTest {
 
         vwapOrder.setQuantity(50000);
         vwapOrder.setBucketSize(this.bucketSize);
-        vwapOrder.setLookbackDays(this.lookBackDays);
+        vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
 
@@ -289,7 +289,7 @@ public class VWAPOrderServiceTest {
 
         vwapOrder.setQuantity(50000);
         vwapOrder.setBucketSize(this.bucketSize);
-        vwapOrder.setLookbackDays(this.lookBackDays);
+        vwapOrder.setLookbackPeriod(this.lookBackDays);
         vwapOrder.setMinInterval(60);
         vwapOrder.setMaxInterval(60);
         vwapOrder.setStartTime(LocalTime.of(11, 0));
@@ -315,7 +315,7 @@ public class VWAPOrderServiceTest {
                 Mockito.eq(this.security.getId()), //
                 Mockito.any(), //
                 Mockito.any(int.class), //
-                Mockito.eq(TimePeriod.MIN), //
+                Mockito.eq(TimePeriod.SEC), //
                 Mockito.eq(Duration.MIN_1), //
                 Mockito.eq(MarketDataEventType.TRADES), //
                 Mockito.any())).thenReturn(oneMinuteBars);

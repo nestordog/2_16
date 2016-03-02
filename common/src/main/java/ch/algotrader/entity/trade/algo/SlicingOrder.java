@@ -43,18 +43,14 @@ public class SlicingOrder extends AlgoOrder {
     private double maxDelay;
 
     /**
-     * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of
-     * askVol for a BUY order).
-     * @return this.minVolPct double
+     * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of askVol for a BUY order).
      */
     public double getMinVolPct() {
         return this.minVolPct;
     }
 
     /**
-     * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of
-     * askVol for a BUY order).
-     * @param minVolPctIn double
+     * minimum part of the market volume (bidVol or askVol) that should be ordered (i.e. 50% of askVol for a BUY order).
      */
     public void setMinVolPct(double minVolPctIn) {
         this.minVolPct = minVolPctIn;
@@ -64,7 +60,6 @@ public class SlicingOrder extends AlgoOrder {
      * maximum part of the market volume (bidVol or askVol) that should be ordered (i.e. 100% of
      * askVol for a BUY order). If {@code maxVolPct} is zero, then the current market volume will
      * not be considered when sizing the order.
-     * @return this.maxVolPct double
      */
     public double getMaxVolPct() {
         return this.maxVolPct;
@@ -74,7 +69,6 @@ public class SlicingOrder extends AlgoOrder {
      * maximum part of the market volume (bidVol or askVol) that should be ordered (i.e. 100% of
      * askVol for a BUY order). If {@code maxVolPct} is zero, then the current market volume will
      * not be considered when sizing the order.
-     * @param maxVolPctIn double
      */
     public void setMaxVolPct(double maxVolPctIn) {
         this.maxVolPct = maxVolPctIn;
@@ -83,7 +77,6 @@ public class SlicingOrder extends AlgoOrder {
     /**
      * minimum quantity that should be ordered (i.e. 10 contracts). if the outcome of {@code
      * minVolPct} is lower than {@code minQuantity} then {@code minQuantity} will be enforced.
-     * @return this.minQuantity long
      */
     public long getMinQuantity() {
         return this.minQuantity;
@@ -92,7 +85,6 @@ public class SlicingOrder extends AlgoOrder {
     /**
      * minimum quantity that should be ordered (i.e. 10 contracts). if the outcome of {@code
      * minVolPct} is lower than {@code minQuantity} then {@code minQuantity} will be enforced.
-     * @param minQuantityIn long
      */
     public void setMinQuantity(long minQuantityIn) {
         this.minQuantity = minQuantityIn;
@@ -103,7 +95,6 @@ public class SlicingOrder extends AlgoOrder {
      * maxVolPct} is higher than {@code maxQuantity} then {@code maxQuantity} will be enforced. If
      * {@code maxQuantity} is zero, then no maximum quantity will be enforced on top of the market
      * volume restriction.
-     * @return this.maxQuantity long
      */
     public long getMaxQuantity() {
         return this.maxQuantity;
@@ -114,7 +105,6 @@ public class SlicingOrder extends AlgoOrder {
      * maxVolPct} is higher than {@code maxQuantity} then {@code maxQuantity} will be enforced. If
      * {@code maxQuantity} is zero, then no maximum quantity will be enforced on top of the market
      * volume restriction.
-     * @param maxQuantityIn long
      */
     public void setMaxQuantity(long maxQuantityIn) {
         this.maxQuantity = maxQuantityIn;
@@ -122,7 +112,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * minimum duration in seconds the order will be left in the market (i.e. 1.5 seconds)
-     * @return this.minDuration double
      */
     public double getMinDuration() {
         return this.minDuration;
@@ -130,7 +119,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * minimum duration in seconds the order will be left in the market (i.e. 1.5 seconds)
-     * @param minDurationIn double
      */
     public void setMinDuration(double minDurationIn) {
         this.minDuration = minDurationIn;
@@ -138,7 +126,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * maximum duration in seconds the order will be left in the market (i.e. 2.5 seconds)
-     * @return this.maxDuration double
      */
     public double getMaxDuration() {
         return this.maxDuration;
@@ -146,7 +133,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * maximum duration in seconds the order will be left in the market (i.e. 2.5 seconds)
-     * @param maxDurationIn double
      */
     public void setMaxDuration(double maxDurationIn) {
         this.maxDuration = maxDurationIn;
@@ -154,7 +140,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * minimum delay in seconds between orders (i.e. 1.5 seconds)
-     * @return this.minDelay double
      */
     public double getMinDelay() {
         return this.minDelay;
@@ -162,7 +147,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * minimum delay in seconds between orders (i.e. 1.5 seconds)
-     * @param minDelayIn double
      */
     public void setMinDelay(double minDelayIn) {
         this.minDelay = minDelayIn;
@@ -170,7 +154,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * maximum delay in seconds between orders (i.e. 2.5 seconds)
-     * @return this.maxDelay double
      */
     public double getMaxDelay() {
         return this.maxDelay;
@@ -178,7 +161,6 @@ public class SlicingOrder extends AlgoOrder {
 
     /**
      * maximum delay in seconds between orders (i.e. 2.5 seconds)
-     * @param maxDelayIn double
      */
     public void setMaxDelay(double maxDelayIn) {
         this.maxDelay = maxDelayIn;

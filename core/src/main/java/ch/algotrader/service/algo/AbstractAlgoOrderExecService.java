@@ -71,7 +71,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
     protected S getAlgoOrderState(final String intId) {
         S algoOrderState = this.algoOrderStates.get(intId);
         if (algoOrderState == null) {
-            throw new ServiceException("Unexpected order intId: " + intId);
+            throw new ServiceException("Unexpected algoOrder intId: " + intId);
         }
         return algoOrderState;
     }
@@ -122,7 +122,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder));
     }
 
-    protected abstract void handleModifyOrder(final T order, final S algoOrderState);
+    protected abstract void handleModifyOrder(final T algoOrder, final S algoOrderState);
 
     @Override
     public final void cancelOrder(final T algoOrder) {
@@ -164,9 +164,9 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
     }
 
     @Override
-    public final void handleChildOrderStatus(final T order, final OrderStatus orderStatus) {
+    public final void onChildOrderStatus(final T algoOrder, final OrderStatus orderStatus) {
 
-        String intId = order.getIntId();
+        String intId = algoOrder.getIntId();
         S algoOrderState = this.algoOrderStates.get(intId);
         if (algoOrderState == null) {
             return;
@@ -181,19 +181,21 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
                 algoOrderStatus.setExtDateTime(algoOrderStatus.getExtDateTime());
                 algoOrderStatus.setFilledQuantity(0L);
                 algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
-                algoOrderStatus.setOrder(order);
+                algoOrderStatus.setOrder(algoOrder);
 
                 this.orderExecutionService.handleOrderStatus(algoOrderStatus);
 
-                handleOrderStatus(algoOrderStatus, algoOrderState);
+                handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
             }
         }
+
+        handleChildOrderStatus(algoOrder, algoOrderState, orderStatus);
     }
 
     @Override
-    public final void handleChildFill(final T order, final Fill fill) {
+    public final void onChildFill(final T algoOrder, final Fill fill) {
 
-        String intId = order.getIntId();
+        String intId = algoOrder.getIntId();
         S algoOrderState = this.algoOrderStates.get(intId);
         if (algoOrderState == null) {
             return;
@@ -206,19 +208,27 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
             algoOrderStatus.setFilledQuantity(execStatus.getFilledQuantity() + fill.getQuantity());
             algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity() - fill.getQuantity());
-            algoOrderStatus.setOrder(order);
+            algoOrderStatus.setOrder(algoOrder);
 
             this.orderExecutionService.handleOrderStatus(algoOrderStatus);
 
-            handleOrderStatus(algoOrderStatus, algoOrderState);
+            handleOrderStatus(algoOrder, algoOrderState, algoOrderStatus);
 
             if (algoOrderStatus.getStatus() == Status.EXECUTED) {
                 this.algoOrderStates.remove(intId);
             }
         }
+
+        handleChildFill(algoOrder, algoOrderState, fill);
     }
 
-    protected void handleOrderStatus(final OrderStatus orderStatus, final S algoOrderState) {
+    protected void handleOrderStatus(T algoOrder, final S algoOrderState, final OrderStatus orderStatus) {
+    }
+
+    protected void handleChildFill(final T algoOrder, final S algoOrderState, final Fill fill) {
+    }
+
+    protected void handleChildOrderStatus(final T algoOrder, final S algoOrderState, final OrderStatus orderStatus) {
     }
 
 }

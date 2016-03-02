@@ -46,6 +46,7 @@ import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.service.noop.NoopHistoricalDataServiceImpl;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
@@ -84,6 +85,8 @@ public class ServiceWiringTest extends DefaultConfigTestBase {
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
+
+        context.getDefaultListableBeanFactory().registerSingleton("historicalDataService", new NoopHistoricalDataServiceImpl());
 
         context.register(ServiceWiring.class, CommonConfigWiring.class, CoreConfigWiring.class, HibernateNoCachingWiring.class,
                 CacheWiring.class, DaoWiring.class, ServerEngineWiring.class, EventDispatchWiring.class);
