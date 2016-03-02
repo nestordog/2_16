@@ -236,14 +236,12 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         subscribe(strategy, security, feedType);
 
-        if (!(security instanceof Forex)) {
-            Currency transactionCurrency = security.getSecurityFamily().getCurrency();
-            Currency baseCurrency = this.commonConfig.getPortfolioBaseCurrency();
-            if (!transactionCurrency.equals(baseCurrency)) {
-                Forex forex = this.forexDao.getForex(baseCurrency, transactionCurrency);
-                if (forex != null) {
-                    subscribe(strategy, forex, this.coreConfig.getDefaultFeedType());
-                }
+        Currency transactionCurrency = security.getSecurityFamily().getCurrency();
+        Currency baseCurrency = this.commonConfig.getPortfolioBaseCurrency();
+        if (!transactionCurrency.equals(baseCurrency)) {
+            Forex forex = this.forexDao.getForex(baseCurrency, transactionCurrency);
+            if (forex != null) {
+                subscribe(strategy, forex, this.coreConfig.getDefaultFeedType());
             }
         }
 
