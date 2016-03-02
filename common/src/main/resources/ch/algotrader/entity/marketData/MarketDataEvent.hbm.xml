@@ -144,6 +144,11 @@
 
                 <type name="int"/>
             </property>
+            <property name="vwap">
+                <column name="VWAP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+
+                <type name="java.math.BigDecimal"/>
+            </property>
         </union-subclass>
         <union-subclass name="ch.algotrader.entity.marketData.TickImpl" table="`tick`" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.marketData.TickI</meta>

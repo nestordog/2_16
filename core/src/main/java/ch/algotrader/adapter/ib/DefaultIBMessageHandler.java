@@ -333,6 +333,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         bar.setHigh(BigDecimal.valueOf(high));
         bar.setLow(BigDecimal.valueOf(low));
         bar.setClose(BigDecimal.valueOf(close));
+        bar.setVwap(BigDecimal.valueOf(WAP));
         bar.setVol(volume);
 
         pendingHistoricDataRequest.add(bar);

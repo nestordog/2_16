@@ -216,6 +216,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
             bar.getLow().setScale(scale, RoundingMode.HALF_UP);
             bar.getClose().setScale(scale, RoundingMode.HALF_UP);
+            bar.getVwap().setScale(scale, RoundingMode.HALF_UP);
             bar.setBarSize(barSize);
         }
         this.lastTimeStamp = System.currentTimeMillis();
