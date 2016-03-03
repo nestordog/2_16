@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.fxcm;
 
 import java.util.Date;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ch.algotrader.adapter.MockOrderExecutionService;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -36,18 +36,15 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
+import ch.algotrader.ordermgmt.DefaultOrderBook;
+import ch.algotrader.ordermgmt.OrderBook;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.field.Account;
@@ -67,36 +64,17 @@ import quickfix.fix44.OrderCancelRequest;
 public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EventDispatcher eventDispatcher;
-    private OrderExecutionService orderExecutionService;
-    private TransactionService transactionService;
+    private OrderBook orderBook;
+    private MockOrderExecutionService orderExecutionService;
     private String account;
     private FXCMFixOrderMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
 
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
-        this.eventQueue = queue;
-
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                try {
-                    queue.put(obj);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public List executeQuery(String query) {
-                return null;
-            }
-        };
-
-        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
+        this.eventQueue = new LinkedBlockingQueue<>();
+        this.orderBook = new DefaultOrderBook();
+        this.orderExecutionService = new MockOrderExecutionService(this.eventQueue, this.orderBook);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "FXCM");
@@ -104,13 +82,11 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         DefaultLogonMessageHandler logonHandler = new DefaultLogonMessageHandler(settings);
 
-        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
-        this.transactionService = Mockito.mock(TransactionService.class);
-        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
+        FXCMFixOrderMessageHandler messageHandlerImpl = new FXCMFixOrderMessageHandler(this.orderExecutionService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
-                new DefaultFixSessionStateHolder("FXCM", this.eventDispatcher));
+                new DefaultFixSessionStateHolder("FXCM", Mockito.mock(EventDispatcher.class)));
 
         setupSession(settings, sessionId, fixApplication);
     }
@@ -140,8 +116,9 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
+        this.orderBook.add(order);
 
         this.session.send(orderSingle);
 
@@ -233,10 +210,10 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testStopOrderCancel() throws Exception {
 
-        String orderId1 = Long.toHexString(System.currentTimeMillis());
+        String orderId = Long.toHexString(System.currentTimeMillis());
 
         NewOrderSingle orderSingle = new NewOrderSingle();
-        orderSingle.set(new ClOrdID(orderId1));
+        orderSingle.set(new ClOrdID(orderId));
         orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("EUR/USD"));
         orderSingle.set(new Side(Side.BUY));
@@ -256,15 +233,16 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        this.orderBook.add(order);
 
         this.session.send(orderSingle);
 
         Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals(orderId1, orderStatus1.getIntId());
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
         Assert.assertNotNull(orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
@@ -274,15 +252,13 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         OrderCancelRequest cancelRequest = new OrderCancelRequest();
         cancelRequest.set(new OrderID(orderStatus1.getExtId()));
-        cancelRequest.set(new OrigClOrdID(orderId1));
+        cancelRequest.set(new OrigClOrdID(orderId));
         cancelRequest.set(new ClOrdID(orderId2));
         cancelRequest.set(new Account(this.account));
         cancelRequest.set(new Symbol("EUR/USD"));
         cancelRequest.set(new Side(Side.BUY));
         cancelRequest.set(new TransactTime(new Date()));
         cancelRequest.set(new OrderQty(1000.0d));
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(cancelRequest);
 
@@ -304,10 +280,10 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testStopOrderReplace() throws Exception {
 
-        String orderId1 = Long.toHexString(System.currentTimeMillis());
+        String orderId = Long.toHexString(System.currentTimeMillis());
 
         NewOrderSingle orderSingle = new NewOrderSingle();
-        orderSingle.set(new ClOrdID(orderId1));
+        orderSingle.set(new ClOrdID(orderId));
         orderSingle.set(new Account(this.account));
         orderSingle.set(new Symbol("EUR/USD"));
         orderSingle.set(new Side(Side.BUY));
@@ -327,25 +303,32 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         MarketOrder order = new MarketOrderImpl();
         order.setSecurity(forex);
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        this.orderBook.add(order);
 
         this.session.send(orderSingle);
 
         Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals(orderId1, orderStatus1.getIntId());
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
         Assert.assertNotNull(orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
         Assert.assertEquals(0, orderStatus1.getFilledQuantity());
 
+        MarketOrder modifiedOrder = new MarketOrderImpl();
+        modifiedOrder.setSecurity(forex);
+
         String orderId2 = Long.toHexString(System.currentTimeMillis());
+        modifiedOrder.setIntId(orderId2);
+
+        this.orderBook.add(modifiedOrder);
 
         OrderCancelReplaceRequest replaceRequest = new OrderCancelReplaceRequest();
         replaceRequest.set(new OrderID(orderStatus1.getExtId()));
-        replaceRequest.set(new OrigClOrdID(orderId1));
+        replaceRequest.set(new OrigClOrdID(orderId));
         replaceRequest.set(new ClOrdID(orderId2));
         replaceRequest.set(new Account(this.account));
         replaceRequest.set(new Symbol("EUR/USD"));
@@ -354,8 +337,6 @@ public class FXCMFixOrderMessageHandlerTest extends FixApplicationTestBase {
         replaceRequest.set(new OrderQty(1000.0d));
         replaceRequest.set(new OrdType(OrdType.STOP));
         replaceRequest.set(new StopPx(1.9d));
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(replaceRequest);
 

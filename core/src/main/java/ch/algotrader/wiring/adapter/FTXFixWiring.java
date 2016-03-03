@@ -63,11 +63,10 @@ public class FTXFixWiring {
     public FixApplicationFactory createFTXOrderApplicationFactory(
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
-            final Engine serverEngine,
             final DefaultLogonMessageHandler fTXLogonMessageHandler,
             final ExternalSessionStateHolder fTXOrderSessionStateHolder) {
 
-        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
+        FTXFixOrderMessageHandler cnxFixOrderMessageHandler = new FTXFixOrderMessageHandler(orderExecutionService);
         return new DefaultFixApplicationFactory(cnxFixOrderMessageHandler, fTXLogonMessageHandler, fTXOrderSessionStateHolder);
     }
 

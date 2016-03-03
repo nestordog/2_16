@@ -43,9 +43,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.field.ClOrdID;
 import quickfix.field.ExecType;
@@ -59,10 +57,6 @@ public class TestCNXFixOrderMessageHandler {
 
     @Mock
     private OrderExecutionService orderExecutionService;
-    @Mock
-    private TransactionService transactionService;
-    @Mock
-    private Engine engine;
 
     private CNXFixOrderMessageHandler impl;
 
@@ -71,7 +65,7 @@ public class TestCNXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new CNXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine);
+        this.impl = new CNXFixOrderMessageHandler(this.orderExecutionService);
     }
 
     @Test
@@ -89,12 +83,10 @@ public class TestCNXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("1475f81bdee", orderStatus1.getIntId());
         Assert.assertEquals("2537951907", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
@@ -137,14 +129,10 @@ public class TestCNXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(2, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("1475f81bdee", orderStatus1.getIntId());
         Assert.assertEquals("2537951907", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
@@ -154,9 +142,10 @@ public class TestCNXFixOrderMessageHandler {
         Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.34666"), orderStatus1.getAvgPrice());
 
-        Object event2 = events.get(1);
-        Assert.assertTrue(event2 instanceof Fill);
-        Fill fill1 = (Fill) event2;
+        ArgumentCaptor<Fill> argumentCaptor = ArgumentCaptor.forClass(Fill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor.capture());
+
+        Fill fill1 = argumentCaptor.getValue();
         Assert.assertEquals("B2014203091ZN00", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-22 19:17:24.000"), fill1.getExtDateTime());
@@ -178,7 +167,8 @@ public class TestCNXFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -207,12 +197,10 @@ public class TestCNXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("14763e2fd3e", orderStatus1.getIntId());
         Assert.assertEquals(null, orderStatus1.getExtId());
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
@@ -249,14 +237,10 @@ public class TestCNXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(1, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("14764071b06", orderStatus1.getIntId());
         Assert.assertEquals("2532835877", orderStatus1.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
@@ -298,22 +282,17 @@ public class TestCNXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(2)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(2, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        List<OrderStatus> events = argumentCaptor1.getAllValues();
+        OrderStatus orderStatus1 = events.get(0);
         Assert.assertEquals("147648b2394", orderStatus1.getIntId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
         Assert.assertSame(oldOrder, orderStatus1.getOrder());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-07-23 18:45:46.334"), orderStatus1.getExtDateTime());
 
-        Object event2 = events.get(1);
-        Assert.assertTrue(event2 instanceof OrderStatus);
-        OrderStatus orderStatus2 = (OrderStatus) event2;
+        OrderStatus orderStatus2 = events.get(1);
         Assert.assertEquals("147648b2485", orderStatus2.getIntId());
         Assert.assertEquals("2532836283", orderStatus2.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());

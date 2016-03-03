@@ -53,6 +53,8 @@ public class OrderExecutionServiceTest {
     @Mock
     private OrderPersistenceService orderPersistenceService;
     @Mock
+    private TransactionService transactionService;
+    @Mock
     private OrderBook orderBook;
     @Mock
     private EventDispatcher eventDispatcher;
@@ -92,7 +94,7 @@ public class OrderExecutionServiceTest {
         this.stock.setSecurityFamily(this.family);
 
         CommonConfig commonConfig = CommonConfigBuilder.create().setSimulation(false).build();
-        this.impl = new OrderExecutionServiceImpl(commonConfig, this.orderPersistenceService, this.orderBook,
+        this.impl = new OrderExecutionServiceImpl(commonConfig, this.orderPersistenceService, this.transactionService, this.orderBook,
                 this.eventDispatcher, this.engineManager, this.engine);
 
     }
@@ -123,7 +125,7 @@ public class OrderExecutionServiceTest {
         Mockito.verify(this.orderBook, Mockito.times(1)).updateExecutionStatus("Blah", null, Status.SUBMITTED, 0L, 25L);
         Mockito.verify(this.eventDispatcher, Mockito.times(1)).sendEvent(Mockito.eq("TestStrategy"), Mockito.any());
         Mockito.verify(this.orderPersistenceService, Mockito.times(1)).persistOrderStatus(orderStatus1);
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(orderStatus1);
 
     }
 
@@ -228,7 +230,8 @@ public class OrderExecutionServiceTest {
         this.impl.handleFill(fill1);
 
         Mockito.verify(this.eventDispatcher, Mockito.times(1)).sendEvent(Mockito.eq("TestStrategy"), Mockito.any());
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.transactionService, Mockito.times(1)).createTransaction(fill1);
+        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(fill1);
     }
 
 }

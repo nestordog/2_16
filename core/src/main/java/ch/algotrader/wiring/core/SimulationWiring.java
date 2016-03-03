@@ -73,12 +73,10 @@ public class SimulationWiring {
     public SimulationOrderService createSimulationOrderService(
             final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final MarketDataCacheService marketDataCacheService,
-            final EngineManager engineManager,
-            final Engine serverEngine) {
+            final EngineManager engineManager) {
 
-        return new SimulationOrderServiceImpl(orderBook, orderExecutionService, transactionService, marketDataCacheService, engineManager, serverEngine);
+        return new SimulationOrderServiceImpl(orderBook, orderExecutionService, marketDataCacheService, engineManager);
     }
 
 }

@@ -27,10 +27,8 @@ import ch.algotrader.adapter.fix.DefaultFixApplicationFactory;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 
 /**
  * JPM Fix configuration.
@@ -51,11 +49,9 @@ public class JPMFixWiring {
     @Bean(name = "jPMOrderApplicationFactory")
     public FixApplicationFactory createJPMOrderApplicationFactory(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
-            final Engine serverEngine,
             final ExternalSessionStateHolder jPMOrderSessionStateHolder) {
 
-        GenericFix42OrderMessageHandler genericFix42OrderMessageHandler = new GenericFix42OrderMessageHandler(orderExecutionService, transactionService, serverEngine);
+        GenericFix42OrderMessageHandler genericFix42OrderMessageHandler = new GenericFix42OrderMessageHandler(orderExecutionService);
         return new DefaultFixApplicationFactory(genericFix42OrderMessageHandler, jPMOrderSessionStateHolder);
     }
 

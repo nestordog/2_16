@@ -47,11 +47,9 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
@@ -81,22 +79,16 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
     private final LookupService lookupService;
-    private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
     public TTFixOrderMessageHandler(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final LookupService lookupService,
-            final Engine serverEngine,
             final DropCopyAllocator dropCopyAllocator) {
-        super(orderExecutionService, transactionService, serverEngine);
+        super(orderExecutionService);
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
         this.lookupService = lookupService;
-        this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
 
@@ -206,8 +198,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         }
 
         if (fill != null) {
-            this.serverEngine.sendEvent(fill);
-            this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
     }
@@ -219,7 +209,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         try {
             restatedOrder = BeanUtil.clone((SimpleOrder) order);
             restatedOrder.setId(0);
-            restatedOrder.setDateTime(this.serverEngine.getCurrentTime());
+            restatedOrder.setDateTime(new Date());
         } catch (ReflectiveOperationException ex) {
             throw new ServiceException(ex);
         }
@@ -266,7 +256,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
         OrderStatus orderStatus = createStatus(executionReport, restatedOrder);
 
-        this.serverEngine.sendEvent(orderStatus);
         this.orderExecutionService.handleOrderStatus(orderStatus);
     }
 
@@ -300,7 +289,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
                     orderStatus.setReason(reject.getText().getValue());
                 }
 
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
                 return;
             }
@@ -359,13 +347,10 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
                 OrderStatus orderStatus = createStatus(executionReport, order);
 
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
 
                 Fill fill = createFill(executionReport, order);
                 if (fill != null) {
-                    this.serverEngine.sendEvent(fill);
-                    this.transactionService.createTransaction(fill);
                     this.orderExecutionService.handleFill(fill);
                 }
             } else {

@@ -56,26 +56,30 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
     private final CommonConfig commonConfig;
     private final OrderPersistenceService orderPersistService;
+    private final TransactionService transactionService;
     private final OrderBook orderBook;
     private final EventDispatcher eventDispatcher;
     private final Engine serverEngine;
 
     public OrderExecutionServiceImpl(final CommonConfig commonConfig,
                                      final OrderPersistenceService orderPersistService,
+                                     final TransactionService transactionService,
                                      final OrderBook orderBook,
                                      final EventDispatcher eventDispatcher,
                                      final EngineManager engineManager,
                                      final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
-        Validate.notNull(orderPersistService, "OrderPersistStrategy is null");
-        Validate.notNull(orderBook, "OpenOrderRegistry is null");
-        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
+        Validate.notNull(orderPersistService, "OrderPersistenceService is null");
+        Validate.notNull(transactionService, "TransactionService is null");
+        Validate.notNull(orderBook, "OrderBook is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.orderPersistService = orderPersistService;
+        this.transactionService = transactionService;
         this.orderBook = orderBook;
         this.eventDispatcher = eventDispatcher;
         this.serverEngine = serverEngine;
@@ -108,6 +112,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
+        this.serverEngine.sendEvent(orderStatus);
         this.eventDispatcher.sendEvent(strategy.getName(), orderStatus.convertToVO());
 
         if (!this.commonConfig.isSimulation()) {
@@ -145,6 +150,8 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         Order order = fill.getOrder();
         // send the fill to the strategy that placed the corresponding order
         Strategy strategy = order.getStrategy();
+        this.serverEngine.sendEvent(fill);
+        this.transactionService.createTransaction(fill);
         this.eventDispatcher.sendEvent(strategy.getName(), fill.convertToVO());
 
         if (!this.commonConfig.isSimulation()) {
@@ -163,6 +170,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
 
         Validate.notNull(fill, "ExternalFill is null");
 
+        this.serverEngine.sendEvent(fill);
         if (!this.commonConfig.isSimulation()) {
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("received external fill {}", fill);

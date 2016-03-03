@@ -23,8 +23,8 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.BrokerAdapterException;
+import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
@@ -37,9 +37,7 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
@@ -59,8 +57,8 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
     private static final Logger LOGGER = LogManager.getLogger(GenericFix44OrderMessageHandler.class);
 
-    public GenericFix44OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
-        super(orderExecutionService, transactionService, serverEngine);
+    public GenericFix44OrderMessageHandler(final OrderExecutionService orderExecutionService) {
+        super(orderExecutionService);
     }
 
     @Override

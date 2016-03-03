@@ -57,7 +57,6 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
 
@@ -81,7 +80,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final AutoIncrementIdGenerator orderIdGenerator;
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
     private final IBExecutions executions;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
@@ -95,7 +93,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBPendingRequests pendingRequests,
             final AutoIncrementIdGenerator orderIdGenerator,
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
@@ -106,7 +103,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.pendingRequests = pendingRequests;
         this.orderIdGenerator = orderIdGenerator;
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
         this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
@@ -155,13 +151,12 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 orderStatus.setRemainingQuantity(order.getQuantity());
                 orderStatus.setLastQuantity(0L);
                 orderStatus.setOrder(order);
-                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                orderStatus.setExtDateTime(new Date());
 
             }
         }
 
         if (orderStatus != null) {
-            this.serverEngine.sendEvent(orderStatus);
             this.orderExecutionService.handleOrderStatus(orderStatus);
         }
 
@@ -184,8 +179,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // associate the fill with the order
         fill.setOrder(order);
 
-        this.serverEngine.sendEvent(fill);
-        this.transactionService.createTransaction(fill);
         this.orderExecutionService.handleFill(fill);
     }
 
@@ -243,7 +236,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             orderStatus.setRemainingQuantity(remaining);
             orderStatus.setLastQuantity(lastQuantity);
             orderStatus.setOrder(order);
-            orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+            orderStatus.setExtDateTime(new Date());
             if (lastFillPrice != 0.0) {
                 orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
             }
@@ -251,7 +244,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
             }
 
-            this.serverEngine.sendEvent(orderStatus);
             this.orderExecutionService.handleOrderStatus(orderStatus);
         }
     }

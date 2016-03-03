@@ -30,7 +30,6 @@ import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationFactory;
 import ch.algotrader.adapter.ib.IBCustomMessage;
 import ch.algotrader.adapter.ib.IBFixOrderMessageHandler;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
@@ -62,10 +61,9 @@ public class IBFixWiring {
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
             final LinkedBlockingDeque<IBCustomMessage> iBAllocationMessageQueue,
-            final Engine serverEngine,
             final ExternalSessionStateHolder iBOrderSessionStateHolder) {
 
-        IBFixOrderMessageHandler ibFixOrderMessageHandler = new IBFixOrderMessageHandler(orderExecutionService, transactionService, iBAllocationMessageQueue, serverEngine);
+        IBFixOrderMessageHandler ibFixOrderMessageHandler = new IBFixOrderMessageHandler(orderExecutionService, iBAllocationMessageQueue);
 
         return new DefaultFixApplicationFactory(ibFixOrderMessageHandler, iBOrderSessionStateHolder);
     }

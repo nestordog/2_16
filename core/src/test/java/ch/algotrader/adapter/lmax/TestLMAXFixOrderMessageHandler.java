@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.lmax;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,9 +47,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.DataDictionary;
 import quickfix.field.ClOrdID;
@@ -68,10 +65,6 @@ public class TestLMAXFixOrderMessageHandler {
     @Mock
     private OrderExecutionService orderExecutionService;
     @Mock
-    private TransactionService transactionService;
-    @Mock
-    private Engine engine;
-    @Mock
     private DropCopyAllocator dropCopyAllocator;
 
     private LMAXFixOrderMessageHandler impl;
@@ -87,7 +80,7 @@ public class TestLMAXFixOrderMessageHandler {
 
         MockitoAnnotations.initMocks(this);
 
-        this.impl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.engine, this.dropCopyAllocator);
+        this.impl = new LMAXFixOrderMessageHandler(this.orderExecutionService, this.dropCopyAllocator);
     }
 
     @Test
@@ -114,12 +107,10 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("144d196a0cf", orderStatus1.getIntId());
         Assert.assertEquals("AAIm0gAAAAAVcFaM", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
@@ -160,14 +151,10 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(2, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("144d196a0cf", orderStatus1.getIntId());
         Assert.assertEquals("AAIm0gAAAAAVcFaM", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
@@ -177,9 +164,10 @@ public class TestLMAXFixOrderMessageHandler {
         Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("1.393"), orderStatus1.getAvgPrice());
 
-        Object event2 = events.get(1);
-        Assert.assertTrue(event2 instanceof Fill);
-        Fill fill1 = (Fill) event2;
+        ArgumentCaptor<Fill> argumentCaptor2 = ArgumentCaptor.forClass(Fill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor2.capture());
+
+        Fill fill1 = argumentCaptor2.getValue();
         Assert.assertEquals("IcjSDQAAAAJoCIag", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2014-03-17 19:48:33.854"), fill1.getExtDateTime());
@@ -198,7 +186,8 @@ public class TestLMAXFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -211,7 +200,8 @@ public class TestLMAXFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -224,7 +214,8 @@ public class TestLMAXFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
         Mockito.verify(this.orderExecutionService, Mockito.never()).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -251,12 +242,10 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("144da150f4b", orderStatus1.getIntId());
         Assert.assertEquals(null, orderStatus1.getExtId());
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
@@ -275,7 +264,8 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -288,7 +278,8 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(reject, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -301,7 +292,8 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -314,7 +306,8 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -339,12 +332,10 @@ public class TestLMAXFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix44Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<ExternalFill> argumentCaptor2 = ArgumentCaptor.forClass(ExternalFill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor2.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof ExternalFill);
-        ExternalFill fill1 = (ExternalFill) event1;
+        ExternalFill fill1 = argumentCaptor2.getValue();
         Assert.assertEquals("bTVrrQAAAAAHIzfu", fill1.getExtId());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-11-17 12:34:13.710"), fill1.getExtDateTime());
         Assert.assertEquals(Side.BUY, fill1.getSide());

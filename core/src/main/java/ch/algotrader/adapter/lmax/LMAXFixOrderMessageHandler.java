@@ -23,9 +23,9 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.entity.Account;
@@ -40,9 +40,7 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
 import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
@@ -65,15 +63,11 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
     private static final Logger LOGGER = LogManager.getLogger(LMAXFixOrderMessageHandler.class);
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
-    private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
-    public LMAXFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
-        super(orderExecutionService, transactionService, serverEngine);
+    public LMAXFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final DropCopyAllocator dropCopyAllocator) {
+        super(orderExecutionService);
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
-        this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
 
@@ -129,8 +123,6 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
         }
 
         if (fill != null) {
-            this.serverEngine.sendEvent(fill);
-            this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
     }

@@ -35,7 +35,6 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -65,15 +64,12 @@ public class TTFixWiring {
     @Bean(name = "tTOrderApplicationFactory")
     public FixApplicationFactory createTTOrderApplicationFactory(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final LookupService lookupService,
-            final Engine serverEngine,
             final TTLogonMessageHandler tTLogonMessageHandler,
             final ExternalSessionStateHolder tTOrderSessionStateHolder,
             final DropCopyAllocator tTFixDropCopyAllocator) {
 
-        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderExecutionService, transactionService,
-                lookupService, serverEngine, tTFixDropCopyAllocator);
+        TTFixOrderMessageHandler tTFixOrderMessageHandler = new TTFixOrderMessageHandler(orderExecutionService, lookupService, tTFixDropCopyAllocator);
         return new DefaultFixApplicationFactory(tTFixOrderMessageHandler, tTLogonMessageHandler, tTOrderSessionStateHolder);
     }
 

@@ -324,12 +324,13 @@ public class ServiceWiring {
     @Bean(name = "orderExecutionService")
     public OrderExecutionService createOrderExecutionService(final CommonConfig commonConfig,
            final OrderPersistenceService orderPersistService,
+           final TransactionService transactionService,
            final OrderBook orderBook,
            final EventDispatcher eventDispatcher,
            final EngineManager engineManager,
            final Engine serverEngine) {
 
-        return new OrderExecutionServiceImpl(commonConfig, orderPersistService, orderBook, eventDispatcher, engineManager, serverEngine);
+        return new OrderExecutionServiceImpl(commonConfig, orderPersistService, transactionService, orderBook, eventDispatcher, engineManager, serverEngine);
     }
 
     @Bean(name = "simpleOrderService")

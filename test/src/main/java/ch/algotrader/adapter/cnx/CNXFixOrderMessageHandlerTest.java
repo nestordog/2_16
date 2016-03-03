@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.cnx;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ch.algotrader.adapter.MockOrderExecutionService;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
@@ -38,7 +38,6 @@ import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderImpl;
@@ -49,11 +48,9 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
+import ch.algotrader.ordermgmt.DefaultOrderBook;
+import ch.algotrader.ordermgmt.OrderBook;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.fix44.NewOrderSingle;
@@ -63,57 +60,34 @@ import quickfix.fix44.OrderCancelRequest;
 public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EventDispatcher eventDispatcher;
-    private OrderExecutionService orderExecutionService;
-    private TransactionService transactionService;
+    private OrderBook orderBook;
+    private MockOrderExecutionService orderExecutionService;
     private CNXFixOrderMessageFactory messageFactory;
     private CNXFixOrderMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
 
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
-        this.eventQueue = queue;
-
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                try {
-                    queue.put(obj);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public List executeQuery(String query) {
-                return null;
-            }
-        };
-
-        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
+        this.eventQueue = new LinkedBlockingQueue<>();
+        this.orderBook = new DefaultOrderBook();
+        this.orderExecutionService = new MockOrderExecutionService(this.eventQueue, this.orderBook);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "CNXT");
 
-        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
-        this.transactionService = Mockito.mock(TransactionService.class);
-        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
+        CNXFixOrderMessageHandler messageHandlerImpl = new CNXFixOrderMessageHandler(this.orderExecutionService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new CNXFixOrderMessageFactory();
 
         DefaultLogonMessageHandler logonMessageHandler = new DefaultLogonMessageHandler(settings);
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonMessageHandler,
-                new DefaultFixSessionStateHolder("CNX", this.eventDispatcher));
+                new DefaultFixSessionStateHolder("CNX", Mockito.mock(EventDispatcher.class)));
 
         setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
     public void testNewOrder() throws Exception {
-
-        String orderId = Long.toHexString(System.currentTimeMillis());
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
@@ -131,9 +105,12 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSide(Side.BUY);
         order.setQuantity(2000);
 
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
+
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
+        this.orderBook.add(order);
 
         this.session.send(message);
 
@@ -172,8 +149,6 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testInvalidOrder() throws Exception {
 
-        String orderId = Long.toHexString(System.currentTimeMillis());
-
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.RUB);
 
@@ -190,6 +165,9 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setQuantity(3000);
         order.setSide(Side.BUY);
 
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
+
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
         this.session.send(message);
@@ -200,8 +178,6 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     @Test
     public void testLimitOrderCancel() throws Exception {
-
-        String orderId1 = Long.toHexString(System.currentTimeMillis());
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
@@ -220,16 +196,19 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId);
+
+        this.orderBook.add(order);
 
         this.session.send(message1);
 
         Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals(orderId1, orderStatus1.getIntId());
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
         Assert.assertNotNull(orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
@@ -241,8 +220,6 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
@@ -264,8 +241,6 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testLimitOrderModifyCancel() throws Exception {
 
-        String orderId1 = Long.toHexString(System.currentTimeMillis());
-
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
 
@@ -283,16 +258,19 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("1.0"));
 
-        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);;
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId);
+
+        this.orderBook.add(order);
 
         this.session.send(message1);
 
         Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals(orderId1, orderStatus1.getIntId());
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
         Assert.assertNotNull(orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
@@ -301,13 +279,19 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setIntId(orderStatus1.getIntId());
         order.setExtId(orderStatus1.getExtId());
 
+        LimitOrder modifiedOrder = new LimitOrderImpl();
+        modifiedOrder.setAccount(testAccount);
+        modifiedOrder.setSecurity(forex);
+        modifiedOrder.setQuantity(1000);
+        modifiedOrder.setSide(Side.BUY);
+        modifiedOrder.setLimit(new BigDecimal("1.01"));
+
         String orderId2 = Long.toHexString(System.currentTimeMillis());
+        modifiedOrder.setIntId(orderId2);
 
-        order.setLimit(new BigDecimal("1.01"));
+        this.orderBook.add(modifiedOrder);
 
-        OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(order, orderId2);
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
+        OrderCancelReplaceRequest message2 = this.messageFactory.createModifyOrderMessage(modifiedOrder, orderId2);
 
         this.session.send(message2);
 
@@ -318,18 +302,16 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         Assert.assertEquals(orderId2, orderStatus2.getIntId());
         Assert.assertNotNull(orderStatus2.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());
-        Assert.assertSame(order, orderStatus2.getOrder());
+        Assert.assertSame(modifiedOrder, orderStatus2.getOrder());
         Assert.assertEquals(0, orderStatus2.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus2.getRemainingQuantity());
 
-        order.setIntId(orderStatus2.getIntId());
-        order.setExtId(orderStatus2.getExtId());
+        modifiedOrder.setIntId(orderStatus2.getIntId());
+        modifiedOrder.setExtId(orderStatus2.getExtId());
 
         String orderId3 = Long.toHexString(System.currentTimeMillis());
 
-        OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(order, orderId3);
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId3)).thenReturn(order);
+        OrderCancelRequest message3 = this.messageFactory.createOrderCancelMessage(modifiedOrder, orderId3);
 
         this.session.send(message3);
 
@@ -340,7 +322,7 @@ public class CNXFixOrderMessageHandlerTest extends FixApplicationTestBase {
         Assert.assertEquals(orderId3, orderStatus3.getIntId());
         Assert.assertNotNull(orderStatus3.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus3.getStatus());
-        Assert.assertSame(order, orderStatus3.getOrder());
+        Assert.assertSame(modifiedOrder, orderStatus3.getOrder());
         Assert.assertEquals(0, orderStatus3.getFilledQuantity());
         Assert.assertEquals(1000, orderStatus3.getRemainingQuantity());
 

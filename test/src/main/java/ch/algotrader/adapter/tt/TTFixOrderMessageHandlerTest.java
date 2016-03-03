@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.tt;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ch.algotrader.adapter.MockOrderExecutionService;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
@@ -35,7 +35,6 @@ import ch.algotrader.entity.Account;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
@@ -45,12 +44,10 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.DefaultOrderBook;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.LookupService;
-import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 import quickfix.SessionID;
@@ -61,13 +58,11 @@ import quickfix.fix42.OrderCancelRequest;
 
 public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
+    private LinkedBlockingQueue<Object> eventQueue;
+    private OrderBook orderBook;
+    private MockOrderExecutionService orderExecutionService;
     private Future future;
     private Account account;
-    private LinkedBlockingQueue<Object> eventQueue;
-    private EventDispatcher eventDispatcher;
-    private OrderExecutionService orderExecutionService;
-    private TransactionService transactionService;
-    private LookupService lookupService;
     private TTFixOrderMessageFactory messageFactory;
     private TTFixOrderMessageHandler messageHandler;
 
@@ -99,45 +94,22 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         this.account.setExtAccount("ratkodts2");
         this.account.setBroker(Broker.TT.name());
 
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
-        this.eventQueue = queue;
-
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                try {
-                    queue.put(obj);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public List executeQuery(String query) {
-                return null;
-            }
-        };
-
-        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
+        this.eventQueue = new LinkedBlockingQueue<>();
+        this.orderBook = new DefaultOrderBook();
+        this.orderExecutionService = new MockOrderExecutionService(this.eventQueue, this.orderBook);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "TTT");
 
         TTLogonMessageHandler logonHandler = new TTLogonMessageHandler(settings);
 
-        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
-        this.transactionService = Mockito.mock(TransactionService.class);
-        this.lookupService = Mockito.mock(LookupService.class);
-
         this.messageFactory = new TTFixOrderMessageFactory();
 
-        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(
-                this.orderExecutionService, this.transactionService, this.lookupService, engine, null);
+        TTFixOrderMessageHandler messageHandlerImpl = new TTFixOrderMessageHandler(this.orderExecutionService, Mockito.mock(LookupService.class), null);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, logonHandler,
-                new DefaultFixSessionStateHolder("TTT", this.eventDispatcher));
+                new DefaultFixSessionStateHolder("TTT", Mockito.mock(EventDispatcher.class)));
 
         setupSession(settings, sessionId, fixApplication);
 
@@ -155,10 +127,11 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setAccount(this.account);
 
         String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
 
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
+        this.orderBook.add(order);
 
         this.session.send(message);
 
@@ -194,39 +167,6 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
     }
 
     @Test
-    public void testOrderCancel() throws Exception {
-
-        String orderId1 = "150372e6e2a";
-
-        LimitOrder order = LimitOrder.Factory.newInstance();
-        order.setQuantity(1L);
-        order.setIntId(orderId1);
-        order.setSide(Side.SELL);
-        order.setLimit(new BigDecimal("4800"));
-        order.setSecurity(this.future);
-        order.setAccount(this.account);
-
-        String orderId2 = Long.toHexString(System.currentTimeMillis());
-
-        OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, orderId2);
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
-
-        this.session.send(cancelRequest);
-
-        Object event2 = this.eventQueue.poll(20, TimeUnit.SECONDS);
-
-        Assert.assertTrue(event2 instanceof OrderStatus);
-        OrderStatus orderStatus2 = (OrderStatus) event2;
-        Assert.assertEquals(orderId1, orderStatus2.getIntId());
-        Assert.assertNotNull(orderStatus2.getExtId());
-        Assert.assertEquals(Status.CANCELED, orderStatus2.getStatus());
-
-        Object event3 = this.eventQueue.poll(5, TimeUnit.SECONDS);
-        Assert.assertNull(event3);
-    }
-
-    @Test
     public void testLimitOrderCancel() throws Exception {
 
         String orderId1 = Long.toHexString(System.currentTimeMillis());
@@ -239,9 +179,9 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSecurity(this.future);
         order.setAccount(this.account);
 
-        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId1);
+        this.orderBook.add(order);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId1);
 
         this.session.send(message);
 
@@ -286,12 +226,11 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order1.setLimit(new BigDecimal("4800"));
         order1.setSecurity(this.future);
         order1.setAccount(this.account);
-
-        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order1, orderId1);
-
         order1.setIntId(orderId1);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order1);
+        this.orderBook.add(order1);
+
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order1, orderId1);
 
         this.session.send(message);
 
@@ -307,18 +246,15 @@ public class TTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
         LimitOrder order2 = LimitOrder.Factory.newInstance();
-        order2.setIntId(orderId1);
+        order2.setIntId(orderId2);
         order2.setQuantity(1L);
         order2.setSide(Side.SELL);
         order2.setLimit(new BigDecimal("4805"));
         order2.setSecurity(this.future);
         order2.setAccount(this.account);
-
-        OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order2, orderId2);
-
         order2.setIntId(orderId2);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order2);
+        OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order2, orderId2);
 
         this.session.send(replaceRequest);
 

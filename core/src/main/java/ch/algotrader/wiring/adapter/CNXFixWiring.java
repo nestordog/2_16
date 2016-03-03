@@ -31,7 +31,6 @@ import ch.algotrader.adapter.fix.DefaultLogonMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import quickfix.SessionSettings;
 
 /**
@@ -61,12 +60,10 @@ public class CNXFixWiring {
     @Bean(name = "cNXOrderApplicationFactory")
     public CNXFixApplicationFactory createCNXOrderApplicationFactory(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
-            final Engine serverEngine,
             final DefaultLogonMessageHandler cNXLogonMessageHandler,
             final ExternalSessionStateHolder cNXOrderSessionStateHolder) {
 
-        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
+        CNXFixOrderMessageHandler cnxFixOrderMessageHandler = new CNXFixOrderMessageHandler(orderExecutionService);
         return new CNXFixApplicationFactory(cnxFixOrderMessageHandler, cNXLogonMessageHandler, cNXOrderSessionStateHolder);
     }
 

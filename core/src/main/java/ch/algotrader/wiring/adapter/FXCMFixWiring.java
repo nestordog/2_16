@@ -32,7 +32,6 @@ import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageHandler;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 
 /**
  * FXCM Fix configuration.
@@ -54,11 +53,10 @@ public class FXCMFixWiring {
     public FixApplicationFactory createFXCMApplicationFactory(
             final Engine serverEngine,
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final ExternalSessionStateHolder fXCMSessionLifeCycle) {
 
         FXCMFixMarketDataMessageHandler fxcmFixMarketDataMessageHandler = new FXCMFixMarketDataMessageHandler(serverEngine);
-        FXCMFixOrderMessageHandler fxcmFixOrderMessageHandler = new FXCMFixOrderMessageHandler(orderExecutionService, transactionService, serverEngine);
+        FXCMFixOrderMessageHandler fxcmFixOrderMessageHandler = new FXCMFixOrderMessageHandler(orderExecutionService);
         FXCMFixMessageHandler fxcmFixMessageHandler = new FXCMFixMessageHandler(fxcmFixMarketDataMessageHandler, fxcmFixOrderMessageHandler);
         return new FXCMFixApplicationFactory(fxcmFixMessageHandler, fXCMSessionLifeCycle);
     }

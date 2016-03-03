@@ -18,7 +18,6 @@
 package ch.algotrader.adapter.rt;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -27,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import ch.algotrader.adapter.MockOrderExecutionService;
 import ch.algotrader.adapter.fix.DefaultFixApplication;
 import ch.algotrader.adapter.fix.DefaultFixSessionStateHolder;
 import ch.algotrader.adapter.fix.FixApplicationTestBase;
@@ -42,7 +42,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
 import ch.algotrader.entity.security.Stock;
 import ch.algotrader.entity.security.StockImpl;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.LimitOrderImpl;
@@ -53,11 +52,9 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.AbstractEngine;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
+import ch.algotrader.ordermgmt.DefaultOrderBook;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.util.DateTimeLegacy;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
@@ -67,56 +64,33 @@ import quickfix.fix44.OrderCancelRequest;
 public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     private LinkedBlockingQueue<Object> eventQueue;
-    private EventDispatcher eventDispatcher;
-    private OrderExecutionService orderExecutionService;
-    private TransactionService transactionService;
+    private OrderBook orderBook;
+    private MockOrderExecutionService orderExecutionService;
     private RTFixOrderMessageFactory messageFactory;
     private RTFixOrderMessageHandler messageHandler;
 
     @Before
     public void setup() throws Exception {
 
-        final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<>();
-        this.eventQueue = queue;
-
-        Engine engine = new AbstractEngine(StrategyImpl.SERVER) {
-
-            @Override
-            public void sendEvent(Object obj) {
-                try {
-                    queue.put(obj);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-
-            @Override
-            public List executeQuery(String query) {
-                return null;
-            }
-        };
-
-        this.eventDispatcher = Mockito.mock(EventDispatcher.class);
+        this.eventQueue = new LinkedBlockingQueue<>();
+        this.orderBook = new DefaultOrderBook();
+        this.orderExecutionService = new MockOrderExecutionService(this.eventQueue, this.orderBook);
 
         SessionSettings settings = FixConfigUtils.loadSettings();
         SessionID sessionId = FixConfigUtils.getSessionID(settings, "RT");
 
-        this.orderExecutionService = Mockito.mock(OrderExecutionService.class);
-        this.transactionService = Mockito.mock(TransactionService.class);
-        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, engine);
+        RTFixOrderMessageHandler messageHandlerImpl = new RTFixOrderMessageHandler(this.orderExecutionService);
         this.messageHandler = Mockito.spy(messageHandlerImpl);
         this.messageFactory = new RTFixOrderMessageFactory(new GenericFix44SymbologyResolver());
 
         DefaultFixApplication fixApplication = new DefaultFixApplication(sessionId, this.messageHandler, null,
-                new DefaultFixSessionStateHolder("RT", this.eventDispatcher));
+                new DefaultFixSessionStateHolder("RT", Mockito.mock(EventDispatcher.class)));
 
         setupSession(settings, sessionId, fixApplication);
     }
 
     @Test
     public void testMarketOrderForex() throws Exception {
-
-        String orderId = Long.toHexString(System.currentTimeMillis());
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
@@ -135,9 +109,12 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
-        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
+        this.orderBook.add(order);
+
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
         this.session.send(message);
 
@@ -176,8 +153,6 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testMarketOrderFuture() throws Exception {
 
-        String orderId = Long.toHexString(System.currentTimeMillis());
-
         Exchange exchange = new ExchangeImpl();
         exchange.setCode("XEUR");
 
@@ -202,9 +177,12 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSide(Side.BUY);
         order.setQuantity(totalQuantity);
 
-        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId)).thenReturn(order);
+        this.orderBook.add(order);
+
+        NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
         this.session.send(message);
 
@@ -250,7 +228,6 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
     @Test
     public void testInvalidOrder() throws Exception {
 
-        String orderId = Long.toHexString(System.currentTimeMillis());
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
@@ -269,6 +246,11 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setQuantity(100);
         order.setSide(Side.BUY);
 
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);
+
+        this.orderBook.add(order);
+
         NewOrderSingle message = this.messageFactory.createNewOrderMessage(order, orderId);
 
         this.session.send(message);
@@ -279,8 +261,6 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
     @Test
     public void testLimitOrderCancel() throws Exception {
-
-        String orderId1 = Long.toHexString(System.currentTimeMillis());
 
         SecurityFamily securityFamily = new SecurityFamilyImpl();
         securityFamily.setCurrency(Currency.USD);
@@ -300,16 +280,19 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
         order.setSide(Side.BUY);
         order.setLimit(new BigDecimal("35.0"));
 
-        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId1);
+        String orderId = Long.toHexString(System.currentTimeMillis());
+        order.setIntId(orderId);;
 
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId1)).thenReturn(order);
+        this.orderBook.add(order);
+
+        NewOrderSingle message1 = this.messageFactory.createNewOrderMessage(order, orderId);
 
         this.session.send(message1);
 
         Object event1 = this.eventQueue.poll(20, TimeUnit.SECONDS);
         Assert.assertTrue(event1 instanceof OrderStatus);
         OrderStatus orderStatus1 = (OrderStatus) event1;
-        Assert.assertEquals(orderId1, orderStatus1.getIntId());
+        Assert.assertEquals(orderId, orderStatus1.getIntId());
         Assert.assertNotNull(orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
         Assert.assertSame(order, orderStatus1.getOrder());
@@ -317,10 +300,7 @@ public class RTFixOrderMessageHandlerTest extends FixApplicationTestBase {
 
         String orderId2 = Long.toHexString(System.currentTimeMillis());
 
-        order.setIntId(orderId1);
         OrderCancelRequest message2 = this.messageFactory.createOrderCancelMessage(order, orderId2);
-
-        Mockito.when(this.orderExecutionService.getOpenOrderByIntId(orderId2)).thenReturn(order);
 
         this.session.send(message2);
 
