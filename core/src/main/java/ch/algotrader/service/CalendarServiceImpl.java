@@ -71,11 +71,13 @@ public class CalendarServiceImpl implements CalendarService {
      * {@inheritDoc}
      */
     @Override
-    public Date getCurrentTradingDate(long exchangeId, Date dateTime) {
+    public Date getCurrentTradingDate(final long exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "Data time is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), 2);
         NavigableSet<Date> openTimes = new TreeSet<>();
         while ((openTimes.floor(dateTime)) == null) {
@@ -87,7 +89,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCurrentTradingDate(long exchangeId) {
+    public Date getCurrentTradingDate(final long exchangeId) {
         return getCurrentTradingDate(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -119,7 +121,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public boolean isOpen(long exchangeId) {
+    public boolean isOpen(final long exchangeId) {
         return isOpen(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -132,13 +134,15 @@ public class CalendarServiceImpl implements CalendarService {
         Validate.notNull(date, "Date is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
         return isTradingDay(exchange, dateTruncated);
 
     }
 
     @Override
-    public boolean isTradingDay(long exchangeId) {
+    public boolean isTradingDay(final long exchangeId) {
         return isTradingDay(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -151,6 +155,8 @@ public class CalendarServiceImpl implements CalendarService {
         Validate.notNull(date, "Date is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
         TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
         return timeIntervals.isEmpty() ? null : timeIntervals.first().getFrom();
@@ -158,7 +164,7 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getOpenTime(long exchangeId) {
+    public Date getOpenTime(final long exchangeId) {
         return getOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
@@ -171,6 +177,8 @@ public class CalendarServiceImpl implements CalendarService {
         Validate.notNull(date, "Date is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date dateTruncated = DateUtils.truncate(date, Calendar.DATE);
         TimeIntervals timeIntervals = getTimeIntervals(exchange, dateTruncated);
         return timeIntervals.isEmpty() ? null : timeIntervals.last().getTo();
@@ -178,16 +186,18 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getCloseTime(long exchangeId) {
+    public Date getCloseTime(final long exchangeId) {
         return getCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextOpenTime(long exchangeId, Date dateTime) {
+    public Date getNextOpenTime(final long exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date date = DateUtils.truncate(dateTime, Calendar.DATE);
         Date openTime;
         NavigableSet<Date> openTimes = new TreeSet<>();
@@ -200,16 +210,18 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextOpenTime(long exchangeId) {
+    public Date getNextOpenTime(final long exchangeId) {
         return getNextOpenTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     @Override
-    public Date getNextCloseTime(long exchangeId, Date dateTime) {
+    public Date getNextCloseTime(final long exchangeId, final Date dateTime) {
 
         Validate.notNull(dateTime, "DateTime is null");
 
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         Date date = DateUtils.addDays(DateUtils.truncate(dateTime, Calendar.DATE), -1);
         Date closeTime;
         NavigableSet<Date> closeTimes = new TreeSet<>();
@@ -222,14 +234,19 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     @Override
-    public Date getNextCloseTime(long exchangeId) {
+    public Date getNextCloseTime(final long exchangeId) {
         return getNextCloseTime(exchangeId, this.engineManager.getCurrentEPTime());
     }
 
     /**
      * Get all open times for this date
      */
-    private NavigableSet<Date> getOpenTimes(Exchange exchange, Date date) {
+    private NavigableSet<Date> getOpenTimes(final Exchange exchange, final Date date) {
+
+        Validate.notNull(exchange, "exchange not found");
+        Validate.notNull(date, "date is null");
+
+        Validate.isTrue(exchange.getTradingHours().size() > 0, "no trading hours defined for exchange " + exchange);
 
         NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
@@ -244,7 +261,12 @@ public class CalendarServiceImpl implements CalendarService {
     /**
      * Get all close times for this date
      */
-    private NavigableSet<Date> getCloseTimes(Exchange exchange, Date date) {
+    private NavigableSet<Date> getCloseTimes(final Exchange exchange, final Date date) {
+
+        Validate.notNull(exchange, "exchange not found");
+        Validate.notNull(date, "date is null");
+
+        Validate.isTrue(exchange.getTradingHours().size() > 0, "no trading hours defined for exchange " + exchange);
 
         NavigableSet<Date> openTimes = new TreeSet<>();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
@@ -258,7 +280,11 @@ public class CalendarServiceImpl implements CalendarService {
 
     private boolean isOpenInternal(final long exchangeId, final Date dateTime) {
 
+        Validate.notNull(dateTime, "dateTime is null");
+
         Exchange exchange = this.exchangeDao.get(exchangeId);
+        Validate.notNull(exchange, "exchange not found");
+
         if (exchange.getTradingHours().size() == 0) {
             this.closeTimeMap.put(exchangeId, new Date(Long.MAX_VALUE));
             return true;
@@ -281,13 +307,18 @@ public class CalendarServiceImpl implements CalendarService {
         return isOpen;
     }
 
-    private boolean isTradingDay(Exchange exchange, Date date) {
+    private boolean isTradingDay(final Exchange exchange, final Date date) {
+
+        Validate.notNull(exchange, "exchange not found");
+        Validate.notNull(date, "date is null");
 
         // is this date a holiday?
         Holiday holiday = getHoliday(exchange, date);
         if (holiday != null && !holiday.isPartialOpen()) {
             return false;
         }
+
+        Validate.isTrue(exchange.getTradingHours().size() > 0, "no trading hours defined for exchange " + exchange);
 
         // check if any of the tradingHours is enabled for this date
         WeekDay weekDay = getWeekDay(date, TimeZone.getDefault());
@@ -303,7 +334,10 @@ public class CalendarServiceImpl implements CalendarService {
     /**
      * gets the holiday for this date
      */
-    private Holiday getHoliday(Exchange exchange, Date dateTime) {
+    private Holiday getHoliday(final Exchange exchange, final Date dateTime) {
+
+        Validate.notNull(exchange, "exchange not found");
+        Validate.notNull(dateTime, "dateTime is null");
 
         final Date date = DateUtils.truncate(dateTime, Calendar.DATE);
 
@@ -320,7 +354,7 @@ public class CalendarServiceImpl implements CalendarService {
      * gets the weekday of the specified date
      * @param timeZone
      */
-    private WeekDay getWeekDay(Date date, TimeZone timeZone) {
+    private WeekDay getWeekDay(final Date date, final TimeZone timeZone) {
 
         Calendar cal = new GregorianCalendar();
         cal.setTimeZone(timeZone);
@@ -331,7 +365,9 @@ public class CalendarServiceImpl implements CalendarService {
     /**
      * Get all TimeIntervals for this date
      */
-    private TimeIntervals getTimeIntervals(Exchange exchange, Date date) {
+    private TimeIntervals getTimeIntervals(final Exchange exchange, final Date date) {
+
+        Validate.isTrue(exchange.getTradingHours().size() > 0, "no trading hours defined for exchange " + exchange);
 
         TimeIntervals timeIntervals = new TimeIntervals();
         for (TradingHours tradingHours : exchange.getTradingHours()) {
@@ -343,7 +379,7 @@ public class CalendarServiceImpl implements CalendarService {
     /**
      * Get all TimeIntervals for this date, the day before and the day after
      */
-    private TimeIntervals getTimeIntervalsPlusMinusOneDay(Exchange exchange, Date date) {
+    private TimeIntervals getTimeIntervalsPlusMinusOneDay(final Exchange exchange, final Date date) {
 
         TimeIntervals timeIntervals = new TimeIntervals();
         timeIntervals.addAll(getTimeIntervals(exchange, DateUtils.addDays(date, -1)));
@@ -357,7 +393,7 @@ public class CalendarServiceImpl implements CalendarService {
      * Taking into consideration potential lateOpens and earlyCloses
      * return null if this day is a full holiday
      */
-    private TimeInterval getTimeInterval(Date date, TradingHours tradingHours) {
+    private TimeInterval getTimeInterval(final Date date, final TradingHours tradingHours) {
 
         TimeZone timeZone = tradingHours.getExchange().getTZ();
         boolean inverse = tradingHours.getOpen().compareTo(tradingHours.getClose()) > 0;
@@ -392,7 +428,7 @@ public class CalendarServiceImpl implements CalendarService {
      * and takes hour_of_day, minute, second & millisecond from time
      * and takes the specified timeZone
      */
-    private Date getDateTime(TimeZone timeZone, Date date, Date time) {
+    private Date getDateTime(final TimeZone timeZone, final Date date, final Date time) {
 
         Calendar dateCal = Calendar.getInstance();
         dateCal.setTime(date);
@@ -413,7 +449,7 @@ public class CalendarServiceImpl implements CalendarService {
      * truncates the given date by converting it first to the specified timezone and then
      * taking the year, month, day part and leaving all other fields at zero
      */
-    private Date truncateToDayUsingTimeZone(Date date, TimeZone tz) {
+    private Date truncateToDayUsingTimeZone(final Date date, final TimeZone tz) {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
