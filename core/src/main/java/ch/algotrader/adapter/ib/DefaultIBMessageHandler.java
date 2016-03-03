@@ -311,7 +311,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Historic data; request id = " + requestId + " (" + dateString + ")");
+            LOGGER.debug(
+                    "Historic data; request id = " + requestId + " (" + dateString + ",open=" + open + ",high=" + high + ",low=" + low + ",close=" + close + ",vol=" + volume + ",vwap=" + WAP + ")");
         }
 
         Bar bar = Bar.Factory.newInstance();
