@@ -125,7 +125,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         if (intId == null) {
             throw new ServiceException("Order intId is null");
         }
-        handleSendOrder(algoOrder, getAlgoOrderState(algoOrder).get());
+        handleSendOrder(algoOrder, getAlgoOrderState(algoOrder).orElseThrow(() -> new ServiceException("Unknown order " + intId)));
     }
 
     protected abstract void handleSendOrder(final T algoOrder, final S algoOrderState);
@@ -135,7 +135,8 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
-        handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder).get());
+        String intId = algoOrder.getIntId();
+        handleModifyOrder(algoOrder, getAlgoOrderState(algoOrder).orElseThrow(() -> new ServiceException("Unknown order " + intId)));
     }
 
     protected abstract void handleModifyOrder(final T algoOrder, final S algoOrderState);
@@ -145,21 +146,20 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
 
         Validate.notNull(algoOrder, "AlgoOrder is null");
 
-        handleCancelOrder(algoOrder, getAlgoOrderState(algoOrder).get());
+        String intId = algoOrder.getIntId();
+        handleCancelOrder(algoOrder, getAlgoOrderState(algoOrder).orElseThrow(() -> new ServiceException("Unknown order " + intId)));
 
-        String algoIntId = algoOrder.getIntId();
-        List<Order> openChildOrders = this.orderExecutionService.getOpenOrdersByParentIntId(algoIntId);
+        List<Order> openChildOrders = this.orderExecutionService.getOpenOrdersByParentIntId(intId);
         for (Order childOrder : openChildOrders) {
             if (childOrder instanceof SimpleOrder) {
                 this.simpleOrderService.cancelOrder((SimpleOrder) childOrder);
             }
         }
 
-        String algoOrderId = algoOrder.getIntId();
-        OrderStatusVO executionStatus = this.orderExecutionService.getStatusByIntId(algoOrderId);
+        OrderStatusVO executionStatus = this.orderExecutionService.getStatusByIntId(intId);
         if (executionStatus != null) {
             OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-            algoOrderStatus.setIntId(algoOrderId);
+            algoOrderStatus.setIntId(intId);
             algoOrderStatus.setStatus(Status.CANCELED);
             algoOrderStatus.setFilledQuantity(executionStatus.getFilledQuantity());
             algoOrderStatus.setRemainingQuantity(executionStatus.getRemainingQuantity());
@@ -168,7 +168,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             this.orderExecutionService.handleOrderStatus(algoOrderStatus);
         }
 
-        this.algoOrderStates.remove(algoOrderId);
+        this.algoOrderStates.remove(intId);
     }
 
     protected abstract void handleCancelOrder(final T order, final S algoOrderState);
