@@ -129,6 +129,7 @@ import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.TransactionServiceImpl;
 import ch.algotrader.service.algo.AlgoOrderExecService;
 import ch.algotrader.service.algo.SlicingOrderService;
+import ch.algotrader.service.algo.TargetPositionOrderService;
 import ch.algotrader.service.algo.TickwiseIncrementalOrderService;
 import ch.algotrader.service.algo.VWAPOrderService;
 import ch.algotrader.service.algo.VariableIncrementalOrderService;
@@ -395,6 +396,15 @@ public class ServiceWiring {
             final SimpleOrderService simpleOrderService) {
 
         return new VariableIncrementalOrderService(orderExecutionService, marketDataCacheService, simpleOrderService);
+    }
+
+    @Bean(name = "targetPositionOrderService")
+    public TargetPositionOrderService createTargetPositionOrderService(
+            final OrderExecutionService orderExecutionService,
+            final LookupService lookupService,
+            final SimpleOrderService simpleOrderService) {
+
+        return new TargetPositionOrderService(orderExecutionService, lookupService, simpleOrderService);
     }
 
     @Bean(name = "orderService")

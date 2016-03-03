@@ -18,6 +18,7 @@
 package ch.algotrader.service;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -123,7 +124,30 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
     @Override
     public void modifyOrder(final AlgoOrder order) {
 
-        // Todo modify order
+        String intId = order.getIntId();
+        Order existingOrder = this.orderBook.getOpenOrderByIntId(intId);
+        if (existingOrder == null) {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("algo order {} is not open", intId);
+            }
+            return;
+        }
+        if (!Objects.equals(order.getAccount(), existingOrder.getAccount())) {
+            throw new ServiceException("Algo order account of cannot be modified");
+        }
+        if (!Objects.equals(order.getSecurity(), existingOrder.getSecurity())) {
+            throw new ServiceException("Algo order security cannot be modified");
+        }
+        if (!Objects.equals(order.getStrategy(), existingOrder.getStrategy())) {
+            throw new ServiceException("Algo order strategy cannot be modified");
+        }
+        if (!Objects.equals(order.getExchange(), existingOrder.getExchange())) {
+            throw new ServiceException("Algo order exchange cannot be modified");
+        }
+
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("modify algo order: {}", order);
+        }
 
         AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
         algoOrderExecService.modifyOrder(order);

@@ -17,26 +17,41 @@
  ***********************************************************************************/
 package ch.algotrader.entity.trade.algo;
 
-import java.io.Serializable;
+import ch.algotrader.entity.trade.OrderValidationException;
 
 /**
- * Contains the current state of an AlgoOrder
-  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
-*/
-public abstract class AlgoOrderStateVO implements Serializable {
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ */
+public class TargetPositionOrder extends AlgoOrder {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 4024823175791112993L;
 
-    private String intId;
+    private boolean keepAlive;
+    private long target;
 
-    public String getIntId() {
-        return this.intId;
+    public boolean isKeepAlive() {
+        return keepAlive;
     }
 
-    public void setIntId(String intId) {
-        this.intId = intId;
+    public void setKeepAlive(final boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public long getTarget() {
+        return target;
+    }
+
+    public void setTarget(long target) {
+        this.target = target;
+    }
+
+    @Override
+    public void validate() throws OrderValidationException {
+    }
+
+    @Override
+    public String getExtDescription() {
+        return "keepAlive=" + keepAlive + ",target=" + target;
     }
 
 }
-
-
