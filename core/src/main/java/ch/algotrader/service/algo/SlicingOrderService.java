@@ -19,6 +19,7 @@ package ch.algotrader.service.algo;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -105,9 +106,12 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         Optional<SlicingOrderStateVO> optional = getAlgoOrderState(slicingOrder);
         if (optional.isPresent()) {
             SlicingOrderStateVO orderState = optional.get();
-            orderState.setCurrentOffsetTicks(orderState.getCurrentOffsetTicks() + 1);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("increaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
+
+            synchronized (orderState) {
+                orderState.setCurrentOffsetTicks(orderState.getCurrentOffsetTicks() + 1);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("increaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
+                }
             }
         }
     }
@@ -119,9 +123,12 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         Optional<SlicingOrderStateVO> optional = getAlgoOrderState(slicingOrder);
         if (optional.isPresent()) {
             SlicingOrderStateVO orderState = optional.get();
-            orderState.setCurrentOffsetTicks(Math.max(orderState.getCurrentOffsetTicks() - 1, 0));
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("decreaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
+
+            synchronized (orderState) {
+                orderState.setCurrentOffsetTicks(Math.max(orderState.getCurrentOffsetTicks() - 1, 0));
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("decreaseOffsetTicks of {} to {}", slicingOrder.getDescription(), orderState.getCurrentOffsetTicks());
+                }
             }
         }
     }
@@ -275,7 +282,6 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
         List<Fill> fills = algoOrderState.getFills();
         String broker = slicingOrder.getAccount().getBroker();
         SecurityFamily securityFamily = slicingOrder.getSecurity().getSecurityFamily();
-
         int orderCount = pairs.size();
 
         Map<String, Object> results = new HashMap<>();
@@ -284,6 +290,18 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
             long startTime = (pairs.get(0).getFirst()).getDateTime().getTime();
             Fill lastFill = fills.get(fills.size() - 1);
             long totalTime = lastFill.getDateTime().getTime() - startTime;
+
+            // sort fills by intOrderId
+            Map<String, List<Fill>> fillsByIntId = new HashMap<>();
+            for (Fill fill : fills) {
+                String intId = fill.getOrder().getIntId();
+                List<Fill> fillsByIntOrderId = fillsByIntId.get(intId);
+                if (fillsByIntOrderId == null) {
+                    fillsByIntOrderId = new ArrayList<Fill>();
+                    fillsByIntId.put(intId, fillsByIntOrderId);
+                }
+                fillsByIntOrderId.add(fill);
+            }
 
             long totalTimeToFill = 0;
             int fillCount = 0;
@@ -308,7 +326,7 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
                 sumOrderQtyToMarketVol += order.getQuantity() / marketVol;
                 filledOrderCount = fills.size() > 0 ? ++filledOrderCount : filledOrderCount;
 
-                List<Fill> fillsByIntOrderId = algoOrderState.getFillsByIntOrderId(order.getIntId());
+                List<Fill> fillsByIntOrderId = fillsByIntId.get(order.getIntId());
                 if (fillsByIntOrderId != null) {
                     for (Fill fill : fillsByIntOrderId) {
 
@@ -327,7 +345,6 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
                         sumOffsetFillToOrder += Math.abs(securityFamily.getSpreadTicks(broker, fillPrice, orderPrice));
                     }
                 }
-
             }
 
             results.put("totalTime(msec)", totalTime);

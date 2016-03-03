@@ -18,9 +18,9 @@
 package ch.algotrader.entity.trade.algo;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import ch.algotrader.entity.trade.Fill;
 
@@ -35,7 +35,7 @@ public class VWAPOrderStateVO extends AlgoOrderStateVO {
 
     private final TreeMap<LocalTime, Long> buckets;
 
-    private final List<Fill> fills = new ArrayList<>();
+    private final List<Fill> fills = new CopyOnWriteArrayList<>();
 
     public VWAPOrderStateVO(double participation, TreeMap<LocalTime, Long> buckets) {
         this.participation = participation;
