@@ -260,6 +260,26 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
     }
 
     @Override
+    protected OrderStatus createAlgoOrderStatusOnChildStatus(final TargetPositionOrder algoOrder, final OrderStatus orderStatus) {
+
+        if (orderStatus.getStatus() == Status.REJECTED && !algoOrder.isKeepAlive()) {
+            String intId = algoOrder.getIntId();
+            OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
+            if (execStatus != null) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(Status.REJECTED);
+                algoOrderStatus.setIntId(intId);
+                algoOrderStatus.setExtDateTime(orderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(execStatus.getRemainingQuantity());
+                algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
+                algoOrderStatus.setOrder(algoOrder);
+                return algoOrderStatus;
+            }
+        }
+        return super.createAlgoOrderStatusOnChildStatus(algoOrder, orderStatus);
+    }
+
+    @Override
     protected OrderStatus createAlgoOrderStatusOnFill(final TargetPositionOrder algoOrder, final TargetPositionOrderStateVO algoOrderState, final Fill fill) {
 
         synchronized (algoOrderState) {
@@ -269,17 +289,17 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
                 long targetQty = algoOrderState.getTargetQty();
                 long actualQty = algoOrderState.getActualQty();
 
-                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-                algoOrderStatus.setStatus(actualQty != targetQty ? Status.PARTIALLY_EXECUTED : Status.EXECUTED);
-                algoOrderStatus.setIntId(algoOrder.getIntId());
-                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
-                algoOrderStatus.setFilledQuantity(fill.getQuantity());
-                algoOrderStatus.setOrder(algoOrder);
-                return algoOrderStatus;
-            } else {
-                return null;
+                if (actualQty == targetQty) {
+                    OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                    algoOrderStatus.setStatus(Status.EXECUTED);
+                    algoOrderStatus.setIntId(algoOrder.getIntId());
+                    algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                    algoOrderStatus.setOrder(algoOrder);
+                    return algoOrderStatus;
+                }
             }
         }
+        return null;
     }
 
     @Override

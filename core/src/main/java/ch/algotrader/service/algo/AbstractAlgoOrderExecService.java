@@ -187,7 +187,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             return;
         }
 
-        OrderStatus algoOrderStatus = createAlgoOrderStatusOnSubmit(algoOrder, orderStatus, intId);
+        OrderStatus algoOrderStatus = createAlgoOrderStatusOnChildStatus(algoOrder, orderStatus);
         if (algoOrderStatus != null) {
 
             this.orderExecutionService.handleOrderStatus(algoOrderStatus);
@@ -195,6 +195,10 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         }
 
         handleChildOrderStatus(algoOrder, algoOrderState, orderStatus);
+
+        if (algoOrderStatus != null && algoOrderStatus.getStatus() == Status.REJECTED) {
+            this.algoOrderStates.remove(intId);
+        }
     }
 
     @Override
@@ -220,24 +224,23 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         }
     }
 
-    protected OrderStatus createAlgoOrderStatusOnSubmit(final T algoOrder, final OrderStatus orderStatus, String intId) {
+    protected OrderStatus createAlgoOrderStatusOnChildStatus(final T algoOrder, final OrderStatus orderStatus) {
 
-        OrderStatus algoOrderStatus = null;
         if (orderStatus.getStatus() == Status.SUBMITTED) {
-
+            String intId = algoOrder.getIntId();
             OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
             if (execStatus != null && execStatus.getStatus() == Status.OPEN) {
-                algoOrderStatus = OrderStatus.Factory.newInstance();
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
                 algoOrderStatus.setStatus(Status.SUBMITTED);
                 algoOrderStatus.setIntId(intId);
                 algoOrderStatus.setExtDateTime(orderStatus.getExtDateTime());
                 algoOrderStatus.setFilledQuantity(0L);
                 algoOrderStatus.setRemainingQuantity(execStatus.getRemainingQuantity());
                 algoOrderStatus.setOrder(algoOrder);
-
+                return algoOrderStatus;
             }
         }
-        return algoOrderStatus;
+        return null;
     }
 
     protected OrderStatus createAlgoOrderStatusOnFill(final T algoOrder, final S algoOrderState, final Fill fill) {
