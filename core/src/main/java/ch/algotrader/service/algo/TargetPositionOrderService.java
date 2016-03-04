@@ -85,14 +85,8 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
         synchronized (algoOrderState) {
 
             long target = order.getTarget();
-            long quantity = order.getQuantity();
-            if (target != 0 && quantity != 0) {
-                throw new OrderValidationException("Target and quantity set at the same time");
-            }
-            if (target == 0 && quantity != 0) {
-                Side side = order.getSide();
-                target = side == Side.BUY ? quantity : -quantity;
-                order.setTarget(target);
+            if (order.getQuantity() != 0) {
+                throw new OrderValidationException("Quantity cannot be set for target position order");
             }
             algoOrderState.setTargetQty(target);
         }
