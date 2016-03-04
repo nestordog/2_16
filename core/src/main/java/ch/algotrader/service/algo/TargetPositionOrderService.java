@@ -92,6 +92,7 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
             if (target == 0 && quantity != 0) {
                 Side side = order.getSide();
                 target = side == Side.BUY ? quantity : -quantity;
+                order.setTarget(target);
             }
             algoOrderState.setTargetQty(target);
         }
@@ -104,11 +105,26 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
         Strategy strategy = order.getStrategy();
         Position position = this.lookupService.getPositionBySecurityAndStrategy(security.getId(), strategy.getName());
         long actualQty = position != null ? position.getQuantity() : 0L;
+        long targetQty = order.getTarget();
 
-        synchronized (algoOrderState) {
-            algoOrderState.setActualQty(actualQty);
+        if (actualQty != targetQty) {
 
-            adjustPosition(order, algoOrderState);
+            synchronized (algoOrderState) {
+                algoOrderState.setActualQty(actualQty);
+                adjustPosition(order, algoOrderState);
+            }
+
+        } else if (!order.isKeepAlive()) {
+
+            OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+            algoOrderStatus.setStatus(Status.EXECUTED);
+            algoOrderStatus.setIntId(order.getIntId());
+            algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+            algoOrderStatus.setFilledQuantity(0L);
+            algoOrderStatus.setOrder(order);
+
+            this.orderExecutionService.handleOrderStatus(algoOrderStatus);
+            removeAlgoOrderState(order);
         }
     }
 
