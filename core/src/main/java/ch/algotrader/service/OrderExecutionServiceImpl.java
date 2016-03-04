@@ -36,6 +36,7 @@ import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
+import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
@@ -204,7 +205,7 @@ public class OrderExecutionServiceImpl implements OrderExecutionService {
         }
         this.orderBook.add(restatedOrder);
 
-        if (!this.commonConfig.isSimulation()) {
+        if (!this.commonConfig.isSimulation() && restatedOrder instanceof SimpleOrder) {
 
             this.orderPersistService.persistOrder(restatedOrder);
         }

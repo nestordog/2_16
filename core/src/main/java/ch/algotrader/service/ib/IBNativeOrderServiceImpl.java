@@ -176,8 +176,7 @@ public class IBNativeOrderServiceImpl implements SimpleOrderExecService, Initial
         try {
 
             String intId = order.getIntId();
-            this.orderBook.remove(intId);
-            this.orderBook.add(order);
+            this.orderBook.replace(order);
 
             IBExecution execution = this.iBExecutions.addNew(intId);
             synchronized (execution) {

@@ -151,6 +151,8 @@ public class AlgoOrderServiceImpl implements AlgoOrderService {
 
         AlgoOrderExecService<AlgoOrder> algoOrderExecService = getAlgoExecService(order.getClass());
         algoOrderExecService.modifyOrder(order);
+
+        this.orderBook.replace(order);
     }
 
     /**

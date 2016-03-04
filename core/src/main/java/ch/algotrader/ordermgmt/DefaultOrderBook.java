@@ -85,6 +85,22 @@ public class DefaultOrderBook implements OrderBook {
     }
 
     @Override
+    public void replace(final Order order) {
+
+        Validate.notNull(order, "Order is null");
+        String intId = order.getIntId();
+        Validate.notNull(intId, "Order IntId is null");
+
+        OrderDetailsVO existing = this.orderExecMap.get(intId);
+        if (existing != null) {
+            if (this.orderMap.replace(intId, order) == null) {
+                throw new OrderRegistryException("Entry with IntId " + intId + " is not present");
+            }
+            this.orderExecMap.replace(intId, existing, new OrderDetailsVO(order, existing.getOrderStatus()));
+        }
+    }
+
+    @Override
     public Order getByIntId(final String intId) {
 
         Validate.notNull(intId, "Order IntId is null");

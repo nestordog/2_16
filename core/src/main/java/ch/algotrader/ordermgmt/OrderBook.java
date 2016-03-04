@@ -32,9 +32,14 @@ import ch.algotrader.enumeration.Status;
 public interface OrderBook {
 
     /**
-     * Adds the order to the registry.
+     * Adds the order to the order book.
      */
     void add(Order order);
+
+    /**
+     * Add the order to the order book and evict order with the same {@code IntId} if exists.
+     */
+    void replace(Order order);
 
     /**
      * Removes the order from the registry.
