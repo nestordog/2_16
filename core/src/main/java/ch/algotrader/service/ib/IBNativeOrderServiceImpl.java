@@ -133,10 +133,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
 
         Validate.notNull(order, "Order is null");
 
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
-
         this.lock.lock();
         try {
 
@@ -178,10 +174,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
 
         Validate.notNull(order, "Order is null");
 
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
-
         this.lock.lock();
         try {
 
@@ -210,10 +202,6 @@ public class IBNativeOrderServiceImpl implements ExternalOrderService, Initializ
     public void cancelOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
-
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
 
         this.lock.lock();
         try {

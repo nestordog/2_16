@@ -45,14 +45,13 @@ public class CNXFixServiceWiring {
     @Bean(name = "cNXFixOrderService")
     public ExternalOrderService createCNXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final ExternalSessionStateHolder cNXOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new CNXFixOrderServiceImpl(fixAdapter, cNXOrderSessionStateHolder, orderRegistry, orderPersistenceService,
+        return new CNXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

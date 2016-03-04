@@ -19,7 +19,6 @@ package ch.algotrader.service.fix.fix42;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix42.Fix42OrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -46,7 +45,6 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
     public Fix42OrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final Fix42OrderMessageFactory messageFactory,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
@@ -54,7 +52,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(orderServiceType, fixAdapter, stateHolder, orderPersistenceService, orderDao, accountDao, commonConfig);
+        super(orderServiceType, fixAdapter, orderPersistenceService, orderDao, accountDao, commonConfig);
 
         Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
         Validate.notNull(messageFactory, "Fix42OrderMessageFactory is null");

@@ -128,10 +128,6 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(final long securityFamilyId) {
 
-        if (!this.stateHolder.isLoggedOn()) {
-            throw new ServiceException("Fix session is not logged on");
-        }
-
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
         if (securityFamily == null) {
             throw new IllegalArgumentException("Unknown security family id: " + securityFamilyId);

@@ -97,16 +97,12 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     }
 
     @Override
-    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
+    public synchronized List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(marketDataEventType, "Bar type is null");
-
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {

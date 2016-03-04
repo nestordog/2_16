@@ -59,14 +59,13 @@ public class LMAXFixServiceWiring {
     @Bean(name = "lMAXFixOrderService")
     public ExternalOrderService createLMAXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final ExternalSessionStateHolder lMAXOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new LMAXFixOrderServiceImpl(fixAdapter, lMAXOrderSessionStateHolder, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+        return new LMAXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Profile("lMAXMarketData")
