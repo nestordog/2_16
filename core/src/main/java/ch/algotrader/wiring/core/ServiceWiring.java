@@ -81,7 +81,6 @@ import ch.algotrader.service.ForexService;
 import ch.algotrader.service.ForexServiceImpl;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.FutureServiceImpl;
-import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.LazyLoaderService;
 import ch.algotrader.service.LazyLoaderServiceImpl;
 import ch.algotrader.service.LookupService;
@@ -373,11 +372,10 @@ public class ServiceWiring {
     @Bean(name = "vWAPOrderService")
     public VWAPOrderService createVWAPOrderService(
             final OrderExecutionService orderExecutionService,
-            final HistoricalDataService historicalDataService,
             final CalendarService calendarService,
             final SimpleOrderService simpleOrderService) {
 
-        return new VWAPOrderService(orderExecutionService, historicalDataService, calendarService, simpleOrderService);
+        return new VWAPOrderService(orderExecutionService, calendarService, simpleOrderService);
     }
 
     @Bean(name = "tickwiseIncrementalOrderService")

@@ -39,6 +39,9 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
@@ -66,7 +69,7 @@ import ch.algotrader.util.RoundUtil;
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VWAPOrderStateVO> {
+public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VWAPOrderStateVO> implements ApplicationContextAware {
 
     private static final double MIN_PARTICIPATION = 0.5;
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
@@ -74,20 +77,19 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     private static final Logger LOGGER = LogManager.getLogger(VWAPOrderService.class);
 
     private final OrderExecutionService orderExecutionService;
-    private final HistoricalDataService historicalDataService;
     private final CalendarService calendarService;
     private final SimpleOrderService simpleOrderService;
 
-    public VWAPOrderService(final OrderExecutionService orderExecutionService, final HistoricalDataService historicalDataService, final CalendarService calendarService, final SimpleOrderService simpleOrderService) {
+    private ApplicationContext applicationContext;
+
+    public VWAPOrderService(final OrderExecutionService orderExecutionService, final CalendarService calendarService, final SimpleOrderService simpleOrderService) {
 
         super(orderExecutionService, simpleOrderService);
 
         Validate.notNull(orderExecutionService, "OrderExecutionService is null");
-        Validate.notNull(historicalDataService, "HistoricalDataService is null");
         Validate.notNull(calendarService, "CalendarService is null");
         Validate.notNull(simpleOrderService, "SimpleOrderService is null");
 
-        this.historicalDataService = historicalDataService;
         this.calendarService = calendarService;
         this.simpleOrderService = simpleOrderService;
         this.orderExecutionService = orderExecutionService;
@@ -96,6 +98,11 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     @Override
     public Class<? extends AlgoOrder> getAlgoOrderType() {
         return VWAPOrder.class;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -112,7 +119,9 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         SecurityFamily family = security.getSecurityFamily();
         Exchange exchange = family.getExchange();
 
-        List<Bar> bars = this.historicalDataService.getHistoricalBars(
+        HistoricalDataService historicalDataService = this.applicationContext.getBean(HistoricalDataService.class);
+
+        List<Bar> bars = historicalDataService.getHistoricalBars(
                 security.getId(), //
                 DateUtils.truncate(new Date(), Calendar.DATE), //
                 algoOrder.getLookbackPeriod(), //
@@ -273,7 +282,9 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
         SecurityFamily family = algoOrder.getSecurity().getSecurityFamily();
         int minutes = (int) (dateTime.getTime() - algoOrder.getStartTime().getTime()) / 60000;
 
-        List<Bar> bars = this.historicalDataService.getHistoricalBars(algoOrder.getSecurity().getId(), //
+        HistoricalDataService historicalDataService = this.applicationContext.getBean(HistoricalDataService.class);
+
+        List<Bar> bars = historicalDataService.getHistoricalBars(algoOrder.getSecurity().getId(), //
                 new Date(), //
                 minutes * 60, //
                 TimePeriod.SEC, //

@@ -38,6 +38,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.ApplicationContext;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.marketData.Bar;
@@ -84,6 +85,8 @@ public class VWAPOrderServiceTest {
     @Mock
     private CalendarService calendarService;
 
+    @Mock private ApplicationContext applicationContext;
+
     private VWAPOrderService vwapOrderService;
 
     private Security security;
@@ -97,7 +100,10 @@ public class VWAPOrderServiceTest {
     @Before
     public void setup() {
         
-        this.vwapOrderService = new VWAPOrderService(this.orderExecutionService, this.historicalDataService, this.calendarService, this.simpleOrderService);
+        this.vwapOrderService = new VWAPOrderService(this.orderExecutionService, this.calendarService, this.simpleOrderService);
+        this.vwapOrderService.setApplicationContext(this.applicationContext);
+
+        Mockito.when(this.applicationContext.getBean(HistoricalDataService.class)).thenReturn(this.historicalDataService);
 
         this.exchange = Exchange.Factory.newInstance("TEST_EXCHANGE", TimeZone.getDefault().toString());
         this.exchange.setId(1);
