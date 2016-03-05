@@ -129,11 +129,7 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
             long targetQty = order.getTarget();
             algoOrderState.setTargetQty(targetQty);
 
-            // Make adjustments if there is no open (unacknowledged) order
-            if (algoOrderState.getOrderStatus() != Status.OPEN) {
-
-                adjustPosition(order, algoOrderState);
-            }
+            adjustPosition(order, algoOrderState);
         }
     }
 
@@ -224,6 +220,7 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
             marketOrder.setAccount(order.getAccount());
             marketOrder.setParentOrder(order);
 
+            algoOrderState.setIntId(null);
             algoOrderState.setOrderStatus(Status.OPEN);
 
             this.simpleOrderService.sendOrder(marketOrder);
@@ -237,24 +234,33 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
 
             String intId = orderStatus.getIntId();
             Status status = orderStatus.getStatus();
-            if (status == Status.SUBMITTED) {
+            switch (status) {
+                case SUBMITTED:
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("{} {}: order {} acknowledged", order.getIntId(), order.getSecurity(), intId);
+                    }
 
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("{} {}: order {} acknowledged", order.getIntId(), order.getSecurity(), intId);
-                }
+                    // Order accepted by the broker
+                    // Track this order as the actual working order
+                    algoOrderState.setIntId(intId);
+                    algoOrderState.setOrderStatus(status);
+                    break;
+                case CANCELED:
+                case REJECTED:
+                    // Last order was rejected or cancelled
+                    if (algoOrderState.getIntId() == null) {
+                        algoOrderState.setIntId(intId);
+                    }
+                    // fall through
+                default:
+                    // Update working order status
+                    if (Objects.equals(intId, algoOrderState.getIntId())) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("{} {}: order {} {}", order.getIntId(), order.getSecurity(), intId, status);
+                        }
 
-                // Order accepted by the broker
-                // Track this order as the actual working order
-                algoOrderState.setIntId(orderStatus.getIntId());
-                algoOrderState.setOrderStatus(status);
-            } else if (Objects.equals(intId, algoOrderState.getIntId())) {
-
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("{} {}: order {} {}", order.getIntId(), order.getSecurity(), intId, status);
-                }
-
-                // Update working order status
-                algoOrderState.setOrderStatus(status);
+                        algoOrderState.setOrderStatus(status);
+                    }
             }
         }
     }

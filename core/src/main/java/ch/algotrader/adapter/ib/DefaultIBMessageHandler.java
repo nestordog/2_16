@@ -696,7 +696,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             }
 
             if (orderStatus != null) {
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }
