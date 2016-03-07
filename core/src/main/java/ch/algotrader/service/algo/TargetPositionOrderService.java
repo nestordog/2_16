@@ -84,11 +84,15 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
 
         synchronized (algoOrderState) {
 
-            long target = order.getTarget();
             if (order.getQuantity() != 0) {
                 throw new OrderValidationException("Quantity cannot be set for target position order");
             }
-            algoOrderState.setTargetQty(target);
+
+            if (order.getSide() != null) {
+                throw new OrderValidationException("Side cannot be set for target position order");
+            }
+
+            algoOrderState.setTargetQty(order.getTarget());
         }
     }
 
@@ -140,7 +144,6 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
             algoOrderState.setOrderStatus(Status.CANCELED);
             algoOrderState.setIntId(null);
         }
-
     }
 
     void adjustPosition(final TargetPositionOrder order, final TargetPositionOrderStateVO algoOrderState) {
