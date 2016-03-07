@@ -112,17 +112,20 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
                 adjustPosition(order, algoOrderState);
             }
 
-        } else if (!order.isKeepAlive()) {
+        } else {
 
             OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-            algoOrderStatus.setStatus(Status.EXECUTED);
+            algoOrderStatus.setStatus(order.isKeepAlive() ? Status.TARGET_REACHED :Status.EXECUTED);
             algoOrderStatus.setIntId(order.getIntId());
             algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
             algoOrderStatus.setFilledQuantity(0L);
             algoOrderStatus.setOrder(order);
 
             this.orderExecutionService.handleOrderStatus(algoOrderStatus);
-            removeAlgoOrderState(order);
+
+            if (algoOrderStatus.getStatus() == Status.EXECUTED) {
+                removeAlgoOrderState(order);
+            }
         }
     }
 
@@ -293,19 +296,16 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
 
         synchronized (algoOrderState) {
 
-            if (!algoOrder.isKeepAlive()) {
+            long targetQty = algoOrderState.getTargetQty();
+            long actualQty = algoOrderState.getActualQty();
 
-                long targetQty = algoOrderState.getTargetQty();
-                long actualQty = algoOrderState.getActualQty();
-
-                if (actualQty == targetQty) {
-                    OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-                    algoOrderStatus.setStatus(Status.EXECUTED);
-                    algoOrderStatus.setIntId(algoOrder.getIntId());
-                    algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
-                    algoOrderStatus.setOrder(algoOrder);
-                    return algoOrderStatus;
-                }
+            if (actualQty == targetQty) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(algoOrder.isKeepAlive() ? Status.TARGET_REACHED :Status.EXECUTED);
+                algoOrderStatus.setIntId(algoOrder.getIntId());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setOrder(algoOrder);
+                return algoOrderStatus;
             }
         }
         return null;

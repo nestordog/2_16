@@ -50,7 +50,12 @@ public enum Status {
     /**
      * Rejected Order.
      */
-    REJECTED;
+    REJECTED,
+
+    /**
+     * Order has reached its target but remains active.
+     */
+    TARGET_REACHED;
 
     private static final long serialVersionUID = 6359963093170544955L;
 
