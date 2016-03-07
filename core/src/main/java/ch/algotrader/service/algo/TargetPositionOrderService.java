@@ -115,7 +115,7 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
         } else {
 
             OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
-            algoOrderStatus.setStatus(order.isKeepAlive() ? Status.TARGET_REACHED :Status.EXECUTED);
+            algoOrderStatus.setStatus(order.isKeepAlive() ? Status.TARGET_REACHED : Status.EXECUTED);
             algoOrderStatus.setIntId(order.getIntId());
             algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
             algoOrderStatus.setFilledQuantity(0L);
@@ -135,6 +135,18 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
         synchronized (algoOrderState) {
             long targetQty = order.getTarget();
             algoOrderState.setTargetQty(targetQty);
+            long actualQty = algoOrderState.getActualQty();
+
+            if (targetQty != actualQty) {
+                OrderStatus algoOrderStatus = OrderStatus.Factory.newInstance();
+                algoOrderStatus.setStatus(Status.SUBMITTED);
+                algoOrderStatus.setIntId(order.getIntId());
+                algoOrderStatus.setDateTime(algoOrderStatus.getExtDateTime());
+                algoOrderStatus.setFilledQuantity(0L);
+                algoOrderStatus.setOrder(order);
+
+                this.orderExecutionService.handleOrderStatus(algoOrderStatus);
+            }
 
             adjustPosition(order, algoOrderState);
         }
