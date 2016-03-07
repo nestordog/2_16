@@ -274,7 +274,7 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
     @Override
     protected OrderStatus createAlgoOrderStatusOnChildStatus(final TargetPositionOrder algoOrder, final OrderStatus orderStatus) {
 
-        if (orderStatus.getStatus() == Status.REJECTED && !algoOrder.isKeepAlive()) {
+        if (orderStatus.getStatus() == Status.REJECTED) {
             String intId = algoOrder.getIntId();
             OrderStatusVO execStatus = this.orderExecutionService.getStatusByIntId(intId);
             if (execStatus != null) {
