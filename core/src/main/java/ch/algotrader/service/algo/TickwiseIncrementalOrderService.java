@@ -33,7 +33,6 @@ import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.SimpleOrderService;
 
 /**
@@ -140,7 +139,7 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
 
     }
 
-    public void adjustLimit(final TickwiseIncrementalOrder algoOrder) {
+    public void adjustLimit(final TickwiseIncrementalOrder algoOrder) throws ReflectiveOperationException {
 
         Optional<IncrementalOrderStateVO> optional = getAlgoOrderState(algoOrder);
         if (optional.isPresent()) {
@@ -160,13 +159,8 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
                 orderState.setCurrentLimit(family.adjustPrice(null, orderState.getCurrentLimit(), -1));
             }
 
-            LimitOrder modifiedOrder;
-            try {
-                modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-                modifiedOrder.setId(0L);
-            } catch (Exception ex) {
-                throw new ServiceException(ex);
-            }
+            LimitOrder modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
+            modifiedOrder.setId(0L);
 
             modifiedOrder.setLimit(orderState.getCurrentLimit());
             this.simpleOrderService.modifyOrder(modifiedOrder);

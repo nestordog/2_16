@@ -33,7 +33,6 @@ import ch.algotrader.entity.trade.algo.VariableIncrementalOrderStateVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.ServiceException;
 import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.util.RoundUtil;
 
@@ -123,7 +122,7 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
 
     }
 
-    public void adjustLimit(final VariableIncrementalOrder algoOrder) {
+    public void adjustLimit(final VariableIncrementalOrder algoOrder) throws ReflectiveOperationException {
 
         Optional<VariableIncrementalOrderStateVO> optional = getAlgoOrderState(algoOrder);
         if (optional.isPresent()) {
@@ -152,13 +151,8 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
                 orderState.setCurrentLimit(orderState.getCurrentLimit().subtract(roundedIncrement));
             }
 
-            LimitOrder modifiedOrder;
-            try {
-                modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
-                modifiedOrder.setId(0L);
-            } catch (Exception ex) {
-                throw new ServiceException(ex);
-            }
+            LimitOrder modifiedOrder = (LimitOrder) BeanUtils.cloneBean(orderState.getLimitOrder());
+            modifiedOrder.setId(0L);
 
             modifiedOrder.setLimit(orderState.getCurrentLimit());
             this.simpleOrderService.modifyOrder(modifiedOrder);
