@@ -130,6 +130,7 @@ import ch.algotrader.service.algo.AlgoOrderExecService;
 import ch.algotrader.service.algo.SlicingOrderService;
 import ch.algotrader.service.algo.TargetPositionOrderService;
 import ch.algotrader.service.algo.TickwiseIncrementalOrderService;
+import ch.algotrader.service.algo.TrailingLimitOrderService;
 import ch.algotrader.service.algo.VWAPOrderService;
 import ch.algotrader.service.algo.VariableIncrementalOrderService;
 import ch.algotrader.service.h2.H2TransactionPersistenceServiceImpl;
@@ -403,6 +404,15 @@ public class ServiceWiring {
             final SimpleOrderService simpleOrderService) {
 
         return new TargetPositionOrderService(orderExecutionService, lookupService, simpleOrderService);
+    }
+
+    @Bean(name = "trailingLimitOrderService")
+    public TrailingLimitOrderService createTrailingLimitOrderService(
+            final OrderExecutionService orderExecutionService,
+            final SimpleOrderService simpleOrderService,
+            final MarketDataCacheService marketDataCacheService) {
+
+        return new TrailingLimitOrderService(orderExecutionService, simpleOrderService, marketDataCacheService);
     }
 
     @Bean(name = "orderService")

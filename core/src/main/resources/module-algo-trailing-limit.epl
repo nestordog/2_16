@@ -1,0 +1,12 @@
+// ------------------------------ Trailing Limit Orders ---------------------------------------
+
+@Name('TRAILING_LIMIT_ADJUST_LIMIT')
+@RunTimeOnly
+@Subscriber(className='trailingLimitOrderService#adjustLimit')
+select
+    trailingLimitOrder,
+    tick.last
+from
+    pattern [every trailingLimitOrder=ch.algotrader.entity.trade.algo.TrailingLimitOrder
+        -> (every tick=TickVO(securityId=trailingLimitOrder.security.id) and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, `order`.intId = trailingLimitOrder.intId))];
+        

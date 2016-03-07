@@ -70,6 +70,7 @@ import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.entity.trade.algo.SlicingOrder;
 import ch.algotrader.entity.trade.algo.TargetPositionOrder;
 import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
+import ch.algotrader.entity.trade.algo.TrailingLimitOrder;
 import ch.algotrader.entity.trade.algo.VWAPOrder;
 import ch.algotrader.entity.trade.algo.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
@@ -522,7 +523,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
             @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
-            @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> <li> V (VWAP) </li> <li> TP (Target position) </li> </ul> or order preference (e.g. 'SLICING' or 'VWAP')</html>"),
+            @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> <li> V (VWAP) </li> <li> TP (Target position) </li> <li> TL (Trailing Limit) </li> </ul> or order preference (e.g. 'SLICING' or 'VWAP')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName (optional)"),
             @ManagedOperationParameter(name = "exchangeName", description = "exchangeName (optional)"),
             @ManagedOperationParameter(name = "properties", description = "<html>Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5).<p> In addition custom properties can be set on the order (e.g. FIX123=12, INTERNALportfolio=TEST)</hmlt>") })
@@ -559,6 +560,8 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             order = new VWAPOrder();
         } else if ("TP".equals(type)) {
             order = new TargetPositionOrder();
+        } else if ("TL".equals(type)) {
+            order = new TrailingLimitOrder();
         } else {
 
             // create the order from an OrderPreference

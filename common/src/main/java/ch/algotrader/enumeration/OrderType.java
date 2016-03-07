@@ -35,6 +35,8 @@ public enum OrderType {
 
     VWAP("ch.algotrader.entity.trade.algo.VWAPOrder"),
 
+    TRAILING_LIMIT("ch.algotrader.entity.trade.algo.TrailingLimitOrder"),
+
     TICKWISE_INCREMENTAL("ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder"),
 
     VARIABLE_INCREMENTAL("ch.algotrader.entity.trade.algo.VariableIncrementalOrder");
