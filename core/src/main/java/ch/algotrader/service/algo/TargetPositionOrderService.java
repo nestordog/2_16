@@ -74,13 +74,13 @@ public class TargetPositionOrderService extends AbstractAlgoOrderExecService<Tar
     }
 
     @Override
-    protected TargetPositionOrderStateVO createAlgoOrderState(final TargetPositionOrder algoOrder) {
+    protected TargetPositionOrderStateVO handleValidateOrder(final TargetPositionOrder algoOrder) {
 
         return new TargetPositionOrderStateVO();
     }
 
     @Override
-    protected void handleValidateOrder(final TargetPositionOrder order, final TargetPositionOrderStateVO algoOrderState) throws OrderValidationException {
+    protected void validateSideAndQuantity(final TargetPositionOrder order, final TargetPositionOrderStateVO algoOrderState) throws OrderValidationException {
 
         synchronized (algoOrderState) {
 

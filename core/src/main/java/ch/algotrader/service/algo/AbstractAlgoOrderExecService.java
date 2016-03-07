@@ -60,8 +60,6 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         this.algoOrderStates = new ConcurrentHashMap<>();
     }
 
-    protected abstract S createAlgoOrderState(final T algoOrder) throws OrderValidationException;
-
     protected final Optional<S> getAlgoOrderState(final AlgoOrder algoOrder) {
         String intId = algoOrder.getIntId();
         if (intId == null) {
@@ -87,7 +85,7 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
         String intId = algoOrder.getIntId();
         S algoOrderState = intId != null ? this.algoOrderStates.get(intId) : null;
         if (algoOrderState == null) {
-            algoOrderState = createAlgoOrderState(algoOrder);
+            algoOrderState = handleValidateOrder(algoOrder);
         }
 
         // validate order specific properties
@@ -99,13 +97,16 @@ public abstract class AbstractAlgoOrderExecService<T extends AlgoOrder, S extend
             throw new OrderValidationException(security + " is not tradeable: " + algoOrder);
         }
 
-        handleValidateOrder(algoOrder, algoOrderState);
+        validateSideAndQuantity(algoOrder, algoOrderState);
+
         if (intId != null) {
             this.algoOrderStates.putIfAbsent(intId, algoOrderState);
         }
     }
 
-    protected void handleValidateOrder(final T algoOrder, final S algoOrderState) throws OrderValidationException {
+    protected abstract S handleValidateOrder(final T algoOrder) throws OrderValidationException;
+
+    protected void validateSideAndQuantity(final T algoOrder, final S algoOrderState) throws OrderValidationException {
 
         // validate general properties
         if (algoOrder.getSide() == null) {

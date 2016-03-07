@@ -106,7 +106,7 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
     }
 
     @Override
-    protected VWAPOrderStateVO createAlgoOrderState(final VWAPOrder algoOrder) throws OrderValidationException {
+    protected VWAPOrderStateVO handleValidateOrder(final VWAPOrder algoOrder) throws OrderValidationException {
 
         return createAlgoOrderState(algoOrder, new Date());
     }

@@ -61,7 +61,7 @@ public class TickwiseIncrementalOrderService extends AbstractAlgoOrderExecServic
     }
 
     @Override
-    protected IncrementalOrderStateVO createAlgoOrderState(final TickwiseIncrementalOrder algoOrder) {
+    protected IncrementalOrderStateVO handleValidateOrder(final TickwiseIncrementalOrder algoOrder) {
         Security security = algoOrder.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
 

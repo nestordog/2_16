@@ -80,7 +80,7 @@ public class SlicingOrderService extends AbstractAlgoOrderExecService<SlicingOrd
     }
 
     @Override
-    protected SlicingOrderStateVO createAlgoOrderState(final SlicingOrder algoOrder) {
+    protected SlicingOrderStateVO handleValidateOrder(final SlicingOrder algoOrder) {
         return new SlicingOrderStateVO();
     }
 

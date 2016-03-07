@@ -115,7 +115,7 @@ public class AbstractAlgoOrderExecServiceTest {
             }
 
             @Override
-            protected SimpleOrderStateVO createAlgoOrderState(SimpleAlgoOrder algoOrder) {
+            protected SimpleOrderStateVO handleValidateOrder(SimpleAlgoOrder algoOrder) {
                 return new SimpleOrderStateVO();
             }
 

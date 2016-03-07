@@ -64,7 +64,7 @@ public class TrailingLimitOrderService extends AbstractAlgoOrderExecService<Trai
     }
 
     @Override
-    protected TrailingLimitOrderStateVO createAlgoOrderState(final TrailingLimitOrder algoOrder) throws OrderValidationException {
+    protected TrailingLimitOrderStateVO handleValidateOrder(final TrailingLimitOrder algoOrder) throws OrderValidationException {
         return new TrailingLimitOrderStateVO();
     }
 

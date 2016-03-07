@@ -62,7 +62,7 @@ public class VariableIncrementalOrderService extends AbstractAlgoOrderExecServic
     }
 
     @Override
-    protected VariableIncrementalOrderStateVO createAlgoOrderState(final VariableIncrementalOrder algoOrder) {
+    protected VariableIncrementalOrderStateVO handleValidateOrder(final VariableIncrementalOrder algoOrder) {
         Security security = algoOrder.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
 
