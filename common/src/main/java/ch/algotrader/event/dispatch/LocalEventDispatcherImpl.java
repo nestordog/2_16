@@ -64,23 +64,24 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     @Override
     public void broadcastLocalStrategies(final Object event) {
 
+        broadcastLocalEventListeners(event);
+
         for (Engine engine : this.engineManager.getStrategyEngines()) {
 
             engine.sendEvent(event);
         }
-
-        broadcastLocalEventListeners(event);
     }
 
     @Override
     public void broadcastLocal(final Object event) {
+
+        broadcastLocalEventListeners(event);
 
         for (Engine engine : this.engineManager.getEngines()) {
 
             engine.sendEvent(event);
         }
 
-        broadcastLocalEventListeners(event);
     }
 
     @Override
@@ -147,6 +148,7 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     @Override
     public void sendMarketDataEvent(final MarketDataEventVO marketDataEvent) {
 
+        this.localEventBroadcaster.broadcast(marketDataEvent);
         Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
@@ -159,17 +161,16 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
                 }
             }
         }
-        this.localEventBroadcaster.broadcast(marketDataEvent);
     }
 
     @Override
     public void sendEvent(final String engineName, final Object event) {
         // check if it is a local engine
+        this.localEventBroadcaster.broadcast(event);
         final Engine engine = this.engineManager.lookup(engineName);
         if (engine != null) {
             engine.sendEvent(event);
         }
-        this.localEventBroadcaster.broadcast(event);
     }
 
 }

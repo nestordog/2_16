@@ -97,23 +97,24 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     @Override
     public void broadcastLocalStrategies(final Object event) {
 
+        broadcastLocalEventListeners(event);
+
         for (Engine engine : this.engineManager.getStrategyEngines()) {
 
             engine.sendEvent(event);
         }
 
-        broadcastLocalEventListeners(event);
     }
 
     @Override
     public void broadcastLocal(final Object event) {
 
+        broadcastLocalEventListeners(event);
+
         for (Engine engine : this.engineManager.getEngines()) {
 
             engine.sendEvent(event);
         }
-
-        broadcastLocalEventListeners(event);
     }
 
     @Override
