@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MessageConverter;
 
+import ch.algotrader.cache.CacheEvictionEventVO;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
@@ -45,6 +46,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
     private static final Logger EVENT_LOGGER = LogManager.getLogger("ch.algotrader.event.dispatch.mq.EVENTS");
     private static final Logger MARKET_DATA_LOGGER = LogManager.getLogger("ch.algotrader.event.dispatch.mq.MARKET_DATA");
+    private static final Logger CACHE_LOGGER = LogManager.getLogger("ch.algotrader.event.dispatch.mq.CACHE");
 
     private final EventBroadcaster localEventBroadcaster;
     private final EngineManager engineManager;
@@ -52,6 +54,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
     private final JmsTemplate strategyTemplate;
     private final JmsTemplate marketDataTemplate;
     private final MessageConverter messageConverter;
+    private final boolean tracing;
 
     public DistributedEventDispatcherImpl(
             final EventBroadcaster localEventBroadcaster,
@@ -71,6 +74,7 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
         this.strategyTemplate = strategyTemplate;
         this.marketDataTemplate = marketDataTemplate;
         this.messageConverter = messageConverter;
+        this.tracing = EVENT_LOGGER.isTraceEnabled() || MARKET_DATA_LOGGER.isTraceEnabled() || CACHE_LOGGER.isTraceEnabled();
     }
 
     @Override
@@ -82,9 +86,6 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
         } else {
             Objects.requireNonNull(this.strategyTemplate, "Strategy template is null");
             this.strategyTemplate.convertAndSend(engineName + ".QUEUE", obj);
-            if (EVENT_LOGGER.isTraceEnabled()) {
-                EVENT_LOGGER.trace("outgoing: " + obj);
-            }
         }
     }
 
@@ -127,9 +128,6 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
             message.setStringProperty("clazz", event.getClass().getName());
             return message;
         });
-        if (EVENT_LOGGER.isTraceEnabled()) {
-            EVENT_LOGGER.trace("outgoing: " + event);
-        }
     }
 
     @Override
@@ -170,9 +168,6 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
             message.setLongProperty("securityId", marketDataEvent.getSecurityId());
             return message;
         });
-        if (MARKET_DATA_LOGGER.isTraceEnabled()) {
-            MARKET_DATA_LOGGER.trace("outgoing: " + marketDataEvent);
-        }
         broadcastLocalEventListeners(marketDataEvent);
     }
 
@@ -181,10 +176,21 @@ public class DistributedEventDispatcherImpl implements EventDispatcher, MessageL
 
         try {
             Object event = this.messageConverter.fromMessage(message);
-            if (MARKET_DATA_LOGGER.isInfoEnabled() && message instanceof MarketDataEventVO) {
-                MARKET_DATA_LOGGER.trace("incoming: " + message);
-            } else if (EVENT_LOGGER.isTraceEnabled()) {
-                EVENT_LOGGER.trace("incoming: " + message);
+
+            if (this.tracing) {
+                if (event instanceof MarketDataEventVO) {
+                    if (MARKET_DATA_LOGGER.isInfoEnabled()) {
+                        MARKET_DATA_LOGGER.trace(event.getClass().getName() + ": " + event);
+                    }
+                } else if (event instanceof CacheEvictionEventVO) {
+                    if (CACHE_LOGGER.isTraceEnabled()) {
+                        CACHE_LOGGER.trace(event.getClass().getName() + ": " + event);
+                    }
+                } else {
+                    if (EVENT_LOGGER.isTraceEnabled()) {
+                        EVENT_LOGGER.trace(event.getClass().getName() + ": " + event);
+                    }
+                }
             }
             broadcastLocal(event);
         } catch (JMSException ex) {

@@ -17,15 +17,13 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
-
 /**
  * Notifies that a particular spaceName (table) has been modified.
  * All cached queries based on this spaceName should be evicted.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class QueryCacheEvictionEventVO implements Serializable {
+public class QueryCacheEvictionEventVO extends CacheEvictionEventVO {
 
     private static final long serialVersionUID = -9201194174175757269L;
 
@@ -41,7 +39,7 @@ public class QueryCacheEvictionEventVO implements Serializable {
 
     @Override
     public String toString() {
-        return this.spaceName + "]";
+        return this.spaceName;
     }
 
 }
