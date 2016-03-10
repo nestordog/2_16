@@ -83,17 +83,6 @@ public class ServiceLocator {
 
         this.beanFactoryReferenceLocation = beanFactoryReferenceLocationIn;
         this.beanFactoryReference = null;
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                ServiceLocator serviceLocator = ServiceLocator.instance();
-                if (serviceLocator.isInitialized()) {
-
-                    serviceLocator.shutdown();
-                }
-            }
-        });
     }
 
     /**
@@ -186,6 +175,17 @@ public class ServiceLocator {
      * The shared instance of this ServiceLocator.
      */
     private static final ServiceLocator instance = new ServiceLocator();
+
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (instance.isInitialized()) {
+                    instance.shutdown();
+                }
+            }
+        });
+    }
 
     /**
      * Gets the shared instance of this Class

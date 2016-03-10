@@ -53,6 +53,8 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.espertech.esperio.csv.CSVInputAdapter;
+
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
@@ -93,8 +95,6 @@ import ch.algotrader.vo.performance.PerformanceKeysVO;
 import ch.algotrader.vo.performance.PeriodPerformanceVO;
 import ch.algotrader.vo.performance.SimulationResultVO;
 import ch.algotrader.vo.performance.TradesVO;
-
-import com.espertech.esperio.csv.CSVInputAdapter;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -277,9 +277,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         } catch (IOException ex) {
             throw new SimulationExecutorException(ex);
         }
-
-        // run a garbage collection
-        System.gc();
 
         return resultVO;
 
@@ -763,9 +760,11 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             }
         }
 
-        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
-        buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
-        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
+        if (performanceKeys != null) {
+            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
+            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
+            buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
+        }
         buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
         buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
         buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
