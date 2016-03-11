@@ -17,12 +17,9 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server;
 
-import javax.management.MBeanServer;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 import ch.algotrader.cache.CacheManagerImpl;
 import ch.algotrader.cache.CoreCacheManagerMBean;
@@ -32,17 +29,6 @@ import ch.algotrader.cache.CoreCacheManagerMBean;
  */
 @Configuration
 public class CoreJMXWiring {
-
-    @Profile(value = {"live", "embeddedBroker"})
-    @Bean(name = "mbeanServer")
-    public MBeanServer createMBeanServer() {
-
-        MBeanServerFactoryBean mBeanServerFactoryBean = new MBeanServerFactoryBean();
-        mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
-        mBeanServerFactoryBean.afterPropertiesSet();
-
-        return mBeanServerFactoryBean.getObject();
-    }
 
     @Profile(value = "live")
     @Bean(name = "cacheManagerMBean")

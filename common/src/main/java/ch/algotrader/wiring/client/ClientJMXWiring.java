@@ -30,7 +30,7 @@ import ch.algotrader.cache.ClientCacheManagerMBean;
 /**
  * Client JMX configuration.
  */
-@Profile(value = "live")
+@Profile(value = { "live", "embeddedBroker" })
 @Configuration
 public class ClientJMXWiring {
 
