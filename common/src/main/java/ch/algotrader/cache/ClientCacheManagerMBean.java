@@ -17,34 +17,31 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.util.Arrays;
 import java.util.List;
+
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
 import org.springframework.jmx.export.annotation.ManagedResource;
 
 /**
- * MBean for Level-Zero-Cache and EhCache
+ * MBean for Level-Zero-Cache
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 @ManagedResource(objectName = "ch.algotrader.cache:name=CacheManager")
-public class CacheManagerMBean {
+public class ClientCacheManagerMBean {
 
     final CacheManager levelZeroCacheManager;
-    final net.sf.ehcache.CacheManager ehCacheManager;
 
-    public CacheManagerMBean(CacheManager levelZeroCacheManager) {
+    public ClientCacheManagerMBean(CacheManager levelZeroCacheManager) {
         this.levelZeroCacheManager = levelZeroCacheManager;
-        this.ehCacheManager = net.sf.ehcache.CacheManager.getInstance();
     }
 
     @ManagedOperation
     @ManagedOperationParameters({})
     public void clearAll() {
 
-        this.ehCacheManager.clearAll();
         this.levelZeroCacheManager.clear();
     }
 
@@ -56,10 +53,5 @@ public class CacheManagerMBean {
     @ManagedAttribute
     public List<String> getQueries() {
         return this.levelZeroCacheManager.getQueries();
-    }
-
-    @ManagedAttribute
-    public List<String> getEhCacheNames() {
-        return Arrays.asList(this.ehCacheManager.getCacheNames());
     }
 }

@@ -15,26 +15,38 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.wiring.server;
+package ch.algotrader.wiring.client;
+
+import javax.management.MBeanServer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.CoreCacheManagerMBean;
+import ch.algotrader.cache.ClientCacheManagerMBean;
 
 /**
- * Core JMX configuration.
+ * Client JMX configuration.
  */
 @Profile(value = "live")
 @Configuration
-public class CoreJMXWiring {
+public class ClientJMXWiring {
+
+    @Bean(name = "mbeanServer")
+    public MBeanServer createMBeanServer() {
+
+        MBeanServerFactoryBean mBeanServerFactoryBean = new MBeanServerFactoryBean();
+        mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
+
+        return mBeanServerFactoryBean.getObject();
+    }
 
     @Bean(name = "cacheManagerMBean")
-    public CoreCacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
+    public ClientCacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
 
-        return new CoreCacheManagerMBean(cacheManager);
+        return new ClientCacheManagerMBean(cacheManager);
     }
 
 }
