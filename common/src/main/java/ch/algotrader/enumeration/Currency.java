@@ -23,7 +23,7 @@ package ch.algotrader.enumeration;
 public enum Currency {
 
     AUD, BRL, CAD, CHF, EUR, GBP, HKD, INR, JPY, KRW, NOK, NZD, PLN, RUB, SEK, THB, TRY, TWD, USD, ZAR,
-    MYR, SGD;
+    MYR, SGD, CNH, CZK, DKK, HUF, ILS, MXN;
 
     private static final long serialVersionUID = -3176827134736078599L;
 
