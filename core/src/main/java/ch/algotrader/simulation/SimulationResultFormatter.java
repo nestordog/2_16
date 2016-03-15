@@ -63,11 +63,9 @@ public final class SimulationResultFormatter {
             }
         }
 
-        if (performanceKeys != null) {
-            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
-            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
-            buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
-        }
+        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
+        buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
+        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
         buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
         buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
         buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
@@ -75,8 +73,8 @@ public final class SimulationResultFormatter {
         buffer.append(" winTrds=" + resultVO.getWinningTrades().getCount());
         buffer.append(" winTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
         buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
-        buffer.append(" loosTrds=" + resultVO.getLoosingTrades().getCount());
-        buffer.append(" loosTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getLoosingTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
+        buffer.append(" losTrds=" + resultVO.getLoosingTrades().getCount());
+        buffer.append(" losTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getLoosingTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
         buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
         buffer.append(" totalTrds=" + resultVO.getAllTrades().getCount());
 
@@ -171,20 +169,20 @@ public final class SimulationResultFormatter {
         }
 
         buffer.append("WinningTrades:");
-        printTrades(buffer, resultVO.getWinningTrades(), resultVO.getAllTrades().getCount());
+        convertTrades(buffer, resultVO.getWinningTrades(), resultVO.getAllTrades().getCount());
 
         buffer.append("LoosingTrades:");
-        printTrades(buffer, resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount());
+        convertTrades(buffer, resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount());
 
         buffer.append("AllTrades:");
-        printTrades(buffer, resultVO.getAllTrades(), resultVO.getAllTrades().getCount());
+        convertTrades(buffer, resultVO.getAllTrades(), resultVO.getAllTrades().getCount());
 
         for (Map.Entry<String, Object> entry : resultVO.getStrategyResults().entrySet()) {
             buffer.append(entry.getKey() + "=" + entry.getValue() + " ");
         }
     }
 
-    private void printTrades(final Appendable buffer, final TradesVO tradesVO, final long totalTrades) throws IOException {
+    private void convertTrades(final Appendable buffer, final TradesVO tradesVO, final long totalTrades) throws IOException {
 
         buffer.append(" count=" + tradesVO.getCount());
         if (tradesVO.getCount() != totalTrades) {

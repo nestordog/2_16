@@ -19,7 +19,11 @@ package ch.algotrader.simulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -77,6 +81,7 @@ import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.report.BackTestReport;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.PortfolioService;
@@ -104,7 +109,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
     private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
-
+    private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private final CommonConfig commonConfig;
@@ -516,6 +521,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     public SimulationResultVO simulateWithCurrentParams(final StrategyGroup strategyGroup) {
 
         SimulationResultVO resultVO = runSimulation(strategyGroup);
+        reportStatisticsToFile(resultVO);
         logMultiLineString(convertStatisticsToLongString(resultVO));
         return resultVO;
     }
@@ -720,7 +726,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) engine.getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_ALL_TRADES");
         TradesVO winningTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
+        TradesVO losingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
@@ -758,7 +764,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         resultVO.setMaxDrawDown(maxDrawDown);
         resultVO.setAllTrades(allTrades);
         resultVO.setWinningTrades(winningTrades);
-        resultVO.setLoosingTrades(loosingTrades);
+        resultVO.setLoosingTrades(losingTrades);
 
         // get potential strategy specific results
         Map<String, Object> strategyResults = new HashMap<>();
@@ -768,6 +774,118 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         resultVO.setStrategyResults(strategyResults);
 
         return resultVO;
+    }
+
+    private void reportStatisticsToFile(SimulationResultVO resultVO) {
+
+        if (!this.commonConfig.isDisableReports()) {
+
+            try {
+
+                File reportLocation = this.commonConfig.getReportLocation();
+                File reportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.csv");
+                BackTestReport backTestReport = new BackTestReport(reportFile);
+
+                backTestReport.write("executionTime", resultVO.getMins());
+
+                if (resultVO.getAllTrades().getCount() == 0) {
+                    backTestReport.write("allTradesCount", 0);
+                    return;
+                }
+
+                backTestReport.write("dataSet", this.commonConfig.getDataSet());
+
+                double netLiqValue = resultVO.getNetLiqValue();
+                backTestReport.write("netLiqValue", twoDigitFormat.format(netLiqValue));
+
+                // monthlyPerformances
+                Collection<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformances();
+                double maxDrawDownM = 0d;
+                double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
+                int positiveMonths = 0;
+                int negativeMonths = 0;
+                if ((monthlyPerformances != null)) {
+                    for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                        maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
+                        bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
+                        if (monthlyPerformance.getValue() > 0) {
+                            positiveMonths++;
+                        } else {
+                            negativeMonths++;
+                        }
+                    }
+                }
+
+                // yearlyPerformances
+                int positiveYears = 0;
+                int negativeYears = 0;
+                Collection<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformances();
+                if ((yearlyPerformances != null)) {
+                    for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
+                        if (yearlyPerformance.getValue() > 0) {
+                            positiveYears++;
+                        } else {
+                            negativeYears++;
+                        }
+                    }
+                }
+
+                if ((monthlyPerformances != null)) {
+                    backTestReport.write("posMonths", positiveMonths);
+                    backTestReport.write("negMonths", negativeMonths);
+                    if ((yearlyPerformances != null)) {
+                        backTestReport.write("posYears", positiveYears);
+                        backTestReport.write("negYears", negativeYears);
+                    }
+                }
+
+                PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
+                MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
+                if (performanceKeys != null && maxDrawDownVO != null) {
+                    backTestReport.write("avgM", performanceKeys.getAvgM());
+                    backTestReport.write("stdM", performanceKeys.getStdM());
+                    backTestReport.write("avgY", performanceKeys.getAvgY());
+                    backTestReport.write("stdY", performanceKeys.getStdY());
+                    backTestReport.write("sharpeRatio", performanceKeys.getSharpeRatio());
+
+                    backTestReport.write("maxMonthlyDrawDown", -maxDrawDownM);
+                    backTestReport.write("bestMonthlyPerformance", bestMonthlyPerformance);
+                    backTestReport.write("maxDrawDown", maxDrawDownVO.getAmount());
+                    backTestReport.write("maxDrawDownPeriod", maxDrawDownVO.getPeriod() / 86400000);
+                    backTestReport.write("colmarRatio", performanceKeys.getAvgY() / maxDrawDownVO.getAmount());
+                }
+
+                reportTrades(backTestReport, "winningTrades", resultVO.getWinningTrades(), resultVO.getAllTrades().getCount());
+                reportTrades(backTestReport, "losingTrades", resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount());
+                reportTrades(backTestReport, "allTrades", resultVO.getAllTrades(), resultVO.getAllTrades().getCount());
+
+                backTestReport.write("returns");
+                LocalDate startDate = LocalDate.of(1900, 1, 1);
+                if ((monthlyPerformances != null)) {
+                    for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                        LocalDate date = monthlyPerformance.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
+                        long daysBetween = ChronoUnit.DAYS.between(startDate, date) + 2;
+                        backTestReport.write(daysBetween, monthlyPerformance.getValue());
+                    }
+                }
+
+                backTestReport.close();
+
+            } catch (IOException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void reportTrades(BackTestReport backTestReport, String type, TradesVO tradesVO, long totalTrades) throws IOException {
+
+        backTestReport.write(type + "Count", tradesVO.getCount());
+        if (tradesVO.getCount() != totalTrades) {
+            backTestReport.write(type + "Pct", (double) tradesVO.getCount() / totalTrades);
+        }
+        backTestReport.write(type + "TotalProfit", tradesVO.getTotalProfit());
+        backTestReport.write(type + "AvgProfit", tradesVO.getAvgProfit());
+        backTestReport.write(type + "AvgProfitPct", tradesVO.getAvgProfitPct());
     }
 
     private String convertStatisticsToShortString(SimulationResultVO resultVO) {
