@@ -103,11 +103,13 @@ public class PortfolioChartServiceImpl extends ChartProvidingServiceImpl impleme
             for (PortfolioValueVO portfolioValue : this.portfolioService.getPortfolioValuesInclPerformanceSinceDate(this.strategyName, new Date(startDateTime))) {
 
                 vos.add(new IndicatorVO("netLiqValue", portfolioValue.getDateTime(), portfolioValue.getNetLiqValue().doubleValue()));
-                vos.add(new IndicatorVO("securitiesCurrentValue", portfolioValue.getDateTime(), portfolioValue.getSecuritiesCurrentValue().doubleValue()));
+                vos.add(new IndicatorVO("marketValue", portfolioValue.getDateTime(), portfolioValue.getMarketValue().doubleValue()));
+                vos.add(new IndicatorVO("realizedPL", portfolioValue.getDateTime(), portfolioValue.getRealizedPL().doubleValue()));
+                vos.add(new IndicatorVO("unrealizedPL", portfolioValue.getDateTime(), portfolioValue.getUnrealizedPL().doubleValue()));
                 vos.add(new IndicatorVO("cashBalance", portfolioValue.getDateTime(), portfolioValue.getCashBalance().doubleValue()));
-                vos.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
+                vos.add(new IndicatorVO("positions", portfolioValue.getDateTime(), portfolioValue.getOpenPositions()));
                 vos.add(new IndicatorVO("leverage", portfolioValue.getDateTime(), portfolioValue.getLeverage()));
-                vos.add(new IndicatorVO("allocation", portfolioValue.getDateTime(), portfolioValue.getAllocation()));
+                vos.add(new IndicatorVO("performance", portfolioValue.getDateTime(), portfolioValue.getPerformance()));
             }
         }
 

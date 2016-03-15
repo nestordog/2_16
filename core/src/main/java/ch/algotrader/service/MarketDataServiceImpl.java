@@ -260,7 +260,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     }
 
-    public void unsubscribe(final Strategy strategy, final Security security, final String feedType) {
+    private void unsubscribe(final Strategy strategy, final Security security, final String feedType) {
 
         this.eventDispatcher.unregisterMarketDataSubscription(strategy.getName(), security.getId());
 
@@ -414,7 +414,7 @@ public class MarketDataServiceImpl implements MarketDataService {
 
     @Override
     public TickVO normaliseTick(TickVO tick) {
-        if(normaliseMarketData && tick != null){
+        if(this.normaliseMarketData && tick != null){
 
             Security security = this.securityDao.get(tick.getSecurityId());
             if(security != null){

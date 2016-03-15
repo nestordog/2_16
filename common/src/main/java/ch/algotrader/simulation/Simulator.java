@@ -358,14 +358,14 @@ public class Simulator {
     public PortfolioValue getPortfolioValue() {
 
         BigDecimal cashBalance = RoundUtil.getBigDecimal(getCashBalanceDoubleInternal(this.cashBalances.values()));
-        BigDecimal securitiesCurrentValue = RoundUtil.getBigDecimal(getSecuritiesCurrentValueDoubleInternal(this.positionsByStrategyAndSecurity.values()));
+        BigDecimal marketValue = RoundUtil.getBigDecimal(getMarketValueDoubleInternal(this.positionsByStrategyAndSecurity.values()));
 
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
         portfolioValue.setDateTime(getCurrentTime());
         portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
+        portfolioValue.setMarketValue(marketValue); // might be null if there was no last tick for a particular security
+        portfolioValue.setNetLiqValue(marketValue != null ? cashBalance.add(marketValue) : null); // add here to prevent another lookup
 
         return portfolioValue;
     }
@@ -379,9 +379,9 @@ public class Simulator {
     }
 
     /**
-     * @copy ch.algotrader.service.PortfolioServiceImpl.getSecuritiesCurrentValueDoubleInternal(Collection<Position>)
+     * @copy ch.algotrader.service.PortfolioServiceImpl.getMarketValueDoubleInternal(Collection<Position>)
      */
-    private double getSecuritiesCurrentValueDoubleInternal(final Collection<Position> openPositions) {
+    private double getMarketValueDoubleInternal(final Collection<Position> openPositions) {
 
         // sum of all positions
         double amount = 0.0;

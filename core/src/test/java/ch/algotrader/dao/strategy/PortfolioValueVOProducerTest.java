@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.PortfolioValueImpl;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.vo.PortfolioValueVO;
 
 /**
@@ -52,10 +53,14 @@ public class PortfolioValueVOProducerTest {
 
         portfolioValue.setDateTime(new Date());
         portfolioValue.setNetLiqValue(new BigDecimal("1.1"));
-        portfolioValue.setSecuritiesCurrentValue(new BigDecimal("2.2"));
-        portfolioValue.setCashBalance(new BigDecimal("3.3"));
-        portfolioValue.setLeverage(5.5);
-        portfolioValue.setCashFlow(new BigDecimal("7.7"));
+        portfolioValue.setMarketValue(new BigDecimal("2.2"));
+        portfolioValue.setRealizedPL(new BigDecimal("3.3"));
+        portfolioValue.setUnrealizedPL(new BigDecimal("4.4"));
+        portfolioValue.setCashBalance(new BigDecimal("5.5"));
+        portfolioValue.setOpenPositions(6);
+        portfolioValue.setLeverage(7.7);
+        portfolioValue.setCashFlow(new BigDecimal("8.8"));
+        portfolioValue.setStrategy(new StrategyImpl());
 
         PortfolioValueVO portfolioValueVO = this.instance.convert(portfolioValue);
 
@@ -63,8 +68,11 @@ public class PortfolioValueVOProducerTest {
 
         Assert.assertEquals(portfolioValue.getDateTime(), portfolioValueVO.getDateTime());
         Assert.assertEquals(portfolioValue.getNetLiqValue(), portfolioValueVO.getNetLiqValue());
-        Assert.assertEquals(portfolioValue.getSecuritiesCurrentValue(), portfolioValueVO.getSecuritiesCurrentValue());
+        Assert.assertEquals(portfolioValue.getMarketValue(), portfolioValueVO.getMarketValue());
+        Assert.assertEquals(portfolioValue.getRealizedPL(), portfolioValueVO.getRealizedPL());
+        Assert.assertEquals(portfolioValue.getUnrealizedPL(), portfolioValueVO.getUnrealizedPL());
         Assert.assertEquals(portfolioValue.getCashBalance(), portfolioValueVO.getCashBalance());
+        Assert.assertEquals(portfolioValue.getOpenPositions(), portfolioValueVO.getOpenPositions());
         Assert.assertEquals(new Double(portfolioValue.getLeverage()), new Double(portfolioValueVO.getLeverage()));
         Assert.assertEquals(portfolioValue.getCashFlow(), portfolioValueVO.getCashFlow());
     }

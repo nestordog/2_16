@@ -36,7 +36,7 @@ public class PortfolioReport extends ListReporter {
     public static PortfolioReport create(final BigDecimal initialBalance) throws IOException {
         return new PortfolioReport(
                 Report.generateFile("PortfolioReport"),
-                new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" },
+                new String[] { "dateTime", "netLiqValue", "marketValue", "realizedPL", "unrealizedPL", "cashBalance", "openPositions", "leverage" },
                 initialBalance);
     }
 
@@ -56,9 +56,14 @@ public class PortfolioReport extends ListReporter {
 
         if (this.initialized) {
             writeAndFlush(formatDateTime(currentDateTime), //
+                    portfolioValue.getNetLiqValue(), //
+                    portfolioValue.getMarketValue(), //
+                    portfolioValue.getRealizedPL(), //
+                    portfolioValue.getUnrealizedPL(), //
                     portfolioValue.getCashBalance(), //
-                    portfolioValue.getSecuritiesCurrentValue(), //
-                    portfolioValue.getNetLiqValue());
+                    portfolioValue.getOpenPositions(), //
+                    portfolioValue.getLeverage()
+            );
         }
 
         MetricsUtil.accountEnd("LogPortfolioValueSubscriber", startTime);

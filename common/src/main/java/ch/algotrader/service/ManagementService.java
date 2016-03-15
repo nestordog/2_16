@@ -111,7 +111,13 @@ public interface ManagementService {
      * Gets the total Market Value of all Positions of this Strategy (or the entire System if called
      * from the AlgoTrader Server)
      */
-    public BigDecimal getStrategySecuritiesCurrentValue();
+    public BigDecimal getStrategyMarketValue();
+
+    /**
+     * Gets the total RealizedPL of all Positions of this Strategy (or the entire System if called
+     * from the AlgoTrader Server)
+     */
+    public BigDecimal getStrategyRealizedPL();
 
     /**
      * Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called

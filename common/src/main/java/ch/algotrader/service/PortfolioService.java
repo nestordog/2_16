@@ -139,22 +139,22 @@ public interface PortfolioService {
     /**
      * Gets the total Market Value of all non-FX Positions of the entire System.
      */
-    public BigDecimal getSecuritiesCurrentValue();
+    public BigDecimal getMarketValue();
 
     /**
      * Gets the total Market Value of all non-FX Positions of the specified Strategy.
      */
-    public BigDecimal getSecuritiesCurrentValue(String strategyName);
+    public BigDecimal getMarketValue(String strategyName);
 
     /**
      * Gets the total Market Value of all non-FX Positions of the entire System on the specified Date.
      */
-    public BigDecimal getSecuritiesCurrentValue(Date date);
+    public BigDecimal getMarketValue(Date date);
 
     /**
      * Gets the total Market Value of all non-FX Positions of the specified Strategy on the specified Date.
      */
-    public BigDecimal getSecuritiesCurrentValue(String strategyName, Date date);
+    public BigDecimal getMarketValue(String strategyName, Date date);
 
     /**
      * Gets the total Market Value of all non-FX Positions on the specified Date by an arbitrary filter by
@@ -170,27 +170,27 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public BigDecimal getSecuritiesCurrentValue(String filter, Date date, NamedParam... namedParams);
+    public BigDecimal getMarketValue(String filter, Date date, NamedParam... namedParams);
 
     /**
      * Gets the total Market Value of all Positions of the entire System.
      */
-    public double getSecuritiesCurrentValueDouble();
+    public double getMarketValueDouble();
 
     /**
      * Gets the total Market Value of all Positions of the specified Strategy.
      */
-    public double getSecuritiesCurrentValueDouble(String strategyName);
+    public double getMarketValueDouble(String strategyName);
 
     /**
      * Gets the total Market Value of all Positions of the entire System on the specified Date.
      */
-    public double getSecuritiesCurrentValueDouble(Date date);
+    public double getMarketValueDouble(Date date);
 
     /**
      * Gets the total Market Value of all Positions of the specified Strategy on the specified Date.
      */
-    public double getSecuritiesCurrentValueDouble(String strategyName, Date date);
+    public double getMarketValueDouble(String strategyName, Date date);
 
     /**
      * Gets the total Market Value of all Positions on the specified Date by an arbitrary filter by
@@ -206,25 +206,45 @@ public interface PortfolioService {
      * s.gics like '12______'
      * }
      */
-    public double getSecuritiesCurrentValueDouble(String filter, Date date, NamedParam... namedParams);
+    public double getMarketValueDouble(String filter, Date date, NamedParam... namedParams);
 
     /**
-     * Gets the total Market Value of all FX Positions of the entire System.
+     * Gets the total Realized Profit and Loss of all Positions of the entire System.
+     */
+    public BigDecimal getRealizedPL();
+
+    /**
+     * Gets the total Realized Profit and Loss of all Positions of the specified Strategy.
+     */
+    public BigDecimal getRealizedPL(String strategyName);
+
+    /**
+     * Gets the total Realized Profit and Loss of all Positions of the entire System.
+     */
+    public double getRealizedPLDouble();
+
+    /**
+     * Gets the total Realized Profit and Loss of all Positions of the specified Strategy.
+     */
+    public double getRealizedPLDouble(String strategyName);
+
+    /**
+     * Gets the total Unrealized Profit and Loss of all Positions of the entire System.
      */
     public BigDecimal getUnrealizedPL();
 
     /**
-     * Gets the total Market Value of all FXPositions of the specified Strategy.
+     * Gets the total Unrealized Profit and Loss of all Positions of the specified Strategy.
      */
     public BigDecimal getUnrealizedPL(String strategyName);
 
     /**
-     * Gets the total Market Value of all FX Positions of the entire System.
+     * Gets the total Unrealized Profit and Loss of all Positions of the entire System.
      */
     public double getUnrealizedPLDouble();
 
     /**
-     * Gets the total Market Value of all FX Positions of the specified Strategy.
+     * Gets the total Unrealized Profit and Loss of all Positions of the specified Strategy.
      */
     public double getUnrealizedPLDouble(String strategyName);
 
@@ -247,6 +267,26 @@ public interface PortfolioService {
      * Gets the Net-Liquidation-Value of the specified Strategy.
      */
     public double getNetLiqValueDouble(String strategyName);
+
+    /**
+     * Gets the number of open positions of the entire System.
+     */
+    int getOpenPositions();
+
+    /**
+     * Gets the number of open positions of the specified Strategy.
+     */
+    int getOpenPositions(String strategyName);
+
+    /**
+     * Gets the number of open positions of the entire System on the specified date.
+     */
+    int getOpenPositions(Date date);
+
+    /**
+     * Gets the number of open positions of the specified Strategy on the specified date.
+     */
+    int getOpenPositions(String strategyName, Date date);
 
     /**
      * Gets the current Leverage of the entire System.
@@ -280,6 +320,7 @@ public interface PortfolioService {
 
     /**
      * Gets the {@link PortfolioValue} of the specified Strategy on the specified Date.
+     * Note: RealizedPL and UnRealizedPL will be set to null
      */
     public PortfolioValue getPortfolioValue(String strategyName, Date date);
 

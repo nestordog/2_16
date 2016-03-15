@@ -388,6 +388,76 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
+    @ManagedAttribute(description = "Gets the name of this Strategy")
+    public String getStrategyName() {
+
+        return this.engine.getStrategyName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyNetLiqValue() {
+
+        if (this.isServer) {
+            return this.portfolioService.getNetLiqValue();
+        } else {
+            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyMarketValue() {
+
+        if (this.isServer) {
+            return this.portfolioService.getMarketValue();
+        } else {
+            return this.portfolioService.getMarketValue(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total RealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyRealizedPL() {
+
+        if (this.isServer) {
+            return this.portfolioService.getRealizedPL();
+        } else {
+            return this.portfolioService.getRealizedPL(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyUnrealizedPL() {
+
+        if (this.isServer) {
+            return this.portfolioService.getUnrealizedPL();
+        } else {
+            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
@@ -418,31 +488,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the name of this Strategy")
-    public String getStrategyName() {
-
-        return this.engine.getStrategyName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyNetLiqValue() {
-
-        if (this.isServer) {
-            return this.portfolioService.getNetLiqValue();
-        } else {
-            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
@@ -450,36 +495,6 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             return this.portfolioService.getPerformance();
         } else {
             return this.portfolioService.getPerformance(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategySecuritiesCurrentValue() {
-
-        if (this.isServer) {
-            return this.portfolioService.getSecuritiesCurrentValue();
-        } else {
-            return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyUnrealizedPL() {
-
-        if (this.isServer) {
-            return this.portfolioService.getUnrealizedPL();
-        } else {
-            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
         }
 
     }
