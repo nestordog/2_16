@@ -24,6 +24,8 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.security.ConstraintMapping;
@@ -40,6 +42,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Password;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -57,13 +60,20 @@ public class EmbeddedJettyServer implements InitializingServiceI {
     private final int port;
     private final String requestLog;
     private final List<Pair<String, String>> simpleCreds;
+    private final SSLContext serverSSLContext;
     private final ApplicationContext applicationContext;
     private final Server server;
 
-    public EmbeddedJettyServer(final int port, final String requestLog, final List<Pair<String, String>> simpleCreds, final ApplicationContext applicationContext) {
+    public EmbeddedJettyServer(
+            final int port,
+            final String requestLog,
+            final List<Pair<String, String>> simpleCreds,
+            final SSLContext serverSSLContext,
+            final ApplicationContext applicationContext) {
         this.port = port;
         this.requestLog = requestLog;
         this.simpleCreds = simpleCreds;
+        this.serverSSLContext = serverSSLContext;
         this.applicationContext = applicationContext;
         this.server = new Server();
     }
@@ -84,27 +94,27 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         context.setContextPath("/");
         context.addServlet(new ServletHolder(new DispatcherServlet(webAppContext)), "/*");
 
-        Constraint constraint = new Constraint();
-        constraint.setName(Constraint.__BASIC_AUTH);
-        constraint.setRoles(new String[] { "user" });
-        constraint.setAuthenticate(true);
+        if (this.simpleCreds != null && !this.simpleCreds.isEmpty()) {
+            Constraint constraint = new Constraint();
+            constraint.setName(Constraint.__BASIC_AUTH);
+            constraint.setRoles(new String[] { "user" });
+            constraint.setAuthenticate(true);
 
-        ConstraintMapping constraintMapping = new ConstraintMapping();
-        constraintMapping.setConstraint(constraint);
-        constraintMapping.setPathSpec("/*");
+            ConstraintMapping constraintMapping = new ConstraintMapping();
+            constraintMapping.setConstraint(constraint);
+            constraintMapping.setPathSpec("/*");
 
-        ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-        securityHandler.addConstraintMapping(constraintMapping);
+            ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
+            securityHandler.addConstraintMapping(constraintMapping);
 
-        HashLoginService loginService = new HashLoginService();
-        if (this.simpleCreds != null) {
-            for (Pair<String, String> cred: simpleCreds) {
+            HashLoginService loginService = new HashLoginService();
+            for (Pair<String, String> cred: this.simpleCreds) {
                 loginService.putUser(cred.getFirst(), new Password(cred.getSecond()), new String[] {"user"});
             }
+            securityHandler.setLoginService(loginService);
+            securityHandler.setAuthenticator(new BasicAuthenticator());
+            context.setSecurityHandler(securityHandler);
         }
-        securityHandler.setLoginService(loginService);
-        securityHandler.setAuthenticator(new BasicAuthenticator());
-        context.setSecurityHandler(securityHandler);
 
         if (this.requestLog != null) {
             RequestLogHandler requestLogHandler = new RequestLogHandler();
@@ -122,8 +132,17 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("HTTP connector on port {}", this.port);
         }
-        NetworkTrafficServerConnector channelConnector = new NetworkTrafficServerConnector(this.server);
+
+        SslContextFactory sslContextFactory = null;
+        if (this.serverSSLContext != null) {
+            sslContextFactory = new SslContextFactory();
+            sslContextFactory.setSslContext(this.serverSSLContext);
+            sslContextFactory.addExcludeProtocols("SSLv2", "SSLv3");
+        }
+
+        NetworkTrafficServerConnector channelConnector = new NetworkTrafficServerConnector(this.server, sslContextFactory);
         channelConnector.setPort(this.port);
+
         this.server.addConnector(channelConnector);
         if (!this.server.isRunning()) {
             this.server.start();
@@ -139,7 +158,7 @@ public class EmbeddedJettyServer implements InitializingServiceI {
             } catch (IOException ex) {
                 hostName = "localhost";
             }
-            LOGGER.info("Web UI available at {}", new URI("http", null, hostName, this.port, "/", null, null));
+            LOGGER.info("Web UI available at {}", new URI(this.serverSSLContext == null ? "http" : "https", null, hostName, this.port, "/", null, null));
         }
     }
 

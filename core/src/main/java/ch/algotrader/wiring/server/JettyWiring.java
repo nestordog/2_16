@@ -18,31 +18,48 @@
 
 package ch.algotrader.wiring.server;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.List;
+
+import javax.net.ssl.SSLContext;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.jetty.EmbeddedJettyServer;
 import ch.algotrader.util.collection.Pair;
 
 @Configuration
+@Profile("html5")
 public class JettyWiring {
 
     @Bean(name = "jettyService", destroyMethod = "stop")
     public EmbeddedJettyServer createJettyService(
             final ConfigParams configParams,
-            final ApplicationContext applicationContext) {
+            final SSLContext serverSSLContext,
+            final ApplicationContext applicationContext) throws GeneralSecurityException, IOException {
 
-        int port = configParams.getInteger("jetty.port", 9090);
+        boolean sslEnabled = configParams.getBoolean("security.ssl");
+        int httpPort = configParams.getInteger("jetty.http.port", 9090);
+        int httpsPort = configParams.getInteger("jetty.https.port", 9443);
         String requestFile = configParams.getString("jetty.requestLog");
-        String username = configParams.getString("jetty.user");
-        String password = configParams.getString("jetty.password");
+        String username = sslEnabled ? configParams.getString("jetty.user") : null;
+        String password = sslEnabled ? configParams.getString("jetty.password") : null;
 
-        return new EmbeddedJettyServer(port, requestFile,
-                Collections.singletonList(new Pair<>(username, password)), applicationContext);
+        List<Pair<String, String>> simpleCreds = sslEnabled && username != null && !username.isEmpty() ?
+                Collections.singletonList(new Pair<>(username, password)) : null;
+
+        return new EmbeddedJettyServer(
+                sslEnabled ? httpsPort : httpPort,
+                requestFile,
+                simpleCreds,
+                serverSSLContext,
+                applicationContext);
     }
 
 }

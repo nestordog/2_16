@@ -69,7 +69,12 @@ public class ConfigRestController extends RestControllerBase {
     @RequestMapping(path = "/broker/url/ws", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public URI getBrokerWebsocketURI() throws URISyntaxException {
 
-        return new URI("ws", null, getBrokerHost(), this.configParams.getInteger("activeMQ.ws.port"), null, null, null);
+        boolean sslEnabled = configParams.getBoolean("security.ssl");
+        if (sslEnabled) {
+            return new URI("wss", null, getBrokerHost(), this.configParams.getInteger("activeMQ.wss.port"), null, null, null);
+        } else {
+            return new URI("ws", null, getBrokerHost(), this.configParams.getInteger("activeMQ.ws.port"), null, null, null);
+        }
     }
 
     @CrossOrigin

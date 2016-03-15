@@ -23,9 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.MBeanServer;
+import javax.net.ssl.SSLContext;
 
 import org.apache.activemq.broker.BrokerPlugin;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.activemq.broker.SslContext;
 import org.apache.activemq.broker.jmx.ManagementContext;
 import org.apache.activemq.broker.region.policy.LastImageSubscriptionRecoveryPolicy;
 import org.apache.activemq.broker.region.policy.PolicyEntry;
@@ -51,14 +53,17 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
     private final BrokerService broker;
     private final int port;
     private final int wsPort;
+    private final SSLContext serverSSLContext;
 
     public EmbeddedActiveMQBroker(
             final int port, final int wsPort,
             final double memUsagePc,
             final double maxRatePerConnection, final double minRatePerConsumer,
+            final SSLContext serverSSLContext,
             final MBeanServer mbeanServer) {
         this.port = port;
         this.wsPort = wsPort;
+        this.serverSSLContext = serverSSLContext;
         this.broker = new BrokerService();
 
         if (mbeanServer != null) {
@@ -76,6 +81,14 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         long jvmLimit = Runtime.getRuntime().maxMemory();
         long activeMQMemLimit = (long) (jvmLimit * (memUsagePc > 0 && memUsagePc < 90 ? (memUsagePc / 100) : 0.7));
         this.broker.getSystemUsage().getMemoryUsage().setLimit(activeMQMemLimit);
+
+
+        if (this.serverSSLContext != null) {
+            SslContext sslContext = new SslContext();
+            sslContext.setSSLContext(this.serverSSLContext);
+            this.broker.setSslContext(sslContext);
+        }
+
 
         ConsumerEventThrottler tickThrottler = new ConsumerEventThrottler(maxRatePerConnection, minRatePerConsumer);
 
@@ -114,11 +127,13 @@ public class EmbeddedActiveMQBroker implements InitializingServiceI {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("JMS connector on port {}", this.port);
         }
-        this.broker.addConnector(new URI("tcp", null, "0.0.0.0", this.port, null, null, null));
+        URI mainEndpoint = new URI("tcp", null, "0.0.0.0", this.port, null, null, null);
+        this.broker.addConnector(mainEndpoint);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Websocket connector on port {}", this.wsPort);
         }
-        this.broker.addConnector(new URI("ws", null, "0.0.0.0", this.wsPort, null, null, null));
+        URI websocketEndpoint = new URI(this.serverSSLContext == null ? "ws" : "wss", null, "0.0.0.0", this.wsPort, null, null, null);
+        this.broker.addConnector(websocketEndpoint);
 
         this.broker.startAllConnectors();
 

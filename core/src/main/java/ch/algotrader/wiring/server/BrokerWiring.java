@@ -20,6 +20,7 @@ package ch.algotrader.wiring.server;
 
 import javax.jms.ConnectionFactory;
 import javax.management.MBeanServer;
+import javax.net.ssl.SSLContext;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.advisory.AdvisorySupport;
@@ -102,16 +103,22 @@ public class BrokerWiring {
     @Bean(name = "internalBroker", initMethod = "start", destroyMethod = "stop")
     public EmbeddedActiveMQBroker createEmbeddedActiveMQBroker(
             final ConfigParams configParams,
+            final SSLContext serverSSLContext,
             final MBeanServer mbeanServer) {
 
+        boolean sslEnabled = configParams.getBoolean("security.ssl");
         int activeMQPort = configParams.getInteger("activeMQ.port", 61616);
         int activeMQWSPort = configParams.getInteger("activeMQ.ws.port", 61614);
+        int activeMQWSSPort = configParams.getInteger("activeMQ.wss.port", 61613);
         double maxRatePerConnection = configParams.getDouble("activeMQ.maxRatePerConnection", 50.0d);
         double minRatePerConsumer = configParams.getDouble("activeMQ.minRatePerConsumer", 0.1d);
         double memUsagePc = configParams.getDouble("activeMQ.memoryUsage", 50.0d);
 
-        return new EmbeddedActiveMQBroker(activeMQPort, activeMQWSPort,
+        return new EmbeddedActiveMQBroker(
+                activeMQPort,
+                sslEnabled ? activeMQWSSPort : activeMQWSPort,
                 memUsagePc, maxRatePerConnection, minRatePerConsumer,
+                serverSSLContext,
                 mbeanServer);
     }
 
