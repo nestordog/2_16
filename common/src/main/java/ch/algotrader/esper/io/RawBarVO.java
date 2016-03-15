@@ -258,19 +258,19 @@ public class RawBarVO implements Serializable {
         StringBuilder builder = new StringBuilder();
         builder.append("RawBarVO [barSize=");
         builder.append(this.barSize);
-        builder.append(", dateTime=");
+        builder.append(",dateTime=");
         builder.append(this.dateTime);
-        builder.append(", open=");
+        builder.append(",open=");
         builder.append(this.open);
-        builder.append(", high=");
+        builder.append(",high=");
         builder.append(this.high);
-        builder.append(", low=");
+        builder.append(",low=");
         builder.append(this.low);
-        builder.append(", close=");
+        builder.append(",close=");
         builder.append(this.close);
-        builder.append(", vol=");
+        builder.append(",vol=");
         builder.append(this.vol);
-        builder.append(", setVol=");
+        builder.append(",security=");
         builder.append(this.security);
         builder.append("]");
 
