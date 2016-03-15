@@ -18,12 +18,15 @@
 
 package ch.algotrader.wiring.server;
 
+import java.util.Collections;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.jetty.EmbeddedJettyServer;
+import ch.algotrader.util.collection.Pair;
 
 @Configuration
 public class JettyWiring {
@@ -35,8 +38,11 @@ public class JettyWiring {
 
         int port = configParams.getInteger("jetty.port", 9090);
         String requestFile = configParams.getString("jetty.requestLog");
+        String username = configParams.getString("jetty.user");
+        String password = configParams.getString("jetty.password");
 
-        return new EmbeddedJettyServer(port, requestFile, applicationContext);
+        return new EmbeddedJettyServer(port, requestFile,
+                Collections.singletonList(new Pair<>(username, password)), applicationContext);
     }
 
 }
