@@ -1,6 +1,5 @@
 algotrader:
   image: algotrader/algotrader
-  container_name: algotrader
   command: -i
   links:
     - mysql
@@ -11,14 +10,12 @@ algotrader:
 
 ibgateway:
   image: algotrader/ibgateway
-  container_name: ibgateway
   environment:
     TWS_USERNAME: edemo
     TWS_PASSWORD: demouser
 
 mysql:
   image: mysql
-  container_name: mysql
   environment:
     MYSQL_ROOT_PASSWORD: password
     MYSQL_DATABASE: algotrader
@@ -26,11 +23,3 @@ mysql:
     - 3306:3306
   volumes:
     - /var/lib/mysql
-
-docker-ui:
-  image: dockerui/dockerui
-  container_name: dockerui
-  ports:
-    - 9000:9000
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
