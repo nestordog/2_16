@@ -16,6 +16,10 @@ if [[ `mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DAT
   if [ "$1" = "-i" ]; then
     mysql -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME < samples/db/mysql/mysql-data.sql
 	echo "imported mysql sample data"
+	if [ ! "$IB_GATEWAY_ACCOUNT" = "" ]; then
+	  mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "UPDATE account SET EXT_ACCOUNT='$IB_GATEWAY_ACCOUNT' WHERE NAME ='IB_NATIVE_TEST';"
+	  echo "set IB account"
+	fi
   fi
 fi
 

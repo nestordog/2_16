@@ -10,6 +10,7 @@ ENV DATABASE_NAME=algotrader
 ENV DATABASE_USER=root
 ENV DATABASE_PASSWORD=password
 ENV IB_GATEWAY_HOST=ibgateway
+ENV IB_GATEWAY_ACCOUNT=
 ENV VM_ARGUMENTS=
 ENV SPRING_PROFILES=live,pooledDataSource,iBMarketData,iBNative,iBHistoricalData,embeddedBroker,html5
 ENV STARTER_CLASS=ch.algotrader.starter.ServerStarter

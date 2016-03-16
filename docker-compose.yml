@@ -1,7 +1,6 @@
 algotrader:
   image: algotrader/algotrader
   container_name: algotrader
-  hostname: docker.algotrader.ch
   command: -i
   links:
     - mysql
@@ -32,6 +31,6 @@ docker-ui:
   image: dockerui/dockerui
   container_name: dockerui
   ports:
-    - 9000:9000  
+    - 9000:9000
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock

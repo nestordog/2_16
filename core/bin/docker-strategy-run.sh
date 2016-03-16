@@ -14,7 +14,7 @@ case "$1" in
       popd
     fi
 
-    # import db samples (only if database is empty, i.e. has no securities)
+    # import db samples (only if the corresponding strategy record has not been created yet)
     if [[ `mysql -N -s -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME -e "select count(id) from strategy where name = '$STRATEGY_NAME';"` == 0 ]]; then
       mysql -u $DATABASE_USER -p$DATABASE_PASSWORD -h $DATABASE_HOST $DATABASE_NAME < db/mysql/mysql-data.sql
 	  echo "imported mysql data"
