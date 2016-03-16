@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.entity.security.SecurityFamily;
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +33,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.CoreConfig;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.security.ForexDao;
@@ -45,12 +44,14 @@ import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.service.sim.SimulationMarketDataServiceImpl;
 import ch.algotrader.visitor.TickValidationVisitor;
 import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
@@ -119,6 +120,15 @@ public class MarketDataServiceImpl implements MarketDataService {
         this.marketDataCacheService = marketDataCacheService;
         this.externalMarketDataServiceMap = new ConcurrentHashMap<>(externalMarketDataServiceMap);
         this.normaliseMarketData = configParams.getBoolean("misc.normaliseMarketData", false);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initSubscriptions() {
+
+        initSubscriptions(this.coreConfig.getDefaultFeedType());
     }
 
     /**
@@ -195,12 +205,10 @@ public class MarketDataServiceImpl implements MarketDataService {
         if (this.subscriptionDao.findByStrategySecurityAndFeedType(strategy.getName(), security.getId(), feedType) == null) {
 
             // only external subscribe if nobody was watching the specified security with the specified feedType so far
-            if (!this.commonConfig.isSimulation()) {
-                List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(security.getId(), feedType);
-                if (subscriptions.size() == 0) {
-                    if (!security.getSecurityFamily().isSynthetic()) {
-                        getExternalMarketDataService(feedType).subscribe(security);
-                    }
+            List<Subscription> subscriptions = this.subscriptionDao.findBySecurityAndFeedTypeForAutoActivateStrategies(security.getId(), feedType);
+            if (subscriptions.size() == 0) {
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    getExternalMarketDataService(feedType).subscribe(security);
                 }
             }
 
@@ -273,12 +281,10 @@ public class MarketDataServiceImpl implements MarketDataService {
             this.subscriptionDao.delete(subscription);
 
             // only external unsubscribe if nobody is watching this security anymore
-            if (!this.commonConfig.isSimulation()) {
-                List<Subscription> subscriptions = this.subscriptionDao.findBySecurity(security.getId());
-                if (subscriptions.isEmpty()) {
-                    if (!security.getSecurityFamily().isSynthetic()) {
-                        getExternalMarketDataService(feedType).unsubscribe(security);
-                    }
+            List<Subscription> subscriptions = this.subscriptionDao.findBySecurity(security.getId());
+            if (subscriptions.isEmpty()) {
+                if (!security.getSecurityFamily().isSynthetic()) {
+                    getExternalMarketDataService(feedType).unsubscribe(security);
                 }
             }
 
@@ -381,11 +387,15 @@ public class MarketDataServiceImpl implements MarketDataService {
 
         Validate.notNull(feedType, "String is null");
 
-        ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
-        if (externalMarketDataService == null) {
-            throw new ServiceException("No external market data service found for feed type " + feedType);
+        if (this.commonConfig.isSimulation()) {
+            return new SimulationMarketDataServiceImpl(feedType);
+        } else {
+            ExternalMarketDataService externalMarketDataService = this.externalMarketDataServiceMap.get(feedType);
+            if (externalMarketDataService == null) {
+                throw new ServiceException("No external market data service found for feed type " + feedType);
+            }
+            return externalMarketDataService;
         }
-        return externalMarketDataService;
     }
 
     @Override

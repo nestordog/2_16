@@ -28,8 +28,12 @@ import ch.algotrader.entity.security.Security;
 public interface MarketDataService {
 
     /**
-     * Initializes current Subscriptions with the external Market Data Provider for the specified
-     * feed type
+     * Initializes persistent subscriptions.
+     */
+    void initSubscriptions();
+
+    /**
+     * Initializes persistent subscriptions for the specified feed type.
      */
     void initSubscriptions(String feedType);
 

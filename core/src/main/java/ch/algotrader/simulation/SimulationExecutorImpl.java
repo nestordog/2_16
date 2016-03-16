@@ -84,6 +84,7 @@ import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.report.BackTestReport;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
@@ -126,6 +127,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final LookupService lookupService;
 
+    private final MarketDataService marketDataService;
+
     private final ServerLookupService serverLookupService;
 
     private final EventListenerRegistry eventListenerRegistry;
@@ -149,6 +152,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final PortfolioService portfolioService,
                                   final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
+                                  final MarketDataService marketDataService,
                                   final ServerLookupService serverLookupService,
                                   final EventListenerRegistry eventListenerRegistry,
                                   final EventDispatcher eventDispatcher,
@@ -163,6 +167,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(serverLookupService, "ServerLookupService is null");
         Validate.notNull(eventListenerRegistry, "EventListenerRegistry is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
@@ -177,6 +182,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.portfolioService = portfolioService;
         this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
+        this.marketDataService = marketDataService;
         this.serverLookupService = serverLookupService;
         this.eventListenerRegistry = eventListenerRegistry;
         this.eventDispatcher = eventDispatcher;
@@ -243,6 +249,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         for (final Engine engine: strategyEngines) {
             engine.deployRunModules();
         }
+
+        this.marketDataService.initSubscriptions();
 
         // LifecycleEvent: START
         broadcastLocal(LifecyclePhase.START);

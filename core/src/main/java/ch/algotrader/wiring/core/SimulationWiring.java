@@ -30,6 +30,7 @@ import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataCacheService;
+import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
@@ -58,6 +59,7 @@ public class SimulationWiring {
             final PortfolioService portfolioService,
             final StrategyPersistenceService strategyPersistenceService,
             final LookupService lookupService,
+            final MarketDataService marketDataService,
             final ServerLookupService serverLookupService,
             final EventListenerRegistry eventListenerRegistry,
             final EventDispatcher eventDispatcher,
@@ -66,7 +68,7 @@ public class SimulationWiring {
             final CacheManager cacheManager) {
 
         return new SimulationExecutorImpl(commonConfig, positionService, resetService, transactionService, portfolioService, strategyPersistenceService,
-                lookupService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
+                lookupService, marketDataService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
     }
 
     @Bean(name = "simulationOrderService")
