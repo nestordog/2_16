@@ -1,11 +1,8 @@
 #!/bin/bash
 
-if [ -z "$1" ]; then
-    DB_INSTANCE='algotrader';
-else
-    DB_INSTANCE="$1";
-fi
-
+DB_INSTANCE='algotrader'
+DB_USER='root'
+DB_PASSWORD='password'
 OUT_FILE='h2-data.sql'
 
 mysqldump \
@@ -18,8 +15,8 @@ mysqldump \
     --skip-set-charset \
     --skip-comments \
     --ignore-table=algotrader.schema_version \
-    -u root \
-    -p \
+    -u $DB_USER \
+    -p $DB_PASSWORD \
     -r $OUT_FILE \
     $DB_INSTANCE
 

@@ -1,14 +1,10 @@
 #!/bin/bash
-# batch script to convert mysql db structure & data into an h2 import file
-# needs environment variable ALGOTRADER_HOME
 
-if [ -z "$1" ]; then
-    DB_INSTANCE='algotrader';
-else
-    DB_INSTANCE="$1";
-fi
-
-OUT_FILE='h2.sql'
+DB_INSTANCE='algotrader'
+DB_USER='root'
+DB_PASSWORD='password'
+DB_TABLES='property account strategy exchange trading_hours holiday security_family broker_parameters security security_reference component easy_to_borrow order order_preference order_property order_status portfolio_value position subscription transaction cash_balance tick bar generic_tick measurement'
+OUT_FILE='../../../resources/db/h2/h2.sql'
 
 mysqldump \
     --skip-triggers \
@@ -17,10 +13,11 @@ mysqldump \
     --skip-set-charset \
     --skip-comments \
     --ignore-table=algotrader.schema_version \
-    -u root \
-    -p \
+    -u $DB_USER \
+    -p$DB_PASSWORD \
     -r $OUT_FILE \
-    $DB_INSTANCE
+    $DB_INSTANCE \
+    $DB_TABLES
 
 sed -i "s/^\/\*.*\*\/;$//" $OUT_FILE
 sed -i "s/enum(.*)/varchar(100)/" $OUT_FILE
