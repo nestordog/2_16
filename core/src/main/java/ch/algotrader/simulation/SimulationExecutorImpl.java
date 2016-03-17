@@ -21,15 +21,15 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -92,6 +92,7 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
+import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
@@ -110,6 +111,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
     private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT);
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss", Locale.ROOT);
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static final NumberFormat format = NumberFormat.getInstance();
 
@@ -736,6 +739,11 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         TradesVO winningTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_WINNING_TRADES");
         TradesVO losingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
 
+        // increase last monthlyPerformance date by one month
+        PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
+        Date lastMonthlyPerformanceDate = DateUtils.addMonths(lastMonthlyPerformance.getDate(), 1);
+        lastMonthlyPerformance.setDate(lastMonthlyPerformanceDate);
+
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
         Date lastDate = null;
@@ -754,7 +762,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 lastDate = monthlyPerformance.getDate();
             }
 
-            PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
             if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
                 PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
                 yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
@@ -794,14 +801,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 File reportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.csv");
                 BackTestReport backTestReport = new BackTestReport(reportFile);
 
+                backTestReport.write("dateTime", dateTimeFormat.format(LocalDateTime.now()));
                 backTestReport.write("executionTime", resultVO.getMins());
+                backTestReport.write("dataSet", this.commonConfig.getDataSet());
 
                 if (resultVO.getAllTrades().getCount() == 0) {
                     backTestReport.write("allTradesCount", 0);
                     return;
                 }
-
-                backTestReport.write("dataSet", this.commonConfig.getDataSet());
 
                 double netLiqValue = resultVO.getNetLiqValue();
                 backTestReport.write("netLiqValue", twoDigitFormat.format(netLiqValue));
@@ -868,12 +875,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 reportTrades(backTestReport, "allTrades", resultVO.getAllTrades(), resultVO.getAllTrades().getCount());
 
                 backTestReport.write("returns");
-                LocalDate startDate = LocalDate.of(1900, 1, 1);
                 if ((monthlyPerformances != null)) {
                     for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
-                        LocalDate date = monthlyPerformance.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().withDayOfMonth(1);
-                        long daysBetween = ChronoUnit.DAYS.between(startDate, date) + 2;
-                        backTestReport.write(daysBetween, monthlyPerformance.getValue());
+                        backTestReport.write(dateFormat.format(DateTimeLegacy.toLocalDate(monthlyPerformance.getDate())), monthlyPerformance.getValue());
                     }
                 }
 
