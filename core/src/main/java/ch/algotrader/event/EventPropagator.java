@@ -15,7 +15,7 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.event;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +28,7 @@ import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.event.listener.LifecycleEventListener;
+import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.GenericEventVO;
 import ch.algotrader.vo.LifecycleEventVO;

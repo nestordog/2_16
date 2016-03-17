@@ -15,7 +15,7 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.service;
+package ch.algotrader.marketdata;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +32,8 @@ import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.listener.PositionEventListener;
 import ch.algotrader.event.listener.SessionEventListener;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
 import ch.algotrader.vo.SessionEventVO;
 
 public class MarketDataSubscriber implements SessionEventListener, PositionEventListener {

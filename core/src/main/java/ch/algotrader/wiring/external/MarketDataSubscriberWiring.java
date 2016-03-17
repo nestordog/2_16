@@ -26,10 +26,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.marketdata.MarketDataSubscriber;
 import ch.algotrader.service.ExternalMarketDataService;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.MarketDataSubscriber;
 
 /**
  * Market data subscriber.
