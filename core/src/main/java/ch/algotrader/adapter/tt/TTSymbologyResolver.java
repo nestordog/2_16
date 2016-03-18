@@ -66,7 +66,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
-        String exchangeCode = exchange.getCode();
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
         String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
         if (security.getTtid() != null) {
             message.set(new SecurityID(security.getTtid()));
@@ -104,7 +104,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
-        String exchangeCode = exchange.getCode();
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
         String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
         if (security.getTtid() != null) {
             message.set(new SecurityID(security.getTtid()));

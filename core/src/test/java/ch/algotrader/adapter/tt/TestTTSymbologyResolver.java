@@ -156,4 +156,19 @@ public class TestTTSymbologyResolver {
         Assert.assertEquals(new SecurityID("92900317"), message.getSecurityID());
     }
 
+    @Test
+    public void testResolveTTExchangeCode() throws Exception {
+
+        this.clNov2015.getSecurityFamily().getExchange().setTtCode("CME_TT");
+
+        NewOrderSingle message = new NewOrderSingle();
+
+        this.symbologyResolver.resolve(message, this.clNov2015, Broker.TT.name());
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
+        Assert.assertEquals(new Symbol("CL"), message.getSymbol());
+        Assert.assertEquals(new SecurityExchange("CME_TT"), message.getSecurityExchange());
+    }
+
 }

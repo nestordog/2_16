@@ -271,4 +271,23 @@ public class TestTTOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
+    @Test
+    public void testTTExchangeCode() throws Exception {
+
+        this.clNov2015.getSecurityFamily().getExchange().setTtCode("CME_TT");
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(this.clNov2015);
+        order.setSide(Side.BUY);
+        order.setQuantity(3);
+        order.setAccount(this.account);
+
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
+        Assert.assertEquals(new Symbol("CL"), message.getSymbol());
+        Assert.assertEquals(new SecurityExchange("CME_TT"), message.getSecurityExchange());
+    }
+
 }

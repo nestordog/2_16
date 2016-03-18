@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.tt;
 
+import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.enumeration.FeedType;
 import quickfix.field.SecurityExchange;
@@ -37,8 +38,9 @@ public class TTSecurityDefinitionRequestFactory {
         SecurityDefinitionRequest request = new SecurityDefinitionRequest();
         request.set(new SecurityReqID(requestId));
         request.set(new SecurityType(securityType));
-        String code = securityFamily.getExchange().getCode();
-        request.set(new SecurityExchange(code));
+        Exchange exchange = securityFamily.getExchange();
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
+        request.set(new SecurityExchange(exchangeCode));
 
         String symbolRoot = securityFamily.getSymbolRoot(FeedType.TT.name());
         if (symbolRoot != null) {

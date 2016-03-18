@@ -81,7 +81,8 @@ public class TTFixMarketDataRequestFactory {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
-        symbol.set(new SecurityExchange(exchange.getCode()));
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
+        symbol.set(new SecurityExchange(exchangeCode));
         symbol.set(new Symbol(securityFamily.getSymbolRoot(Broker.TT.name())));
         symbol.set(new SecurityID(security.getTtid()));
         request.addGroup(symbol);

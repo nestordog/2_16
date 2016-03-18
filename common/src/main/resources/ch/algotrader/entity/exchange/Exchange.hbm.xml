@@ -35,25 +35,31 @@
         </property>
         <property name="code">
             <meta attribute="field-description"><![CDATA[the exchange code. Used by Fix adapters]]></meta>
-            <column name="CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+            <column name="CODE" not-null="false" unique="false" sql-type="VARCHAR(10)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="mic">
             <meta attribute="field-description"><![CDATA[The Market Identifier Code (see http://www.iso10383.org/)]]></meta>
-            <column name="MIC" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+            <column name="MIC" not-null="false" unique="false" sql-type="VARCHAR(4)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="bloombergCode">
             <meta attribute="field-description"><![CDATA[The Bloomberg exchange code]]></meta>
-            <column name="BLOOMBERG_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+            <column name="BLOOMBERG_CODE" not-null="false" unique="false" sql-type="VARCHAR(3)"/>
 
             <type name="java.lang.String"/>
         </property>
         <property name="ibCode">
             <meta attribute="field-description"><![CDATA[The InteractiveBrokers exchange code]]></meta>
-            <column name="IB_CODE" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
+            <column name="IB_CODE" not-null="false" unique="false" sql-type="VARCHAR(10)"/>
+
+            <type name="java.lang.String"/>
+        </property>
+        <property name="ttCode">
+            <meta attribute="field-description"><![CDATA[The InteractiveBrokers exchange code]]></meta>
+            <column name="TT_CODE" not-null="false" unique="false" sql-type="VARCHAR(10)"/>
 
             <type name="java.lang.String"/>
         </property>
