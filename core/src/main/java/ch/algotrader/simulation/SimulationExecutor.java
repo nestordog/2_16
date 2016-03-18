@@ -52,19 +52,19 @@ public interface SimulationExecutor {
      * Starts a Simulation Run with the currently defined parameters. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateWithCurrentParams(StrategyGroup strategyGroup);
+    public SimulationResultVO simulateWithCurrentParams(StrategyGroup strategyGroup);
 
     /**
      * Starts a Simulation Run with a parameter set to the defined value. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateBySingleParam(StrategyGroup strategyGroup, String parameter, String value);
+    public SimulationResultVO simulateBySingleParam(StrategyGroup strategyGroup, String parameter, String value);
 
     /**
      * Starts a Simulation Run with multiple parameters set to defined values. See {@link
      * ch.algotrader.starter.SimulationStarter}
      */
-    public void simulateByMultiParam(StrategyGroup strategyGroup, String[] parameters, String[] values);
+    public SimulationResultVO simulateByMultiParam(StrategyGroup strategyGroup, String[] parameters, String[] values);
 
     /**
      * Starts multiple Simulation Runs by incrementing the value of one parameter within a defined
