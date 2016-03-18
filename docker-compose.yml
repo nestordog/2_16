@@ -13,6 +13,8 @@ ibgateway:
   environment:
     TWS_USERNAME: edemo
     TWS_PASSWORD: demouser
+  volumes:
+    - /var/lib/tws
 
 mysql:
   image: mysql
