@@ -17,6 +17,11 @@ public class ${serviceName}Service extends StrategyService {
     private @Value("#{@${name}ConfigParams.securityId}") long securityId;
     private @Value("#{@${name}ConfigParams.orderQuantity}") long orderQuantity;
 
+    @Override
+    public void onStart(final LifecycleEventVO event) {
+        getSubscriptionService().subscribeMarketDataEvent(getStrategyName(), this.securityId);
+    }
+    
     public void sendOrder(Side side) {
 
         MarketOrderVO order = MarketOrderVOBuilder.create()
@@ -28,11 +33,6 @@ public class ${serviceName}Service extends StrategyService {
             .build();
 
         getOrderService().sendOrder(order);
-    }
-
-    @Override
-    public void onStart(final LifecycleEventVO event) {
-        getSubscriptionService().subscribeMarketDataEvent(getStrategyName(), this.securityId);
     }
 
 }

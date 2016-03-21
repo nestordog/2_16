@@ -17,6 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.esper.aggregation;
 
+import java.math.BigDecimal;
+
 import com.espertech.esper.client.hook.AggregationFunctionFactory;
 import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
@@ -41,7 +43,7 @@ public class ExponentialMovingAverageFunctionFactory implements AggregationFunct
             throw new IllegalArgumentException("exponential moving average requires two parameters");
         }
 
-        if (validationContext.getParameterTypes()[0] != Double.class && validationContext.getParameterTypes()[0] != double.class) {
+        if (validationContext.getParameterTypes()[0] != BigDecimal.class && validationContext.getParameterTypes()[0] != Double.class && validationContext.getParameterTypes()[0] != double.class) {
             throw new IllegalArgumentException("parameter 0 needs to be of type Double");
         }
 

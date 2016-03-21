@@ -2,8 +2,7 @@
 insert into
     Indicator
 select
-    talib("movingAverage", currentValueDouble, movingAveragePeriodShort, "Sma") - 
-    talib("movingAverage", currentValueDouble, movingAveragePeriodLong, "Sma") as value
+    ema(last, movingAveragePeriodShort) - ema(last, movingAveragePeriodLong) as value
 from
     TickVO;
 
