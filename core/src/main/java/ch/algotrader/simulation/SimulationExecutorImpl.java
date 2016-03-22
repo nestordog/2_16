@@ -268,11 +268,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         net.sf.ehcache.CacheManager.getInstance().clearAll();
 
         // close all reports
-        try {
-            ReportManager.closeAll();
-        } catch (IOException ex) {
-            throw new SimulationExecutorException(ex);
-        }
+        ReportManager.closeAll();
 
         return resultVO;
 
