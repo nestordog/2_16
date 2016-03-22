@@ -25,6 +25,7 @@ import com.espertech.esper.client.EventBean;
 import com.espertech.esper.client.StatementAwareUpdateListener;
 
 import ch.algotrader.report.ListReporter;
+import ch.algotrader.report.Report;
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -48,7 +49,7 @@ public class IndicatorListener implements StatementAwareUpdateListener {
         // print the headers
         if (this.propertyNames == null) {
             this.propertyNames = statement.getEventType().getPropertyNames();
-            this.reporter = new ListReporter("IndicatorReport", this.propertyNames);
+            this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), this.propertyNames);
         }
 
         // print the values

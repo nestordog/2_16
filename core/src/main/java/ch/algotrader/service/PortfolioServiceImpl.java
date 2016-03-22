@@ -1224,7 +1224,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         synchronized(this) {
             if (this.portfolioReport == null) {
-                this.portfolioReport = new PortfolioReport(this.commonConfig.getSimulationInitialBalance());
+                this.portfolioReport = PortfolioReport.create(this.commonConfig.getSimulationInitialBalance());
             }
             this.portfolioReport.write(this.engineManager.getCurrentEPTime(), portfolioValue);
         }

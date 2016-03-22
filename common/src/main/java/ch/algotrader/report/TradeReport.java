@@ -17,8 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.report;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.File;
 
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.enumeration.TransactionType;
@@ -30,15 +29,17 @@ import ch.algotrader.vo.TradePerformanceVO;
  */
 public class TradeReport extends ListReporter {
 
-    protected static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    public static TradeReport create() {
+        return new TradeReport(Report.generateFile("TradeReport"), new String[] { "dateTime", "type", "quantity", "security", "currency", "strategy", "profit", "profitPct", "winning" });
+    }
 
-    public TradeReport() {
-        super("TradeReport", new String[] { "dateTime", "type", "quantity", "security", "currency", "strategy", "profit", "profitPct", "winning" });
+    protected TradeReport(File file, String[] header) {
+        super(file, header);
     }
 
     public void write(Transaction transaction, TradePerformanceVO tradePerformance) {
 
-        write(DATE_TIME_FORMAT.format(transaction.getDateTime()), //
+        writeAndFlush(formatDateTime(transaction.getDateTime()), //
                 transaction.getType() == TransactionType.SELL ? "LONG" : "SHORT", //
                 -transaction.getQuantity(), //
                 transaction.getSecurity(), //

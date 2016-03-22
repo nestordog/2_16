@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.algotrader.report.ListReporter;
+import ch.algotrader.report.Report;
 import ch.algotrader.util.DateTimeUtil;
 
 /**
@@ -37,7 +38,7 @@ public class IndicatorSubscriber {
     public void update(Map<?, ?> map) {
 
         if (this.reporter == null) {
-            this.reporter = new ListReporter("IndicatorReport", map.keySet().toArray(new String[] {}));
+            this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), map.keySet().toArray(new String[] {}));
         }
 
         Object[] values = new Object[map.entrySet().size()];

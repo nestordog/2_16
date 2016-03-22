@@ -17,9 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.report;
 
+import java.io.File;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ch.algotrader.entity.strategy.PortfolioValueI;
@@ -30,14 +29,18 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class PortfolioReport extends ListReporter {
 
-    protected static final DateFormat DATE_TIME_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
     private final BigDecimal initialBalance;
     private boolean initialized = false;
 
-    public PortfolioReport(final BigDecimal initialBalance) {
+    public static PortfolioReport create(final BigDecimal initialBalance) {
+        return new PortfolioReport(
+                Report.generateFile("PortfolioReport"),
+                new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" },
+                initialBalance);
+    }
 
-        super("PortfolioReport", new String[] { "dateTime", "cashBalance", "securitiesCurrentValue", "netLiqValue" });
+    protected PortfolioReport(final File file, String[] header, final BigDecimal initialBalance) {
+        super(file, header);
         this.initialBalance = initialBalance;
     }
 
@@ -51,7 +54,7 @@ public class PortfolioReport extends ListReporter {
         }
 
         if (this.initialized) {
-            write(DATE_TIME_FORMAT.format(currentDateTime), //
+            writeAndFlush(formatDateTime(currentDateTime), //
                     portfolioValue.getCashBalance(), //
                     portfolioValue.getSecuritiesCurrentValue(), //
                     portfolioValue.getNetLiqValue());

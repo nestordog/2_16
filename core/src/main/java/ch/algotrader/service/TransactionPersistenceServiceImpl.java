@@ -98,7 +98,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
         this.serverEngine = serverEngine;
-        this.tradeReport = new TradeReport();
+        this.tradeReport = TradeReport.create();
     }
 
     /**
