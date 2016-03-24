@@ -71,7 +71,7 @@ import ch.algotrader.util.RoundUtil;
  */
 public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VWAPOrderStateVO> implements ApplicationContextAware {
 
-    private static final double MIN_PARTICIPATION = 0.5;
+    private static final double MAX_PARTICIPATION = 0.5;
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
 
     private static final Logger LOGGER = LogManager.getLogger(VWAPOrderService.class);
@@ -194,7 +194,7 @@ public class VWAPOrderService extends AbstractAlgoOrderExecService<VWAPOrder, VW
 
         double participation = algoOrder.getQuantity() / (double) historicalVolume;
 
-        if (participation > MIN_PARTICIPATION) {
+        if (participation > MAX_PARTICIPATION) {
             throw new OrderValidationException("participation rate " + twoDigitFormat.format(participation * 100.0) + "% is above 50% of historical market volume for " + algoOrder);
         }
 
