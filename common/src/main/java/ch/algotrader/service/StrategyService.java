@@ -20,6 +20,7 @@ package ch.algotrader.service;
 import java.util.Collections;
 import java.util.Map;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
@@ -78,6 +79,7 @@ public class StrategyService implements
     private PropertyService propertyService;
     private ReferenceDataService referenceDataService;
     private SubscriptionService subscriptionService;
+    private CacheManager cacheManager;
     private String strategyName;
     private double weight;
     private Engine engine;
@@ -208,6 +210,14 @@ public class StrategyService implements
 
     public void setSubscriptionService(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
+    }
+
+    public CacheManager getCacheManager() {
+        return this.cacheManager;
+    }
+
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
     public void setStrategyName(final String strategyName) {
