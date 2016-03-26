@@ -100,6 +100,6 @@ public interface MarketDataService {
     /**
      * Normalise the tick value according to broker params multiplier if normaliseMarketData is enabled
      */
-    TickVO normaliseTick(TickVO tick);
+    TickVO normalizeTick(TickVO tick);
 
 }

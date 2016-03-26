@@ -39,7 +39,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.util.PriceUtil;
-import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.ExecType;
@@ -242,8 +241,7 @@ public class GenericFix44OrderMessageHandler extends AbstractFix44OrderMessageHa
 
         BigDecimal normalizedPrice;
         if (securityFamily != null) {
-            double priceMultiplier = securityFamily.getPriceMultiplier(broker);
-            normalizedPrice = RoundUtil.getBigDecimal(price / priceMultiplier, securityFamily.getScale());
+            normalizedPrice = PriceUtil.normalizePrice(securityFamily, broker, price);
         } else {
             normalizedPrice = new BigDecimal(price);
         }

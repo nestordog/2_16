@@ -67,7 +67,7 @@ import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimePatterns;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
@@ -193,9 +193,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             String id = securityDef.getId();
             if (!mapByTtid.containsKey(id)) {
                 OptionType optionType = securityDef.getOptionType();
-                BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
-                        securityDef.getStrikePrice() / securityFamily.getPriceMultiplier(Broker.TT.name()),
-                        securityFamily.getScale(Broker.TT.name())) : null;
+                BigDecimal strike = securityDef.getStrikePrice() != null ? PriceUtil.normalizePrice(securityFamily, Broker.TT.name(), securityDef.getStrikePrice()) : null;
                 LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
                 String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
 

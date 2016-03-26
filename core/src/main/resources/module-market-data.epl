@@ -140,7 +140,7 @@ and
 insert into
     TickVO
 select
-    marketDataService.normaliseTick( incomingTick.value )
+    marketDataService.normalizeTick( incomingTick.value )
 from
     IncomingTick as incomingTick
 where

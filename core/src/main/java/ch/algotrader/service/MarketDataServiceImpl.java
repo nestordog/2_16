@@ -52,6 +52,7 @@ import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.sim.SimulationMarketDataServiceImpl;
+import ch.algotrader.util.PriceUtil;
 import ch.algotrader.visitor.TickValidationVisitor;
 import ch.algotrader.vo.marketData.MarketDataSubscriptionVO;
 
@@ -423,21 +424,21 @@ public class MarketDataServiceImpl implements MarketDataService {
     }
 
     @Override
-    public TickVO normaliseTick(TickVO tick) {
+    public TickVO normalizeTick(TickVO tick) {
         if(this.normaliseMarketData && tick != null){
 
             Security security = this.securityDao.get(tick.getSecurityId());
             if(security != null){
                 SecurityFamily securityFamily = security.getSecurityFamily();
-                BigDecimal multiplier = BigDecimal.valueOf(securityFamily.getPriceMultiplier(tick.getFeedType()));
+                String feedType = tick.getFeedType();
 
-                BigDecimal last = tick.getLast() != null ? tick.getLast().multiply(multiplier) : tick.getLast();
-                BigDecimal bid = tick.getBid() != null ? tick.getBid().multiply(multiplier) : tick.getBid();
-                BigDecimal ask = tick.getAsk() != null ? tick.getAsk().multiply(multiplier) : tick.getAsk();
+                BigDecimal last = tick.getLast() != null ? PriceUtil.normalizePrice(securityFamily, feedType, tick.getLast().doubleValue()) : null;
+                BigDecimal bid = tick.getBid() != null ? PriceUtil.normalizePrice(securityFamily, feedType, tick.getBid().doubleValue()) : null;
+                BigDecimal ask = tick.getAsk() != null ? PriceUtil.normalizePrice(securityFamily, feedType, tick.getAsk().doubleValue()) : null;
 
                 return new TickVO(tick.getId(),
                     tick.getDateTime(),
-                    tick.getFeedType(),
+                    feedType,
                     tick.getSecurityId(),
                     last,
                     tick.getLastDateTime(),

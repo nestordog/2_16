@@ -42,7 +42,6 @@ import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.util.PriceUtil;
-import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.ExecType;
@@ -203,6 +202,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
         }
     }
 
+    @Override
     protected ExternalFill createFill(final ExecutionReport executionReport, final DropCopyAllocationVO allocation) throws FieldNotFound {
 
         char execType = executionReport.getExecType().getValue();
@@ -242,8 +242,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
 
         BigDecimal normalizedPrice;
         if (securityFamily != null) {
-            double priceMultiplier = securityFamily.getPriceMultiplier(broker);
-            normalizedPrice = RoundUtil.getBigDecimal(price / priceMultiplier, securityFamily.getScale());
+            normalizedPrice = PriceUtil.normalizePrice(securityFamily, broker, price);
         } else {
             normalizedPrice = new BigDecimal(price);
         }
