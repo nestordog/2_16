@@ -428,7 +428,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                 double close = fields.getElementAsFloat64(BBConstants.CLOSE);
                 long volume = fields.getElementAsInt64(BBConstants.VOLUME);
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
+                int scale = this.security.getSecurityFamily().getScale(Broker.BB.name());
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(time);
@@ -485,7 +485,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                     volume = bbBar.getElementAsInt64("VOLUME");
                 }
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
+                int scale = this.security.getSecurityFamily().getScale(Broker.BB.name());
 
                 Bar bar = Bar.Factory.newInstance();
                 bar.setDateTime(date);
@@ -560,7 +560,7 @@ public class BBHistoricalDataServiceImpl extends HistoricalDataServiceImpl imple
                     continue;
                 }
 
-                int scale = this.security.getSecurityFamily().getScale(Broker.BBG.name());
+                int scale = this.security.getSecurityFamily().getScale(Broker.BB.name());
                 BigDecimal valueBD = RoundUtil.getBigDecimal(value, scale);
 
                 Tick tick = Tick.Factory.newInstance();
