@@ -17,8 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.simulation;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
@@ -34,6 +36,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -882,6 +885,21 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 }
 
                 backTestReport.close();
+
+                // make sure BackTestReport.xlsx exists
+                File excelReportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.xlsm");
+                if (!excelReportFile.exists()) {
+                    InputStream is = getClass().getResourceAsStream("/BackTestReport.xlsm");
+                    FileUtils.copyInputStreamToFile(is, excelReportFile);
+                }
+
+                if (this.commonConfig.isOpenBackTestReport()) {
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().open(excelReportFile);
+                    } else {
+                        RESULT_LOGGER.info("BackTestReport available at: " + excelReportFile);
+                    }
+                }
 
             } catch (IOException ex) {
                 LOGGER.error(ex.getMessage(), ex);
