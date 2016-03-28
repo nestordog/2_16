@@ -18,6 +18,8 @@
 package ch.algotrader.esper.io;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esper.client.time.CurrentTimeSpanEvent;
@@ -27,6 +29,7 @@ import com.espertech.esperio.AbstractSender;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.util.metric.MetricsUtil;
 
 /**
@@ -36,6 +39,35 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class CustomSender extends AbstractSender {
 
+    private final ConcurrentMap<String, Long> securityIdMap = new ConcurrentHashMap<>();
+
+    private long getSecurity(final String securityString) {
+        final ServiceLocator serviceLocator = ServiceLocator.instance();
+
+        //first, lookup the security ID (does normally not change)
+        Long securityId = securityIdMap.get(securityString);
+        if (securityId == null) {
+            // lookup the securityId
+            ServerLookupService serverLookupService = ServiceLocator.instance().getService("serverLookupService", ServerLookupService.class);
+            securityId = serverLookupService.getSecurityIdBySecurityString(securityString);
+            securityIdMap.put(securityString, securityId);//due to racing we may replace an existing entry but that's fine
+        }
+        return securityId;
+    }
+
+    private TickVO rawTickToEvent(final RawTickVO raw) {
+
+        long securityId = getSecurity(raw.getSecurity());
+        return new TickVO(0L, raw.getDateTime(), "SIM", securityId, raw.getLast(), raw.getLastDateTime(),
+                raw.getBid(), raw.getAsk(), raw.getVol(), raw.getVolAsk(), raw.getVolBid());
+    }
+
+    private  BarVO rawBarToEvent(final RawBarVO raw) {
+
+        long securityId = getSecurity(raw.getSecurity());
+        return new BarVO(0L, raw.getDateTime(), "SIM", securityId, raw.getBarSize(), raw.getOpen(), raw.getHigh(), raw.getLow(), raw.getClose(), raw.getVol());
+    }
+
     @Override
     public void sendEvent(AbstractSendableEvent event, Object beanToSend) {
 
@@ -44,7 +76,7 @@ public class CustomSender extends AbstractSender {
         if (beanToSend instanceof RawTickVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            TickVO tick = MarketEventSupport.rawTickToEvent((RawTickVO) beanToSend);
+            TickVO tick = rawTickToEvent((RawTickVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
@@ -58,7 +90,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof RawBarVO) {
 
             long beforeCompleteRawT = System.nanoTime();
-            BarVO bar = MarketEventSupport.rawBarToEvent((RawBarVO) beanToSend);
+            BarVO bar = rawBarToEvent((RawBarVO) beanToSend);
             long afterCompleteRaw = System.nanoTime();
 
             long beforeSendEvent = System.nanoTime();
