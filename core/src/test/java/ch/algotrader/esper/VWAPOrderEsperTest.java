@@ -5,7 +5,6 @@ import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,7 +12,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -28,11 +26,6 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigBeanFactory;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
@@ -58,38 +51,6 @@ public class VWAPOrderEsperTest extends EsperTestBase {
     private Exchange exchange;
     private Forex eurusd;
     private Forex chfusd;
-
-    private static Map<String, String> CONFIG_MAP;
-
-    @BeforeClass
-    public static void setupConfig() {
-        CONFIG_MAP = new HashMap<>();
-        CONFIG_MAP.put("dataSource.dataSet", "someDataSet");
-        CONFIG_MAP.put("dataSource.dataSetType", "BAR");
-        CONFIG_MAP.put("dataSource.dataSetLocation", "stuff/more-stuff");
-        CONFIG_MAP.put("dataSource.barSize", "MIN_5");
-        CONFIG_MAP.put("dataSource.feedCSV", "false");
-        CONFIG_MAP.put("dataSource.feedDB", "false");
-        CONFIG_MAP.put("dataSource.feedGenericEvents", "true");
-        CONFIG_MAP.put("dataSource.feedAllMarketDataFiles", "true");
-        CONFIG_MAP.put("dataSource.feedBatchSize", "20");
-        CONFIG_MAP.put("report.reportLocation", "stuff/report-stuff");
-        CONFIG_MAP.put("report.disabled", "true");
-        CONFIG_MAP.put("simulation", "true");
-        CONFIG_MAP.put("simulation.initialBalance", "500.5");
-        CONFIG_MAP.put("simulation.logTransactions", "true");
-        CONFIG_MAP.put("misc.embedded", "true");
-        CONFIG_MAP.put("misc.portfolioBaseCurrency", "EUR");
-        CONFIG_MAP.put("misc.portfolioDigits", "5");
-        CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
-        CONFIG_MAP.put("misc.validateCrossedSpread", "true");
-        CONFIG_MAP.put("misc.displayClosedPositions", "true");
-
-        DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
-        ConfigParams configParams = new ConfigParams(configProvider);
-        CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
-        ConfigLocator.initialize(configParams, commonConfig);
-    }
 
     @Before
     public void setupEsper() throws Exception {

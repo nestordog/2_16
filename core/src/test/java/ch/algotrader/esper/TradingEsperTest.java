@@ -6,7 +6,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -15,7 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -30,11 +28,6 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigBeanFactory;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.spring.DefaultConfigProvider;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Forex;
@@ -65,38 +58,6 @@ public class TradingEsperTest extends EsperTestBase {
     private Exchange exchange;
     private Forex eurusd;
     private Forex chfusd;
-
-    private static Map<String, String> CONFIG_MAP;
-
-    @BeforeClass
-    public static void setupConfig() {
-        CONFIG_MAP = new HashMap<>();
-        CONFIG_MAP.put("dataSource.dataSet", "someDataSet");
-        CONFIG_MAP.put("dataSource.dataSetType", "BAR");
-        CONFIG_MAP.put("dataSource.dataSetLocation", "stuff/more-stuff");
-        CONFIG_MAP.put("dataSource.barSize", "MIN_5");
-        CONFIG_MAP.put("dataSource.feedCSV", "false");
-        CONFIG_MAP.put("dataSource.feedDB", "false");
-        CONFIG_MAP.put("dataSource.feedGenericEvents", "true");
-        CONFIG_MAP.put("dataSource.feedAllMarketDataFiles", "true");
-        CONFIG_MAP.put("dataSource.feedBatchSize", "20");
-        CONFIG_MAP.put("report.reportLocation", "stuff/report-stuff");
-        CONFIG_MAP.put("report.disabled", "true");
-        CONFIG_MAP.put("simulation", "true");
-        CONFIG_MAP.put("simulation.initialBalance", "500.5");
-        CONFIG_MAP.put("simulation.logTransactions", "true");
-        CONFIG_MAP.put("misc.embedded", "true");
-        CONFIG_MAP.put("misc.portfolioBaseCurrency", "EUR");
-        CONFIG_MAP.put("misc.portfolioDigits", "5");
-        CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
-        CONFIG_MAP.put("misc.validateCrossedSpread", "true");
-        CONFIG_MAP.put("misc.displayClosedPositions", "true");
-
-        DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
-        ConfigParams configParams = new ConfigParams(configProvider);
-        CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
-        ConfigLocator.initialize(configParams, commonConfig);
-    }
 
     @Before
     public void setupEsper() throws Exception {
@@ -194,7 +155,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
-        transaction1.setExecutionCommission(new BigDecimal("0.003"));
+        transaction1.setExecutionCommission(new BigDecimal("0.01"));
         transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction1);
@@ -217,7 +178,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction2.setPrice(new BigDecimal("0.96"));
         transaction2.setType(TransactionType.BUY);
         transaction2.setClearingCommission(new BigDecimal("0.001"));
-        transaction2.setFee(new BigDecimal("0.002"));
+        transaction2.setFee(new BigDecimal("0.01"));
         transaction2.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction2);
@@ -228,7 +189,7 @@ public class TradingEsperTest extends EsperTestBase {
         Assert.assertEquals(1000L, orderCompletion.getFilledQuantity());
         Assert.assertEquals(2, orderCompletion.getFills());
         Assert.assertEquals(new BigDecimal("0.962"), orderCompletion.getAvgPrice());
-        Assert.assertEquals(new BigDecimal("0.00600"), orderCompletion.getTotalCharges());
+        Assert.assertEquals(new BigDecimal("0.02"), orderCompletion.getTotalCharges());
     }
 
     @Test
@@ -273,7 +234,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
-        transaction1.setExecutionCommission(new BigDecimal("0.003"));
+        transaction1.setExecutionCommission(new BigDecimal("0.01"));
         transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction1);
@@ -304,7 +265,7 @@ public class TradingEsperTest extends EsperTestBase {
         Assert.assertEquals(100L, orderCompletion.getFilledQuantity());
         Assert.assertEquals(1, orderCompletion.getFills());
         Assert.assertEquals(new BigDecimal("0.98"), orderCompletion.getAvgPrice());
-        Assert.assertEquals(new BigDecimal("0.00300"), orderCompletion.getTotalCharges());
+        Assert.assertEquals(new BigDecimal("0.01"), orderCompletion.getTotalCharges());
     }
 
     @Test
