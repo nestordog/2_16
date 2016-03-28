@@ -42,6 +42,7 @@ public final class CommonConfig {
     private final int feedBatchSize;
     private final File reportLocation;
     private final boolean disableReports;
+    private final boolean openBackTestReport;
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
     private final boolean embedded;
@@ -63,6 +64,7 @@ public final class CommonConfig {
             @ConfigName("dataSource.feedBatchSize") final int feedBatchSize,
             @ConfigName("report.reportLocation") final File reportLocation,
             @ConfigName("report.disabled") final boolean disableReports,
+            @ConfigName("report.openBackTestReport") final boolean openBackTestReport,
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
             @ConfigName("misc.embedded") final boolean embedded,
@@ -82,6 +84,7 @@ public final class CommonConfig {
         this.feedBatchSize = feedBatchSize;
         this.reportLocation = reportLocation;
         this.disableReports = disableReports;
+        this.openBackTestReport = openBackTestReport;
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
         this.embedded = embedded;
@@ -134,6 +137,10 @@ public final class CommonConfig {
 
     public boolean isDisableReports() {
         return this.disableReports;
+    }
+
+    public boolean isOpenBackTestReport() {
+        return this.openBackTestReport;
     }
 
     public boolean isSimulation() {
