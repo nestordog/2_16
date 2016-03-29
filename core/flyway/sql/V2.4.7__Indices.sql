@@ -280,7 +280,6 @@ CREATE PROCEDURE `validate_security`(
     IN `BASE_CURRENCY` varchar(255),
     IN `EXPIRATION` date,
     IN `MONTH_YEAR` char(6),
-    IN `FIRST_NOTICE` date,
     IN `DURATION` varchar(255),
     IN `ASSET_CLASS` varchar(255),
     IN `STRIKE` decimal(12,5),
@@ -314,8 +313,6 @@ BEGIN
             SIGNAL null_not_allowed set message_text = 'Column ''EXPIRATION'' cannot be null for future';
         ELSEIF `MONTH_YEAR` IS NULL THEN
             SIGNAL null_not_allowed set message_text = 'Column ''MONTH_YEAR'' cannot be null for future';
-        ELSEIF `FIRST_NOTICE` IS NULL THEN
-            SIGNAL null_not_allowed set message_text = 'Column ''FIRST_NOTICE'' cannot be null for future';
         END IF;
     ELSEIF `CLASS` = 'IntrestRateImpl' THEN
         IF `DURATION` IS NULL THEN
@@ -352,7 +349,7 @@ BEFORE INSERT ON `security`
 FOR EACH ROW
 BEGIN
     CALL `validate_security`(NEW.`CLASS`, NEW. `MATURITY`, NEW.`COUPON`,  NEW.`COMMODITY_TYPE`, NEW.`BASE_CURRENCY`,
-    NEW.`EXPIRATION`, NEW.`MONTH_YEAR`, NEW.`FIRST_NOTICE`, NEW.`DURATION`, NEW.`ASSET_CLASS`, NEW.`STRIKE`,
+    NEW.`EXPIRATION`, NEW.`MONTH_YEAR`, NEW.`DURATION`, NEW.`ASSET_CLASS`, NEW.`STRIKE`,
     NEW.`OPTION_TYPE`, NEW.`GICS`, NEW.`UUID`, NEW.`COMBINATION_TYPE`, NEW.`PERSISTENT`);
 END;
 $$
@@ -362,7 +359,7 @@ BEFORE UPDATE ON `security`
 FOR EACH ROW
 BEGIN
     CALL `validate_security`(NEW.`CLASS`, NEW. `MATURITY`, NEW.`COUPON`,  NEW.`COMMODITY_TYPE`, NEW.`BASE_CURRENCY`,
-    NEW.`EXPIRATION`, NEW.`MONTH_YEAR`, NEW.`FIRST_NOTICE`, NEW.`DURATION`, NEW.`ASSET_CLASS`, NEW.`STRIKE`,
+    NEW.`EXPIRATION`, NEW.`MONTH_YEAR`, NEW.`DURATION`, NEW.`ASSET_CLASS`, NEW.`STRIKE`,
     NEW.`OPTION_TYPE`, NEW.`GICS`, NEW.`UUID`, NEW.`COMBINATION_TYPE`, NEW.`PERSISTENT`);
 END;
 $$
