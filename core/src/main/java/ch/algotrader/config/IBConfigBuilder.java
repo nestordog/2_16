@@ -27,6 +27,7 @@ public final class IBConfigBuilder {
     private String faMethod;
     private String genericTickList;
     private boolean useRTH;
+    private int requestTimeout;
 
     IBConfigBuilder() {
     }
@@ -50,8 +51,17 @@ public final class IBConfigBuilder {
         return this;
     }
 
+    public int getRequestTimeout() {
+        return requestTimeout;
+    }
+
+    public IBConfigBuilder setRequestTimeout(int requestTimeout) {
+        this.requestTimeout = requestTimeout;
+        return this;
+    }
+
     public IBConfig build() {
-        return new IBConfig(faMethod, genericTickList, useRTH);
+        return new IBConfig(faMethod, genericTickList, useRTH, requestTimeout);
     }
 
 }

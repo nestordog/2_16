@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -48,6 +50,7 @@ import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.concurrent.Promise;
 import ch.algotrader.concurrent.PromiseImpl;
+import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
@@ -82,6 +85,8 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     private final IBSession iBSession;
 
+    private final IBConfig ibConfig;
+
     private final IBPendingRequests pendingRequests;
 
     private final IdGenerator requestIdGenerator;
@@ -96,6 +101,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     public IBNativeReferenceDataServiceImpl(
             final IBSession iBSession,
+            final IBConfig ibConfig,
             final IBPendingRequests pendingRequests,
             final IdGenerator requestIdGenerator,
             final OptionDao optionDao,
@@ -104,6 +110,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
             final StockDao stockDao) {
 
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(ibConfig, "IBConfig is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
         Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(optionDao, "OptionDao is null");
@@ -112,6 +119,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         Validate.notNull(stockDao, "StockDao is null");
 
         this.iBSession = iBSession;
+        this.ibConfig = ibConfig;
         this.pendingRequests = pendingRequests;
         this.requestIdGenerator = requestIdGenerator;
         this.optionDao = optionDao;
@@ -201,10 +209,13 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
 
     private Set<ContractDetails> getContractDetailsBlocking(final Promise<List<ContractDetails>> promise) {
         try {
-            return new HashSet<>(promise.get());
+            int requestTimeout = this.ibConfig.getRequestTimeout();
+            return new HashSet<>(promise.get(requestTimeout, TimeUnit.SECONDS));
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
+        } catch (TimeoutException ex) {
+            throw new ExternalServiceException("Service request timeout");
         } catch (ExecutionException ex) {
             throw IBNativeSupport.rethrow(ex.getCause());
         }

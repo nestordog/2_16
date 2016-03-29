@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +51,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.ServiceException;
@@ -227,10 +230,13 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
     private List<Bar> getBarsBlocking(final Promise<List<Bar>> promise) {
         try {
-            return promise.get();
+            int requestTimeout = this.iBConfig.getRequestTimeout();
+            return promise.get(requestTimeout, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
+        } catch (TimeoutException ex) {
+            throw new ExternalServiceException("Service request timeout");
         } catch (ExecutionException ex) {
             throw IBNativeSupport.rethrow(ex.getCause());
         }

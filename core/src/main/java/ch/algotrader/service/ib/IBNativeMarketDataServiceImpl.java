@@ -52,23 +52,23 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
 
     public IBNativeMarketDataServiceImpl(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBSessionStateHolder sessionStateHolder,
             final IdGenerator requestIdGenerator,
-            final IBConfig iBConfig,
             final Engine serverEngine) {
 
         super(serverEngine);
 
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(requestIdGenerator, "IdGenerator is null");
-        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
+        this.iBConfig = iBConfig;
         this.sessionStateHolder = sessionStateHolder;
         this.requestIdGenerator = requestIdGenerator;
-        this.iBConfig = iBConfig;
     }
 
     @Override

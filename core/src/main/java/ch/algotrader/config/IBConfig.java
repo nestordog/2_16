@@ -28,14 +28,17 @@ public final class IBConfig {
     private final String faMethod;
     private final String genericTickList;
     private final boolean useRTH;
+    private final int requestTimeout;
 
     public IBConfig(
             @ConfigName("ib.faMethod") String faMethod,
             @ConfigName(value="ib.genericTickList", optional=true) String genericTickList,
-            @ConfigName("ib.useRTH") boolean useRTH) {
+            @ConfigName("ib.useRTH") boolean useRTH,
+            @ConfigName("ib.requestTimeout") int requestTimeout) {
         this.faMethod = faMethod;
         this.genericTickList = genericTickList;
         this.useRTH = useRTH;
+        this.requestTimeout = requestTimeout;
     }
 
     public String getFaMethod() {
@@ -50,12 +53,17 @@ public final class IBConfig {
         return useRTH;
     }
 
+    public int getRequestTimeout() {
+        return requestTimeout;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
         sb.append("faMethod='").append(faMethod).append('\'');
         sb.append(", genericTickList='").append(genericTickList).append('\'');
         sb.append(", useRTH='").append(useRTH).append('\'');
+        sb.append(", requestTimeout=").append(requestTimeout);
         sb.append(']');
         return sb.toString();
     }

@@ -106,19 +106,19 @@ public class IBNativeServiceWiring {
     @Bean(name = "iBNativeMarketDataService")
     public ExternalMarketDataService createIBNativeMarketDataService(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBSessionStateHolder iBSessionStateHolder,
             final IdGenerator iBRequestIdGenerator,
-            final IBConfig iBConfig,
             final Engine serverEngine) {
 
-        return new IBNativeMarketDataServiceImpl(iBSession, iBSessionStateHolder, iBRequestIdGenerator,
-                iBConfig, serverEngine);
+        return new IBNativeMarketDataServiceImpl(iBSession, iBConfig, iBSessionStateHolder, iBRequestIdGenerator, serverEngine);
     }
 
     @Profile("iBReferenceData")
     @Bean(name = { "iBNativeReferenceDataService", "referenceDataService" })
     public ReferenceDataService createIBNativeReferenceDataService(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBPendingRequests iBPendingRequests,
             final IdGenerator iBRequestIdGenerator,
             final OptionDao optionDao,
@@ -126,7 +126,7 @@ public class IBNativeServiceWiring {
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        return new IBNativeReferenceDataServiceImpl(iBSession, iBPendingRequests, iBRequestIdGenerator,
+        return new IBNativeReferenceDataServiceImpl(iBSession, iBConfig, iBPendingRequests, iBRequestIdGenerator,
                 optionDao, futureDao, securityFamilyDao, stockDao);
     }
 
