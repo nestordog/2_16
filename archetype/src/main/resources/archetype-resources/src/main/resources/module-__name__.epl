@@ -2,7 +2,7 @@
 insert into
     Indicator
 select
-    ema(last, movingAveragePeriodShort) - ema(last, movingAveragePeriodLong) as value
+    ema(currentValue, 10) - ema(currentValue, 20) as value
 from
     TickVO;
 
