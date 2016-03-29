@@ -18,6 +18,7 @@
 
 package ch.algotrader.jetty;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
@@ -129,8 +130,8 @@ public class EmbeddedJettyServer implements InitializingServiceI {
             this.server.setHandler(context);
         }
 
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("HTTP connector on port {}", this.port);
+        if (this.LOGGER.isInfoEnabled()) {
+            this.LOGGER.info("HTTP connector on port {}", this.port);
         }
 
         SslContextFactory sslContextFactory = null;
@@ -150,7 +151,7 @@ public class EmbeddedJettyServer implements InitializingServiceI {
         channelConnector.start();
 
         URL startPage = getClass().getResource("/html5/index.html");
-        if (startPage != null && LOGGER.isInfoEnabled()) {
+        if (startPage != null && this.LOGGER.isInfoEnabled()) {
             String hostName;
             try {
                 InetAddress localHost = InetAddress.getLocalHost();
@@ -158,7 +159,13 @@ public class EmbeddedJettyServer implements InitializingServiceI {
             } catch (IOException ex) {
                 hostName = "localhost";
             }
-            LOGGER.info("Web UI available at {}", new URI(this.serverSSLContext == null ? "http" : "https", null, hostName, this.port, "/", null, null));
+
+            URI uri = new URI(this.serverSSLContext == null ? "http" : "https", null, hostName, this.port, "/", null, null);
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().browse(uri);
+            } else {
+                this.LOGGER.info("Web UI available at {}", uri);
+            }
         }
     }
 
