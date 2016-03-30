@@ -338,13 +338,14 @@ public class ServiceWiring {
     public SimpleOrderService createServerOrderService(
             final CommonConfig commonConfig,
             final Engine serverEngine,
+            final EventDispatcher eventDispatcher,
             final ApplicationContext applicationContext) {
 
         Map<String, SimpleOrderExecService> serviceMap1 = applicationContext.getBeansOfType(SimpleOrderExecService.class);
         Map<String, SimpleOrderExecService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(SimpleOrderExecService::getOrderServiceType, service -> service));
 
-        return new SimpleOrderServiceImpl(commonConfig, serverEngine, serviceMap2);
+        return new SimpleOrderServiceImpl(commonConfig, serverEngine, eventDispatcher, serviceMap2);
     }
 
     @Bean(name = "algoOrderService")

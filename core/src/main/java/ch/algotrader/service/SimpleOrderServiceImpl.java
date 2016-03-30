@@ -27,11 +27,13 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TIF;
 import ch.algotrader.esper.Engine;
+import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.util.BeanUtil;
 
 /**
@@ -44,17 +46,22 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
 
     private final Engine serverEngine;
 
+    private final EventDispatcher eventDispatcher;
+
     private final Map<String, SimpleOrderExecService> externalOrderServiceMap;
 
     public SimpleOrderServiceImpl(final CommonConfig commonConfig,
                                   final Engine serverEngine,
+                                  final EventDispatcher eventDispatcher,
                                   final Map<String, SimpleOrderExecService> externalOrderServiceMap) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
 
         this.commonConfig = commonConfig;
         this.serverEngine = serverEngine;
+        this.eventDispatcher = eventDispatcher;
         this.externalOrderServiceMap = new ConcurrentHashMap<>(externalOrderServiceMap);
     }
 
@@ -118,6 +125,8 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         String intId = simpleOrderExecService.sendOrder(order);
 
         this.serverEngine.sendEvent(order);
+        Strategy strategy = order.getStrategy();
+        this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
 
         return intId;
     }
@@ -173,6 +182,8 @@ public class SimpleOrderServiceImpl implements SimpleOrderService {
         String intId = simpleOrderExecService.modifyOrder(newOrder);
 
         this.serverEngine.sendEvent(newOrder);
+        Strategy strategy = order.getStrategy();
+        this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
 
         return intId;
     }
