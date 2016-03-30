@@ -162,7 +162,12 @@ public class EmbeddedJettyServer implements InitializingServiceI {
 
             URI uri = new URI(this.serverSSLContext == null ? "http" : "https", null, hostName, this.port, "/", null, null);
             if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().browse(uri);
+                try {
+                    Desktop.getDesktop().browse(uri);
+                } catch (IOException e) {
+                    // no default browser defined
+                    this.LOGGER.info("Web UI available at {}", uri);
+                }
             } else {
                 this.LOGGER.info("Web UI available at {}", uri);
             }

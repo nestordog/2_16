@@ -734,9 +734,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             return resultVO;
         }
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
         @SuppressWarnings("unchecked")
         List<PeriodPerformanceVO> monthlyPerformances = engine.getAllEvents("KEEP_MONTHLY_PERFORMANCE");
+        if (monthlyPerformances.size() == 0) {
+            resultVO.setAllTrades(new TradesVO(0, 0, 0, 0));
+            return resultVO;
+        }
+
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) engine.getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_ALL_TRADES");
         TradesVO winningTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_WINNING_TRADES");
@@ -810,6 +815,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
                 if (resultVO.getAllTrades().getCount() == 0) {
                     backTestReport.write("allTradesCount", 0);
+                    backTestReport.close();
                     return;
                 }
 
@@ -895,7 +901,12 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
                 if (this.commonConfig.isOpenBackTestReport()) {
                     if (Desktop.isDesktopSupported()) {
-                        Desktop.getDesktop().open(excelReportFile);
+                        try {
+                            Desktop.getDesktop().open(excelReportFile);
+                        } catch (IOException e) {
+                            // no application registered to .xlsm files
+                            RESULT_LOGGER.info("BackTestReport available at: " + excelReportFile);
+                        }
                     } else {
                         RESULT_LOGGER.info("BackTestReport available at: " + excelReportFile);
                     }
