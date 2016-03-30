@@ -447,6 +447,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     @Override
     public void connectionClosed() {
 
+        this.pendingRequests.failAll(new ExternalServiceException("Connection closed"));
+
         // IB client executes this notification from an interrupted thread, which prevents
         // execution of potentially blocking I/O operations such as publishing to a JMS queue
         // This makes it necessary to execute #onDisconnect() event on a separate thread
@@ -469,9 +471,14 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         try {
             handleError(id, errorCode, errorMsg);
         } finally {
-            IBPendingRequest<?> pendingRequest = this.pendingRequests.removeRequest(id);
-            if (pendingRequest != null) {
-                pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
+            // If it is a general session error, fail all pending requests
+            if (errorCode >= 500 && id < 1) {
+                this.pendingRequests.failAll(new IBSessionException(errorCode, errorMsg));
+            } else {
+                IBPendingRequest<?> pendingRequest = this.pendingRequests.removeRequest(id);
+                if (pendingRequest != null) {
+                    pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
+                }
             }
         }
     }
