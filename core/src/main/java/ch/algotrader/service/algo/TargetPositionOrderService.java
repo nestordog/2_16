@@ -34,7 +34,6 @@ import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.TargetPositionOrder;
-import ch.algotrader.entity.trade.algo.TargetPositionOrderStateVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.service.LookupService;

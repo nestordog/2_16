@@ -33,7 +33,6 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
-import ch.algotrader.entity.trade.algo.AlgoOrderStateVO;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.ServiceException;

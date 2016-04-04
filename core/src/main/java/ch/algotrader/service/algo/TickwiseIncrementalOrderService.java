@@ -28,7 +28,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
-import ch.algotrader.entity.trade.algo.IncrementalOrderStateVO;
 import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;

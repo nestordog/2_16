@@ -31,7 +31,6 @@ import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.TrailingLimitOrder;
-import ch.algotrader.entity.trade.algo.TrailingLimitOrderStateVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;

@@ -15,18 +15,48 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.entity.trade.algo;
+package ch.algotrader.service.algo;
+
+import java.math.BigDecimal;
 
 import ch.algotrader.entity.trade.LimitOrder;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class TrailingLimitOrderStateVO extends AlgoOrderStateVO {
+public class IncrementalOrderStateVO extends AlgoOrderStateVO {
 
     private static final long serialVersionUID = 1L;
 
+    private final BigDecimal startLimit;
+
+    private final BigDecimal endLimit;
+
+    private BigDecimal currentLimit;
+
     private LimitOrder limitOrder;
+
+    public IncrementalOrderStateVO(BigDecimal startLimit, BigDecimal endLimit, BigDecimal currentLimit) {
+        this.startLimit = startLimit;
+        this.endLimit = endLimit;
+        this.currentLimit = currentLimit;
+    }
+
+    public BigDecimal getStartLimit() {
+        return this.startLimit;
+    }
+
+    public BigDecimal getEndLimit() {
+        return this.endLimit;
+    }
+
+    public BigDecimal getCurrentLimit() {
+        return this.currentLimit;
+    }
+
+    public void setCurrentLimit(BigDecimal currentLimit) {
+        this.currentLimit = currentLimit;
+    }
 
     public LimitOrder getLimitOrder() {
         return this.limitOrder;
@@ -35,11 +65,4 @@ public class TrailingLimitOrderStateVO extends AlgoOrderStateVO {
     public void setLimitOrder(LimitOrder limitOrder) {
         this.limitOrder = limitOrder;
     }
-
-    @Override
-    public String toString() {
-        return "limitOrder=" + this.limitOrder;
-    }
-
-
 }

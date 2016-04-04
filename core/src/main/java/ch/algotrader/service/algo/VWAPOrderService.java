@@ -54,7 +54,6 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderValidationException;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.VWAPOrder;
-import ch.algotrader.entity.trade.algo.VWAPOrderStateVO;
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.Status;

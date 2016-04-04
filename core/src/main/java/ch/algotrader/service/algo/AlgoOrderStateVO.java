@@ -15,26 +15,28 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.entity.trade.algo;
+package ch.algotrader.service.algo;
 
-import java.math.BigDecimal;
+import java.io.Serializable;
 
 /**
- * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
- */
-public class VariableIncrementalOrderStateVO extends IncrementalOrderStateVO {
+ * Contains the current state of an AlgoOrder
+  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+*/
+public abstract class AlgoOrderStateVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final double increment;
+    private String intId;
 
-    public VariableIncrementalOrderStateVO(BigDecimal startLimit, BigDecimal endLimit, BigDecimal currentLimit, double increment) {
-        super(startLimit, endLimit, currentLimit);
-        this.increment = increment;
+    public String getIntId() {
+        return this.intId;
     }
 
-    public double getIncrement() {
-        return this.increment;
+    public void setIntId(String intId) {
+        this.intId = intId;
     }
 
 }
+
+

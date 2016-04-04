@@ -40,7 +40,6 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.algo.AlgoOrder;
 import ch.algotrader.entity.trade.algo.SlicingOrder;
-import ch.algotrader.entity.trade.algo.SlicingOrderStateVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.service.MarketDataCacheService;

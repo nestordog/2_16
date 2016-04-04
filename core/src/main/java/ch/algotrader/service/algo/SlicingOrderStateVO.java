@@ -15,7 +15,7 @@
  * Aeschstrasse 6
  * 8834 Schindellegi
  ***********************************************************************************/
-package ch.algotrader.entity.trade.algo;
+package ch.algotrader.service.algo;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
