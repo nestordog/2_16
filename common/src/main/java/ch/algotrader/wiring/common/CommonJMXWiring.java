@@ -59,6 +59,7 @@ public class CommonJMXWiring {
 
         MBeanServerFactoryBean mBeanServerFactoryBean = new MBeanServerFactoryBean();
         mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
+        mBeanServerFactoryBean.afterPropertiesSet();
 
         return mBeanServerFactoryBean.getObject();
     }
