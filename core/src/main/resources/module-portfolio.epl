@@ -27,11 +27,3 @@ select
     null
 from
     pattern[every timer:at (0, 18, *, *, 3)];
-
-@Name('REBALANCE_PORTFOLIO')
-@Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='transactionService#rebalancePortfolio')
-select
-    null
-from
-    pattern[every timer:at (0, 11, *, *, 3)];
