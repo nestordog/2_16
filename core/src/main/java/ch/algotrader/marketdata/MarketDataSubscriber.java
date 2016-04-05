@@ -36,6 +36,15 @@ import ch.algotrader.service.LookupService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.vo.SessionEventVO;
 
+/**
+ * Handles Subscriptions in certain specials cases:
+ * <ul>
+ *   <li>subscribes for the corresponding Forex whenever a foreign currency position is opened</li>
+ *   <li>re-subscribes for subscriptions stored in the database whenever a session is logged-on</li>
+ * </ul>
+ *
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
+ */
 public class MarketDataSubscriber implements SessionEventListener, PositionEventListener {
 
     private final EventDispatcher eventDispatcher;
@@ -64,7 +73,7 @@ public class MarketDataSubscriber implements SessionEventListener, PositionEvent
     @Override
     public void onChange(final SessionEventVO event) {
         if (event.getState() == ConnectionState.LOGGED_ON) {
-            String feedType = sessionToFeedTypeMap.get(event.getQualifier());
+            String feedType = this.sessionToFeedTypeMap.get(event.getQualifier());
             if (feedType != null) {
                 this.executorService.execute(() -> {
                     try {
