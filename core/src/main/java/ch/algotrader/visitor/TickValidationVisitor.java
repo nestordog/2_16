@@ -34,7 +34,7 @@ import ch.algotrader.entity.security.Stock;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class TickValidationVisitor extends PolymorphicEntityVisitor<Boolean, TickVO> {
+public class TickValidationVisitor extends PolymorphicSecurityVisitor<Boolean, TickVO> {
 
     public static final TickValidationVisitor INSTANCE = new TickValidationVisitor();
 

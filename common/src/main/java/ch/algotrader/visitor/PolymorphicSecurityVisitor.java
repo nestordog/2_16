@@ -36,7 +36,7 @@ import ch.algotrader.entity.security.Stock;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class PolymorphicEntityVisitor<R, P> implements SecurityVisitor<R, P> {
+public class PolymorphicSecurityVisitor<R, P> implements SecurityVisitor<R, P> {
 
     @Override
     public R visitSecurity(Security entity, P param) {
