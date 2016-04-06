@@ -65,6 +65,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("misc.rebalanceMinAmount", "1000");
         CONFIG_MAP.put("misc.defaultFeedType", "IB");
         CONFIG_MAP.put("misc.defaultOrderPreference", "DEFAULT");
+        CONFIG_MAP.put("misc.positionCheckDisabled", "false");
         CONFIG_MAP.put("fx.futureHedgeEnabled", "false");
         CONFIG_MAP.put("fx.futureHedgeMinTimeToExpiration", "604800000");
         CONFIG_MAP.put("fx.hedgeMinAmount", "8000");
@@ -72,7 +73,6 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("fx.hedgeOrderPreference", "FX");
         CONFIG_MAP.put("delta.hedgeMinTimeToExpiration", "604800000");
         CONFIG_MAP.put("delta.hedgeOrderPreference", "OPT");
-        CONFIG_MAP.put("persistence.positionCheckDisabled", "false");
 
         DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
         ConfigParams configParams = new ConfigParams(configProvider);

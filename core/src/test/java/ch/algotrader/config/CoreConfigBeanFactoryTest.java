@@ -36,29 +36,29 @@ public class CoreConfigBeanFactoryTest {
 
     @Before
     public void setup() {
-        map = new HashMap<>();
-        map.put("statement.simulateOptions", "true");
-        map.put("statement.simulateFuturesByUnderlying", "true");
-        map.put("statement.simulateFuturesByGenericFutures", "true");
-        map.put("misc.transactionDisplayCount", "20");
-        map.put("misc.intervalDays", "4");
-        map.put("misc.rebalanceMinAmount", "1000");
-        map.put("misc.defaultFeedType", "IB");
-        map.put("misc.defaultOrderPreference", "FX");
-        map.put("fx.futureHedgeEnabled", "true");
-        map.put("fx.futureHedgeMinTimeToExpiration", "604800000");
-        map.put("fx.hedgeMinAmount", "8000");
-        map.put("fx.hedgeBatchSize", "100");
-        map.put("fx.hedgeOrderPreference", "FX");
-        map.put("delta.hedgeMinTimeToExpiration", "5");
-        map.put("delta.hedgeOrderPreference", "FUT");
-        map.put("persistence.positionCheckDisabled", "false");
+        this.map = new HashMap<>();
+        this.map.put("statement.simulateOptions", "true");
+        this.map.put("statement.simulateFuturesByUnderlying", "true");
+        this.map.put("statement.simulateFuturesByGenericFutures", "true");
+        this.map.put("misc.transactionDisplayCount", "20");
+        this.map.put("misc.intervalDays", "4");
+        this.map.put("misc.rebalanceMinAmount", "1000");
+        this.map.put("misc.defaultFeedType", "IB");
+        this.map.put("misc.defaultOrderPreference", "FX");
+        this.map.put("misc.positionCheckDisabled", "false");
+        this.map.put("fx.futureHedgeEnabled", "true");
+        this.map.put("fx.futureHedgeMinTimeToExpiration", "604800000");
+        this.map.put("fx.hedgeMinAmount", "8000");
+        this.map.put("fx.hedgeBatchSize", "100");
+        this.map.put("fx.hedgeOrderPreference", "FX");
+        this.map.put("delta.hedgeMinTimeToExpiration", "5");
+        this.map.put("delta.hedgeOrderPreference", "FUT");
     }
 
     @Test
     public void testCoreConfigConstruction() throws Exception {
 
-        ConfigProvider configProvider = new DefaultConfigProvider(map);
+        ConfigProvider configProvider = new DefaultConfigProvider(this.map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
@@ -81,8 +81,8 @@ public class CoreConfigBeanFactoryTest {
     @Test(expected = ConfigBeanCreationException.class)
     public void testCoreConfigConstructionMissingParam() throws Exception {
 
-        map.remove("statement.simulateOptions");
-        ConfigProvider configProvider = new DefaultConfigProvider(map);
+        this.map.remove("statement.simulateOptions");
+        ConfigProvider configProvider = new DefaultConfigProvider(this.map);
         ConfigParams configParams = new ConfigParams(configProvider);
 
         ConfigBeanFactory factory = new ConfigBeanFactory();
