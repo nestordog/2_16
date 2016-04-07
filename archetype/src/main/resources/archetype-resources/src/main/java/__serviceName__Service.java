@@ -13,9 +13,9 @@ import ch.algotrader.vo.LifecycleEventVO;
  */
 public class ${serviceName}Service extends StrategyService {
 
-    private @Value("#{@testConfigParams.accountId}") long accountId;
-    private @Value("#{@testConfigParams.securityId}") long securityId;
-    private @Value("#{@testConfigParams.orderQuantity}") long orderQuantity;
+    private @Value("#{@${name}ConfigParams.accountId}") long accountId;
+    private @Value("#{@${name}ConfigParams.securityId}") long securityId;
+    private @Value("#{@${name}ConfigParams.orderQuantity}") long orderQuantity;
 
     public void sendOrder(Side side) {
 

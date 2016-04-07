@@ -27,11 +27,11 @@ import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
+import ch.algotrader.vo.marketData.TradeVO;
 import quickfix.FieldNotFound;
 import quickfix.Group;
 import quickfix.SessionID;
 import quickfix.UtcTimeStampField;
-import quickfix.field.MDEntryPositionNo;
 import quickfix.field.MDEntryPx;
 import quickfix.field.MDEntrySize;
 import quickfix.field.MDEntryType;
@@ -68,34 +68,38 @@ public class TTFixMarketDataMessageHandler extends AbstractFix42MarketDataMessag
 
             Group group = marketData.getGroup(i + 1, NoMDEntries.FIELD);
             char type = group.getChar(MDEntryType.FIELD);
-            if (type == MDEntryType.BID || type == MDEntryType.OFFER) {
+            if (type == MDEntryType.BID || type == MDEntryType.OFFER || type == MDEntryType.TRADE) {
                 double price = group.getDouble(MDEntryPx.FIELD);
                 double size = group.getDouble(MDEntrySize.FIELD);
-                int pos = group.getInt(MDEntryPositionNo.FIELD);
+                switch (type) {
+                    case MDEntryType.BID:
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} BID {}@{}", id, size, price);
+                        }
 
-                if (pos == 1) {
-                    switch (type) {
-                        case MDEntryType.BID:
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("{} BID {}@{}", id, size, price);
-                            }
+                        BidVO bidVO = new BidVO(id, FeedType.TT.name(), date, price, (int) size);
+                        this.serverEngine.sendEvent(bidVO);
+                        break;
+                    case MDEntryType.OFFER:
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} ASK {}@{}", id, size, price);
+                        }
 
-                            BidVO bidVO = new BidVO(id, FeedType.TT.name(), date, price, (int) size);
-                            this.serverEngine.sendEvent(bidVO);
-                            break;
-                        case MDEntryType.OFFER:
-                            if (LOGGER.isTraceEnabled()) {
-                                LOGGER.trace("{} ASK {}@{}", id, size, price);
-                            }
+                        AskVO askVO = new AskVO(id, FeedType.TT.name(), date, price, (int) size);
+                        this.serverEngine.sendEvent(askVO);
+                        break;
+                    case MDEntryType.TRADE:
+                        if (LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("{} TRADE {}@{}", id, size, price);
+                        }
 
-                            AskVO askVO = new AskVO(id, FeedType.TT.name(), date, price, (int) size);
-                            this.serverEngine.sendEvent(askVO);
-                            break;
-                    }
-                } else {
-                    if (LOGGER.isWarnEnabled()) {
-                        LOGGER.warn("Skipping unexpected update " + id + ", type: " + type + ", pos: " + pos);
-                    }
+                        TradeVO tradeVO = new TradeVO(id, FeedType.TT.name(), date, price, (int) size);
+                        this.serverEngine.sendEvent(tradeVO);
+                        break;
+                }
+            } else {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("Skipping unexpected update " + id + ", type: " + type);
                 }
             }
         }

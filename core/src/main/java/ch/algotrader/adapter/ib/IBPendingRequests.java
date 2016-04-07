@@ -82,4 +82,15 @@ public final class IBPendingRequests {
         return pendingRequest;
     }
 
+    public void failAll(final Exception ex) {
+        for (IBPendingRequest<Bar> pendingRequest: this.historicDataRequestMap.values()) {
+            pendingRequest.fail(ex);
+        }
+        this.historicDataRequestMap.clear();
+        for (IBPendingRequest<ContractDetails> pendingRequest: this.contractRequestMap.values()) {
+            pendingRequest.fail(ex);
+        }
+        this.contractRequestMap.clear();
+    }
+
 }

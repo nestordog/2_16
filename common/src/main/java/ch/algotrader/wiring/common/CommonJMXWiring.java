@@ -20,6 +20,8 @@ package ch.algotrader.wiring.common;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.management.MBeanServer;
+
 import org.springframework.beans.PropertyEditorRegistrar;
 import org.springframework.beans.factory.config.CustomEditorConfigurer;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -27,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
+import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 /**
  * Common framework configuration.
@@ -49,6 +52,15 @@ public class CommonJMXWiring {
     public static AnnotationMBeanExporter createAnnotationMBeanExporter() {
 
         return new AnnotationMBeanExporter();
+    }
+
+    @Bean(name = "mbeanServer")
+    public MBeanServer createMBeanServer() {
+
+        MBeanServerFactoryBean mBeanServerFactoryBean = new MBeanServerFactoryBean();
+        mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
+
+        return mBeanServerFactoryBean.getObject();
     }
 
 }

@@ -23,7 +23,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.tt.TTFixOrderMessageFactory;
 import ch.algotrader.adapter.tt.TTFixOrderStatusRequestFactory;
@@ -56,14 +55,13 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
     public TTFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(orderServiceType, fixAdapter, stateHolder, new TTFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, new TTFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
         this.positionRequestFactory = new TTFixPositionRequestFactory();
         this.orderStatusRequestFactory = new TTFixOrderStatusRequestFactory();
@@ -71,14 +69,13 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
 
     public TTFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.TT_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.TT_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

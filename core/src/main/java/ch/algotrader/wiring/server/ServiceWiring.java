@@ -21,6 +21,7 @@ package ch.algotrader.wiring.server;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import ch.algotrader.config.ConfigParams;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -102,6 +103,8 @@ import ch.algotrader.service.PositionService;
 import ch.algotrader.service.PositionServiceImpl;
 import ch.algotrader.service.PropertyService;
 import ch.algotrader.service.PropertyServiceImpl;
+import ch.algotrader.service.ResetService;
+import ch.algotrader.service.ResetServiceImpl;
 import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
@@ -249,6 +252,7 @@ public class ServiceWiring {
     @Bean(name = "marketDataService")
     public MarketDataService createMarketDataService(final CommonConfig commonConfig,
             final CoreConfig coreConfig,
+            final ConfigParams configParams,
             final SessionFactory sessionFactory,
             final TickDao tickDao,
             final SecurityDao securityDao,
@@ -263,7 +267,7 @@ public class ServiceWiring {
         Map<String, ExternalMarketDataService> serviceMap2 = serviceMap1.values().stream()
                 .collect(Collectors.toMap(ExternalMarketDataService::getFeedType, service -> service));
 
-        return new MarketDataServiceImpl(commonConfig, coreConfig, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
+        return new MarketDataServiceImpl(commonConfig, coreConfig, configParams, sessionFactory, tickDao, securityDao, strategyDao, subscriptionDao, engineManager,
                 eventDispatcher, marketDataCache, serviceMap2);
     }
 
@@ -384,11 +388,13 @@ public class ServiceWiring {
     }
 
     @Bean(name = "marketDataCache")
-    public MarketDataCache createMarketDataCache(final CommonConfig commonConfig,
+    public MarketDataCache createMarketDataCache(
+            final CommonConfig commonConfig,
+            final CoreConfig coreConfig,
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
+        return new MarketDataCacheImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), coreConfig.getIntervalDays());
     }
 
     @Bean(name = "strategyPersistenceService")
@@ -447,6 +453,31 @@ public class ServiceWiring {
             final Engine serverEngine) {
 
         return new H2TransactionPersistenceServiceImpl(commonConfig, portfolioService, sessionFactory, positionDao, transactionDao, cashBalanceDao, serverEngine);
+    }
+
+    @Bean(name = "resetService")
+    public ResetService createResetService(
+            final CoreConfig coreConfig,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final OrderPropertyDao orderPropertyDao,
+            final FutureDao futureDao,
+            final TransactionDao transactionDao,
+            final PositionDao positionDao,
+            final SubscriptionDao subscriptionDao,
+            final OptionDao optionDao,
+            final StrategyDao strategyDao,
+            final CashBalanceDao cashBalanceDao,
+            final CombinationDao combinationDao,
+            final ComponentDao componentDao,
+            final PropertyDao propertyDao,
+            final MeasurementDao measurementDao,
+            final PortfolioValueDao portfolioValueDao,
+            final BarDao barDao,
+            final TickDao tickDao) {
+
+        return new ResetServiceImpl(coreConfig, orderDao, orderStatusDao, orderPropertyDao, futureDao, transactionDao, positionDao, subscriptionDao, optionDao, strategyDao, cashBalanceDao,
+                combinationDao, componentDao, propertyDao, measurementDao, portfolioValueDao, barDao, tickDao);
     }
 
 }

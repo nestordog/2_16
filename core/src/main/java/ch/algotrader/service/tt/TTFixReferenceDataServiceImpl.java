@@ -79,7 +79,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
 
     private static final Logger LOGGER = LogManager.getLogger(TTFixReferenceDataServiceImpl.class);
 
-    private static final DateTimeFormatter E_BRENT_SYMBOL = new DateTimeFormatterBuilder()
+    private static final DateTimeFormatter ICE_IPE_SYMBOL = new DateTimeFormatterBuilder()
             .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
             .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
             .toFormatter(Locale.ROOT);
@@ -127,10 +127,6 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void retrieve(final long securityFamilyId) {
-
-        if (!this.stateHolder.isLoggedOn()) {
-            throw new ServiceException("Fix session is not logged on");
-        }
 
         SecurityFamily securityFamily = this.securityFamilyDao.get(securityFamilyId);
         if (securityFamily == null) {
@@ -197,7 +193,8 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             if (!mapByTtid.containsKey(id)) {
                 OptionType optionType = securityDef.getOptionType();
                 BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
-                        securityDef.getStrikePrice(), securityFamily.getScale(Broker.TT.name())) : null;
+                        securityDef.getStrikePrice() / securityFamily.getPriceMultiplier(Broker.TT.name()),
+                        securityFamily.getScale(Broker.TT.name())) : null;
                 LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
                 String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
 
@@ -226,6 +223,13 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getDescription());
                     }
                     this.optionDao.save(option);
+                } else {
+                    Option option = mapBySymbol.get(symbol);
+                    option.setTtid(id);
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Updating option based on TT definition: {}",securityDef.getSymbol());
+                    }
                 }
             }
         }
@@ -256,13 +260,13 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                 // IPE e-Brent has to be handled as a special case as it happens to have multiple contracts
                 // with the same expiration month
                 String symbol;
-                if ("IPE e-Brent".equalsIgnoreCase(securityFamily.getSymbolRoot()) && securityDef.getAltSymbol() != null) {
+                if ("ICE_IPE".equalsIgnoreCase(securityDef.getExchange()) && securityDef.getAltSymbol() != null) {
                     String altSymbol = securityDef.getAltSymbol();
                     if (altSymbol.startsWith("Q") || altSymbol.startsWith("Cal")) {
                         continue;
                     } else {
                         try {
-                            TemporalAccessor parsed = E_BRENT_SYMBOL.parse(altSymbol);
+                            TemporalAccessor parsed = ICE_IPE_SYMBOL.parse(altSymbol);
                             int year = parsed.get(ChronoField.YEAR);
                             int month = parsed.get(ChronoField.MONTH_OF_YEAR);
                             expiration = LocalDate.of(year, month, 1);
@@ -297,6 +301,14 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getSymbol(), securityDef.getMaturityDate());
                     }
                     this.futureDao.save(future);
+                } else {
+                    Future future = mapBySymbol.get(symbol);
+                    future.setTtid(id);
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Updating future based on TT definition: {} {}",
+                            securityDef.getSymbol(), securityDef.getMaturityDate());
+                    }
                 }
             }
         }

@@ -29,6 +29,7 @@ import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.TransactionService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
+import quickfix.field.CxlRejReason;
 import quickfix.field.ExecTransType;
 import quickfix.field.ExecType;
 import quickfix.field.MsgSeqNum;
@@ -201,30 +202,39 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
     public void onMessage(final OrderCancelReject reject, final SessionID sessionID) throws FieldNotFound {
 
-        if (LOGGER.isErrorEnabled()) {
+        int value =  reject.isSetCxlRejReason() ? reject.getCxlRejReason().getValue() : CxlRejReason.OTHER;
+        String intId = reject.isSetClOrdID() ? reject.getClOrdID().getValue() : null;
+        String originalIntId = reject.isSetOrigClOrdID() ? reject.getOrigClOrdID().getValue() : null;
 
-            StringBuilder buf = new StringBuilder();
-            buf.append("Order cancel/replace has been rejected");
-            String clOrdID = reject.isSetClOrdID() ? reject.getClOrdID().getValue() : null;
-            buf.append(" [order ID: ").append(clOrdID).append("]");
-            String origClOrdID = reject.getOrigClOrdID().getValue();
-            buf.append(" [original order ID: ").append(origClOrdID).append("]");
-            if (reject.isSetField(Text.FIELD)) {
-                String text = reject.getText().getValue();
-                buf.append(": ").append(text);
+        if (value == CxlRejReason.TOO_LATE_TO_CANCEL) {
+            if (LOGGER.isInfoEnabled()) {
+
+                StringBuilder buf = new StringBuilder();
+                buf.append("Order has already been filled");
+                buf.append(" [order intId: ").append(intId).append("]");
+                buf.append(" [original order intId: ").append(originalIntId).append("]");
+                LOGGER.info(buf.toString());
             }
-            LOGGER.error(buf.toString());
-        }
+        } else {
+            if (LOGGER.isErrorEnabled()) {
 
-        if (reject.isSetClOrdID()) {
-            String orderIntId = reject.getClOrdID().getValue();
+                StringBuilder buf = new StringBuilder();
+                buf.append("Order cancel/replace has been rejected");
+                buf.append(" [order IntID: ").append(intId).append("]");
+                buf.append(" [original order IntID: ").append(originalIntId).append("]");
+                if (reject.isSetField(Text.FIELD)) {
+                    String text = reject.getText().getValue();
+                    buf.append(": ").append(text);
+                }
+                LOGGER.error(buf.toString());
+            }
 
-            Order order = this.orderExecutionService.getOpenOrderByIntId(orderIntId);
+            OrderStatus orderStatus = null;
+            Order order = intId != null ? this.orderExecutionService.getOpenOrderByIntId(intId) : null;
             if (order != null) {
-
-                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+                orderStatus = OrderStatus.Factory.newInstance();
                 orderStatus.setStatus(Status.REJECTED);
-                orderStatus.setIntId(orderIntId);
+                orderStatus.setIntId(intId);
                 orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
                 orderStatus.setOrder(order);
                 if (reject.isSetField(TransactTime.FIELD)) {
@@ -235,7 +245,25 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
                     orderStatus.setReason(reject.getText().getValue());
                 }
+            } else {
+                order = originalIntId != null ? this.orderExecutionService.getOpenOrderByIntId(originalIntId) : null;
+                if (order != null) {
+                    orderStatus = OrderStatus.Factory.newInstance();
+                    orderStatus.setStatus(Status.REJECTED);
+                    orderStatus.setIntId(originalIntId);
+                    orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
+                    orderStatus.setOrder(order);
+                    if (reject.isSetField(TransactTime.FIELD)) {
 
+                        orderStatus.setExtDateTime(reject.getTransactTime().getValue());
+                    }
+                    if (reject.isSetField(Text.FIELD)) {
+
+                        orderStatus.setReason(reject.getText().getValue());
+                    }
+                }
+            }
+            if (orderStatus != null) {
                 this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
             }

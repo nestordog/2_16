@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server.adapter;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -53,7 +52,7 @@ public class IBFixWiring {
     }
 
     @Bean(name = "iBAllocationMessageQueue")
-    public BlockingQueue<IBCustomMessage> createIBAllocationMessageQueue() {
+    public LinkedBlockingDeque<IBCustomMessage> createIBAllocationMessageQueue() {
 
         return new LinkedBlockingDeque<>();
     }
@@ -62,7 +61,7 @@ public class IBFixWiring {
     public FixApplicationFactory createIBOrderApplicationFactory(
             final OrderExecutionService orderExecutionService,
             final TransactionService transactionService,
-            final BlockingQueue<IBCustomMessage> iBAllocationMessageQueue,
+            final LinkedBlockingDeque<IBCustomMessage> iBAllocationMessageQueue,
             final Engine serverEngine,
             final ExternalSessionStateHolder iBOrderSessionStateHolder) {
 

@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -49,6 +51,7 @@ import ch.algotrader.enumeration.Duration;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.MarketDataEventType;
 import ch.algotrader.enumeration.TimePeriod;
+import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.HistoricalDataService;
 import ch.algotrader.service.HistoricalDataServiceImpl;
 import ch.algotrader.service.ServiceException;
@@ -97,16 +100,12 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
     }
 
     @Override
-    public List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
+    public synchronized List<Bar> getHistoricalBars(long securityId, Date endDate, int timePeriodLength, TimePeriod timePeriod, Duration barSize, MarketDataEventType marketDataEventType, Map<String, String> properties) {
 
         Validate.notNull(endDate, "End date is null");
         Validate.notNull(timePeriod, "Time period is null");
         Validate.notNull(barSize, "Bar size is null");
         Validate.notNull(marketDataEventType, "Bar type is null");
-
-        if (!this.iBSession.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {
@@ -116,7 +115,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         int scale = security.getSecurityFamily().getScale(Broker.IB.name());
         Contract contract = IBUtil.getContract(security);
         int requestId = (int) this.requestIdGenerator.generateId();
-        String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDate(endDate).atStartOfDay());
+        String dateString = dateTimeFormat.format(DateTimeLegacy.toLocalDateTime(endDate));
 
         String durationString = timePeriodLength + " ";
         switch (timePeriod) {
@@ -200,7 +199,8 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Request historic data; request id = {}; conId = {}", requestId, contract.m_conId);
+            LOGGER.debug("Request historic data; request id = {}; conId = {}; date = {}; duration = {}; bar size = {}",
+                    requestId, contract.m_conId, dateString, durationString, barSizeString);
         }
 
         PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
@@ -230,10 +230,13 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
     private List<Bar> getBarsBlocking(final Promise<List<Bar>> promise) {
         try {
-            return promise.get();
+            int requestTimeout = this.iBConfig.getRequestTimeout();
+            return promise.get(requestTimeout, TimeUnit.SECONDS);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new ServiceException(ex);
+        } catch (TimeoutException ex) {
+            throw new ExternalServiceException("Service request timeout");
         } catch (ExecutionException ex) {
             throw IBNativeSupport.rethrow(ex.getCause());
         }

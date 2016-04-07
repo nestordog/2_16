@@ -99,6 +99,7 @@ public class TestGenericSymbologyResolver {
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
+        future.setRic("COILJ6:VE");
 
         NewOrderSingle message = new NewOrderSingle();
 
@@ -107,7 +108,7 @@ public class TestGenericSymbologyResolver {
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new quickfix.field.Currency("BRL"), message.getCurrency());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test
@@ -183,6 +184,7 @@ public class TestGenericSymbologyResolver {
 
         Future future = new FutureImpl();
         future.setSymbol("SOME_STUFF");
+        future.setRic("COILJ6:VE");
         future.setSecurityFamily(family);
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
 
@@ -191,7 +193,7 @@ public class TestGenericSymbologyResolver {
         this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test
@@ -266,6 +268,7 @@ public class TestGenericSymbologyResolver {
         future.setSymbol("SOME_STUFF");
         future.setSecurityFamily(family);
         future.setExpiration(DateTimeLegacy.parseAsDateGMT("2014-12-31"));
+        future.setRic("COILJ6:VE");
 
         OrderCancelRequest message = new OrderCancelRequest();
 
@@ -273,7 +276,7 @@ public class TestGenericSymbologyResolver {
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
     }
 
     @Test

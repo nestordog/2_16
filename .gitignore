@@ -16,3 +16,4 @@ core/src/main/resources/fix.cfg
 test/src/main/resources/fix.cfg
 tmp
 *.bak
+.DS_Store

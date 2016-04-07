@@ -93,10 +93,6 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
 
         Validate.notNull(security, "Security is null");
 
-        if (!this.stateHolder.isLoggedOn()) {
-            throw new ServiceException("Fix session is not logged on");
-        }
-
         // create the SubscribeTickEvent and propagate it
         String tickerId = getTickerId(security);
         SubscribeTickVO subscribeTickEvent = new SubscribeTickVO(tickerId, security.getId(), getFeedType());
@@ -117,7 +113,7 @@ public abstract class FixMarketDataServiceImpl implements FixMarketDataService, 
         Validate.notNull(security, "Security is null");
 
         if (!this.stateHolder.isSubscribed()) {
-            throw new ServiceException("Fix session is not subscribed");
+            throw new ServiceException("Fix session ist not subscribed, security cannot be unsubscribed " + security);
         }
 
         sendUnsubscribeRequest(security);

@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.fxcm;
 
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fxcm.FXCMFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -41,27 +40,25 @@ public class FXCMFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     public FXCMFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(orderServiceType, fixAdapter, stateHolder, new FXCMFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, new FXCMFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public FXCMFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.FXCM_FIX.name(), fixAdapter, stateHolder,
+        this(OrderServiceType.FXCM_FIX.name(), fixAdapter,
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 

@@ -36,9 +36,14 @@ public class OptionImpl extends Option {
     @Override
     public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {
 
-        Validate.notNull(marketDataEvent, "MarketDataEvent is null");
-        Validate.notNull(underlyingMarketDataEvent, "Underlying MarketDataEvent is null");
         Validate.notNull(currentTime, "Current time is null");
+
+        if (marketDataEvent == null) {
+            throw new LeverageCalculationException(getSymbol() + " market data not available");
+        }
+        if (underlyingMarketDataEvent == null) {
+            throw new LeverageCalculationException(getSymbol() + " underlying market data not available");
+        }
 
         double currentValue = marketDataEvent.getCurrentValueDouble();
         double underlyingCurrentValue = marketDataEvent.getCurrentValueDouble();
@@ -47,7 +52,7 @@ public class OptionImpl extends Option {
             double delta = OptionUtil.getDelta(this, currentValue, underlyingCurrentValue, currentTime);
             return underlyingCurrentValue / currentValue * delta;
         } catch (MathException e) {
-            throw new RuntimeException(e);
+            throw new LeverageCalculationException(getSymbol() + ": " + e.getMessage(), e);
         }
     }
 

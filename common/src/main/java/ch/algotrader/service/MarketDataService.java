@@ -98,4 +98,9 @@ public interface MarketDataService {
      */
     boolean isTickValid(TickVO tick);
 
+    /**
+     * Normalise the tick value according to broker params multiplier if normaliseMarketData is enabled
+     */
+    TickVO normaliseTick(TickVO tick);
+
 }

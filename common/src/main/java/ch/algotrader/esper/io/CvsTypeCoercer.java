@@ -17,12 +17,16 @@
  ***********************************************************************************/
 package ch.algotrader.esper.io;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.espertech.esperio.csv.BasicTypeCoercer;
+
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimeUtil;
 
 /**
  */
@@ -51,7 +55,17 @@ public class CvsTypeCoercer extends BasicTypeCoercer {
     @Override
     public Object coerce(final String property, final String source) throws Exception {
         if (this.dateProperties.contains(property)) {
-            return !source.isEmpty() ? new Date(Long.parseLong(source)) : new Date();
+            if (source == null || source.isEmpty()) {
+                return new Date();
+            } else {
+                try {
+                    long timestamp = Long.parseLong(source);
+                    return new Date(timestamp);
+                } catch (NumberFormatException ex) {
+                    LocalDateTime localDateTime = DateTimeUtil.parseLocalDateTime(source);
+                    return DateTimeLegacy.toLocalDateTime(localDateTime);
+                }
+            }
         }
         return super.coerce(property, source);
     }

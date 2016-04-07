@@ -17,15 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.wiring.server;
 
-import javax.management.MBeanServer;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.jmx.support.MBeanServerFactoryBean;
 
 import ch.algotrader.cache.CacheManagerImpl;
-import ch.algotrader.cache.CacheManagerMBean;
+import ch.algotrader.cache.CoreCacheManagerMBean;
 
 /**
  * Core JMX configuration.
@@ -34,19 +31,10 @@ import ch.algotrader.cache.CacheManagerMBean;
 @Configuration
 public class CoreJMXWiring {
 
-    @Bean(name = "mbeanServer")
-    public MBeanServer createMBeanServer() {
-
-        MBeanServerFactoryBean mBeanServerFactoryBean = new MBeanServerFactoryBean();
-        mBeanServerFactoryBean.setLocateExistingServerIfPossible(true);
-
-        return mBeanServerFactoryBean.getObject();
-    }
-
     @Bean(name = "cacheManagerMBean")
-    public CacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
+    public CoreCacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
 
-        return new CacheManagerMBean(cacheManager);
+        return new CoreCacheManagerMBean(cacheManager);
     }
 
 }

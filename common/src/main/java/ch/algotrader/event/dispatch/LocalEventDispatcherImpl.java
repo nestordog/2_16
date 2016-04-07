@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.entity.marketData.MarketDataEventVO;
+import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventBroadcaster;
@@ -63,23 +64,24 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     @Override
     public void broadcastLocalStrategies(final Object event) {
 
+        broadcastLocalEventListeners(event);
+
         for (Engine engine : this.engineManager.getStrategyEngines()) {
 
             engine.sendEvent(event);
         }
-
-        broadcastLocalEventListeners(event);
     }
 
     @Override
     public void broadcastLocal(final Object event) {
+
+        broadcastLocalEventListeners(event);
 
         for (Engine engine : this.engineManager.getEngines()) {
 
             engine.sendEvent(event);
         }
 
-        broadcastLocalEventListeners(event);
     }
 
     @Override
@@ -146,24 +148,28 @@ public class LocalEventDispatcherImpl implements EventDispatcher {
     @Override
     public void sendMarketDataEvent(final MarketDataEventVO marketDataEvent) {
 
+        this.localEventBroadcaster.broadcast(marketDataEvent);
         Set<String> strategySet = this.marketDataSubscriptionMap.get(marketDataEvent.getSecurityId());
         if (strategySet != null && !strategySet.isEmpty()) {
             for (String strategyName: strategySet) {
-                final Engine engine = this.engineManager.lookup(strategyName);
-                if (engine != null) {
-                    engine.sendEvent(marketDataEvent);
+                // Do not propagate market data to the SERVER
+                if (!strategyName.equalsIgnoreCase(StrategyImpl.SERVER)) {
+                    final Engine engine = this.engineManager.lookup(strategyName);
+                    if (engine != null) {
+                        engine.sendEvent(marketDataEvent);
+                    }
                 }
             }
         }
-        this.localEventBroadcaster.broadcast(marketDataEvent);//TODO should engines receive the event first or the local VM ?
     }
 
     @Override
-    public void sendEvent(final String engineName, final Object obj) {
+    public void sendEvent(final String engineName, final Object event) {
         // check if it is a local engine
+        this.localEventBroadcaster.broadcast(event);
         final Engine engine = this.engineManager.lookup(engineName);
         if (engine != null) {
-            engine.sendEvent(obj);
+            engine.sendEvent(event);
         }
     }
 

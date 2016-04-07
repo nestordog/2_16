@@ -9,6 +9,11 @@
             <PatternLayout pattern="%d %-5p [%t] [%c{1}] %m %n"/>
             <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
         </Console>
+        <!--
+        <File name="EventTrace" fileName="log/event-trace.log">
+            <PatternLayout pattern="%d %-5p [%c] %m %n"/>
+        </File>
+        -->
     </Appenders>
     <Loggers>
         <Root level="debug">
@@ -40,5 +45,15 @@
         <logger name="com.mchange.v2" level="warn" />
         <logger name="quickfix" level="warn" />
         <logger name="com.jcraft.jsch" level="warn" />
+
+        <!--
+        <logger name="ch.algotrader.event.dispatch.mq.EVENTS" level="trace" additivity="false">
+            <AppenderRef ref="EventTrace" level="trace"/>
+        </logger>
+        <logger name="ch.algotrader.event.dispatch.mq.MARKET_DATA" level="trace" additivity="false">
+            <AppenderRef ref="EventTrace" level="trace"/>
+        </logger>
+        -->
+
     </Loggers>
 </Configuration>

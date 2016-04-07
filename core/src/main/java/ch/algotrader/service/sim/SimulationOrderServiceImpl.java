@@ -98,7 +98,22 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
 
         Date d = this.engineManager.getCurrentEPTime();
 
-        // create and OrderStatus
+        // send ack
+        OrderStatus ack = OrderStatus.Factory.newInstance();
+        ack.setStatus(Status.SUBMITTED);
+        ack.setIntId(order.getIntId());
+        ack.setFilledQuantity(0);
+        ack.setRemainingQuantity(order.getQuantity());
+        ack.setExtDateTime(d);
+        ack.setDateTime(d);
+        ack.setOrder(order);
+        ack.setSequenceNumber(this.seqnum.incrementAndGet());
+
+        // send the orderStatus to the AlgoTrader Server
+        this.serverEngine.sendEvent(ack);
+        this.orderExecutionService.handleOrderStatus(ack);
+
+        // send full execution
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setIntId(order.getIntId());

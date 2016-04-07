@@ -34,6 +34,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
+import ch.algotrader.vo.marketData.TradeVO;
 import quickfix.ConfigError;
 import quickfix.DataDictionary;
 import quickfix.fix42.MarketDataRequestReject;
@@ -71,9 +72,8 @@ public class TestTTFixMarketDataMessageHandler {
     @Test
     public void testMarketDataFullRefresh() throws Exception {
 
-        String s = "8=FIX.4.2|9=00202|35=W|49=TTDEV14P|56=RATKODTS2|34=2|52=20150930-12:27:39.456|55=CL|48=00A0KP00CLZ|" +
-                "10455=CLX5|167=FUT|207=CME|15=USD|262=1|200=201511|387=4485|268=2|269=0|290=1|270=4520|271=3|269=1|" +
-                "290=1|270=4521|271=14|10=233|";
+        String s = "8=FIX.4.2|9=00223|35=W|49=TTDEV14P|56=RATKODTS2|34=20|52=20160122-18:05:38.500|55=CL|48=00A0FQ00CLZ|10455=CLM6|167=FUT|" +
+                "207=CME|15=USD|262=1|200=201606|387=753|268=3|269=0|290=1|270=3273|271=1|269=1|290=1|270=3307|271=94|269=2|270=3307|271=3|10=154|";
         MarketDataSnapshotFullRefresh fullRefresh = FixTestUtils.parseFix42Message(s, DATA_DICTIONARY, MarketDataSnapshotFullRefresh.class);
         Assert.assertNotNull(fullRefresh);
 
@@ -84,24 +84,33 @@ public class TestTTFixMarketDataMessageHandler {
 
         List<Object> events = argCaptor1.getAllValues();
         Assert.assertNotNull(events);
-        Assert.assertEquals(2, events.size());
+        Assert.assertEquals(3, events.size());
 
         Object event1 = events.get(0);
         Assert.assertTrue(event1 instanceof BidVO);
         BidVO bid = (BidVO) event1;
         Assert.assertEquals("1", bid.getTickerId());
-        Assert.assertEquals(new BigDecimal("4520.00000"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
-        Assert.assertEquals(3, bid.getVolBid());
-        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-09-30 12:27:39.456"), bid.getDateTime());
+        Assert.assertEquals(new BigDecimal("3273.00000"), new BigDecimal(bid.getBid()).setScale(5, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(1, bid.getVolBid());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2016-01-22 18:05:38.500"), bid.getDateTime());
 
         Object event2 = events.get(1);
         Assert.assertTrue(event2 instanceof AskVO);
 
         AskVO ask = (AskVO) event2;
         Assert.assertEquals("1", ask.getTickerId());
-        Assert.assertEquals(new BigDecimal("4521.00000"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
-        Assert.assertEquals(14, ask.getVolAsk());
-        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-09-30 12:27:39.456"), ask.getDateTime());
+        Assert.assertEquals(new BigDecimal("3307.00000"), new BigDecimal(ask.getAsk()).setScale(5, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(94, ask.getVolAsk());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2016-01-22 18:05:38.500"), ask.getDateTime());
+
+        Object event3 = events.get(2);
+        Assert.assertTrue(event3 instanceof TradeVO);
+
+        TradeVO trade = (TradeVO) event3;
+        Assert.assertEquals("1", trade.getTickerId());
+        Assert.assertEquals(new BigDecimal("3307.00000"), new BigDecimal(trade.getLast()).setScale(5, RoundingMode.HALF_EVEN));
+        Assert.assertEquals(3, trade.getVol());
+        Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2016-01-22 18:05:38.500"), trade.getLastDateTime());
     }
 
     @Test

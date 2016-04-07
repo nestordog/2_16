@@ -58,7 +58,7 @@ public class ClientServicesWiring {
             final EngineManager engineManager,
             final LookupService lookupService) {
 
-        return new MarketDataCacheImpl(commonConfig, engineManager, lookupService);
+        return new MarketDataCacheImpl(engineManager, lookupService, commonConfig.getPortfolioBaseCurrency(), 1);
     }
 
     @Bean(name = "lifecycleManager")

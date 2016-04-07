@@ -52,23 +52,23 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
 
     public IBNativeMarketDataServiceImpl(
             final IBSession iBSession,
+            final IBConfig iBConfig,
             final IBSessionStateHolder sessionStateHolder,
             final IdGenerator requestIdGenerator,
-            final IBConfig iBConfig,
             final Engine serverEngine) {
 
         super(serverEngine);
 
         Validate.notNull(iBSession, "IBSession is null");
+        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(sessionStateHolder, "IBSessionStateHolder is null");
         Validate.notNull(requestIdGenerator, "IdGenerator is null");
-        Validate.notNull(iBConfig, "IBConfig is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.iBSession = iBSession;
+        this.iBConfig = iBConfig;
         this.sessionStateHolder = sessionStateHolder;
         this.requestIdGenerator = requestIdGenerator;
-        this.iBConfig = iBConfig;
     }
 
     @Override
@@ -81,10 +81,6 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
     public void subscribe(Security security) {
 
         Validate.notNull(security, "Security is null");
-
-        if (!this.sessionStateHolder.isLoggedOn()) {
-            throw new ServiceException("IB session is not logged on");
-        }
 
         // create the SubscribeTickEvent (must happen before reqMktData so that Esper is ready to receive marketdata)
         int tickerId = (int) this.requestIdGenerator.generateId();
@@ -110,13 +106,13 @@ public class IBNativeMarketDataServiceImpl extends NativeMarketDataServiceImpl i
             throw new ServiceException("IB ist not subscribed, security cannot be unsubscribed " + security);
         }
 
-        String tickerId = esperUnsubscribe(security);
+        esperUnsubscribe(security).ifPresent(tickerId -> {
+            this.iBSession.cancelMktData(Integer.parseInt(tickerId));
 
-        this.iBSession.cancelMktData(Integer.parseInt(tickerId));
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("cancelled market data for : {}", security);
-        }
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("cancelled market data for : {}", security);
+            }
+        });
 
     }
 

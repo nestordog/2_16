@@ -17,14 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.cache;
 
-import java.io.Serializable;
-
 /**
  * Notifies that a particular key (e.g. ROOT or collection) of the specified entityClass  and id has been modified.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class EntityCacheEvictionEventVO implements Serializable {
+public class EntityCacheEvictionEventVO extends CacheEvictionEventVO {
 
     private static final long serialVersionUID = -9201194174175757269L;
 

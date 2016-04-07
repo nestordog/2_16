@@ -100,6 +100,21 @@ public interface OrderRegistry {
     List<Order> getOpenOrdersByParentIntId(String parentIntId);
 
     /**
+     * Returns open orders for the given strategy.
+     */
+    List<Order> getOpenOrdersByStrategy(long strategyId);
+
+    /**
+     * Returns open orders for the given security.
+     */
+    List<Order> getOpenOrdersBySecurity(long securityId);
+
+    /**
+     * Returns open orders for the given strategy and security.
+     */
+    List<Order> getOpenOrdersByStrategyAndSecurity(long strategyId, long securityId);
+
+    /**
      * Returns next revision {@code IntId} based on the specified {@code IntId}.
      */
     String getNextOrderIdRevision(String intId);

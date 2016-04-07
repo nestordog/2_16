@@ -45,14 +45,13 @@ public class FTXFixServiceWiring {
     @Bean(name = "fTXFixOrderService")
     public ExternalOrderService createFTXFixOrderService(
             final ManagedFixAdapter fixAdapter,
-            final ExternalSessionStateHolder fTXOrderSessionStateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        return new FTXFixOrderServiceImpl(fixAdapter, fTXOrderSessionStateHolder, orderRegistry, orderPersistenceService,
+        return new FTXFixOrderServiceImpl(fixAdapter, orderRegistry, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

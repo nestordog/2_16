@@ -23,24 +23,6 @@ import org.springframework.context.annotation.Profile;
 
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.CoreConfig;
-import ch.algotrader.dao.PositionDao;
-import ch.algotrader.dao.SubscriptionDao;
-import ch.algotrader.dao.TransactionDao;
-import ch.algotrader.dao.marketData.BarDao;
-import ch.algotrader.dao.marketData.TickDao;
-import ch.algotrader.dao.property.PropertyDao;
-import ch.algotrader.dao.security.CombinationDao;
-import ch.algotrader.dao.security.ComponentDao;
-import ch.algotrader.dao.security.FutureDao;
-import ch.algotrader.dao.security.OptionDao;
-import ch.algotrader.dao.strategy.CashBalanceDao;
-import ch.algotrader.dao.strategy.MeasurementDao;
-import ch.algotrader.dao.strategy.PortfolioValueDao;
-import ch.algotrader.dao.strategy.StrategyDao;
-import ch.algotrader.dao.trade.OrderDao;
-import ch.algotrader.dao.trade.OrderPropertyDao;
-import ch.algotrader.dao.trade.OrderStatusDao;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.EventListenerRegistry;
@@ -52,7 +34,6 @@ import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
-import ch.algotrader.service.ResetServiceImpl;
 import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
@@ -98,30 +79,6 @@ public class SimulationWiring {
             final Engine serverEngine) {
 
         return new SimulationOrderServiceImpl(orderRegistry, orderExecutionService, transactionService, marketDataCache, engineManager, serverEngine);
-    }
-
-    @Bean(name = "resetService")
-    public ResetService createResetService(final CoreConfig coreConfig,
-            final OrderDao orderDao,
-            final OrderStatusDao orderStatusDao,
-            final OrderPropertyDao orderPropertyDao,
-            final FutureDao futureDao,
-            final TransactionDao transactionDao,
-            final PositionDao positionDao,
-            final SubscriptionDao subscriptionDao,
-            final OptionDao optionDao,
-            final StrategyDao strategyDao,
-            final CashBalanceDao cashBalanceDao,
-            final CombinationDao combinationDao,
-            final ComponentDao componentDao,
-            final PropertyDao propertyDao,
-            final MeasurementDao measurementDao,
-            final PortfolioValueDao portfolioValueDao,
-            final BarDao barDao,
-            final TickDao tickDao) {
-
-        return new ResetServiceImpl(coreConfig, orderDao, orderStatusDao, orderPropertyDao, futureDao, transactionDao, positionDao, subscriptionDao, optionDao, strategyDao, cashBalanceDao,
-                combinationDao, componentDao, propertyDao, measurementDao, portfolioValueDao, barDao, tickDao);
     }
 
 }

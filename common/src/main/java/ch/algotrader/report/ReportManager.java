@@ -19,24 +19,34 @@
 package ch.algotrader.report;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class ReportManager {
 
-    private static final List<Report> reports = new ArrayList<>();
+    private static final Logger LOGGER = LogManager.getLogger(ReportManager.class);
+
+    private static final Deque<Report> REPORTS = new ConcurrentLinkedDeque<>();
 
     public static void registerReport(Report report) {
-        reports.add(report);
+        REPORTS.add(report);
     }
 
-    public static void closeAll() throws IOException {
+    public static void closeAll() {
 
-        for (Report report : reports) {
-            report.close();
+        while (!REPORTS.isEmpty()) {
+            Report report = REPORTS.remove();
+            try {
+                report.close();
+            } catch (IOException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
         }
     }
 }

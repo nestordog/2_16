@@ -31,14 +31,15 @@ import ch.algotrader.enumeration.Currency;
 public interface ForexDao extends ReadWriteDao<Forex> {
 
     /**
-     * Gets the historical Exchange Rate between the {@code baseCurrency} and {@code
-     * transactionCurrency} on the specified {@code date}
+     * Gets the historical exchange rate between the {@code baseCurrency} and {@code
+     * transactionCurrency} on the specified {@code date} or {@code null} if
+     * exchange rate is unavailable.
      * @param baseCurrency
      * @param transactionCurrency
      * @param date
      * @return double
      */
-    double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date);
+    Double getRateDoubleByDate(Currency baseCurrency, Currency transactionCurrency, Date date);
 
     /**
      * Gets the Forex defined by the {@code baseCurrency} and {@code transactionCurrency}. If the

@@ -59,6 +59,7 @@
     <auto-import import-name="java.util.*"/>
 
     <plugin-aggregation-function name="talib" factory-class="ch.algotrader.esper.aggregation.GenericTALibFunctionFactory"/>
+    <plugin-aggregation-function name="ema" factory-class="ch.algotrader.esper.aggregation.ExponentialMovingAverageFunctionFactory"/>
 	<plugin-view namespace="stat" name="geom" factory-class="ch.algotrader.esper.view.stat.GeometricalAverageViewFactory" />
 	 
     <!-- Constants -->

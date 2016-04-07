@@ -19,7 +19,6 @@ package ch.algotrader.service.dc;
 
 import org.apache.commons.lang.Validate;
 
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageFactory;
 import ch.algotrader.adapter.fix.fix44.GenericFix44SymbologyResolver;
@@ -59,28 +58,26 @@ public class DCFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix4
     public DCFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(orderServiceType, fixAdapter, stateHolder,
+        super(orderServiceType, fixAdapter,
                 new GenericFix44OrderMessageFactory(new GenericFix44SymbologyResolver()),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public DCFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.DC_FIX.name(), fixAdapter, stateHolder, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.DC_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

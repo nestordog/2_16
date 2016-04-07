@@ -33,18 +33,18 @@ import org.supercsv.prefs.CsvPreference;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class MapReporter implements Report {
+public class MapReporter extends Report {
 
     private final String[] header;
     private final CellProcessor[] processor;
     private final CsvMapWriter writer;
 
-    public MapReporter(File file, String[] header) throws IOException {
+    public MapReporter(File file, String[] header) {
 
         this(file, header, null);
     }
 
-    public MapReporter(File file, String[] header, CellProcessor[] processor) {
+    protected MapReporter(File file, String[] header, CellProcessor[] processor) {
 
         try {
             File parent = file.getParentFile();
@@ -65,16 +65,6 @@ public class MapReporter implements Report {
         }
     }
 
-    public MapReporter(String fileName, String[] header) {
-
-        this(fileName, header, null);
-    }
-
-    public MapReporter(String fileName, String[] header, CellProcessor[] processor) {
-
-        this(new File("files" + File.separator + "report" + File.separator + fileName + ".csv"), header, processor);
-    }
-
     public void write(Map<String, ?> row) {
 
         try {
@@ -88,7 +78,7 @@ public class MapReporter implements Report {
         }
     }
 
-    public void writeAndFlus(Map<String, ?> row) {
+    public void writeAndFlush(Map<String, ?> row) {
 
         try {
             if (this.processor != null) {

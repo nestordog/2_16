@@ -103,7 +103,7 @@ public final class DateTimePatterns {
                 .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
                 .appendLiteral('/')
                 .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
-                .toFormatter(Locale.ROOT);
+                .toFormatter(Locale.ENGLISH);
     }
 
     /**
@@ -136,7 +136,7 @@ public final class DateTimePatterns {
     static {
         MONTH_LONG = new DateTimeFormatterBuilder()
                 .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
-                .toFormatter(Locale.ROOT);
+                .toFormatter(Locale.ENGLISH);
     }
 
     /**
@@ -159,6 +159,19 @@ public final class DateTimePatterns {
                 .appendValue(ChronoField.ALIGNED_WEEK_OF_MONTH)
                 .toFormatter(Locale.ROOT);
 
+    }
+
+    public final static DateTimeFormatter FILE_TIMESTAMP;
+    static {
+        FILE_TIMESTAMP = new DateTimeFormatterBuilder()
+                .appendValue(ChronoField.YEAR, 4)
+                .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                .appendLiteral("-")
+                .appendValue(ChronoField.HOUR_OF_DAY, 2)
+                .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+                .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+                .toFormatter(Locale.ROOT);
     }
 
 }

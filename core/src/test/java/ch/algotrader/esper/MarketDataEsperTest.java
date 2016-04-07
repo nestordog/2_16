@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.espertech.esper.client.Configuration;
@@ -50,6 +51,7 @@ import ch.algotrader.vo.marketData.BidVO;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 import ch.algotrader.vo.marketData.TradeVO;
 import ch.algotrader.vo.marketData.TradingHaltVO;
+import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MarketDataEsperTest extends EsperTestBase {
@@ -151,6 +153,8 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
+        Mockito.when(this.marketDataService.normaliseTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
+
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         this.epRuntime.sendEvent(subscribeEvent1);
@@ -286,6 +290,7 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
+        Mockito.when(this.marketDataService.normaliseTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         this.epRuntime.sendEvent(subscribeEvent1);

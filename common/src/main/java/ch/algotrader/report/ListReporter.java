@@ -28,25 +28,22 @@ import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigLocator;
-
 /**
  * SuperCSV Writer that writes Maps to the specified CSV-File.
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class ListReporter implements Report {
+public class ListReporter extends Report {
 
     private final CellProcessor[] processor;
     private final CsvListWriter writer;
 
-    public ListReporter(File file, String[] header) throws IOException {
+    public ListReporter(File file, String[] header) {
 
         this(file, header, null);
     }
 
-    public ListReporter(File file, String[] header, CellProcessor[] processor) {
+    protected ListReporter(File file, String[] header, CellProcessor[] processor) {
 
         try {
             File parent = file.getParentFile();
@@ -66,21 +63,6 @@ public class ListReporter implements Report {
         }
     }
 
-    public ListReporter(String fileName, String[] header) {
-
-        this(fileName, header, null);
-    }
-
-    public ListReporter(String fileName, String[] header, CellProcessor[] processor) {
-
-        this(new File(getReportLocation(), fileName + ".csv"), header, processor);
-    }
-
-    private static File getReportLocation() {
-        final CommonConfig config = ConfigLocator.instance().getCommonConfig();
-        return config.getReportLocation();
-    }
-
     public void write(List<?> row) {
 
         try {
@@ -94,7 +76,7 @@ public class ListReporter implements Report {
         }
     }
 
-    public void writeAndFlus(List<?> row) {
+    public void writeAndFlush(List<?> row) {
 
         try {
             if (this.processor != null) {

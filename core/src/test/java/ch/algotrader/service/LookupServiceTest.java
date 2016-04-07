@@ -37,9 +37,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.io.ByteArrayResource;
@@ -135,8 +133,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     private static TransactionTemplate txTemplate;
 
     protected Session session;
-
-    @Rule public ExpectedException exception = ExpectedException.none();
 
     public LookupServiceTest() throws IOException {
 
@@ -2684,7 +2680,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertSame(family, forex3.getSecurityFamily());
     }
 
-    @Test
+    @Test(expected = ForexAvailabilityException.class)
     public void testGetForexException1() {
     
         SecurityFamily family = new SecurityFamilyImpl();
@@ -2700,18 +2696,16 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        this.exception.expect(IllegalStateException.class);
-    
-        lookupService.getForex(Currency.AUD, Currency.INR);
+        lookupService.getForexRateByDate(Currency.AUD, Currency.INR, new Date());
     }
 
-    @Test
+    @Test(expected = ForexAvailabilityException.class)
     public void testGetForexException2() {
     
         SecurityFamily family = new SecurityFamilyImpl();
         family.setName("Forex1");
         family.setTickSizePattern("0<0.1");
-        family.setCurrency(Currency.INR);
+        family.setCurrency(Currency.AUD);
     
         this.session.save(family);
         this.session.flush();
@@ -2723,9 +2717,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.flush();
     
-        this.exception.expect(IllegalStateException.class);
-    
-        lookupService.getForex(Currency.USD, Currency.AUD);
+        lookupService.getForexRateByDate(Currency.USD, Currency.AUD, new Date());
     }
 
     @Test

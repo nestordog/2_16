@@ -42,6 +42,7 @@ import ch.algotrader.esper.Engine;
 import ch.algotrader.event.dispatch.EventDispatcher;
 import ch.algotrader.vo.marketData.AskVO;
 import ch.algotrader.vo.marketData.BidVO;
+import ch.algotrader.vo.marketData.TradeVO;
 import quickfix.SessionID;
 import quickfix.SessionSettings;
 import quickfix.field.AggregatedBook;
@@ -117,7 +118,7 @@ public class TTFixFeedMessageHandlerTest extends FixApplicationTestBase {
         Future future = Future.Factory.newInstance();
         future.setId(1L);
         future.setSymbol("CL JUN/16");
-        future.setTtid("00A0KP00CLZ");
+        future.setTtid("00A0FQ00CLZ");
         future.setSecurityFamily(futureFamily);
 
         TTFixMarketDataRequestFactory requestFactory = new TTFixMarketDataRequestFactory(new DefaultFixTicketIdGenerator());
@@ -125,7 +126,7 @@ public class TTFixFeedMessageHandlerTest extends FixApplicationTestBase {
 
         this.session.send(marketDataRequest);
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
 
             Object event = this.eventQueue.poll(30, TimeUnit.SECONDS);
             if (event == null) {
@@ -138,6 +139,9 @@ public class TTFixFeedMessageHandlerTest extends FixApplicationTestBase {
             } else if (event instanceof AskVO) {
                 AskVO ask = (AskVO) event;
                 Assert.assertEquals("1", ask.getTickerId());
+            } else if (event instanceof TradeVO) {
+                TradeVO trade = (TradeVO) event;
+                Assert.assertEquals("1", trade.getTickerId());
             } else {
                 Assert.fail("Unexpected event type: " + event.getClass());
             }

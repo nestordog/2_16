@@ -17,12 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.ordermgmt;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.algotrader.entity.security.Forex;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
@@ -215,5 +218,48 @@ public class DefaultOrderRegistryTest {
         this.impl.updateExecutionStatus("Blah", "---", Status.PARTIALLY_EXECUTED, 23L, 100L);
         Assert.assertEquals("Blah", this.impl.lookupIntId("Blah-Ext"));
     }
+
+    @Test
+    public void testGetOpenOrdersByCriteria() {
+
+        Strategy strategy1 = Strategy.Factory.newInstance();
+        strategy1.setId(1);
+        Strategy strategy2 = Strategy.Factory.newInstance();
+        strategy2.setId(2);
+        Forex forex1 = Forex.Factory.newInstance();
+        forex1.setId(3);
+        Forex forex2 = Forex.Factory.newInstance();
+        forex2.setId(4);
+        Forex forex3 = Forex.Factory.newInstance();
+        forex3.setId(5);
+
+        Order order1 = MarketOrder.Factory.newInstance();
+        order1.setIntId("1");
+        order1.setQuantity(123L);
+        order1.setSecurity(forex1);
+        order1.setStrategy(strategy1);
+
+        Order order2 = MarketOrder.Factory.newInstance();
+        order2.setIntId("2");
+        order2.setQuantity(123L);
+        order2.setSecurity(forex2);
+        order2.setStrategy(strategy2);
+
+        Order order3 = MarketOrder.Factory.newInstance();
+        order3.setIntId("3");
+        order3.setQuantity(123L);
+        order3.setSecurity(forex3);
+        order3.setStrategy(strategy2);
+
+        this.impl.add(order1);
+        this.impl.add(order2);
+        this.impl.add(order3);
+
+        Assert.assertEquals(Arrays.asList(order1), this.impl.getOpenOrdersByStrategy(1));
+        Assert.assertEquals(Arrays.asList(order2), this.impl.getOpenOrdersBySecurity(4));
+        Assert.assertEquals(Arrays.asList(order2, order3), this.impl.getOpenOrdersByStrategy(2));
+        Assert.assertEquals(Arrays.asList(order3), this.impl.getOpenOrdersByStrategyAndSecurity(2, 5));
+    }
+
 
 }

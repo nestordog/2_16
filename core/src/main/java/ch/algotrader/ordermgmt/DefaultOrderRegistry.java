@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
@@ -167,6 +169,43 @@ public class DefaultOrderRegistry implements OrderRegistry {
                 .filter(entry -> {
                     Order order = entry.getOrder();
                     return !order.isAlgoOrder() && order.getParentOrder() != null && order.getParentOrder().getIntId().equals(parentIntId);
+                })
+                .map(OrderDetailsVO::getOrder)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Order> getOpenOrdersByStrategy(final long strategyId) {
+        return this.orderExecMap.values().stream()
+                .filter(entry -> {
+                    Order order = entry.getOrder();
+                    Strategy strategy = order.getStrategy();
+                    return strategy != null && strategy.getId() == strategyId;
+                })
+                .map(OrderDetailsVO::getOrder)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Order> getOpenOrdersBySecurity(long securityId) {
+        return this.orderExecMap.values().stream()
+                .filter(entry -> {
+                    Order order = entry.getOrder();
+                    Security security = order.getSecurity();
+                    return security != null && security.getId() == securityId;
+                })
+                .map(OrderDetailsVO::getOrder)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Order> getOpenOrdersByStrategyAndSecurity(long strategyId, long securityId) {
+        return this.orderExecMap.values().stream()
+                .filter(entry -> {
+                    Order order = entry.getOrder();
+                    Strategy strategy = order.getStrategy();
+                    Security security = order.getSecurity();
+                    return strategy != null && strategy.getId() == strategyId && security != null && security.getId() == securityId;
                 })
                 .map(OrderDetailsVO::getOrder)
                 .collect(Collectors.toList());

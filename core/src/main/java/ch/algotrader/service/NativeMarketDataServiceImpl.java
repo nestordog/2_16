@@ -23,6 +23,8 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.vo.marketData.SubscribeTickVO;
 
+import java.util.Optional;
+
 /**
  * Common functionality for native {@link ExternalMarketDataService} implementations.
  *
@@ -46,17 +48,18 @@ public abstract class NativeMarketDataServiceImpl implements ExternalMarketDataS
         this.serverEngine.sendEvent(subscribeTickEvent);
     }
 
-    protected final String esperUnsubscribe(Security security) {
+    protected final Optional<String> esperUnsubscribe(Security security) {
 
         String tickerId = (String) this.serverEngine.executeSingelObjectQuery(
                 "select tickerId from TickWindow where securityId = " + security.getId(),
                 "tickerId");
-        if (tickerId == null) {
-            throw new ServiceException("tickerId for security " + security + " was not found");
+        if (tickerId != null) {
+            this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
+            return Optional.of(tickerId);
+        } else {
+            return Optional.empty();
         }
 
-        this.serverEngine.executeQuery("delete from TickWindow where securityId = " + security.getId());
-        return tickerId;
     }
 
 }

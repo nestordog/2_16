@@ -17,7 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service.ftx;
 
-import ch.algotrader.adapter.ExternalSessionStateHolder;
 import ch.algotrader.adapter.fix.FixAdapter;
 import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
@@ -47,28 +46,26 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     public FTXFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        super(orderServiceType, fixAdapter, stateHolder, new FTXFixOrderMessageFactory(),
+        super(orderServiceType, fixAdapter, new FTXFixOrderMessageFactory(),
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
         this.orderRegistry = orderRegistry;
     }
 
     public FTXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final ExternalSessionStateHolder stateHolder,
             final OrderRegistry orderRegistry,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.FTX_FIX.name(), fixAdapter, stateHolder,
+        this(OrderServiceType.FTX_FIX.name(), fixAdapter,
                 orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 

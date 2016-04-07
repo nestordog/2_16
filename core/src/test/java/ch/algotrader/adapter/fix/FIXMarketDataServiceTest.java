@@ -114,17 +114,6 @@ public class FIXMarketDataServiceTest {
         Mockito.verify(this.serverEngine, Mockito.never()).executeQuery(Mockito.anyString());
     }
 
-    @Test(expected = ServiceException.class)
-    public void testSubscribeNotLoggedOn() throws Exception {
-
-        Mockito.when(this.fixSessionStateHolder.isLoggedOn()).thenReturn(Boolean.FALSE);
-
-        Forex forex = createForex(Currency.EUR, Currency.USD);
-
-        // Do subscribe
-        this.impl.subscribe(forex);
-    }
-
     @Test
     public void testUnsubscribe() throws Exception {
 

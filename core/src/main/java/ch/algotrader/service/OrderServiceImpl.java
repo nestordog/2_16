@@ -323,7 +323,7 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
 
         this.orderRegistry.add(order);
 
-        propagateOrder(order);
+        this.serverEngine.sendEvent(order);
     }
 
     private void sendSimpleOrder(final SimpleOrder order) {
@@ -334,6 +334,14 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
+
+        enforceTif(order, externalOrderService);
+        externalOrderService.sendOrder(order);
+
+        this.serverEngine.sendEvent(order);
+    }
+
+    private void enforceTif(final SimpleOrder order, final ExternalOrderService externalOrderService) {
 
         if (order.getDateTime() == null) {
             order.setDateTime(this.engineManager.getCurrentEPTime());
@@ -353,10 +361,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
             }
             order.setTif(externalOrderService.getDefaultTIF(orderType));
         }
-
-        externalOrderService.sendOrder(order);
-
-        propagateOrder(order);
     }
 
     /**
@@ -498,14 +502,12 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         if (account == null) {
             throw new ServiceException("Order with missing account");
         }
-        if (order.getDateTime() == null) {
-            order.setDateTime(this.engineManager.getCurrentEPTime());
-        }
 
         ExternalOrderService externalOrderService = getExternalOrderService(account);
+        enforceTif(order, externalOrderService);
         externalOrderService.modifyOrder(order);
 
-        propagateOrder(order);
+        this.serverEngine.sendEvent(order);
     }
 
     /**
@@ -530,19 +532,6 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         }
 
         modifyOrder(newOrder);
-    }
-
-    private void propagateOrder(final Order order) {
-
-        // send the order into the AlgoTrader Server engine to be correlated with fills
-        this.serverEngine.sendEvent(order);
-
-        // also send the order to the strategy that placed the order
-        Strategy strategy = order.getStrategy();
-        if (!strategy.isServer()) {
-
-            this.eventDispatcher.sendEvent(strategy.getName(), order.convertToVO());
-        }
     }
 
     private void propagateOrderStatus(final OrderStatus orderStatus) {
@@ -589,6 +578,24 @@ public class OrderServiceImpl implements OrderService, InitializingServiceI {
         Validate.notEmpty(intId, "Order IntId is empty");
 
         return this.orderRegistry.getOpenOrderByIntId(intId);
+    }
+
+    @Override
+    public List<Order> getOpenOrdersByStrategy(final long strategyId) {
+
+        return this.orderRegistry.getOpenOrdersByStrategy(strategyId);
+    }
+
+    @Override
+    public List<Order> getOpenOrdersBySecurity(final long securityId) {
+
+        return this.orderRegistry.getOpenOrdersBySecurity(securityId);
+    }
+
+    @Override
+    public List<Order> getOpenOrdersByStrategyAndSecurity(final long strategyId, final long securityId) {
+
+        return this.orderRegistry.getOpenOrdersByStrategyAndSecurity(strategyId, securityId);
     }
 
     /**

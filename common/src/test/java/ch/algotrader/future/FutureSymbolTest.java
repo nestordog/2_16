@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
-import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 
 /**
@@ -61,4 +60,10 @@ public class FutureSymbolTest {
         Assert.assertEquals("CLM5:VE", FutureSymbol.getRic(securityFamily, DateTimeUtil.parseLocalDate("2015-06-01")));
     }
 
+    @Test
+    public void testGetMaturityFromRic() throws Exception {
+
+        Assert.assertEquals(DateTimeUtil.parseLocalDate("2015-01-01"), FutureSymbol.getMaturityFromRic("CLF5:VE"));
+        Assert.assertEquals(DateTimeUtil.parseLocalDate("2015-06-01"), FutureSymbol.getMaturityFromRic("CLM5:VE"));
+    }
 }

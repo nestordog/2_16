@@ -19,19 +19,15 @@ package ch.algotrader.simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -52,6 +48,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import com.espertech.esperio.csv.CSVInputAdapter;
 
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
@@ -83,7 +81,6 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
-import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -94,8 +91,6 @@ import ch.algotrader.vo.performance.PeriodPerformanceVO;
 import ch.algotrader.vo.performance.SimulationResultVO;
 import ch.algotrader.vo.performance.TradesVO;
 
-import com.espertech.esperio.csv.CSVInputAdapter;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
@@ -103,9 +98,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
     private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
-    private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
-    private static final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern(" MMM-yy ", Locale.ROOT);
-    private static final DateTimeFormatter yearFormat = DateTimeFormatter.ofPattern("   yyyy ", Locale.ROOT);
+
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private final CommonConfig commonConfig;
@@ -133,6 +126,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private final Engine serverEngine;
 
     private final CacheManager cacheManager;
+
+    private final SimulationResultFormatter resultFormatter;
 
     private volatile ApplicationContext applicationContext;
 
@@ -177,6 +172,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
         this.cacheManager = cacheManager;
+        this.resultFormatter = new SimulationResultFormatter();
     }
 
     @Override
@@ -272,14 +268,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         net.sf.ehcache.CacheManager.getInstance().clearAll();
 
         // close all reports
-        try {
-            ReportManager.closeAll();
-        } catch (IOException ex) {
-            throw new SimulationExecutorException(ex);
-        }
-
-        // run a garbage collection
-        System.gc();
+        ReportManager.closeAll();
 
         return resultVO;
 
@@ -487,18 +476,18 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void simulateWithCurrentParams(final StrategyGroup strategyGroup) {
+    public SimulationResultVO simulateWithCurrentParams(final StrategyGroup strategyGroup) {
 
         SimulationResultVO resultVO = runSimulation(strategyGroup);
         logMultiLineString(convertStatisticsToLongString(resultVO));
-
+        return resultVO;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void simulateBySingleParam(final StrategyGroup strategyGroup, final String parameter, final String value) {
+    public SimulationResultVO simulateBySingleParam(final StrategyGroup strategyGroup, final String parameter, final String value) {
 
         Validate.notEmpty(parameter, "Parameter is empty");
         Validate.notEmpty(value, "Value is empty");
@@ -509,6 +498,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         if (RESULT_LOGGER.isInfoEnabled()) {
             RESULT_LOGGER.info("optimize {}={} {}", parameter, value, convertStatisticsToShortString(resultVO));
         }
+        return resultVO;
 
     }
 
@@ -516,7 +506,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
      * {@inheritDoc}
      */
     @Override
-    public void simulateByMultiParam(final StrategyGroup strategyGroup, final String[] parameters, final String[] values) {
+    public SimulationResultVO simulateByMultiParam(final StrategyGroup strategyGroup, final String[] parameters, final String[] values) {
 
         Validate.notNull(parameters, "Parameter is null");
         Validate.notNull(values, "Value is null");
@@ -531,6 +521,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         SimulationResultVO resultVO = runSimulation(strategyGroup);
         buffer.append(convertStatisticsToShortString(resultVO));
         RESULT_LOGGER.info(buffer.toString());
+        return resultVO;
 
     }
 
@@ -745,160 +736,23 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private String convertStatisticsToShortString(SimulationResultVO resultVO) {
 
         StringBuilder buffer = new StringBuilder();
-
-        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
-        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
-
-        if (resultVO.getAllTrades().getCount() == 0) {
-            return ("no trades took place!");
+        try {
+            this.resultFormatter.formatShort(buffer, resultVO);
+            return buffer.toString();
+        } catch (IOException ex) {
+            throw new SimulationExecutorException(ex);
         }
-
-        Collection<PeriodPerformanceVO> periodPerformanceVOs = resultVO.getMonthlyPerformances();
-        double maxDrawDownM = 0d;
-        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        if ((periodPerformanceVOs != null)) {
-            for (PeriodPerformanceVO PeriodPerformanceVO : periodPerformanceVOs) {
-                maxDrawDownM = Math.min(maxDrawDownM, PeriodPerformanceVO.getValue());
-                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, PeriodPerformanceVO.getValue());
-            }
-        }
-
-        buffer.append("avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100.0) + "%");
-        buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "%");
-        buffer.append(" sharpe=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()));
-        buffer.append(" maxDDM=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
-        buffer.append(" bestMP=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
-        buffer.append(" maxDD=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100.0) + "%");
-        buffer.append(" maxDDPer=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000));
-        buffer.append(" winTrds=" + resultVO.getWinningTrades().getCount());
-        buffer.append(" winTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getWinningTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
-        buffer.append(" avgPPctWin=" + twoDigitFormat.format(resultVO.getWinningTrades().getAvgProfitPct() * 100.0) + "%");
-        buffer.append(" loosTrds=" + resultVO.getLoosingTrades().getCount());
-        buffer.append(" loosTrdsPct=" + twoDigitFormat.format(100.0 * resultVO.getLoosingTrades().getCount() / resultVO.getAllTrades().getCount()) + "%");
-        buffer.append(" avgPPctLoos=" + twoDigitFormat.format(resultVO.getLoosingTrades().getAvgProfitPct() * 100.0) + "%");
-        buffer.append(" totalTrds=" + resultVO.getAllTrades().getCount());
-
-        for (Map.Entry<String, Object> entry : resultVO.getStrategyResults().entrySet()) {
-            buffer.append(" " + entry.getKey() + "=" + entry.getValue());
-        }
-
-        return buffer.toString();
     }
 
     private String convertStatisticsToLongString(SimulationResultVO resultVO) {
 
         StringBuilder buffer = new StringBuilder();
-        buffer.append("execution time (min): " + (new DecimalFormat("0.00")).format(resultVO.getMins()) + "\r\n");
-
-        if (resultVO.getAllTrades().getCount() == 0) {
-            buffer.append("no trades took place! \r\n");
+        try {
+            this.resultFormatter.formatLong(buffer, resultVO, this.commonConfig);
             return buffer.toString();
+        } catch (IOException ex) {
+            throw new SimulationExecutorException(ex);
         }
-
-        buffer.append("dataSet: " + this.commonConfig.getDataSet() + "\r\n");
-
-        double netLiqValue = resultVO.getNetLiqValue();
-        buffer.append("netLiqValue=" + twoDigitFormat.format(netLiqValue) + "\r\n");
-
-        // monthlyPerformances
-        Collection<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformances();
-        double maxDrawDownM = 0d;
-        double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
-        int positiveMonths = 0;
-        int negativeMonths = 0;
-        if ((monthlyPerformances != null)) {
-            StringBuilder dateBuffer = new StringBuilder("month-year:         ");
-            StringBuilder performanceBuffer = new StringBuilder("monthlyPerformance: ");
-            for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
-                maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
-                bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
-                monthFormat.formatTo(DateTimeLegacy.toGMTDate(monthlyPerformance.getDate()), dateBuffer);
-                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100), 6) + "% ");
-                if (monthlyPerformance.getValue() > 0) {
-                    positiveMonths++;
-                } else {
-                    negativeMonths++;
-                }
-            }
-            buffer.append(dateBuffer.toString() + "\r\n");
-            buffer.append(performanceBuffer.toString() + "\r\n");
-        }
-
-        // yearlyPerformances
-        int positiveYears = 0;
-        int negativeYears = 0;
-        Collection<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformances();
-        if ((yearlyPerformances != null)) {
-            StringBuilder dateBuffer = new StringBuilder("year:               ");
-            StringBuilder performanceBuffer = new StringBuilder("yearlyPerformance:  ");
-            for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
-                yearFormat.formatTo(DateTimeLegacy.toGMTDate(yearlyPerformance.getDate()), dateBuffer);
-                performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(yearlyPerformance.getValue() * 100), 6) + "% ");
-                if (yearlyPerformance.getValue() > 0) {
-                    positiveYears++;
-                } else {
-                    negativeYears++;
-                }
-            }
-            buffer.append(dateBuffer.toString() + "\r\n");
-            buffer.append(performanceBuffer.toString() + "\r\n");
-        }
-
-        if ((monthlyPerformances != null)) {
-            buffer.append("posMonths=" + positiveMonths + " negMonths=" + negativeMonths);
-            if ((yearlyPerformances != null)) {
-                buffer.append(" posYears=" + positiveYears + " negYears=" + negativeYears);
-            }
-            buffer.append("\r\n");
-        }
-
-        PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
-        MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
-        if (performanceKeys != null && maxDrawDownVO != null) {
-            buffer.append("avgM=" + twoDigitFormat.format(performanceKeys.getAvgM() * 100) + "%");
-            buffer.append(" stdM=" + twoDigitFormat.format(performanceKeys.getStdM() * 100) + "%");
-            buffer.append(" avgY=" + twoDigitFormat.format(performanceKeys.getAvgY() * 100) + "%");
-            buffer.append(" stdY=" + twoDigitFormat.format(performanceKeys.getStdY() * 100) + "% ");
-            buffer.append(" sharpeRatio=" + twoDigitFormat.format(performanceKeys.getSharpeRatio()) + "\r\n");
-
-            buffer.append("maxMonthlyDrawDown=" + twoDigitFormat.format(-maxDrawDownM * 100) + "%");
-            buffer.append(" bestMonthlyPerformance=" + twoDigitFormat.format(bestMonthlyPerformance * 100) + "%");
-            buffer.append(" maxDrawDown=" + twoDigitFormat.format(maxDrawDownVO.getAmount() * 100) + "%");
-            buffer.append(" maxDrawDownPeriod=" + twoDigitFormat.format(maxDrawDownVO.getPeriod() / 86400000) + "days");
-            buffer.append(" colmarRatio=" + twoDigitFormat.format(performanceKeys.getAvgY() / maxDrawDownVO.getAmount()));
-
-            buffer.append("\r\n");
-        }
-
-        buffer.append("WinningTrades:");
-        buffer.append(printTrades(resultVO.getWinningTrades(), resultVO.getAllTrades().getCount()));
-
-        buffer.append("LoosingTrades:");
-        buffer.append(printTrades(resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount()));
-
-        buffer.append("AllTrades:");
-        buffer.append(printTrades(resultVO.getAllTrades(), resultVO.getAllTrades().getCount()));
-
-        for (Map.Entry<String, Object> entry : resultVO.getStrategyResults().entrySet()) {
-            buffer.append(entry.getKey() + "=" + entry.getValue() + " ");
-        }
-
-        return buffer.toString();
-    }
-
-    private StringBuffer printTrades(TradesVO tradesVO, long totalTrades) {
-
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(" count=" + tradesVO.getCount());
-        if (tradesVO.getCount() != totalTrades) {
-            buffer.append("(" + twoDigitFormat.format(100.0 * tradesVO.getCount() / totalTrades) + "%)");
-        }
-        buffer.append(" totalProfit=" + twoDigitFormat.format(tradesVO.getTotalProfit()));
-        buffer.append(" avgProfit=" + twoDigitFormat.format(tradesVO.getAvgProfit()));
-        buffer.append(" avgProfitPct=" + twoDigitFormat.format(tradesVO.getAvgProfitPct() * 100) + "%");
-        buffer.append("\r\n");
-
-        return buffer;
     }
 
     private void logMultiLineString(String input) {
