@@ -62,12 +62,10 @@ public class SecurityIndexer {
     private final static String[] FIELDS = {"isin", "bbgid", "description", "symbol", "lmaxid", "ric", "id", "securityFamilyId", "underlyingId", "securityId"};
 
     private final Directory index;
-    private final QueryParser queryParser;
     private final ConcurrentMap<Long, SecurityVO> securityCache;
 
     public SecurityIndexer() {
         this.index = new RAMDirectory();
-        this.queryParser = new MultiFieldQueryParser(FIELDS, new StandardAnalyzer());
         this.securityCache = new ConcurrentHashMap<>();
     }
 
@@ -90,7 +88,6 @@ public class SecurityIndexer {
                     .collect(Collectors.toList());
 
             iwriter.addDocuments(securityDocuments);
-            queryParser.setAllowLeadingWildcard(true);
         } catch (IOException ex) {
             throw new UnrecoverableCoreException("Unexpected I/O error building security index", ex);
         }
@@ -99,6 +96,8 @@ public class SecurityIndexer {
     public List<SecurityVO> search(String queryStr) throws ParseException {
         try (IndexReader reader = DirectoryReader.open(index)) {
             IndexSearcher searcher = new IndexSearcher(reader);
+            QueryParser queryParser = new MultiFieldQueryParser(FIELDS, new StandardAnalyzer());
+            queryParser.setAllowLeadingWildcard(true);
             Query query = queryParser.parse(queryStr);
 
             TopDocs results = searcher.search(query, 10);
