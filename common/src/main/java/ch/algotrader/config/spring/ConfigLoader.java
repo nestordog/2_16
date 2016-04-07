@@ -82,7 +82,7 @@ public final class ConfigLoader {
      * <li>conf-fix.properties</li>
      * <li>conf-ib.properties</li>
      * <li>conf-bb.properties</li>
-     * <ul>
+     * </ul>
      */
     public static Map<String, String> load(final ResourceLoader resourceResolver) throws IOException {
 

@@ -36,7 +36,7 @@ public class PriceUtil {
      *
      *   <ol>
      *   <li>divides the price by the defined price multiplier</li>
-     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one></li>
+     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one)</li>
      *   </ol>
      */
     public static BigDecimal normalizePrice(final Order order, double price) {
@@ -49,7 +49,7 @@ public class PriceUtil {
      *
      *   <ol>
      *   <li>divides the price by the defined price multiplier</li>
-     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one></li>
+     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one)</li>
      *   </ol>
      */
     public static BigDecimal normalizePrice(SecurityFamily securityFamily, String broker, double price) {

@@ -29,22 +29,24 @@ public interface SimulationExecutor {
     /**
      * Starts a Simulation Run. The following steps are processed:
      * <ul>
-     * <li>The database is reset to its original state via the {@link ch.algotrader.service.ResetService}</li>
-     * <li>Esper Engines are initialized for the AlgoTrader Server as well as all strategies marked as autoActivate</li>
-     * <li>All Esper Modules defined in column initModules and runModules of the table strategy are deployed</li>
-     * <li>A Portfolio Rebalance is executed to distribute the initial CREDIT (of 1'000'000 USD) to Strategies according to their {@link ch.algotrader.entity.trade.Allocation Allocation}</li>
-     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#INIT} event</li>
-     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#PREFEED} event</li>
-     * <li>The Market Data Feed is started</li>
-     * <li>Platform event dispatcher emits {@link ch.algotrader.enumeration.LifecyclePhase#EXIT} event</li>
-     * <li>At the end of each simulation run, metrics are printed to the console (if enabled)</li>
-     * <li>All open positions are closed</li>
-     * <li>General Performance Statistics as well as Strategy specific Performance Statistics (gathered through
-     * {@link ch.algotrader.simulation.SimulationResultsProducer#getSimulationResults}) are printed to the console</li>
-     * <li>Esper Engines are destroyed</li>
-     * <li>The second-level cache is cleared</li>
-     * <li>A Garbage Collection is performed</li>
-     * </ul>
+     * <li><p>Create strategy entries in the database</p></li>
+     * <li><p>The database is reset to its original state via the ResetService</p></li>
+     * <li><p>All server Esper modules are deployed</p></li>
+     * <li><p>The life cycle phase INIT is broadcasted to all strategies. During this phase potential initiation steps can be invoked.</p></li>
+     * <li><p>All strategy {@code initModules} Modules are deployed </p></li>
+     * <li><p>The life cycle phase {@code PREFEED} is broadcasted to all strategies. During this phase technical indicators can be initialized using historical data</p></li>
+     * <li><p>All strategy {@code runModules} Modules are deployed </p></li>
+     * <li><p>The life cycle phase {@code START} is broadcasted to all strategies. During this phase eventual actions like security subscriptions can be taken care of</p></li>
+     * <li><p>At that time the actual simulation starts and market data events are starting to be sent into the Esper Engines</p></li>
+     * <li><p>The life cycle phase {@code EXIT} is broadcasted to all strategies. During this phase eventual cleanup actions can be taken care of</p></li>
+     * <li><p>At the end of each simulation run, metrics are printed to the console (if enabled)</p></li>
+     * <li><p>All open positions are closed</p></li>
+     * <li><p>An {@code EndOfSimulationVO} event is sent to all strategies</p></li>
+     * <li><p>Esper Engines are destroyed</p></li>
+     * <li><p>The second-level cache is cleared</p></li>
+     * <li><p>All reports are closed</p></li>
+     * <li><p>The Excel based back test report is created and statistics are displayed to the console</p></li>
+     * </ol>
      */
     public SimulationResultVO runSimulation(final StrategyGroup strategyGroup);
 
@@ -81,7 +83,7 @@ public interface SimulationExecutor {
     /**
      * Starts multiple Simulation Runs by setting the value of one parameter within the defined
      * range and trying to find the maximum ShareRatio. The optimizer being used is
-     * <code>UnivariateRealOptimizer</code>. See {@link ch.algotrader.starter.SimulationStarter}
+     * {@code UnivariateRealOptimizer}. See {@link ch.algotrader.starter.SimulationStarter}
      */
     public OptimizationResultVO optimizeSingleParam(StrategyGroup strategyGroup, String parameter, double min, double max, double accuracy);
 

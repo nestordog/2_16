@@ -353,7 +353,7 @@ public class Simulator {
     }
 
     /**
-     * @copy ch.algotrader.service.PortfolioServiceImpl.handleGetPortfolioValue(String)
+     * {@link ch.algotrader.service.PortfolioService#getPortfolioValue()}
      */
     public PortfolioValue getPortfolioValue() {
 
