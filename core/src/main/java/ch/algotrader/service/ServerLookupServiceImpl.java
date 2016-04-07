@@ -17,36 +17,57 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Hibernate;
+import org.hibernate.SessionFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.dao.HibernateInitializer;
+import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.SubscriptionDao;
 import ch.algotrader.dao.marketData.BarDao;
 import ch.algotrader.dao.marketData.TickDao;
 import ch.algotrader.dao.security.SecurityDao;
+import ch.algotrader.dao.strategy.CashBalanceDao;
+import ch.algotrader.dao.trade.OrderDao;
+import ch.algotrader.dao.trade.OrderStatusDao;
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.Security;
+import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Duration;
+import ch.algotrader.enumeration.InitializingServiceType;
+import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.visitor.InitializationVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 @Transactional(propagation = Propagation.SUPPORTS)
-public class ServerLookupServiceImpl implements ServerLookupService {
+@InitializationPriority(value = InitializingServiceType.STATE_LOADER)
+public class ServerLookupServiceImpl implements ServerLookupService, InitializingServiceI {
 
     private final Map<String, Long> securitySymbolMap = new ConcurrentHashMap<>();
     private final Map<String, Long> securityIsinMap = new ConcurrentHashMap<>();
@@ -54,6 +75,18 @@ public class ServerLookupServiceImpl implements ServerLookupService {
     private final Map<String, Long> securityRicMap = new ConcurrentHashMap<>();
     private final Map<String, Long> securityConidMap = new ConcurrentHashMap<>();
     private final Map<String, Long> securityIdMap = new ConcurrentHashMap<>();
+
+    private static final Logger LOGGER = LogManager.getLogger(ServerLookupServiceImpl.class);
+
+    private final SessionFactory sessionFactory;
+
+    private final OrderDao orderDao;
+
+    private final OrderStatusDao orderStatusDao;
+
+    private final PositionDao positionDao;
+
+    private final CashBalanceDao cashBalanceDao;
 
     private final TickDao tickDao;
 
@@ -63,21 +96,143 @@ public class ServerLookupServiceImpl implements ServerLookupService {
 
     private final BarDao barDao;
 
+    private final OrderBook orderBook;
+
+    private final EventDispatcher eventDispatcher;
+
     public ServerLookupServiceImpl(
+            final SessionFactory sessionFactory,
+            final OrderDao orderDao,
+            final OrderStatusDao orderStatusDao,
+            final PositionDao positionDao,
+            final CashBalanceDao cashBalanceDao,
             final TickDao tickDao,
             final SecurityDao securityDao,
             final SubscriptionDao subscriptionDao,
-            final BarDao barDao) {
+            final BarDao barDao,
+            final OrderBook orderBook,
+            final EventDispatcher eventDispatcher) {
 
+        Validate.notNull(sessionFactory, "SessionFactory is null");
+        Validate.notNull(orderDao, "OrderDao is null");
+        Validate.notNull(orderStatusDao, "OrderStatusDao is null");
+        Validate.notNull(positionDao, "PositionDao is null");
+        Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
         Validate.notNull(tickDao, "TickDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(subscriptionDao, "SubscriptionDao is null");
         Validate.notNull(barDao, "BarDao is null");
+        Validate.notNull(orderBook, "OrderBook is null");
+        Validate.notNull(eventDispatcher, "EventDispatcher is null");
 
+        this.sessionFactory = sessionFactory;
+        this.orderDao = orderDao;
+        this.orderStatusDao = orderStatusDao;
+        this.positionDao = positionDao;
+        this.cashBalanceDao = cashBalanceDao;
         this.tickDao = tickDao;
         this.securityDao = securityDao;
         this.subscriptionDao = subscriptionDao;
         this.barDao = barDao;
+        this.orderBook = orderBook;
+        this.eventDispatcher = eventDispatcher;
+    }
+
+    @Override
+    public void init() {
+
+        List<Position> positions = getAllPositions();
+        for (Position position: positions) {
+            Strategy strategy = position.getStrategy();
+            this.eventDispatcher.resendPastEvent(strategy.getName(), position.convertToVO());
+        }
+
+        List<CashBalance> cashBalances = getAllCashBalances();
+        for (CashBalance cashBalance: cashBalances) {
+            Strategy strategy = cashBalance.getStrategy();
+            this.eventDispatcher.resendPastEvent(strategy.getName(), cashBalance.convertToVO());
+        }
+
+        Map<Order, OrderStatus> pendingOrderMap = loadPendingOrders();
+        if (!pendingOrderMap.isEmpty()) {
+
+            List<Order> orderList  = new ArrayList<>(pendingOrderMap.keySet());
+
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("{} order(s) are pending", orderList.size());
+            }
+            for (int i = 0; i < orderList.size(); i++) {
+                Order order = orderList.get(i);
+                Security security = order.getSecurity();
+                security.initializeSecurityFamily(HibernateInitializer.INSTANCE);
+                SecurityFamily securityFamily = security.getSecurityFamily();
+                securityFamily.initializeExchange(HibernateInitializer.INSTANCE);
+
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("{}: {}", (i + 1), order);
+                }
+
+                Strategy strategy = order.getStrategy();
+                this.eventDispatcher.resendPastEvent(strategy.getName(), order.convertToVO());
+            }
+
+            for (Map.Entry<Order, OrderStatus> entry: pendingOrderMap.entrySet()) {
+
+                Order order = entry.getKey();
+                this.orderBook.add(order);
+
+                OrderStatus orderStatus = entry.getValue();
+                if (orderStatus != null) {
+                    this.orderBook.updateExecutionStatus(order.getIntId(), orderStatus.getStatus(), orderStatus.getFilledQuantity(), orderStatus.getRemainingQuantity());
+                    Strategy strategy = order.getStrategy();
+                    this.eventDispatcher.resendPastEvent(strategy.getName(), orderStatus.convertToVO());
+                }
+            }
+        }
+    }
+
+    public Map<Order, OrderStatus> loadPendingOrders() {
+
+        List<OrderStatus> pendingOrderStati = this.orderStatusDao.findPending();
+        List<Long> unacknowledgedOrderIds = this.orderDao.findUnacknowledgedOrderIds();
+
+        if (pendingOrderStati.isEmpty() && unacknowledgedOrderIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        List<Long> pendingOrderIds = new ArrayList<>(unacknowledgedOrderIds.size() + pendingOrderStati.size());
+        Map<Long, OrderStatus> orderStatusMap = new HashMap<>(pendingOrderStati.size());
+        for (OrderStatus pendingOrderStatus: pendingOrderStati) {
+
+            long orderId = pendingOrderStatus.getOrder().getId();
+            pendingOrderIds.add(orderId);
+            orderStatusMap.put(orderId, pendingOrderStatus);
+        }
+        pendingOrderIds.addAll(unacknowledgedOrderIds);
+
+        // Clear session to evict Order proxies associated with order stati
+        this.sessionFactory.getCurrentSession().clear();
+
+        List<Order> orderList = this.orderDao.findByIds(pendingOrderIds);
+        Map<Order, OrderStatus> pendingOrderMap = new HashMap<>(pendingOrderIds.size());
+        for (Order pendingOrder: orderList) {
+
+            OrderStatus orderStatus = orderStatusMap.get(pendingOrder.getId());
+            pendingOrderMap.put(pendingOrder, orderStatus);
+        }
+
+        return pendingOrderMap;
+    }
+
+    public List<Position> getAllPositions() {
+
+        return this.positionDao.loadAll();
+    }
+
+    @Override
+    public List<CashBalance> getAllCashBalances() {
+
+        return this.cashBalanceDao.loadAll();
     }
 
     /**

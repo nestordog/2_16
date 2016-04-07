@@ -113,8 +113,6 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.ServerLookupServiceImpl;
 import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.ServerManagementServiceImpl;
-import ch.algotrader.service.ServerStateLoaderService;
-import ch.algotrader.service.ServerStateLoaderServiceImpl;
 import ch.algotrader.service.SimpleOrderExecService;
 import ch.algotrader.service.SimpleOrderService;
 import ch.algotrader.service.SimpleOrderServiceImpl;
@@ -495,23 +493,19 @@ public class ServiceWiring {
 
     @Bean(name = "serverLookupService")
     public ServerLookupService createServerLookupService(
-            final SecurityDao securityDao,
-            final SubscriptionDao subscriptionDao,
-            final TickDao tickDao,
-            final BarDao barDao) {
-        return new ServerLookupServiceImpl(tickDao, securityDao, subscriptionDao, barDao);
-    }
-
-    @Bean(name = "serverStateLoaderService")
-    public ServerStateLoaderService createServerStateLoaderService(
             final SessionFactory sessionFactory,
             final OrderDao orderDao,
             final OrderStatusDao orderStatusDao,
             final PositionDao positionDao,
             final CashBalanceDao cashBalanceDao,
+            final SecurityDao securityDao,
+            final SubscriptionDao subscriptionDao,
+            final TickDao tickDao,
+            final BarDao barDao,
             final OrderBook orderBook,
             final EventDispatcher eventDispatcher) {
-        return new ServerStateLoaderServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, cashBalanceDao, orderBook, eventDispatcher);
+        return new ServerLookupServiceImpl(sessionFactory, orderDao, orderStatusDao, positionDao, cashBalanceDao, tickDao, securityDao, subscriptionDao, barDao,
+                orderBook, eventDispatcher);
     }
 
     @Bean(name = "eventPropagator")
