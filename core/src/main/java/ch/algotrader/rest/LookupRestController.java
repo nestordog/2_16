@@ -18,7 +18,6 @@
 
 package ch.algotrader.rest;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -74,7 +73,7 @@ public class LookupRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/security", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<SecurityVO> getSecurities() {
+    public List<SecurityVO> getSecurities() {
 
         return lookupService.getAllSecurities().stream()
                 .map(Security::convertToVO)
@@ -83,7 +82,7 @@ public class LookupRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/security-family", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<SecurityFamilyVO> getSecurityFamilies() {
+    public List<SecurityFamilyVO> getSecurityFamilies() {
 
         return lookupService.getAllSecurities().stream()
                 .map(Security::getSecurityFamily)
@@ -93,7 +92,7 @@ public class LookupRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/security.search", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<SecurityVO> searchSecurities(
+    public List<SecurityVO> searchSecurities(
             @RequestParam(value = "query", required = false) String query) throws ParseException {
 
         if (StringUtils.isEmpty(query)) {
@@ -159,7 +158,7 @@ public class LookupRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/exchange", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Collection<ExchangeVO> getExchanges() {
+    public List<ExchangeVO> getExchanges() {
 
         return lookupService.getAllExchanges().stream()
                 .map(Exchange::convertToVO)

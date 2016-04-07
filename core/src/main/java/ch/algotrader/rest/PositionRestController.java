@@ -53,7 +53,7 @@ public class PositionRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/position/reset-positions", method = RequestMethod.POST)
-    public void resetCashBalances() {
+    public void resetPositions() {
 
         this.positionService.resetPositions();
     }
