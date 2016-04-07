@@ -32,7 +32,7 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.trade.LimitOrder;
@@ -50,7 +50,7 @@ import ch.algotrader.util.PriceUtil;
  */
 public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
-    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
+    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws BrokerAdapterException {
 
         TIF tif = order.getTif();
         if (tif == null) {
@@ -69,12 +69,12 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
             case FOK:
                 return new TimeInForce(TimeInForce.FILL_OR_KILL);
             default:
-                throw new FixApplicationException("Time in force " + tif + " not supported by FXCM");
+                throw new BrokerAdapterException("Time in force " + tif + " not supported by FXCM");
         }
     }
 
     @Override
-    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         NewOrderSingle message = new NewOrderSingle();
         message.set(new ClOrdID(clOrdID));
@@ -114,7 +114,7 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order type " + order.getClass().getName() + " is not supported by FXCM");
+            throw new BrokerAdapterException("Order type " + order.getClass().getName() + " is not supported by FXCM");
         }
 
         if (order.getTif() != null) {
@@ -126,7 +126,7 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();
@@ -166,7 +166,7 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order modification of type " + order.getClass().getName() + " is not supported by FXCM");
+            throw new BrokerAdapterException("Order modification of type " + order.getClass().getName() + " is not supported by FXCM");
         }
 
         if (order.getTif() != null) {
@@ -178,7 +178,7 @@ public class FXCMFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         // get origClOrdID and assign a new clOrdID
         String origClOrdID = order.getIntId();

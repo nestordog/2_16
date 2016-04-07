@@ -91,25 +91,32 @@ public class CalendarServiceTest {
         futures.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("10:00:00"), parseAsTime("16:00:00"), false, true, true, true, true, true, false, futures));
         futures.addTradingHours(TradingHours.Factory.newInstance(parseAsTime("17:00:00"), parseAsTime("18:00:00"), false, true, true, true, true, true, false, futures));
 
+        Exchange noTradingHours = Exchange.Factory.newInstance("NO_TRADING_HOURS", "Europe/Berlin");
+
         Mockito.when(this.exchangeDao.get(1)).thenReturn(regular);
         Mockito.when(this.exchangeDao.get(2)).thenReturn(forex);
         Mockito.when(this.exchangeDao.get(3)).thenReturn(roundTheClock);
         Mockito.when(this.exchangeDao.get(4)).thenReturn(futures);
+        Mockito.when(this.exchangeDao.get(5)).thenReturn(noTradingHours);
     }
 
     // Regular
     @Test
     public void testIsOpenRegularOpen() throws Exception {
         Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET"))); // Wed
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:20:00 CET"))); // Wed
         Assert.assertEquals(this.impl.getNextOpenTime(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET")), DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:30:00 CET"));
         Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:45:00 CET")));
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:50:00 CET")));
     }
 
     @Test
     public void testIsOpenRegularClose() throws Exception {
         Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:45:00 CET"))); // Wed
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:50:00 CET"))); // Wed
         Assert.assertEquals(this.impl.getNextCloseTime(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 21:45:00 CET")), DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:00:00 CET")); // Jan 2nd
         Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:15:00 CET"))); // Wed
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 22:20:00 CET"))); // Wed
     }
 
     @Test
@@ -257,6 +264,12 @@ public class CalendarServiceTest {
     @Test
     public void testIsOpen24hWeekend() throws Exception {
         Assert.assertFalse(this.impl.isOpen(3, DateTimeLegacy.parseAsZonedDateTime("2013-11-23 17:00:00 CET"))); // Sat
+    }
+
+    @Test
+    public void testIsOpenNoTradingHours() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(5, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET"))); // Wed
+        Assert.assertTrue(this.impl.isOpen(5, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:20:00 CET"))); // Wed
     }
 
     // is Trading day

@@ -1,0 +1,106 @@
+ALTER TABLE `security`
+  ADD `CLASS` varchar(255) AFTER `ID`,
+  ADD `MATURITY` date DEFAULT NULL,
+  ADD `COUPON` double DEFAULT NULL,
+  ADD `COMMODITY_TYPE` enum('ENERGY','INDUSTRIAL_METALS','PRECIOUS_METALS','AGRICULTURE','LIVESTOCK') DEFAULT NULL,
+  ADD `BASE_CURRENCY` enum('AUD','BRL','CAD','CHF','EUR','GBP','HKD','INR','JPY','KRW','NOK','NZD','PLN','RUB','SEK','THB','TRY','TWD','USD','ZAR','MYR','SGD') DEFAULT NULL,
+  ADD `EXPIRATION` date DEFAULT NULL,
+  ADD `MONTH_YEAR` char(6) DEFAULT NULL,
+  ADD `FIRST_NOTICE` date DEFAULT NULL,
+  ADD `DURATION` enum('MSEC_1','SEC_1','MIN_1','MIN_2','MIN_5','MIN_15','MIN_30','HOUR_1','HOUR_2','DAY_1','DAY_2','WEEK_1','WEEK_2','MONTH_1','MONTH_2','MONTH_3','MONTH_4','MONTH_5','MONTH_6','MONTH_7','MONTH_8','MONTH_9','MONTH_10','MONTH_11','MONTH_18','YEAR_1','YEAR_2') DEFAULT NULL,
+  ADD `ASSET_CLASS` enum('EQUITY','VOLATILITY','COMMODITY','FIXED_INCOME','FX') DEFAULT NULL,
+  ADD `STRIKE` decimal(12,5) DEFAULT NULL,
+  ADD `OPTION_TYPE` enum('CALL','PUT') DEFAULT NULL,
+  ADD `GICS` char(8) DEFAULT NULL,
+  ADD `UUID` char(36) DEFAULT NULL,
+  ADD `COMBINATION_TYPE` enum('VERTICAL_SPREAD','COVERED_CALL','RATIO_SPREAD','STRADDLE','STRANGLE','BUTTERFLY','CALENDAR_SPREAD','IRON_CONDOR') DEFAULT NULL,
+  ADD `PERSISTENT` bit(1) DEFAULT NULL,
+  ADD KEY `MATURITY` (`MATURITY`),
+  ADD KEY `EXPIRATION` (`EXPIRATION`),
+  ADD KEY `MONTH_YEAR` (`MONTH_YEAR`),
+  ADD KEY `FIRST_NOTICE` (`FIRST_NOTICE`),
+  ADD KEY `DURATION` (`DURATION`),
+  ADD KEY `STRIKE` (`STRIKE`),
+  ADD KEY `OPTION_TYPE` (`OPTION_TYPE`),
+  ADD KEY `GICS` (`GICS`);
+
+ALTER TABLE `security`
+  ADD UNIQUE `FUTURE_BK_CONSTRAINT` (`CLASS`, `SECURITY_FAMILY_FK`, `MONTH_YEAR`),
+  ADD UNIQUE `UUID_UNIQUE_CONSTRAINT` (`UUID`);
+
+UPDATE `security` s, `bond` b SET
+  s.`CLASS` = 'BondImpl',
+  s.`MATURITY` = b.`MATURITY`,
+  s.`COUPON` = b.`COUPON`
+WHERE s.`ID` = b.`ID`;
+DROP TABLE `bond`;
+
+UPDATE `security` s, `combination` c SET
+  s.`CLASS` = 'CombinationImpl',
+  s.`UUID` = c.`UUID`,
+  s.`COMBINATION_TYPE` = c.`TYPE`,
+  s.`PERSISTENT` = c.`PERSISTENT`
+WHERE s.`ID` = c.`ID`;
+ALTER TABLE `component` DROP FOREIGN KEY `COMPONENT_COMBINATION_FK`;
+DROP TABLE `combination`;
+ALTER TABLE `component` ADD CONSTRAINT `COMPONENT_COMBINATION_FK` FOREIGN KEY (`COMBINATION_FK`) REFERENCES `security` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+UPDATE `security` s, `commodity` c SET
+  s.`CLASS` = 'CommodityImpl',
+  s.`COMMODITY_TYPE` = c.`TYPE`
+WHERE s.`ID` = c.`ID`;
+DROP TABLE `commodity`;
+
+UPDATE `security` s, `forex` f SET
+  s.`CLASS` = 'ForexImpl',
+  s.`BASE_CURRENCY` = f.`BASE_CURRENCY`
+WHERE s.`ID` = f.`ID`;
+DROP TABLE `forex`;
+
+UPDATE `security` s, `fund` f SET
+  s.`CLASS` = 'FundImpl'
+WHERE s.`ID` = f.`ID`;
+DROP TABLE `fund`;
+
+UPDATE `security` s, `future` f SET
+  s.`CLASS` = 'FutureImpl',
+  s.`EXPIRATION` = f.`EXPIRATION`,
+  s.`MONTH_YEAR` = f.`MONTH_YEAR`,
+  s.`FIRST_NOTICE` = f.`FIRST_NOTICE`
+WHERE s.`ID` = f.`ID`;
+DROP TABLE `future`;
+
+UPDATE `security` s, `generic_future` gf SET
+  s.`CLASS` = 'GenericFutureImpl',
+  s.`DURATION` = gf.`DURATION`,
+  s.`ASSET_CLASS` = gf.`ASSET_CLASS`
+WHERE s.`ID` = gf.`ID`;
+DROP TABLE `generic_future`;
+
+UPDATE `security` s, `index` i SET
+  s.`CLASS` = 'IndexImpl',
+  s.`ASSET_CLASS` = i.`ASSET_CLASS`
+WHERE s.`ID` = i.`ID`;
+DROP TABLE `index`;
+
+UPDATE `security` s, `intrest_rate` i SET
+  s.`CLASS` = 'IntrestRateImpl',
+  s.`DURATION` = i.`DURATION`
+WHERE s.`ID` = i.`ID`;
+DROP TABLE `intrest_rate`;
+
+UPDATE `security` s, `option` o SET
+  s.`CLASS` = 'OptionImpl',
+  s.`STRIKE` = o.`STRIKE`,
+  s.`EXPIRATION` = o.`EXPIRATION`,
+  s.`OPTION_TYPE` = o.`TYPE`
+WHERE s.`ID` = o.`ID`;
+DROP TABLE `option`;
+
+UPDATE `security` s, `stock` st SET
+  s.`CLASS` = 'StockImpl',
+  s.`GICS` = st.`GICS`
+WHERE s.`ID` = st.`ID`;
+ALTER TABLE `easy_to_borrow` DROP FOREIGN KEY `EASY_TO_BORROW_STOCK_FKC`;
+DROP TABLE `stock`;
+ALTER TABLE `easy_to_borrow` ADD CONSTRAINT `EASY_TO_BORROW_STOCK_FKC` FOREIGN KEY (`STOCK_FK`) REFERENCES `security` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;

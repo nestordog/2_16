@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +36,12 @@ import ch.algotrader.entity.security.ForexImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.util.HibernateUtil;
 import ch.algotrader.util.collection.Pair;
 
 /**
@@ -104,6 +105,46 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
 
         this.strategy2 = new StrategyImpl();
         this.strategy2.setName("Strategy2");
+    }
+
+    @Test
+    public void testFindBySecurity() {
+
+        this.session.save(this.family1);
+        this.session.save(this.forex1);
+        this.session.save(this.strategy1);
+        this.session.save(this.strategy2);
+
+        List<Subscription> subscriptions1 = this.dao.findBySecurity(this.forex1.getId());
+
+        Assert.assertEquals(0, subscriptions1.size());
+
+        Subscription subscription1 = new SubscriptionImpl();
+        subscription1.setFeedType(FeedType.SIM.name());
+        subscription1.setSecurity(this.forex1);
+        subscription1.setStrategy(this.strategy1);
+
+        this.session.save(subscription1);
+
+        Subscription subscription2 = new SubscriptionImpl();
+        subscription2.setFeedType(FeedType.SIM.name());
+        subscription2.setSecurity(this.forex1);
+        subscription2.setStrategy(this.strategy2);
+
+        this.session.save(subscription2);
+        this.session.flush();
+
+        Subscription subscription3 = new SubscriptionImpl();
+        subscription3.setFeedType(FeedType.IB.name());
+        subscription3.setSecurity(this.forex1);
+        subscription3.setStrategy(this.strategy2);
+
+        this.session.save(subscription3);
+        this.session.flush();
+
+        List<Subscription> subscriptions2 = this.dao.findBySecurity(this.forex1.getId());
+
+        Assert.assertEquals(3, subscriptions2.size());
     }
 
     @Test
@@ -319,6 +360,8 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription2);
         this.session.save(subscription1);
@@ -362,21 +405,19 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         position1.setSecurity(this.forex1);
         position1.setStrategy(this.strategy1);
         position1.setQuantity(0);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription1);
         this.session.save(subscription2);
         this.session.save(position1);
         this.session.flush();
 
-        int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
-
-        List<Subscription> subscriptions1 = this.dao.findNonPositionSubscriptionsByType("Strategy1", discriminator1);
+        List<Subscription> subscriptions1 = this.dao.findNonPositionSubscriptionsByType("Strategy1", SecurityImpl.class);
 
         Assert.assertEquals(0, subscriptions1.size());
 
-        int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Forex.class);
-
-        List<Subscription> subscriptions2 = this.dao.findNonPositionSubscriptionsByType("Strategy1", discriminator2);
+        List<Subscription> subscriptions2 = this.dao.findNonPositionSubscriptionsByType("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(2, subscriptions2.size());
 
@@ -417,8 +458,6 @@ public class SubscriptionDaoTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(strategy1);
         this.session.save(subscription1);
-
-        forex1.addSubscriptions(subscription1);
 
         this.session.flush();
 

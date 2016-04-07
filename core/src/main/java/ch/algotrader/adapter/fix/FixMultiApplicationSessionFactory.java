@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.Validate;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import quickfix.Application;
 import quickfix.ConfigError;
 import quickfix.DefaultSessionFactory;
@@ -51,8 +52,6 @@ import quickfix.SessionSettings;
  */
 public class FixMultiApplicationSessionFactory implements SessionFactory {
 
-    private static final String APPLICATION_FACTORY = "ApplicationFactory";
-
     private final Map<String, FixApplicationFactory> applicationFactoryMap;
     private final MessageStoreFactory messageStoreFactory;
     private final MessageFactory messageFactory;
@@ -71,19 +70,9 @@ public class FixMultiApplicationSessionFactory implements SessionFactory {
     @Override
     public Session create(final SessionID sessionID, final SessionSettings settings) throws ConfigError {
 
-        final String applicationFactoryName;
-        // For backward compatibility see if the session defines "ApplicationFactory" parameter.
-        // If not, use session qualifier to look up FixApplicationFactory
-        if (settings.isSetting(sessionID, APPLICATION_FACTORY)) {
-            applicationFactoryName = settings.getSessionProperties(sessionID).getProperty(APPLICATION_FACTORY);
-        } else {
-            applicationFactoryName = sessionID.getSessionQualifier();
-        }
-
-        // find the application factory by its name
-        FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(applicationFactoryName);
+        FixApplicationFactory applicationFactory = this.applicationFactoryMap.get(sessionID.getSessionQualifier());
         if (applicationFactory == null) {
-            throw new FixApplicationException("FixApplicationFactory not found: " + applicationFactoryName);
+            throw new BrokerAdapterException("Could not find FixApplicationFactory for session " + sessionID.getSessionQualifier());
         }
         String logImpl = "";
         try {

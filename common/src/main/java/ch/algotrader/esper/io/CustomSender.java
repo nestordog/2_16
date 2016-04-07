@@ -29,6 +29,7 @@ import com.espertech.esperio.AbstractSender;
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.util.metric.MetricsUtil;
 
@@ -104,7 +105,7 @@ public class CustomSender extends AbstractSender {
         } else if (beanToSend instanceof CurrentTimeEvent || beanToSend instanceof CurrentTimeSpanEvent) {
 
             long beforeSendEvent = System.nanoTime();
-            ServiceLocator.instance().getEventDispatcher().broadcastLocal(beanToSend);
+            ServiceLocator.instance().getEventDispatcher().broadcast(beanToSend, EventRecipient.ALL_LOCAL);
             long afterSendEvent = System.nanoTime();
 
             MetricsUtil.account("CustomSender.sendCurrentTimeEvent", (afterSendEvent - beforeSendEvent));

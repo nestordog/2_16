@@ -17,7 +17,11 @@
  ***********************************************************************************/
 package ch.algotrader.esper.listener;
 
+import java.io.IOException;
 import java.util.Date;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPStatement;
@@ -38,6 +42,8 @@ import ch.algotrader.util.metric.MetricsUtil;
  */
 public class IndicatorListener implements StatementAwareUpdateListener {
 
+    private static final Logger LOGGER = LogManager.getLogger(IndicatorListener.class);
+
     private String[] propertyNames;
     private ListReporter reporter;
 
@@ -46,24 +52,29 @@ public class IndicatorListener implements StatementAwareUpdateListener {
 
         long startTime = System.nanoTime();
 
-        // print the headers
-        if (this.propertyNames == null) {
-            this.propertyNames = statement.getEventType().getPropertyNames();
-            this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), this.propertyNames);
-        }
-
-        // print the values
-        for (EventBean bean : newEvents) {
-            Object[] values = new Object[this.propertyNames.length];
-            for (int i = 0; i < this.propertyNames.length; i++) {
-                Object obj = bean.get(this.propertyNames[i]);
-                if (obj instanceof Date) {
-                    values[i] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
-                } else {
-                    values[i] = obj;
-                }
+        try {
+            // print the headers
+            if (this.propertyNames == null) {
+                this.propertyNames = statement.getEventType().getPropertyNames();
+                this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), this.propertyNames);
             }
-            this.reporter.write(values);
+
+            // print the values
+            for (EventBean bean : newEvents) {
+                Object[] values = new Object[this.propertyNames.length];
+                for (int i = 0; i < this.propertyNames.length; i++) {
+                    Object obj = bean.get(this.propertyNames[i]);
+                    if (obj instanceof Date) {
+                        values[i] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
+                    } else {
+                        values[i] = obj;
+                    }
+                }
+                this.reporter.write(values);
+            }
+
+        } catch (IOException ex) {
+            LOGGER.error(ex.getMessage(), ex);
         }
 
         MetricsUtil.accountEnd("IndicatorListener", startTime);

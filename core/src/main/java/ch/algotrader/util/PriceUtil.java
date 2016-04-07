@@ -35,14 +35,24 @@ public class PriceUtil {
      * normalizes a price from a broker specific basis.
      *
      *   <ol>
-     *   <li>divides the price be the defined price multiplier</li>
-     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one></li>
+     *   <li>divides the price by the defined price multiplier</li>
+     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one)</li>
      *   </ol>
      */
     public static BigDecimal normalizePrice(final Order order, double price) {
 
-        SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
-        String broker = order.getAccount().getBroker();
+        return normalizePrice(order.getSecurity().getSecurityFamily(), order.getAccount().getBroker(), price);
+    }
+
+    /**
+     * normalizes a price from a broker specific basis.
+     *
+     *   <ol>
+     *   <li>divides the price by the defined price multiplier</li>
+     *   <li>sets the scale of the normalized price by using the default scale (not the broker-specific one)</li>
+     *   </ol>
+     */
+    public static BigDecimal normalizePrice(SecurityFamily securityFamily, String broker, double price) {
 
         double normalizedPrice = price / securityFamily.getPriceMultiplier(broker);
 
@@ -55,20 +65,29 @@ public class PriceUtil {
      *
      *   <ol>
      *   <li>multiplies the price by the defined price multiplier</li>
-     *   <li>rounds the price to next tick. Buy orders are rounded down, Sell orders are rounded up</li>
+     *   <li>rounds the price to next tick. Buy orders are rounded down, SELL orders are rounded up, BUY orders are rounded down</li>
      *   </ol>
      */
     public static double denormalizePrice(final Order order, final BigDecimal price) {
 
-        SecurityFamily securityFamily = order.getSecurity().getSecurityFamily();
-        String broker = order.getAccount().getBroker();
+        return denormalizePrice(order.getSecurity().getSecurityFamily(), order.getAccount().getBroker(), order.getSide() == Side.SELL, price);
+    }
+
+    /**
+     * de-normalizes a price to a broker specific basis.
+     *
+     *   <ol>
+     *   <li>multiplies the price by the defined price multiplier</li>
+     *   <li>rounds the price to next tick either up or down. </li>
+     *   </ol>
+     */
+    public static double denormalizePrice(SecurityFamily securityFamily, String broker, boolean roundUp, final BigDecimal price) {
 
         double denormalizedPrice = price.doubleValue() * securityFamily.getPriceMultiplier(broker);
-
-        if (order.getSide() == Side.BUY) {
-            return securityFamily.roundDown(broker, denormalizedPrice);
-        } else {
+        if (roundUp) {
             return securityFamily.roundUp(broker, denormalizedPrice);
+        } else {
+            return securityFamily.roundDown(broker, denormalizedPrice);
         }
     }
 

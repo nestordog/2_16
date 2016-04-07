@@ -153,7 +153,7 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
-        Mockito.when(this.marketDataService.normaliseTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
+        Mockito.when(this.marketDataService.normalizeTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
 
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
@@ -290,7 +290,7 @@ public class MarketDataEsperTest extends EsperTestBase {
 
         Mockito.when(this.calendarService.isOpen(Mockito.anyLong(), Mockito.<Date>any())).thenReturn(true);
         Mockito.when(this.marketDataService.isTickValid(Mockito.any())).thenReturn(false);
-        Mockito.when(this.marketDataService.normaliseTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
+        Mockito.when(this.marketDataService.normalizeTick(Mockito.any())).thenAnswer( invocation -> invocation.getArguments()[0]);
 
         SubscribeTickVO subscribeEvent1 = new SubscribeTickVO("some-ticker1", 1L, FeedType.IB.name());
         this.epRuntime.sendEvent(subscribeEvent1);

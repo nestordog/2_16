@@ -18,6 +18,7 @@
 package ch.algotrader.entity.security;
 
 import ch.algotrader.enumeration.Currency;
+import ch.algotrader.visitor.SecurityVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -25,6 +26,12 @@ import ch.algotrader.enumeration.Currency;
 public class ForexImpl extends Forex {
 
     private static final long serialVersionUID = -6204294412084812111L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitForex(this, param);
+    }
 
     @Override
     public Currency getTransactionCurrency() {

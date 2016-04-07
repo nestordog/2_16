@@ -50,7 +50,7 @@ public class OptionUtil {
 
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getOptionPrice(underlyingSpot, option.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), option.getType());
+        return getOptionPrice(underlyingSpot, option.getStrike().doubleValue(), vola, years, family.getIntrest(), family.getDividend(), option.getOptionType());
     }
 
     /**
@@ -88,7 +88,7 @@ public class OptionUtil {
 
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatility(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        return getImpliedVolatility(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getOptionType());
     }
 
     /**
@@ -126,7 +126,7 @@ public class OptionUtil {
 
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatilityNR(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        return getImpliedVolatilityNR(underlyingSpot, option.getStrike().doubleValue(), currentValue, years, family.getIntrest(), family.getDividend(), option.getOptionType());
     }
 
     /**
@@ -166,7 +166,7 @@ public class OptionUtil {
 
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
 
-        return getImpliedVolatilitySABR(underlyingSpot, option.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), option.getType(), surface);
+        return getImpliedVolatilitySABR(underlyingSpot, option.getStrike().doubleValue(), years, family.getIntrest(), family.getDividend(), option.getOptionType(), surface);
     }
 
     /**
@@ -202,7 +202,7 @@ public class OptionUtil {
      */
     public static double getIntrinsicValue(Option option, double underlyingSpot) throws RuntimeException {
 
-        return getIntrinsicValue(underlyingSpot, option.getStrike().doubleValue(), option.getType());
+        return getIntrinsicValue(underlyingSpot, option.getStrike().doubleValue(), option.getOptionType());
     }
 
     /**
@@ -227,8 +227,8 @@ public class OptionUtil {
 
         double strike = option.getStrike().doubleValue();
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
-        return OptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getOptionType());
+        return OptionUtil.getDelta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getOptionType());
 
     }
 
@@ -261,7 +261,7 @@ public class OptionUtil {
 
         double strike = option.getStrike().doubleValue();
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getOptionType());
         return OptionUtil.getVega(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend());
     }
 
@@ -288,8 +288,8 @@ public class OptionUtil {
 
         double strike = option.getStrike().doubleValue();
         double years = (option.getExpiration().getTime() - now.getTime()) / (double) Duration.YEAR_1.getValue();
-        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getType());
-        return OptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getType());
+        double volatility = getImpliedVolatility(underlyingSpot, strike, currentValue, years, family.getIntrest(), family.getDividend(), option.getOptionType());
+        return OptionUtil.getTheta(underlyingSpot, strike, volatility, years, family.getIntrest(), family.getDividend(), option.getOptionType());
 
     }
 
@@ -330,7 +330,7 @@ public class OptionUtil {
      */
     public static double getMoneyness(Option option, double underlyingSpot) {
 
-        if (OptionType.CALL.equals(option.getType())) {
+        if (OptionType.CALL.equals(option.getOptionType())) {
             return (underlyingSpot - option.getStrike().doubleValue()) / underlyingSpot;
         } else {
             return (option.getStrike().doubleValue() - underlyingSpot) / underlyingSpot;

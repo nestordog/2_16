@@ -21,6 +21,7 @@ import java.util.List;
 
 import ch.algotrader.dao.ReadWriteDao;
 import ch.algotrader.entity.security.Combination;
+import ch.algotrader.entity.security.Security;
 
 /**
  * DAO for {@link ch.algotrader.entity.security.Combination} objects.
@@ -58,21 +59,19 @@ public interface CombinationDao extends ReadWriteDao<Combination> {
      * Finds Combinations that are subscribed by the specified Strategy and have a Component with
      * the specified Security Type.
      * @param strategyName
-     * @param type The Security Type which has to be defined as an {@code int} using {@link
-    ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
+     * @param type security type (class)
      * @return Collection<Combination>
      */
-    List<Combination> findSubscribedByStrategyAndComponentType(String strategyName, int type);
+    List<Combination> findSubscribedByStrategyAndComponentType(String strategyName, Class<? extends Security> type);
 
     /**
      * Finds Combinations that are subscribed by the specified Strategy, have a Component with the
      * specified Security Type and a Component quantity of zero.
      * @param strategyName
-     * @param type The Security Type which has to be defined as an {@code int} using {@link
-    ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
+     * @param type security type (class)
      * @return Collection<Combination>
      */
-    List<Combination> findSubscribedByStrategyAndComponentTypeWithZeroQty(String strategyName, int type);
+    List<Combination> findSubscribedByStrategyAndComponentTypeWithZeroQty(String strategyName, Class<? extends Security> type);
 
     /**
      * Finds non-persistent Combinations.

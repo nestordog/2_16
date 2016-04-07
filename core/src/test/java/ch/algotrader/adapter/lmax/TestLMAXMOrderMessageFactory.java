@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.security.Forex;
@@ -98,7 +98,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderForexUnsupportedSecurityType() throws Exception {
 
         Stock stock = new StockImpl();
@@ -112,7 +112,7 @@ public class TestLMAXMOrderMessageFactory {
         this.requestFactory.createNewOrderMessage(order, "test-id");
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderForexUnsupportedForex() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -207,7 +207,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderUnsupportedType() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -269,7 +269,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testModifyOrderUnsupportedType() throws Exception {
 
         SecurityFamily family = new SecurityFamilyImpl();
@@ -319,15 +319,14 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new OrderQty(0.2), message.getOrderQty());
     }
 
-    @Test(expected = FixApplicationException.class)
     public void testMarketOrderDAY() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
         order.setTif(TIF.DAY);
-        this.requestFactory.resolveTimeInForce(order);
+        Assert.assertEquals(new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderGTC() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
@@ -335,7 +334,7 @@ public class TestLMAXMOrderMessageFactory {
         this.requestFactory.resolveTimeInForce(order);
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testMarketOrderGTD() throws Exception {
 
         MarketOrder order = new MarketOrderImpl();
@@ -375,7 +374,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testLimitedOrderGTD() throws Exception {
 
         LimitOrder order = new LimitOrderImpl();
@@ -415,7 +414,7 @@ public class TestLMAXMOrderMessageFactory {
         Assert.assertEquals(new TimeInForce(TimeInForce.GOOD_TILL_CANCEL), this.requestFactory.resolveTimeInForce(order));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopOrderGTD() throws Exception {
 
         StopOrder order = new StopOrderImpl();
@@ -423,7 +422,7 @@ public class TestLMAXMOrderMessageFactory {
         this.requestFactory.resolveTimeInForce(order);
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopOrderIOC() throws Exception {
 
         StopOrder order = new StopOrderImpl();
@@ -431,7 +430,7 @@ public class TestLMAXMOrderMessageFactory {
         this.requestFactory.resolveTimeInForce(order);
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testStopOrderFOK() throws Exception {
 
         StopOrder order = new StopOrderImpl();

@@ -24,9 +24,7 @@ import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.CxlRejReason;
@@ -49,13 +47,9 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
     private static final Logger LOGGER = LogManager.getLogger(AbstractFix42OrderMessageHandler.class);
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
-    private final Engine serverEngine;
 
-    protected AbstractFix42OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
+    protected AbstractFix42OrderMessageHandler(final OrderExecutionService orderExecutionService) {
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
-        this.serverEngine = serverEngine;
     }
 
     protected abstract boolean discardReport(ExecutionReport executionReport) throws FieldNotFound;
@@ -159,7 +153,6 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 orderStatus.setReason(executionReport.getText().getValue());
             }
 
-            this.serverEngine.sendEvent(orderStatus);
             this.orderExecutionService.handleOrderStatus(orderStatus);
 
             return;
@@ -182,20 +175,16 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 OrderStatus orderStatus = createStatus(executionReport, oldOrder);
                 orderStatus.setStatus(Status.CANCELED);
                 orderStatus.setExtId(null);
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }
 
         OrderStatus orderStatus = createStatus(executionReport, order);
 
-        this.serverEngine.sendEvent(orderStatus);
         this.orderExecutionService.handleOrderStatus(orderStatus);
 
         Fill fill = createFill(executionReport, order);
         if (fill != null) {
-            this.serverEngine.sendEvent(fill);
-            this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
     }
@@ -229,10 +218,9 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
                 LOGGER.error(buf.toString());
             }
 
-            OrderStatus orderStatus = null;
             Order order = intId != null ? this.orderExecutionService.getOpenOrderByIntId(intId) : null;
             if (order != null) {
-                orderStatus = OrderStatus.Factory.newInstance();
+                OrderStatus orderStatus = OrderStatus.Factory.newInstance();
                 orderStatus.setStatus(Status.REJECTED);
                 orderStatus.setIntId(intId);
                 orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
@@ -245,10 +233,12 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
                     orderStatus.setReason(reject.getText().getValue());
                 }
+                this.orderExecutionService.handleOrderStatus(orderStatus);
+
             } else {
                 order = originalIntId != null ? this.orderExecutionService.getOpenOrderByIntId(originalIntId) : null;
                 if (order != null) {
-                    orderStatus = OrderStatus.Factory.newInstance();
+                    OrderStatus orderStatus = OrderStatus.Factory.newInstance();
                     orderStatus.setStatus(Status.REJECTED);
                     orderStatus.setIntId(originalIntId);
                     orderStatus.setSequenceNumber(reject.getHeader().getInt(MsgSeqNum.FIELD));
@@ -261,11 +251,9 @@ public abstract class AbstractFix42OrderMessageHandler extends AbstractFix42Mess
 
                         orderStatus.setReason(reject.getText().getValue());
                     }
+                    this.orderExecutionService.handleOrderStatus(orderStatus);
+
                 }
-            }
-            if (orderStatus != null) {
-                this.serverEngine.sendEvent(orderStatus);
-                this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }
 

@@ -37,7 +37,7 @@ import quickfix.field.TransactTime;
 import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.OrderCancelReplaceRequest;
 import quickfix.fix44.OrderCancelRequest;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.Fix44OrderMessageFactory;
 import ch.algotrader.entity.security.Forex;
@@ -59,7 +59,7 @@ import ch.algotrader.util.PriceUtil;
  */
 public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
-    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws FixApplicationException {
+    protected TimeInForce resolveTimeInForce(final SimpleOrder order) throws BrokerAdapterException {
 
         TIF tif = order.getTif();
         if (tif == null) {
@@ -74,29 +74,29 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
             case IOC:
                 if (order instanceof StopOrderI) {
 
-                    throw new FixApplicationException(tif + " cannot be used with stop-loss orders");
+                    throw new BrokerAdapterException(tif + " cannot be used with stop-loss orders");
                 }
                 return new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL);
             case FOK:
                 if (order instanceof StopOrderI) {
 
-                    throw new FixApplicationException(tif + " cannot be used with stop-loss orders");
+                    throw new BrokerAdapterException(tif + " cannot be used with stop-loss orders");
                 }
                 return new TimeInForce(TimeInForce.FILL_OR_KILL);
             case GTD:
                 return new TimeInForce(TimeInForce.GOOD_TILL_DATE);
             default:
-                throw new FixApplicationException("Time in force " + tif + " not supported");
+                throw new BrokerAdapterException("Time in force " + tif + " not supported");
         }
     }
 
     @Override
-    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public NewOrderSingle createNewOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
-            throw new FixApplicationException("Currenex supports forex orders only");
+            throw new BrokerAdapterException("Currenex supports forex orders only");
         }
         Forex forex = (Forex) security;
 
@@ -135,7 +135,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order type " + order.getClass().getName() + " is not supported by Currenex");
+            throw new BrokerAdapterException("Order type " + order.getClass().getName() + " is not supported by Currenex");
         }
 
         if (order instanceof StopOrderI) {
@@ -154,7 +154,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
                 Date tifDateTime = order.getTifDateTime();
                 if (tifDateTime == null) {
 
-                    throw new FixApplicationException("Good till date is not set");
+                    throw new BrokerAdapterException("Good till date is not set");
                 }
                 message.set(new ExpireTime(tifDateTime));
 
@@ -165,12 +165,12 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelReplaceRequest createModifyOrderMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
-            throw new FixApplicationException("Currenex supports forex orders only");
+            throw new BrokerAdapterException("Currenex supports forex orders only");
         }
         Forex forex = (Forex) security;
 
@@ -214,7 +214,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order type " + order.getClass().getName() + " is not supported by Currenex");
+            throw new BrokerAdapterException("Order type " + order.getClass().getName() + " is not supported by Currenex");
         }
 
         TIF tif = order.getTif();
@@ -231,12 +231,12 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
     }
 
     @Override
-    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws FixApplicationException {
+    public OrderCancelRequest createOrderCancelMessage(final SimpleOrder order, final String clOrdID) throws BrokerAdapterException {
 
         Security security = order.getSecurity();
         if (!(security instanceof Forex)) {
 
-            throw new FixApplicationException("Currenex supports forex orders only");
+            throw new BrokerAdapterException("Currenex supports forex orders only");
         }
         Forex forex = (Forex) security;
 
@@ -270,7 +270,7 @@ public class CNXFixOrderMessageFactory implements Fix44OrderMessageFactory {
 
         } else {
 
-            throw new FixApplicationException("Order type " + order.getClass().getName() + " is not supported by Currenex");
+            throw new BrokerAdapterException("Order type " + order.getClass().getName() + " is not supported by Currenex");
         }
 
         return message;

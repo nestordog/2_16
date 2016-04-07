@@ -18,7 +18,9 @@
 package ch.algotrader.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
@@ -32,28 +34,23 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
-import ch.algotrader.dao.ClosePositionVOProducer;
 import ch.algotrader.dao.HibernateInitializer;
-import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
 import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.strategy.CashBalanceVO;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
-import ch.algotrader.report.TradeReport;
-import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.BigDecimalMap;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
-import ch.algotrader.vo.OpenPositionVO;
-import ch.algotrader.vo.PositionMutationVO;
 import ch.algotrader.vo.TradePerformanceVO;
+import ch.algotrader.vo.TransactionResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -73,32 +70,24 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
     private final CashBalanceDao cashBalanceDao;
 
-    private final TradeReport tradeReport;
-
-    private final Engine serverEngine;
-
     public TransactionPersistenceServiceImpl(
             final CommonConfig commonConfig,
             final PortfolioService portfolioService,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(positionDao, "PositionDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
         Validate.notNull(cashBalanceDao, "CashBalanceDao is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.portfolioService = portfolioService;
         this.positionDao = positionDao;
         this.transactionDao = transactionDao;
         this.cashBalanceDao = cashBalanceDao;
-        this.serverEngine = serverEngine;
-        this.tradeReport = TradeReport.create();
     }
 
     /**
@@ -113,12 +102,11 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
     @Override
     @Retryable(maxAttempts = 5, value = {LockAcquisitionException.class, CannotAcquireLockException.class})
     @Transactional(propagation = Propagation.REQUIRED)
-    public PositionMutationVO saveTransaction(final Transaction transaction) {
+    public TransactionResultVO saveTransaction(final Transaction transaction) {
 
         Validate.notNull(transaction, "Transaction is null");
 
-        OpenPositionVO openPositionVO = null;
-        ClosePositionVO closePositionVO = null;
+        PositionVO positionMutation = null;
         TradePerformanceVO tradePerformance = null;
 
         // position handling (incl ClosePositionVO and TradePerformanceVO)
@@ -137,32 +125,22 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                         " / security " + security.getId() + " not found ", null);
             }
 
-            boolean existingOpenPosition = position.isOpen();
-
-            // get the closePositionVO (must be done before closing the position)
-            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
-
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = PositionTrackerImpl.INSTANCE.processTransaction(position, transaction);
-
-            // in case a position is open reset the closePosition event
-            if (position.isOpen()) {
-                closePositionVO = null;
-            }
 
             // associate the position
             transaction.setPosition(position);
 
             // if no position was open before initialize the openPosition event
-            if (!existingOpenPosition) {
-                openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
-            }
+            positionMutation = position.convertToVO();
         }
 
         transaction.initializeSecurity(HibernateInitializer.INSTANCE);
 
+        Collection<CurrencyAmountVO> attributions = transaction.getAttributions();
+        List<CashBalanceVO> cashBalances = new ArrayList<>(attributions.size());
         // add the amount to the corresponding cashBalance
-        for (CurrencyAmountVO amount : transaction.getAttributions()) {
+        for (CurrencyAmountVO amount : attributions) {
 
             Currency currency = amount.getCurrency();
             CashBalance cashBalance;
@@ -176,6 +154,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
                         " / currency " + currency + " not found ", null);
             }
             cashBalance.setAmount(cashBalance.getAmount().add(amount.getAmount()));
+            cashBalances.add(cashBalance.convertToVO());
         }
 
         // save a portfolioValue (if necessary)
@@ -184,39 +163,7 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         // create the transaction
         this.transactionDao.save(transaction);
 
-        // prepare log message and propagate tradePerformance
-        String logMessage = "executed transaction: " + transaction;
-        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
-
-            logMessage += ",profit=" + RoundUtil.getBigDecimal(tradePerformance.getProfit()) + ",profitPct=" + RoundUtil.getBigDecimal(tradePerformance.getProfitPct());
-
-            // propagate the TradePerformance event
-            this.serverEngine.sendEvent(tradePerformance);
-
-            // log trade report
-            this.tradeReport.write(transaction, tradePerformance);
-        }
-
-        LOGGER.info(logMessage);
-
-        // return PositionMutation event if existent
-        return openPositionVO != null ? openPositionVO : closePositionVO != null ? closePositionVO : null;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void saveTransactions(final Collection<Transaction> transactions) {
-
-        Validate.notNull(transactions, "Transaction list is null");
-
-        for (Transaction transaction : transactions) {
-
-            saveTransaction(transaction);
-        }
+        return new TransactionResultVO(positionMutation, tradePerformance, cashBalances);
     }
 
     /**
@@ -275,9 +222,6 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
 
                 this.cashBalanceDao.save(cashBalance);
 
-                // reverse-associate with strategy (after cashBalance has received an id)
-                strategy.getCashBalances().add(cashBalance);
-
                 String info = "created cashBalance " + cashBalance;
                 LOGGER.info(info);
                 buffer.append(info + "\n");
@@ -289,7 +233,6 @@ public abstract class TransactionPersistenceServiceImpl implements TransactionPe
         for (CashBalance cashBalance : existingCashBalances) {
 
             Strategy strategy = cashBalance.getStrategy();
-            strategy.getCashBalances().remove(cashBalance);
 
             String info = "removed cashBalance " + cashBalance;
             LOGGER.info(info);

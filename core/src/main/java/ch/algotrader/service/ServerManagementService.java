@@ -90,12 +90,6 @@ public interface ServerManagementService {
     public void hedgeDelta(long underlyingId);
 
     /**
-     * Creates Rebalance Transactions so that Net-Liquidation-Values of all strategies are in line
-     * with the defined Strategy-Allocation.
-     */
-    public void rebalancePortfolio();
-
-    /**
      * Calculates all Cash Balances and Position quantities based on Transactions in the database
      * and makes adjustments if necessary
      */

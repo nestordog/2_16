@@ -90,4 +90,36 @@ public class TestTTMarketDataRequestFactory {
         Assert.assertEquals(new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES), marketDataRequest.getSubscriptionRequestType());
     }
 
+    @Test
+    public void testRequestSecurityTTExchaneCode() throws Exception {
+
+        Exchange exchange = Exchange.Factory.newInstance();
+        exchange.setName("CME");
+        exchange.setCode("CME");
+        exchange.setTtCode("CME_TT");
+        exchange.setTimeZone("US/Central");
+
+        FutureFamily futureFamily = FutureFamily.Factory.newInstance();
+        futureFamily.setSymbolRoot("CL");
+        futureFamily.setExpirationType(ExpirationType.NEXT_3_RD_MONDAY_3_MONTHS);
+        futureFamily.setCurrency(Currency.USD);
+        futureFamily.setExchange(exchange);
+
+        Future future = Future.Factory.newInstance();
+        future.setId(123L);
+        future.setSymbol("CL JUN/16");
+        future.setTtid("00A0KP00CLZ");
+        future.setSecurityFamily(futureFamily);
+
+        MarketDataRequest marketDataRequest = this.requestFactory.create(future, SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES);
+
+        Assert.assertEquals(new MDReqID("123"), marketDataRequest.getMDReqID());
+        Assert.assertEquals(1, marketDataRequest.getGroupCount(NoRelatedSym.FIELD));
+        Group symGroup = marketDataRequest.getGroup(1, NoRelatedSym.FIELD);
+        Assert.assertEquals("00A0KP00CLZ", symGroup.getString(SecurityID.FIELD));
+        Assert.assertEquals("CL", symGroup.getString(Symbol.FIELD));
+        Assert.assertEquals("CME_TT", symGroup.getString(SecurityExchange.FIELD));
+
+    }
+
 }

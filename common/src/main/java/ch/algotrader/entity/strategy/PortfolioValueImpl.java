@@ -18,6 +18,7 @@
 package ch.algotrader.entity.strategy;
 
 import java.util.Date;
+
 import ch.algotrader.util.DateTimeUtil;
 import ch.algotrader.util.RoundUtil;
 
@@ -35,9 +36,21 @@ public class PortfolioValueImpl extends PortfolioValue {
     }
 
     @Override
-    public double getSecuritiesCurrentValueDouble() {
+    public double getMarketValueDouble() {
 
-        return getSecuritiesCurrentValue().doubleValue();
+        return getMarketValue().doubleValue();
+    }
+
+    @Override
+    public double getRealizedPLDouble() {
+
+        return getRealizedPL().doubleValue();
+    }
+
+    @Override
+    public double getUnrealizedPLDouble() {
+
+        return getUnrealizedPL().doubleValue();
     }
 
     @Override
@@ -57,14 +70,18 @@ public class PortfolioValueImpl extends PortfolioValue {
         buffer.append(getStrategy());
         buffer.append(",netLiqValue=");
         buffer.append(getNetLiqValue());
-        buffer.append(",securitiesCurrentValue=");
-        buffer.append(getSecuritiesCurrentValue());
+        buffer.append(",marketValue=");
+        buffer.append(getMarketValue());
+        buffer.append(",realizedPL=");
+        buffer.append(getRealizedPL());
+        buffer.append(",unrealizedPL=");
+        buffer.append(getUnrealizedPL());
         buffer.append(",cashBalance=");
         buffer.append(getCashBalance());
+        buffer.append(",positions=");
+        buffer.append(getOpenPositions());
         buffer.append(",leverage=");
         buffer.append(RoundUtil.getBigDecimal(getLeverage()));
-        buffer.append(",allocation=");
-        buffer.append(RoundUtil.getBigDecimal(getAllocation()));
 
         if (getCashFlow() != null) {
             buffer.append(",cashFlow=");

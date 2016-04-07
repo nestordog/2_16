@@ -17,16 +17,23 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.trade.ExecutionStatusVO;
+import java.util.List;
+
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 
 /**
+ * Internal order execution service intended to handle persistence and propagation
+ * of various trading events such as order status update and order fills as well
+ * as maintain order execution status in the order book.
+ *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
+ * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public interface OrderExecutionService {
 
@@ -61,6 +68,11 @@ public interface OrderExecutionService {
     String lookupIntId(String extId);
 
     /**
+     * Returns all open child orders of the parent order with the given {@code IntId}.
+     */
+    List<Order> getOpenOrdersByParentIntId(String parentIntId);
+
+    /**
      * Gets an open order details by its {@code intId}.
      */
     OrderDetailsVO getOpenOrderDetailsByIntId(String intId);
@@ -69,11 +81,16 @@ public interface OrderExecutionService {
      * Returns execution status of the order with the given {@code IntId} or {@code null}
      * if an order with this {@code IntId} has been fully executed.
      */
-    ExecutionStatusVO getStatusByIntId(String intId);
+    OrderStatusVO getStatusByIntId(String intId);
 
     /**
      * Gets an open order by its {@code intId}.
      */
     Order getOpenOrderByIntId(String intId);
+
+    /**
+     * Gets an order by its {@code intId}.
+     */
+    Order getOrderByIntId(String intId);
 
 }

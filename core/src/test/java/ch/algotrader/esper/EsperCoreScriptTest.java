@@ -85,14 +85,11 @@ public class EsperCoreScriptTest extends EsperTestBase {
 
     @Test
     public void testAlgoIncremental() throws Exception {
-        ensureCompilable(epService, getClass().getResource("/module-current-values.epl"));
         ensureCompilable(epService, getClass().getResource("/module-algo-incremental.epl"));
     }
 
     @Test
     public void testAlgoSlicing() throws Exception {
-        ensureCompilable(epService, getClass().getResource("/module-current-values.epl"));
-        ensureCompilable(epService, getClass().getResource("/module-trades.epl"));
         ensureCompilable(epService, getClass().getResource("/module-algo-slicing.epl"));
     }
 

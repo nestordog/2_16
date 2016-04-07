@@ -29,50 +29,22 @@ public class TradePerformanceVO implements Serializable {
     /**
      * The monetary profit of the trade (round trip).
      */
-    private double profit;
+    private final double profit;
 
     /**
      * The percent profit of the trade (round trip).
      */
-    private double profitPct;
+    private final double profitPct;
 
     /**
      * True if this was a winning trade (round trip)
      */
-    private boolean winning;
+    private final boolean winning;
 
-    /**
-     * Default Constructor
-     */
-    public TradePerformanceVO() {
-
-        // Documented empty block - avoid compiler warning - no super constructor
-    }
-
-    /**
-     * Constructor with all properties
-     * @param profitIn double
-     * @param profitPctIn double
-     * @param winningIn boolean
-     */
     public TradePerformanceVO(final double profitIn, final double profitPctIn, final boolean winningIn) {
-
         this.profit = profitIn;
         this.profitPct = profitPctIn;
         this.winning = winningIn;
-    }
-
-    /**
-     * Copies constructor from other TradePerformanceVO
-     *
-     * @param otherBean Cannot be <code>null</code>
-     * @throws NullPointerException if the argument is <code>null</code>
-     */
-    public TradePerformanceVO(final TradePerformanceVO otherBean) {
-
-        this.profit = otherBean.getProfit();
-        this.profitPct = otherBean.getProfitPct();
-        this.winning = otherBean.isWinning();
     }
 
     /**
@@ -85,30 +57,12 @@ public class TradePerformanceVO implements Serializable {
     }
 
     /**
-     * The monetary profit of the trade (round trip).
-     * @param value double
-     */
-    public void setProfit(final double value) {
-
-        this.profit = value;
-    }
-
-    /**
      * The percent profit of the trade (round trip).
      * @return profitPct double
      */
     public double getProfitPct() {
 
         return this.profitPct;
-    }
-
-    /**
-     * The percent profit of the trade (round trip).
-     * @param value double
-     */
-    public void setProfitPct(final double value) {
-
-        this.profitPct = value;
     }
 
     /**
@@ -120,37 +74,17 @@ public class TradePerformanceVO implements Serializable {
         return this.winning;
     }
 
-    /**
-     * True if this was a winning trade (round trip)
-     * Duplicates isBoolean method, for use as Jaxb2 compatible object
-     * @return winning boolean
-     */
-    @Deprecated
-    public boolean getWinning() {
-
-        return this.winning;
-    }
-
-    /**
-     * True if this was a winning trade (round trip)
-     * @param value boolean
-     */
-    public void setWinning(final boolean value) {
-
-        this.winning = value;
-    }
-
     @Override
     public String toString() {
 
         StringBuilder builder = new StringBuilder();
-        builder.append("TradePerformanceVO [profit=");
+        builder.append("{profit=");
         builder.append(this.profit);
         builder.append(", profitPct=");
         builder.append(this.profitPct);
         builder.append(", winning=");
         builder.append(this.winning);
-        builder.append("]");
+        builder.append("}");
 
         return builder.toString();
     }

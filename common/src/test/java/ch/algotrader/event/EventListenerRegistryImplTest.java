@@ -84,7 +84,7 @@ public class EventListenerRegistryImplTest {
     @Test
     public void testCalculateTypeHierarchy() throws Exception {
 
-        Class<?>[] allTypes = EventListenerRegistryImpl.calculateTypeHierarchy(FutureImpl.class);
+        Class<?>[] allTypes = EventTypeCache.calculateTypeHierarchy(FutureImpl.class);
         Assert.assertNotNull(allTypes);
         Assert.assertArrayEquals(new Class<?>[] {
                 FutureImpl.class,

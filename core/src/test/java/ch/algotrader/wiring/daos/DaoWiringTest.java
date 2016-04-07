@@ -61,7 +61,6 @@ import ch.algotrader.dao.strategy.CashBalanceDao;
 import ch.algotrader.dao.strategy.MeasurementDao;
 import ch.algotrader.dao.strategy.PortfolioValueDao;
 import ch.algotrader.dao.strategy.StrategyDao;
-import ch.algotrader.dao.trade.AllocationDao;
 import ch.algotrader.dao.trade.LimitOrderDao;
 import ch.algotrader.dao.trade.MarketOrderDao;
 import ch.algotrader.dao.trade.OrderDao;
@@ -74,8 +73,8 @@ import ch.algotrader.dao.trade.StopOrderDao;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.common.CommonConfigWiring;
-import ch.algotrader.wiring.server.DaoWiring;
-import ch.algotrader.wiring.server.ServerEngineWiring;
+import ch.algotrader.wiring.core.DaoWiring;
+import ch.algotrader.wiring.core.ServerEngineWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -130,7 +129,6 @@ public class DaoWiringTest extends DefaultConfigTestBase {
         Assert.assertNotNull(context.getBean(SecurityDao.class));
         Assert.assertNotNull(context.getBean(SecurityFamilyDao.class));
         Assert.assertNotNull(context.getBean(StockDao.class));
-        Assert.assertNotNull(context.getBean(AllocationDao.class));
         Assert.assertNotNull(context.getBean(CashBalanceDao.class));
         Assert.assertNotNull(context.getBean(MeasurementDao.class));
         Assert.assertNotNull(context.getBean(OrderPreferenceDao.class));

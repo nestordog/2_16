@@ -20,7 +20,7 @@ package ch.algotrader.adapter.cnx;
 import org.apache.commons.lang.Validate;
 
 import ch.algotrader.adapter.RequestIdGenerator;
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 import quickfix.field.AggregatedBook;
@@ -51,7 +51,7 @@ public class CNXFixMarketDataRequestFactory {
     public MarketDataRequest create(final Security security, final char type) {
 
         if (!(security instanceof Forex)) {
-            throw new FixApplicationException("Currenex supports Forex only");
+            throw new BrokerAdapterException("Currenex supports Forex only");
         }
         Forex forex = (Forex) security;
 

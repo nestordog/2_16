@@ -28,6 +28,7 @@ import ch.algotrader.dao.AbstractDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.security.Combination;
 import ch.algotrader.entity.security.CombinationImpl;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 
 /**
@@ -66,19 +67,19 @@ public class CombinationDaoImpl extends AbstractDao<Combination> implements Comb
     }
 
     @Override
-    public List<Combination> findSubscribedByStrategyAndComponentType(String strategyName, int type) {
+    public List<Combination> findSubscribedByStrategyAndComponentType(String strategyName, Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findCaching("Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Combination.findSubscribedByStrategyAndComponentType", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type.getSimpleName()));
     }
 
     @Override
-    public List<Combination> findSubscribedByStrategyAndComponentTypeWithZeroQty(String strategyName, int type) {
+    public List<Combination> findSubscribedByStrategyAndComponentTypeWithZeroQty(String strategyName, Class<? extends Security> type) {
 
         Validate.notEmpty(strategyName, "Strategy name is empty");
 
-        return findCaching("Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type));
+        return findCaching("Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty", QueryType.BY_NAME, new NamedParam("strategyName", strategyName), new NamedParam("type", type.getSimpleName()));
     }
 
     @Override

@@ -37,9 +37,7 @@ import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import quickfix.fix42.OrderCancelReject;
 
 /**
@@ -49,10 +47,6 @@ public class TestIBFixOrderMessageHandler {
 
     @Mock
     private OrderExecutionService orderExecutionService;
-    @Mock
-    private TransactionService transactionService;
-    @Mock
-    private Engine engine;
 
     private SecurityFamily family;
     private Forex forex;
@@ -74,7 +68,7 @@ public class TestIBFixOrderMessageHandler {
         this.forex.setSecurityFamily(family);
 
 
-        this.impl = new IBFixOrderMessageHandler(this.orderExecutionService, this.transactionService, new LinkedBlockingDeque<>(), this.engine);
+        this.impl = new IBFixOrderMessageHandler(this.orderExecutionService, new LinkedBlockingDeque<>());
     }
 
     @Test

@@ -26,7 +26,6 @@
     <mapping resource="ch/algotrader/entity/strategy/CashBalance.hbm.xml" />
     <mapping resource="ch/algotrader/entity/strategy/Measurement.hbm.xml" />
     <mapping resource="ch/algotrader/entity/strategy/PortfolioValue.hbm.xml" />
-    <mapping resource="ch/algotrader/entity/trade/Allocation.hbm.xml" />
     <mapping resource="ch/algotrader/entity/trade/Order.hbm.xml" />
     <mapping resource="ch/algotrader/entity/trade/OrderStatus.hbm.xml" />
     <mapping resource="ch/algotrader/entity/trade/OrderProperty.hbm.xml" />

@@ -27,31 +27,29 @@ import java.util.TimeZone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
 import ch.algotrader.service.ServiceException;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.BeanUtil;
 import ch.algotrader.util.PriceUtil;
 import quickfix.FieldNotFound;
@@ -81,22 +79,16 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
     private final LookupService lookupService;
-    private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
     public TTFixOrderMessageHandler(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final LookupService lookupService,
-            final Engine serverEngine,
             final DropCopyAllocator dropCopyAllocator) {
-        super(orderExecutionService, transactionService, serverEngine);
+        super(orderExecutionService);
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
         this.lookupService = lookupService;
-        this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
 
@@ -114,7 +106,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         OrderDetailsVO orderDetails = orderIntId != null ? this.orderExecutionService.getOpenOrderDetailsByIntId(orderIntId) : null;
         if (orderDetails != null) {
 
-            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            OrderStatusVO executionStatus = orderDetails.getOrderStatus();
             Order order = orderDetails.getOrder();
             OrderStatus orderStatus = createStatus(executionReport, order);
             if (executionStatus.getStatus() != orderStatus.getStatus()
@@ -192,7 +184,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             return;
         }
         if (allocation.getStrategy() == null) {
-            throw new FixApplicationException("External (drop-copy) fill could not be allocated to a strategy");
+            throw new BrokerAdapterException("External (drop-copy) fill could not be allocated to a strategy");
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("External (drop-copy) fill {} allocated to " +
@@ -206,8 +198,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         }
 
         if (fill != null) {
-            this.serverEngine.sendEvent(fill);
-            this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
     }
@@ -219,7 +209,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
         try {
             restatedOrder = BeanUtil.clone((SimpleOrder) order);
             restatedOrder.setId(0);
-            restatedOrder.setDateTime(this.serverEngine.getCurrentTime());
+            restatedOrder.setDateTime(new Date());
         } catch (ReflectiveOperationException ex) {
             throw new ServiceException(ex);
         }
@@ -266,7 +256,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
         OrderStatus orderStatus = createStatus(executionReport, restatedOrder);
 
-        this.serverEngine.sendEvent(orderStatus);
         this.orderExecutionService.handleOrderStatus(orderStatus);
     }
 
@@ -300,7 +289,6 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
                     orderStatus.setReason(reject.getText().getValue());
                 }
 
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
                 return;
             }
@@ -349,7 +337,7 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
             if (orderDetails != null) {
                 // internal fill
                 Order order = orderDetails.getOrder();
-                ExecutionStatusVO execStatus = orderDetails.getExecutionStatus();
+                OrderStatusVO execStatus = orderDetails.getOrderStatus();
 
                 long lastQty = (long) executionReport.getLastShares().getValue();
                 long cumQty = execStatus.getFilledQuantity() + lastQty;
@@ -359,13 +347,10 @@ public class TTFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
                 OrderStatus orderStatus = createStatus(executionReport, order);
 
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
 
                 Fill fill = createFill(executionReport, order);
                 if (fill != null) {
-                    this.serverEngine.sendEvent(fill);
-                    this.transactionService.createTransaction(fill);
                     this.orderExecutionService.handleFill(fill);
                 }
             } else {

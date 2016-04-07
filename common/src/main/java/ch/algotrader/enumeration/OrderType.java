@@ -31,13 +31,15 @@ public enum OrderType {
 
     STOP_LIMIT("ch.algotrader.entity.trade.StopLimitOrderImpl"),
 
-    SLICING("ch.algotrader.entity.trade.SlicingOrder"),
+    SLICING("ch.algotrader.entity.trade.algo.SlicingOrder"),
 
-    TICKWISE_INCREMENTAL("ch.algotrader.entity.trade.TickwiseIncrementalOrder"),
+    VWAP("ch.algotrader.entity.trade.algo.VWAPOrder"),
 
-    VARIABLE_INCREMENTAL("ch.algotrader.entity.trade.VariableIncrementalOrder"),
+    TRAILING_LIMIT("ch.algotrader.entity.trade.algo.TrailingLimitOrder"),
 
-    DISTRIBUTIONAL("ch.algotrader.entity.trade.DistributingOrder");
+    TICKWISE_INCREMENTAL("ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder"),
+
+    VARIABLE_INCREMENTAL("ch.algotrader.entity.trade.algo.VariableIncrementalOrder");
 
     private static final long serialVersionUID = 8422386519639840923L;
 

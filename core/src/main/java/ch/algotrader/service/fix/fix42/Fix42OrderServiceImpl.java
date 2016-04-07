@@ -25,7 +25,7 @@ import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.FixOrderServiceImpl;
 import quickfix.fix42.NewOrderSingle;
@@ -39,14 +39,14 @@ import quickfix.fix42.OrderCancelRequest;
  */
 public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implements Fix42OrderService {
 
-    private final OrderRegistry orderRegistry;
+    private final OrderBook orderBook;
     private final Fix42OrderMessageFactory messageFactory;
 
     public Fix42OrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
             final Fix42OrderMessageFactory messageFactory,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
@@ -54,16 +54,16 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         super(orderServiceType, fixAdapter, orderPersistenceService, orderDao, accountDao, commonConfig);
 
-        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(messageFactory, "Fix42OrderMessageFactory is null");
 
-        this.orderRegistry = orderRegistry;
+        this.orderBook = orderBook;
         this.messageFactory = messageFactory;
     }
 
-    protected OrderRegistry getOrderRegistry() {
+    protected OrderBook getOrderRegistry() {
 
-        return this.orderRegistry;
+        return this.orderBook;
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
     }
 
     @Override
-    public void sendOrder(SimpleOrder order) {
+    public String sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -89,20 +89,21 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         // broker-specific settings
         prepareSendOrder(order, message);
 
-        this.orderRegistry.add(order);
+        this.orderBook.add(order);
 
         // send the message
         sendOrder(order, message);
 
+        return clOrdID;
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order) {
+    public String modifyOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
         // assign a new clOrdID
-        String clOrdID = this.orderRegistry.getNextOrderIdRevision(order.getIntId());
+        String clOrdID = this.orderBook.getNextOrderIdRevision(order.getIntId());
 
         OrderCancelReplaceRequest replaceRequest = this.messageFactory.createModifyOrderMessage(order, clOrdID);
 
@@ -113,20 +114,21 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
         order.setIntId(clOrdID);
         order.setExtId(null);
 
-        this.orderRegistry.add(order);
+        this.orderBook.add(order);
 
         // send the message
         sendOrder(order, replaceRequest);
 
+        return clOrdID;
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order) {
+    public String cancelOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
         // assign a new clOrdID
-        String clOrdID = this.orderRegistry.getNextOrderIdRevision(order.getIntId());
+        String clOrdID = this.orderBook.getNextOrderIdRevision(order.getIntId());
 
         OrderCancelRequest cancelRequest = this.messageFactory.createOrderCancelMessage(order, clOrdID);
 
@@ -135,6 +137,8 @@ public abstract class Fix42OrderServiceImpl extends FixOrderServiceImpl implemen
 
         // send the message
         sendOrder(order, cancelRequest);
+
+        return clOrdID;
     }
 
     /**

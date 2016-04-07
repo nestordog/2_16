@@ -41,9 +41,10 @@ public final class CommonConfig {
     private final boolean feedAllMarketDataFiles;
     private final int feedBatchSize;
     private final File reportLocation;
+    private final boolean disableReports;
+    private final boolean openBackTestReport;
     private final boolean simulation;
     private final BigDecimal simulationInitialBalance;
-    private final boolean simulationLogTransactions;
     private final boolean embedded;
     private final Currency portfolioBaseCurrency;
     private final int portfolioDigits;
@@ -62,9 +63,10 @@ public final class CommonConfig {
             @ConfigName("dataSource.feedAllMarketDataFiles") final boolean feedAllMarketDataFiles,
             @ConfigName("dataSource.feedBatchSize") final int feedBatchSize,
             @ConfigName("report.reportLocation") final File reportLocation,
+            @ConfigName("report.disabled") final boolean disableReports,
+            @ConfigName("report.openBackTestReport") final boolean openBackTestReport,
             @ConfigName("simulation") final boolean simulation,
             @ConfigName("simulation.initialBalance") final BigDecimal simulationInitialBalance,
-            @ConfigName("simulation.logTransactions") final boolean simulationLogTransactions,
             @ConfigName("misc.embedded") final boolean embedded,
             @ConfigName("misc.portfolioBaseCurrency") final Currency portfolioBaseCurrency,
             @ConfigName("misc.portfolioDigits") final int portfolioDigits,
@@ -81,9 +83,10 @@ public final class CommonConfig {
         this.feedAllMarketDataFiles = feedAllMarketDataFiles;
         this.feedBatchSize = feedBatchSize;
         this.reportLocation = reportLocation;
+        this.disableReports = disableReports;
+        this.openBackTestReport = openBackTestReport;
         this.simulation = simulation;
         this.simulationInitialBalance = simulationInitialBalance;
-        this.simulationLogTransactions = simulationLogTransactions;
         this.embedded = embedded;
         this.portfolioBaseCurrency = portfolioBaseCurrency;
         this.portfolioDigits = portfolioDigits;
@@ -132,16 +135,20 @@ public final class CommonConfig {
         return this.reportLocation;
     }
 
+    public boolean isDisableReports() {
+        return this.disableReports;
+    }
+
+    public boolean isOpenBackTestReport() {
+        return this.openBackTestReport;
+    }
+
     public boolean isSimulation() {
         return this.simulation;
     }
 
     public BigDecimal getSimulationInitialBalance() {
         return this.simulationInitialBalance;
-    }
-
-    public boolean isSimulationLogTransactions() {
-        return this.simulationLogTransactions;
     }
 
     public boolean isEmbedded() {
@@ -173,16 +180,17 @@ public final class CommonConfig {
         final StringBuilder sb = new StringBuilder("[");
         sb.append("dataSet='").append(this.dataSet).append('\'');
         sb.append(", dataSetType=").append(this.dataSetType);
-        sb.append(", dataSetLocation=").append(this.dataSetLocation);
+        sb.append(", dataSetLocation='").append(this.dataSetLocation).append('\'');
         sb.append(", barSize=").append(this.barSize);
         sb.append(", feedCSV=").append(this.feedCSV);
         sb.append(", feedDB=").append(this.feedDB);
         sb.append(", feedGenericEvents=").append(this.feedGenericEvents);
         sb.append(", feedAllMarketDataFiles=").append(this.feedAllMarketDataFiles);
         sb.append(", feedBatchSize=").append(this.feedBatchSize);
+        sb.append(", reportLocation='").append(this.reportLocation).append('\'');
+        sb.append(", disableReports=").append(this.disableReports);
         sb.append(", simulation=").append(this.simulation);
         sb.append(", simulationInitialBalance=").append(this.simulationInitialBalance);
-        sb.append(", simulationLogTransactions=").append(this.simulationLogTransactions);
         sb.append(", embedded=").append(this.embedded);
         sb.append(", portfolioBaseCurrency=").append(this.portfolioBaseCurrency);
         sb.append(", portfolioDigits=").append(this.portfolioDigits);

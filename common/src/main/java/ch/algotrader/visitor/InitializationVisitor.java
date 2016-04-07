@@ -26,7 +26,7 @@ import ch.algotrader.entity.security.Security;
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initializer> {
+public class InitializationVisitor extends PolymorphicSecurityVisitor<Void, Initializer> {
 
     public static final InitializationVisitor INSTANCE = new InitializationVisitor();
 
@@ -51,8 +51,6 @@ public class InitializationVisitor extends PolymorphicEntityVisitor<Void, Initia
             // initialize subscriptions before positions because the lazy loaded (= Proxy) Strategy
             // so subscriptions would also get the Proxy instead of the implementation
 
-            security.initializeSubscriptions(initializer);
-            security.initializePositions(initializer);
             security.initializeUnderlying(initializer);
             security.initializeSecurityFamily(initializer);
 

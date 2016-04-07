@@ -19,16 +19,41 @@ package ch.algotrader.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.Bar;
 import ch.algotrader.entity.marketData.Tick;
+import ch.algotrader.entity.strategy.CashBalance;
+import ch.algotrader.entity.trade.Order;
+import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Duration;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public interface ServerLookupService {
+
+    /**
+     * Loads pending orders. An order is considered pending if the status of the last
+     * {@link OrderStatus} event associated with the order is either
+     * {@link ch.algotrader.enumeration.Status#OPEN},
+     * {@link ch.algotrader.enumeration.Status#SUBMITTED} or
+     * {@link ch.algotrader.enumeration.Status#PARTIALLY_EXECUTED}
+     * or there are no events associated with the order.
+     */
+    Map<Order, OrderStatus> loadPendingOrders();
+
+    /**
+     * Load all existing positions.
+     */
+    List<Position> getAllPositions();
+
+    /**
+     * Load all existing cash balances.
+     */
+    List<CashBalance> getAllCashBalances();
 
     /**
      * Gets the securityId by the specified securityString, by checking fields

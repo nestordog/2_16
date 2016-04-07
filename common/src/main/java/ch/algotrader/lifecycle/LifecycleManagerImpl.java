@@ -34,6 +34,7 @@ import ch.algotrader.enumeration.OperationMode;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.service.InitializingServiceI;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -72,7 +73,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runServices() {
+    public void runServices() throws Exception {
 
         // initialize services
         Map<String, InitializingServiceI> allServices = this.applicationContext.getBeansOfType(InitializingServiceI.class);
@@ -88,7 +89,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runServer() {
+    public void runServer() throws Exception {
 
         Engine engine = this.engineManager.getServerEngine();
         engine.setInternalClock(true);
@@ -102,7 +103,7 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     @Override
-    public void runEmbedded() {
+    public void runEmbedded() throws Exception  {
 
         Engine serverEngine = this.engineManager.getServerEngine();
         serverEngine.setInternalClock(true);
@@ -159,12 +160,12 @@ public class LifecycleManagerImpl implements LifecycleManager, ApplicationContex
     }
 
     private void broadcastLocal(final LifecyclePhase phase) {
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+        this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()), EventRecipient.ALL_LOCAL);
     }
 
     private void broadcastLocalOnShutdown(final LifecyclePhase phase) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()));
+            this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.REAL_TIME, phase, new Date()), EventRecipient.ALL_LOCAL);
         }));
     }
 

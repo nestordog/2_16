@@ -17,8 +17,6 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import ch.algotrader.entity.Position;
-
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
@@ -37,24 +35,6 @@ public interface PositionService {
     public void closePosition(long positionId, boolean unsubscribe);
 
     /**
-     * Creates a Position based on a non-tradeable Security (e.g. {@link
-     * ch.algotrader.entity.security.Combination Combination})
-     */
-    public Position createNonTradeablePosition(String strategyName, long securityId, long quantity);
-
-    /**
-     * Modifies a Position that is based on a non-tradeable Security (e.g. {@link
-     * ch.algotrader.entity.security.Combination Combination})
-     */
-    public Position modifyNonTradeablePosition(long positionId, long quantity);
-
-    /**
-     * Deletes a Position that is based on a non-tradeable Security (e.g. {@link
-     * ch.algotrader.entity.security.Combination Combination})
-     */
-    public void deleteNonTradeablePosition(long positionId, boolean unsubscribe);
-
-    /**
      * Reduces the specified Position by the specified {@code quantity}
      */
     public void reducePosition(long positionId, long quantity);
@@ -63,12 +43,6 @@ public interface PositionService {
      * Transfers a Position to another Strategy.
      */
     public void transferPosition(long positionId, String targetStrategyName);
-
-    /**
-     * Expires all expirable Positions. Only Positions on Securities that have an {@code
-     * expirationDate} in the past will be expired.
-     */
-    public void expirePositions();
 
     /**
      * Calculates all Position {@code quantities} based on Transactions in the database and makes

@@ -17,7 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.dc;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Security;
 
@@ -33,7 +33,7 @@ public class DCUtil {
     public static String getDCSymbol(Security security) {
 
         if (!(security instanceof Forex)) {
-            throw new FixApplicationException("DukasCopy can only handle forex");
+            throw new BrokerAdapterException("DukasCopy can only handle forex");
         }
 
         Forex forex = (Forex)security;

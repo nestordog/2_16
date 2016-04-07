@@ -64,7 +64,7 @@ public class OrderPreferenceDaoTest extends InMemoryDBTest {
 
         OrderPreference orderPreference1 = new OrderPreferenceImpl();
         orderPreference1.setName("Primary");
-        orderPreference1.setOrderType(OrderType.DISTRIBUTIONAL);
+        orderPreference1.setOrderType(OrderType.SLICING);
 
         this.session.save(orderPreference1);
         this.session.flush();
@@ -92,7 +92,7 @@ public class OrderPreferenceDaoTest extends InMemoryDBTest {
 
         OrderPreference orderPreference1 = new OrderPreferenceImpl();
         orderPreference1.setName("Primary");
-        orderPreference1.setOrderType(OrderType.DISTRIBUTIONAL);
+        orderPreference1.setOrderType(OrderType.SLICING);
         orderPreference1.setDefaultAccount(account1);
 
         this.session.save(orderPreference1);

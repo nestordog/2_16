@@ -4,7 +4,7 @@
 insert into
     MonthlyPerformance
 select
-    current_timestamp().minus(1 month).toDate() as date,
+    current_timestamp().minus(1 month).withMin('day').withTime(0, 0, 0, 0).toDate() as date,
     portfolioValue.netLiqValueDouble / prior(1, portfolioValue.netLiqValueDouble) - 1 as value
 from
     pattern[(every timer:at (0, 0, 1, *, *) or EndOfSimulation) -> portfolioValue=PortfolioValue]

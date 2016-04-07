@@ -27,13 +27,13 @@ from
 select
     openPosition
 from
-    pattern[openPosition=OpenPosition(securityId = ?)];
+    pattern[openPosition=PositionVO(securityId = ?)];
 
 @Name('ON_CLOSE_POSITION')
 select
     closePosition
 from
-    pattern[closePosition=ClosePosition(securityId = ?)];
+    pattern[closePosition=PositionVO(securityId = ?)];
 
 @Name('ON_TIMER')   
 select 

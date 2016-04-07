@@ -20,7 +20,9 @@ package ch.algotrader.service;
 import java.util.Collections;
 import java.util.Map;
 
+import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.marketData.BarVO;
 import ch.algotrader.entity.marketData.TickVO;
@@ -31,22 +33,17 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.OrderVO;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.event.listener.BarEventListener;
-import ch.algotrader.event.listener.ClosePositionEventListener;
-import ch.algotrader.event.listener.ExpirePositionEventListener;
 import ch.algotrader.event.listener.FillEventListener;
 import ch.algotrader.event.listener.LifecycleEventListener;
-import ch.algotrader.event.listener.OpenPositionEventListener;
 import ch.algotrader.event.listener.OrderCompletionEventListener;
 import ch.algotrader.event.listener.OrderEventListener;
 import ch.algotrader.event.listener.OrderStatusEventListener;
+import ch.algotrader.event.listener.PositionEventListener;
 import ch.algotrader.event.listener.SessionEventListener;
 import ch.algotrader.event.listener.TickEventListener;
 import ch.algotrader.event.listener.TransactionEventListener;
 import ch.algotrader.simulation.SimulationResultsProducer;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.ExpirePositionVO;
 import ch.algotrader.vo.LifecycleEventVO;
-import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
@@ -62,12 +59,8 @@ import ch.algotrader.vo.SessionEventVO;
  */
 //@formatter:off
 public class StrategyService implements
-        LifecycleEventListener,
-        BarEventListener, TickEventListener,
-        OrderEventListener, OrderStatusEventListener, OrderCompletionEventListener, FillEventListener, TransactionEventListener,
-        OpenPositionEventListener, ClosePositionEventListener, ExpirePositionEventListener,
-        SessionEventListener,
-        SimulationResultsProducer {
+        LifecycleEventListener, BarEventListener, TickEventListener, OrderEventListener, OrderStatusEventListener, OrderCompletionEventListener,
+        FillEventListener, TransactionEventListener, PositionEventListener, SessionEventListener, SimulationResultsProducer {
 //@formatter:on
 
     private CommonConfig commonConfig;
@@ -76,7 +69,7 @@ public class StrategyService implements
     private FutureService futureService;
     private HistoricalDataService historicalDataService;
     private LookupService lookupService;
-    private MarketDataCache marketDataCache;
+    private MarketDataCacheService marketDataCacheService;
     private MarketDataService marketDataService;
     private MeasurementService measurementService;
     private OptionService optionService;
@@ -86,6 +79,7 @@ public class StrategyService implements
     private PropertyService propertyService;
     private ReferenceDataService referenceDataService;
     private SubscriptionService subscriptionService;
+    private CacheManager cacheManager;
     private String strategyName;
     private double weight;
     private Engine engine;
@@ -138,12 +132,12 @@ public class StrategyService implements
         this.lookupService = lookupService;
     }
 
-    public MarketDataCache getMarketDataCache() {
-        return this.marketDataCache;
+    public MarketDataCacheService getMarketDataCacheService() {
+        return this.marketDataCacheService;
     }
 
-    public void setMarketDataCache(MarketDataCache marketDataCache) {
-        this.marketDataCache = marketDataCache;
+    public void setMarketDataCacheService(MarketDataCacheService marketDataCacheService) {
+        this.marketDataCacheService = marketDataCacheService;
     }
 
     public MarketDataService getMarketDataService() {
@@ -216,6 +210,14 @@ public class StrategyService implements
 
     public void setSubscriptionService(SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
+    }
+
+    public CacheManager getCacheManager() {
+        return this.cacheManager;
+    }
+
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
     public void setStrategyName(final String strategyName) {
@@ -313,15 +315,7 @@ public class StrategyService implements
     }
 
     @Override
-    public void onOpenPosition(final OpenPositionVO openPosition) {
-    }
-
-    @Override
-    public void onClosePosition(final ClosePositionVO closePosition) {
-    }
-
-    @Override
-    public void onExpirePosition(final ExpirePositionVO expirePosition) {
+    public void onPositionChange(final PositionVO openPosition) {
     }
 
     @Override

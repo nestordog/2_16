@@ -33,7 +33,7 @@ import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.FixStatelessService;
 import ch.algotrader.service.fix.fix42.Fix42OrderService;
@@ -55,27 +55,27 @@ public class TTFixOrderServiceImpl extends Fix42OrderServiceImpl implements Fix4
     public TTFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         super(orderServiceType, fixAdapter, new TTFixOrderMessageFactory(),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
         this.positionRequestFactory = new TTFixPositionRequestFactory();
         this.orderStatusRequestFactory = new TTFixOrderStatusRequestFactory();
     }
 
     public TTFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.TT_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.TT_FIX.name(), fixAdapter, orderBook, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 

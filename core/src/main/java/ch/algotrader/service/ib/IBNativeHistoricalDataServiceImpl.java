@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.service.ib;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
@@ -66,10 +68,17 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
     private static final Logger LOGGER = LogManager.getLogger(IBNativeHistoricalDataServiceImpl.class);
     private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
-    private static final int pacingMillis = 10 * 1000;
 
-    private long lastTimeStamp = 0;
 
+    // The following conditions can cause a pacing violation:
+    // (1) Making identical historical data requests within 15 seconds;
+    // (2) Making six or more historical data requests for the same Contract, Exchange and Tick Type within two seconds.
+    // (3) Making more than 60 historical data requests in any ten-minute period.
+
+    // Safest delay between consecutive invocations
+    private static final int pacingMillis = 15 * 1000;
+
+    private final AtomicLong lastTimeStamp;
     private final IBSession iBSession;
     private final IBConfig iBConfig;
     private final IBPendingRequests pendingRequests;
@@ -92,6 +101,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         Validate.notNull(requestIdGenerator, "IdGenerator is null");
         Validate.notNull(securityDao, "SecurityDao is null");
 
+        this.lastTimeStamp = new AtomicLong(0L);
         this.iBSession = iBSession;
         this.iBConfig = iBConfig;
         this.pendingRequests = pendingRequests;
@@ -109,7 +119,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
 
         Security security = this.securityDao.get(securityId);
         if (security == null) {
-            throw new ServiceException("security was not found " + securityId);
+            throw new ServiceException("security was not found: " + securityId);
         }
 
         int scale = security.getSecurityFamily().getScale(Broker.IB.name());
@@ -135,7 +145,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
                 durationString += "Y";
                 break;
             default:
-                throw new IllegalArgumentException("timePeriod is not allowed " + timePeriod);
+                throw new ServiceException("timePeriod is not allowed " + timePeriod);
         }
 
         String[] barSizeName = barSize.name().split("_");
@@ -155,7 +165,7 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
                 barSizeString += "day";
                 break;
             default:
-                throw new IllegalArgumentException("barSize is not allowed " + barSize);
+                throw new ServiceException("barSize is not allowed " + barSize);
         }
 
         if (Integer.parseInt(barSizeName[1]) > 1) {
@@ -180,15 +190,15 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
                 marketDataEventTypeString = "BID_ASK";
                 break;
             default:
-                throw new IllegalArgumentException("unsupported marketDataEventType " + marketDataEventType);
+                throw new ServiceException("unsupported marketDataEventType " + marketDataEventType);
         }
 
         // avoid pacing violations
-        long gapMillis = System.currentTimeMillis() - this.lastTimeStamp;
-        if (this.lastTimeStamp != 0 && gapMillis < pacingMillis) {
-            long waitMillis = pacingMillis - gapMillis;
+        long waitMillis = (this.lastTimeStamp.get() + pacingMillis) - System.currentTimeMillis();
+        if (waitMillis > 0) {
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("waiting {} millis until next historical data request", waitMillis);
+                LOGGER.debug("waiting {} seconds until next historical data request",
+                        new BigDecimal(((double) waitMillis) / 1000).setScale(2, BigDecimal.ROUND_HALF_EVEN));
             }
             try {
                 Thread.sleep(waitMillis);
@@ -208,6 +218,8 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         this.iBSession.reqHistoricalData(requestId, contract, dateString, durationString, barSizeString, marketDataEventTypeString, this.iBConfig.useRTH() ? 1 : 0, 1, Collections.<TagValue>emptyList());
         List<Bar> bars = getBarsBlocking(promise);
 
+        this.lastTimeStamp.set(System.currentTimeMillis());
+
         // set & update fields
         for (Bar bar: bars) {
             bar.setSecurity(security);
@@ -216,9 +228,9 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
             bar.getHigh().setScale(scale, RoundingMode.HALF_UP);
             bar.getLow().setScale(scale, RoundingMode.HALF_UP);
             bar.getClose().setScale(scale, RoundingMode.HALF_UP);
+            bar.getVwap().setScale(scale, RoundingMode.HALF_UP);
             bar.setBarSize(barSize);
         }
-        this.lastTimeStamp = System.currentTimeMillis();
         return bars;
     }
 

@@ -313,7 +313,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction1.setUuid(UUID.randomUUID().toString());
         transaction1.setSecurity(this.forex1);
         transaction1.setQuantity(222);
-        transaction1.setDateTime(new Date());
+        transaction1.setDateTime(new Date(1));
         transaction1.setPrice(new BigDecimal(111));
         transaction1.setCurrency(Currency.INR);
         transaction1.setType(TransactionType.SELL);
@@ -327,7 +327,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction2.setUuid(UUID.randomUUID().toString());
         transaction2.setSecurity(this.forex2);
         transaction2.setQuantity(222);
-        transaction2.setDateTime(new Date());
+        transaction2.setDateTime(new Date(2));
         transaction2.setPrice(new BigDecimal(111));
         transaction2.setCurrency(Currency.NZD);
         transaction2.setType(TransactionType.BUY);
@@ -337,7 +337,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction3.setUuid(UUID.randomUUID().toString());
         transaction3.setSecurity(this.forex2);
         transaction3.setQuantity(222);
-        transaction3.setDateTime(new Date());
+        transaction3.setDateTime(new Date(3));
         transaction3.setPrice(new BigDecimal(111));
         transaction3.setCurrency(Currency.NZD);
         transaction3.setType(TransactionType.EXPIRATION);
@@ -347,7 +347,7 @@ public class TransactionDaoTest extends InMemoryDBTest {
         transaction4.setUuid(UUID.randomUUID().toString());
         transaction4.setSecurity(this.forex2);
         transaction4.setQuantity(222);
-        transaction4.setDateTime(new Date());
+        transaction4.setDateTime(new Date(4));
         transaction4.setPrice(new BigDecimal(111));
         transaction4.setCurrency(Currency.NZD);
         transaction4.setType(TransactionType.TRANSFER);

@@ -20,15 +20,6 @@ from
 where
 	exists(select * from MarketDataWindow);
 
-@Name('EXPIRE_POSITION')
-@Condition(key='statement.expirePosition')
-@Subscriber(className='positionService#expirePositions')
-select
-    null
-from
-    pattern[every timer:at (0, 13, *, *, *)];
-
-
 @Name('HEDGE_FOREX')
 @Condition(key='statement.hedgeForex')
 @Subscriber(className='forexService#hedgeForex')
@@ -36,11 +27,3 @@ select
     null
 from
     pattern[every timer:at (0, 18, *, *, 3)];
-
-@Name('REBALANCE_PORTFOLIO')
-@Condition(key='statement.rebalancePortfolio')
-@Subscriber(className='transactionService#rebalancePortfolio')
-select
-    null
-from
-    pattern[every timer:at (0, 11, *, *, 3)];

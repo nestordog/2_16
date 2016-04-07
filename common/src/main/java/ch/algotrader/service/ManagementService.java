@@ -81,11 +81,6 @@ public interface ManagementService {
     public Map<String, Object> getProperties();
 
     /**
-     * Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)
-     */
-    public double getStrategyAllocation();
-
-    /**
      * Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)
      */
     public BigDecimal getStrategyCashBalance();
@@ -116,7 +111,13 @@ public interface ManagementService {
      * Gets the total Market Value of all Positions of this Strategy (or the entire System if called
      * from the AlgoTrader Server)
      */
-    public BigDecimal getStrategySecuritiesCurrentValue();
+    public BigDecimal getStrategyMarketValue();
+
+    /**
+     * Gets the total RealizedPL of all Positions of this Strategy (or the entire System if called
+     * from the AlgoTrader Server)
+     */
+    public BigDecimal getStrategyRealizedPL();
 
     /**
      * Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called
@@ -190,23 +191,14 @@ public interface ManagementService {
     public void closePosition(long positionId);
 
     /**
+     * Closes all positions of this strategy by using the defined default OrderPreference
+     */
+    public void closeAllPositions();
+
+    /**
      * Reduces the Position by the specified amount by using the defined default OrderPreference
      */
     public void reducePosition(long positionId, int quantity);
-
-    /**
-     * Reduce the Component quantities and the associated Position by the specified ratio
-     * @param combination
-     * <ul>
-     * <li>securityId (e.g. 123)</li>
-     * <li>symbol (e.g. GOOG)</li>
-     * <li>isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;)</li>
-     * <li>bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;)</li>
-     * <li>ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;)</li>
-     * <li>conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;)</li>
-     * </ul>
-     */
-    public void reduceCombination(String combination, double ratio);
 
     /**
      * Set the value of the specified Esper variable

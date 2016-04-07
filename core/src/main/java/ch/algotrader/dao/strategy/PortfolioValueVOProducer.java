@@ -35,15 +35,17 @@ public class PortfolioValueVOProducer implements EntityConverter<PortfolioValue,
 
         Validate.notNull(entity, "PortfolioValue is null");
 
-        PortfolioValueVO vo = new PortfolioValueVO();
-
-        vo.setDateTime(entity.getDateTime());
-        vo.setNetLiqValue(entity.getNetLiqValue());
-        vo.setSecuritiesCurrentValue(entity.getSecuritiesCurrentValue());
-        vo.setCashBalance(entity.getCashBalance());
-        vo.setLeverage(entity.getLeverage());
-        vo.setAllocation(entity.getAllocation());
-        vo.setCashFlow(entity.getCashFlow());
+        PortfolioValueVO vo = new PortfolioValueVO(0l, //
+                entity.getDateTime(), //
+                entity.getNetLiqValue(), //
+                entity.getMarketValue(), //
+                entity.getRealizedPL(), //
+                entity.getUnrealizedPL(), //
+                entity.getCashBalance(), //
+                entity.getOpenPositions(), //
+                entity.getLeverage(), //
+                entity.getCashFlow(), //
+                entity.getStrategy().getId());
 
         return vo;
     }

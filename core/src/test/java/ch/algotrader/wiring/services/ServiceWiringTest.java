@@ -32,8 +32,8 @@ import ch.algotrader.service.CombinationService;
 import ch.algotrader.service.ForexService;
 import ch.algotrader.service.FutureService;
 import ch.algotrader.service.LazyLoaderService;
-import ch.algotrader.service.MarketDataCache;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.MeasurementService;
 import ch.algotrader.service.OptionService;
@@ -46,15 +46,16 @@ import ch.algotrader.service.ServerManagementService;
 import ch.algotrader.service.SubscriptionService;
 import ch.algotrader.service.TransactionPersistenceService;
 import ch.algotrader.service.TransactionService;
+import ch.algotrader.service.noop.NoopHistoricalDataServiceImpl;
 import ch.algotrader.wiring.DefaultConfigTestBase;
 import ch.algotrader.wiring.HibernateNoCachingWiring;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.server.CacheWiring;
-import ch.algotrader.wiring.server.CoreConfigWiring;
-import ch.algotrader.wiring.server.DaoWiring;
-import ch.algotrader.wiring.server.ServerEngineWiring;
-import ch.algotrader.wiring.server.ServiceWiring;
+import ch.algotrader.wiring.core.CacheWiring;
+import ch.algotrader.wiring.core.CoreConfigWiring;
+import ch.algotrader.wiring.core.DaoWiring;
+import ch.algotrader.wiring.core.ServerEngineWiring;
+import ch.algotrader.wiring.core.ServiceWiring;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
@@ -85,6 +86,8 @@ public class ServiceWiringTest extends DefaultConfigTestBase {
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
 
+        context.getDefaultListableBeanFactory().registerSingleton("historicalDataService", new NoopHistoricalDataServiceImpl());
+
         context.register(ServiceWiring.class, CommonConfigWiring.class, CoreConfigWiring.class, HibernateNoCachingWiring.class,
                 CacheWiring.class, DaoWiring.class, ServerEngineWiring.class, EventDispatchWiring.class);
 
@@ -106,7 +109,7 @@ public class ServiceWiringTest extends DefaultConfigTestBase {
         Assert.assertNotNull(context.getBean(PropertyService.class));
         Assert.assertNotNull(context.getBean(CalendarService.class));
         Assert.assertNotNull(context.getBean(SubscriptionService.class));
-        Assert.assertNotNull(context.getBean(MarketDataCache.class));
+        Assert.assertNotNull(context.getBean(MarketDataCacheService.class));
         Assert.assertNotNull(context.getBean(LazyLoaderService.class));
 
         context.close();

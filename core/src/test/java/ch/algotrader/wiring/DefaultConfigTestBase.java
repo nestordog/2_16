@@ -45,12 +45,14 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("dataSource.feedAllMarketDataFiles", "true");
         CONFIG_MAP.put("dataSource.feedBatchSize", "20");
         CONFIG_MAP.put("report.reportLocation", "stuff/report-stuff");
+        CONFIG_MAP.put("report.disabled", "true");
+        CONFIG_MAP.put("report.openBackTestReport", "true");
         CONFIG_MAP.put("simulation", "true");
         CONFIG_MAP.put("simulation.initialBalance", "500.5");
         CONFIG_MAP.put("simulation.logTransactions", "true");
         CONFIG_MAP.put("misc.embedded", "true");
         CONFIG_MAP.put("misc.portfolioBaseCurrency", "EUR");
-        CONFIG_MAP.put("misc.portfolioDigits", "5");
+        CONFIG_MAP.put("misc.portfolioDigits", "2");
         CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
         CONFIG_MAP.put("misc.validateCrossedSpread", "true");
         CONFIG_MAP.put("misc.displayClosedPositions", "true");
@@ -63,6 +65,7 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("misc.rebalanceMinAmount", "1000");
         CONFIG_MAP.put("misc.defaultFeedType", "IB");
         CONFIG_MAP.put("misc.defaultOrderPreference", "DEFAULT");
+        CONFIG_MAP.put("misc.positionCheckDisabled", "false");
         CONFIG_MAP.put("fx.futureHedgeEnabled", "false");
         CONFIG_MAP.put("fx.futureHedgeMinTimeToExpiration", "604800000");
         CONFIG_MAP.put("fx.hedgeMinAmount", "8000");
@@ -70,7 +73,6 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("fx.hedgeOrderPreference", "FX");
         CONFIG_MAP.put("delta.hedgeMinTimeToExpiration", "604800000");
         CONFIG_MAP.put("delta.hedgeOrderPreference", "OPT");
-        CONFIG_MAP.put("persistence.positionCheckDisabled", "false");
 
         DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
         ConfigParams configParams = new ConfigParams(configProvider);

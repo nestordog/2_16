@@ -20,12 +20,12 @@ package ch.algotrader.service.sim;
 import java.math.BigDecimal;
 
 import ch.algotrader.entity.trade.SimpleOrder;
-import ch.algotrader.service.ExternalOrderService;
+import ch.algotrader.service.SimpleOrderExecService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
-public interface SimulationOrderService extends ExternalOrderService {
+public interface SimulationOrderService extends SimpleOrderExecService {
 
     /**
      * get the execution price for the specified Order. Per default limit orders are executed at

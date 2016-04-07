@@ -1,0 +1,27 @@
+algotrader:
+  image: algotrader/algotrader
+  command: -i
+  links:
+    - mysql
+    - ibgateway
+  ports:
+    - 9090:9090
+    - 61614:61614
+
+ibgateway:
+  image: algotrader/ibgateway
+  environment:
+    TWS_USERNAME: edemo
+    TWS_PASSWORD: demouser
+  volumes:
+    - /var/lib/tws
+
+mysql:
+  image: mysql
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+    MYSQL_DATABASE: algotrader
+  ports:
+    - 3306:3306
+  volumes:
+    - /var/lib/mysql

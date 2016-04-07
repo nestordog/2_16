@@ -54,7 +54,6 @@ import ch.algotrader.util.DateTimeLegacy;
 public class IBUtil {
 
     private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DateTimeFormatter executionFormat = DateTimeFormatter.ofPattern("yyyyMMdd  HH:mm:ss");
     private static final DecimalFormat decimalFormat = new DecimalFormat("#.#######");
 
@@ -85,7 +84,7 @@ public class IBUtil {
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
                 contract.m_primaryExch = securityFamily.getExchange().getIbCode();
                 contract.m_strike = option.getStrike().doubleValue();
-                contract.m_right = option.getType().toString();
+                contract.m_right = option.getOptionType().toString();
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
                 contract.m_expiry = dayFormat.format(DateTimeLegacy.toLocalDate(option.getExpiration()));
 
@@ -98,7 +97,7 @@ public class IBUtil {
                 contract.m_secType = "FUT";
                 contract.m_symbol = securityFamily.getSymbolRoot(Broker.IB.name());
                 contract.m_multiplier = decimalFormat.format(securityFamily.getContractSize(Broker.IB.name()));
-                contract.m_expiry = monthFormat.format(DateTimeLegacy.toLocalDate(future.getExpiration()));
+                contract.m_expiry = future.getMonthYear();
 
             } else if (security instanceof Forex) {
 

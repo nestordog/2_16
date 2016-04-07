@@ -1,3 +1,36 @@
+Version 3.0
+Major changes
+	HTML5 based web frontend
+	Docker based installation and deployment
+	Excel based back test report
+	Execution algo API redesign
+	New execution algos: VWAP, target position & trailing limit
+Installation & Deployment	
+	use of Flyway command line
+	generate separate assemblies for client & core 
+Domain Model
+	added CNH, CZK, DKK, HUF, ILS, MXN currencies
+	generate VOBuilders
+Database
+	security family & security mapping changed to one table per hierarchy
+	updated database sample data
+Esper
+	added ExponentialMovingAverage function
+	Engine callback API redesign
+Futures & Options
+	added future monthYear
+Market Data
+	CvsTypeCoercer to accept yyyy-MM-dd HH:mm:ss format
+	market data price normalization
+Adapters
+	added DropCopy for TT & LMAX
+Events and Messaging	
+	added embedded ActiveMQ message broker
+	added Websocket infrastructure
+Processes and Networking
+	added embedded Jetty HTTP server 
+	added optional TLS transport security & BASIC auth
+    
 Version 2.3
 Strategy Development
     support for strategy groups

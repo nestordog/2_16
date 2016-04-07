@@ -35,6 +35,7 @@ import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Initializer;
+import ch.algotrader.entity.security.Security;
 import ch.algotrader.enumeration.QueryType;
 import ch.algotrader.event.listener.EntityCacheEventListener;
 import ch.algotrader.event.listener.QueryCacheEventListener;
@@ -123,7 +124,9 @@ public class CacheManagerImpl implements CacheManager, Initializer, EntityCacheE
         } else {
 
             // make sure the entity is initialized
-            entity.accept(InitializationVisitor.INSTANCE, this);
+            if (entity instanceof Security) {
+                ((Security) entity).accept(InitializationVisitor.INSTANCE, this);
+            }
         }
 
         return entity;

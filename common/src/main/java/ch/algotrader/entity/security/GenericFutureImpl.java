@@ -21,6 +21,7 @@ import java.util.Date;
 
 import ch.algotrader.enumeration.Duration;
 import ch.algotrader.util.DateUtil;
+import ch.algotrader.visitor.SecurityVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,6 +29,12 @@ import ch.algotrader.util.DateUtil;
 public class GenericFutureImpl extends GenericFuture {
 
     private static final long serialVersionUID = -5567218864363234118L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitGenericFuture(this, param);
+    }
 
     @Override
     public Date getExpiration(Date dateTime) {

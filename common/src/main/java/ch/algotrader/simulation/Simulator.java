@@ -32,10 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.accounting.PositionTracker;
-import ch.algotrader.dao.ClosePositionVOProducer;
-import ch.algotrader.dao.OpenPositionVOProducer;
 import ch.algotrader.entity.Position;
-import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Security;
@@ -43,7 +40,6 @@ import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.PortfolioValue;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.strategy.StrategyImpl;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrderI;
 import ch.algotrader.entity.trade.Order;
@@ -54,12 +50,11 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
 import ch.algotrader.vo.CurrencyAmountVO;
-import ch.algotrader.vo.OpenPositionVO;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -79,19 +74,19 @@ public class Simulator {
     private final MultiMap<String, Position> positionsByStrategy;
     private final MultiMap<Security, Position> positionsBySecurity;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
     private final PositionTracker positionTracker;
     private final EventDispatcher eventDispatcher;
     private final EngineManager engineManager;
 
-    public Simulator(final MarketDataCache marketDataCache, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
+    public Simulator(final MarketDataCacheService marketDataCacheService, final PositionTracker positionTracker, final EventDispatcher eventDispatcher, final EngineManager engineManager) {
 
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(positionTracker, "PositionTracker is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
 
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.positionTracker = positionTracker;
         this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
@@ -102,8 +97,8 @@ public class Simulator {
         this.positionsBySecurity = new MultiHashMap<>();
     }
 
-    protected MarketDataCache getMarketDataCache() {
-        return this.marketDataCache;
+    protected MarketDataCacheService getMarketDataCacheService() {
+        return this.marketDataCacheService;
     }
 
     public void clear() {
@@ -173,6 +168,7 @@ public class Simulator {
 
         // create and OrderStatus
         OrderStatus orderStatus = OrderStatus.Factory.newInstance();
+        orderStatus.setIntId(order.getIntId());
         orderStatus.setDateTime(getCurrentTime());
         orderStatus.setStatus(Status.EXECUTED);
         orderStatus.setFilledQuantity(order.getQuantity());
@@ -237,12 +233,8 @@ public class Simulator {
      */
     protected Position persistTransaction(final Transaction transaction) {
 
-        OpenPositionVO openPositionVO = null;
-        ClosePositionVO closePositionVO = null;
         TradePerformanceVO tradePerformance = null;
 
-        // create a new position if necessary
-        boolean existingOpenPosition = false;
         Strategy strategy = transaction.getStrategy();
         Position position = findPositionByStrategyAndSecurity(strategy.getName(), transaction.getSecurity());
         if (position == null) {
@@ -259,35 +251,14 @@ public class Simulator {
 
         } else {
 
-            existingOpenPosition = position.isOpen();
-
-            // get the closePositionVO (must be done before closing the position)
-            closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
-
             // process the transaction (adjust quantity, cost and realizedPL)
             tradePerformance = this.positionTracker.processTransaction(position, transaction);
-
-            if (position.isOpen()) {
-
-                // reset the closePosition event
-                closePositionVO = null;
-            }
 
             // associate the position
             transaction.setPosition(position);
         }
 
-        // if no position was open before initialize the openPosition event
-        if (!existingOpenPosition) {
-            openPositionVO = OpenPositionVOProducer.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(strategy.getName(), openPositionVO);
-        } else if (closePositionVO != null) {
-            this.eventDispatcher.sendEvent(strategy.getName(), closePositionVO);
-        } else {
-            PositionVO positionVO = Position.Converter.INSTANCE.convert(position);
-            this.eventDispatcher.sendEvent(strategy.getName(), positionVO);
-        }
-
+        this.eventDispatcher.sendEvent(strategy.getName(), position.convertToVO());
 
         // add the amount to the corresponding cashBalance
         processTransaction(transaction);
@@ -299,7 +270,7 @@ public class Simulator {
         if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
 
             // propagate the TradePerformance event
-            this.eventDispatcher.sendEvent(StrategyImpl.SERVER, tradePerformance);
+            this.eventDispatcher.broadcast(tradePerformance, EventRecipient.SERVER_ENGINE_ONLY);
         }
 
         if (LOGGER.isInfoEnabled()) {
@@ -382,19 +353,19 @@ public class Simulator {
     }
 
     /**
-     * @copy ch.algotrader.service.PortfolioServiceImpl.handleGetPortfolioValue(String)
+     * {@link ch.algotrader.service.PortfolioService#getPortfolioValue()}
      */
     public PortfolioValue getPortfolioValue() {
 
         BigDecimal cashBalance = RoundUtil.getBigDecimal(getCashBalanceDoubleInternal(this.cashBalances.values()));
-        BigDecimal securitiesCurrentValue = RoundUtil.getBigDecimal(getSecuritiesCurrentValueDoubleInternal(this.positionsByStrategyAndSecurity.values()));
+        BigDecimal marketValue = RoundUtil.getBigDecimal(getMarketValueDoubleInternal(this.positionsByStrategyAndSecurity.values()));
 
         PortfolioValue portfolioValue = PortfolioValue.Factory.newInstance();
 
         portfolioValue.setDateTime(getCurrentTime());
         portfolioValue.setCashBalance(cashBalance);
-        portfolioValue.setSecuritiesCurrentValue(securitiesCurrentValue); // might be null if there was no last tick for a particular security
-        portfolioValue.setNetLiqValue(securitiesCurrentValue != null ? cashBalance.add(securitiesCurrentValue) : null); // add here to prevent another lookup
+        portfolioValue.setMarketValue(marketValue); // might be null if there was no last tick for a particular security
+        portfolioValue.setNetLiqValue(marketValue != null ? cashBalance.add(marketValue) : null); // add here to prevent another lookup
 
         return portfolioValue;
     }
@@ -408,15 +379,15 @@ public class Simulator {
     }
 
     /**
-     * @copy ch.algotrader.service.PortfolioServiceImpl.getSecuritiesCurrentValueDoubleInternal(Collection<Position>)
+     * @copy ch.algotrader.service.PortfolioServiceImpl.getMarketValueDoubleInternal(Collection<Position>)
      */
-    private double getSecuritiesCurrentValueDoubleInternal(final Collection<Position> openPositions) {
+    private double getMarketValueDoubleInternal(final Collection<Position> openPositions) {
 
         // sum of all positions
         double amount = 0.0;
         for (Position openPosition : openPositions) {
-            final MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
-            amount += openPosition.getMarketValue(marketDataEvent);
+            final MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(openPosition.getSecurity().getId());
+            amount += openPosition.getMarketValue(marketDataEvent).doubleValue();
         }
         return amount;
     }

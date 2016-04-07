@@ -20,9 +20,7 @@ package ch.algotrader.adapter.ib;
 import java.util.concurrent.BlockingQueue;
 
 import ch.algotrader.adapter.fix.fix42.GenericFix42OrderMessageHandler;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import quickfix.FieldNotFound;
 import quickfix.SessionID;
 import quickfix.field.ExecType;
@@ -44,9 +42,8 @@ public class IBFixOrderMessageHandler extends GenericFix42OrderMessageHandler {
 
     public IBFixOrderMessageHandler(
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
-            final BlockingQueue<IBCustomMessage> allocationMessageQueue, final Engine serverEngine) {
-        super(orderExecutionService, transactionService, serverEngine);
+            final BlockingQueue<IBCustomMessage> allocationMessageQueue) {
+        super(orderExecutionService);
         this.allocationMessageQueue = allocationMessageQueue;
     }
 

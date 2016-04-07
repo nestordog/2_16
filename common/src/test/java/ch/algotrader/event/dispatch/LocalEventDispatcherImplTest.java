@@ -51,7 +51,7 @@ public class LocalEventDispatcherImplTest {
     @Mock
     private Engine engine2;
 
-    private LocalEventDispatcherImpl impl;
+    private LocalEventDispatcher impl;
 
     @Before
     public void setup() {
@@ -67,7 +67,7 @@ public class LocalEventDispatcherImplTest {
         Mockito.when(engineManager.getEngines()).thenReturn(Arrays.asList(serverEngine, engine1, engine2));
         Mockito.when(engineManager.getStrategyEngines()).thenReturn(Arrays.asList(engine1, engine2));
 
-        impl = new LocalEventDispatcherImpl(localEventBroadcaster, engineManager);
+        impl = new LocalEventDispatcher(localEventBroadcaster, null, engineManager);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class LocalEventDispatcherImplTest {
     public void testBroadcast() throws Exception {
 
         Object event = new Object();
-        impl.broadcast(event);
+        impl.broadcast(event, EventRecipient.ALL);
 
         Mockito.verify(serverEngine).sendEvent(event);
         Mockito.verify(engine1).sendEvent(event);
@@ -136,7 +136,7 @@ public class LocalEventDispatcherImplTest {
     public void testBroadcastLocal() throws Exception {
 
         Object event = new Object();
-        impl.broadcastLocal(event);
+        impl.broadcast(event, EventRecipient.ALL_LOCAL);
 
         Mockito.verify(serverEngine).sendEvent(event);
         Mockito.verify(engine1).sendEvent(event);
@@ -148,19 +148,7 @@ public class LocalEventDispatcherImplTest {
     public void testBroadcastLocalStrategies() throws Exception {
 
         Object event = new Object();
-        impl.broadcastLocalStrategies(event);
-
-        Mockito.verify(serverEngine, Mockito.never()).sendEvent(event);
-        Mockito.verify(engine1).sendEvent(event);
-        Mockito.verify(engine2).sendEvent(event);
-        Mockito.verify(localEventBroadcaster).broadcast(event);
-    }
-
-    @Test
-    public void testBroadcastAllStrategies() throws Exception {
-
-        Object event = new Object();
-        impl.broadcastAllStrategies(event);
+        impl.broadcast(event, EventRecipient.ALL_LOCAL_STRATEGIES);
 
         Mockito.verify(serverEngine, Mockito.never()).sendEvent(event);
         Mockito.verify(engine1).sendEvent(event);

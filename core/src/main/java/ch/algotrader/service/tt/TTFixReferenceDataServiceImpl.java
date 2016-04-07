@@ -66,7 +66,8 @@ import ch.algotrader.service.NoServiceResponseException;
 import ch.algotrader.service.ReferenceDataService;
 import ch.algotrader.service.ServiceException;
 import ch.algotrader.util.DateTimeLegacy;
-import ch.algotrader.util.RoundUtil;
+import ch.algotrader.util.DateTimePatterns;
+import ch.algotrader.util.PriceUtil;
 import quickfix.field.SecurityType;
 import quickfix.fix42.SecurityDefinitionRequest;
 
@@ -192,9 +193,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             String id = securityDef.getId();
             if (!mapByTtid.containsKey(id)) {
                 OptionType optionType = securityDef.getOptionType();
-                BigDecimal strike = securityDef.getStrikePrice() != null ? RoundUtil.getBigDecimal(
-                        securityDef.getStrikePrice() / securityFamily.getPriceMultiplier(Broker.TT.name()),
-                        securityFamily.getScale(Broker.TT.name())) : null;
+                BigDecimal strike = securityDef.getStrikePrice() != null ? PriceUtil.normalizePrice(securityFamily, Broker.TT.name(), securityDef.getStrikePrice()) : null;
                 LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
                 String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
 
@@ -209,7 +208,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                     option.setIsin(isin);
                     option.setRic(ric);
                     option.setTtid(id);
-                    option.setType(optionType);
+                    option.setOptionType(optionType);
                     option.setStrike(strike);
                     option.setExpiration(DateTimeLegacy.toLocalDate(expiryDate));
                     option.setSecurityFamily(securityFamily);
@@ -220,7 +219,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                                 securityDef.getSymbol(),
                                 securityDef.getOptionType(),
                                 securityDef.getMaturityDate(),
-                                securityDef.getDescription());
+                                securityDef.getStrikePrice());
                     }
                     this.optionDao.save(option);
                 } else {
@@ -288,11 +287,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                     future.setRic(ric);
                     future.setTtid(id);
                     future.setExpiration(DateTimeLegacy.toLocalDate(expiration));
-                    LocalDate expiryDate = securityDef.getExpiryDate();
-                    if (expiryDate != null) {
-                        future.setFirstNotice(DateTimeLegacy.toLocalDate(expiryDate));
-                        future.setLastTrading(DateTimeLegacy.toLocalDate(expiryDate));
-                    }
+                    future.setMonthYear(DateTimePatterns.MONTH_YEAR.format(maturityDate));
                     future.setSecurityFamily(securityFamily);
                     future.setUnderlying(securityFamily.getUnderlying());
 

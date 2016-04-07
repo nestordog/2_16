@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.never;
@@ -74,36 +73,13 @@ public class StrategyPersistenceServiceTest {
         final String name = "MyHolyStrategy";
         final double allocation = 0.123456789;
         when(strategyDao.findByName(eq(name))).thenReturn(strategy);
-        when(strategy.getAllocation()).thenReturn(allocation);
 
         //when
-        final Strategy result = service.getOrCreateStrategy(name, allocation);
+        final Strategy result = service.getOrCreateStrategy(name);
 
         //then
         verify(strategyDao).findByName(eq(name));
-        verify(strategy, never()).setAllocation(anyDouble());
         verify(strategyDao, never()).save(any(Strategy.class));
-        assertSame("existing strategy should be returned", strategy, result);
-    }
-
-    @Test
-    public void shouldGetOrCreateStrategyWhenExistsAlreadyAfterUpdatingAllocation() {
-        //given
-        final String name = "MyHolyStrategy";
-        final double oldAllocation = 0.01234;
-        final double newAllocation = 0.56789;
-        when(strategyDao.findByName(eq(name))).thenReturn(strategy);
-        when(strategy.getAllocation()).thenReturn(oldAllocation);
-        final ArgumentCaptor<Strategy> strategyCaptor = ArgumentCaptor.forClass(Strategy.class);
-
-        //when
-        final Strategy result = service.getOrCreateStrategy(name, newAllocation);
-
-        //then
-        verify(strategyDao).findByName(eq(name));
-        verify(strategy).setAllocation(newAllocation);
-        verify(strategyDao).save(strategyCaptor.capture());
-        assertSame("new strategy should have been returned", strategyCaptor.getValue(), result);
         assertSame("existing strategy should be returned", strategy, result);
     }
 
@@ -111,17 +87,15 @@ public class StrategyPersistenceServiceTest {
     public void shouldGetOrCreateStrategyWhenNotExists() {
         //given
         final String name = "MyHolyStrategy";
-        final double allocation = 0.123456789;
         final ArgumentCaptor<Strategy> strategyCaptor = ArgumentCaptor.forClass(Strategy.class);
 
         //when
-        final Strategy result = service.getOrCreateStrategy(name, allocation);
+        final Strategy result = service.getOrCreateStrategy(name);
 
         //then
         verify(strategyDao).findByName(eq(name));
         verify(strategyDao).save(strategyCaptor.capture());
         assertSame("strategy name should have been set", name, strategyCaptor.getValue().getName());
-        assertEquals("strategy allocation should have been set", allocation, strategyCaptor.getValue().getAllocation(), 0.0);
         assertEquals("strategy auto-activate flag should be true", true, strategyCaptor.getValue().isAutoActivate());
         assertNotSame("new strategy should have been returned", strategy, strategyCaptor.getValue());
         assertSame("new strategy should have been returned", strategyCaptor.getValue(), result);
@@ -149,11 +123,6 @@ public class StrategyPersistenceServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void persisteStrategyWithNullShouldCauseException() {
         service.persistStrategy(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void getOrCreateStrategyWithNullShouldCauseException() {
-        service.getOrCreateStrategy(null, 0.5);
     }
 
 }

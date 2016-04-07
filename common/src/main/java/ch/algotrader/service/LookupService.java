@@ -24,7 +24,6 @@ import java.util.Map;
 
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
-import ch.algotrader.entity.BaseEntityI;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.Transaction;
@@ -174,7 +173,7 @@ public interface LookupService {
      * Gets Combinations that are subscribed by the specified Strategy and have a Component with the
      * specified Security Type.
      */
-    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class<?> type);
+    public Collection<Combination> getSubscribedCombinationsByStrategyAndComponentClass(String strategyName, Class<? extends Security> type);
 
     /**
      * Gets all Components where the Combination is subscribed by the defined Strategy.  In addition
@@ -249,6 +248,11 @@ public interface LookupService {
     public FutureFamily getFutureFamilyByUnderlying(long id);
 
     /**
+     * Gets all {@link Exchange}s
+     */
+    public Collection<Exchange> getAllExchanges();
+
+    /**
      * Gets a {@link Exchange} by the {@code name}
      */
     public Exchange getExchangeByName(String name);
@@ -307,12 +311,12 @@ public interface LookupService {
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class<? extends BaseEntityI> type);
+    public List<Position> getOpenPositionsByStrategyAndType(String strategyName, Class<? extends Security> type);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityType.
      */
-    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends BaseEntityI> type, Class<? extends BaseEntityI> underlyingType);
+    public List<Position> getOpenPositionsByStrategyTypeAndUnderlyingType(String strategyName, Class<? extends Security> type, Class<? extends Security> underlyingType);
 
     /**
      * Gets open Positions for the specified Strategy and SecurityFamily.
@@ -346,13 +350,37 @@ public interface LookupService {
 
     /**
      * Finds all Transactions of the current day in descending {@code dateTime} order.
+     *
+     * @param limit defines maximum number of records to be retrieved. Value {@code 0}
+     *              represents no limit.
      */
-    public List<Transaction> getDailyTransactions();
+    public List<Transaction> getDailyTransactions(int limit);
+
+    /**
+     * Finds all Transactions of the current day in descending {@code dateTime} order.
+     */
+    default List<Transaction> getDailyTransactions() {
+
+        return getDailyTransactions(0);
+    }
+    /**
+     * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
+     *
+     * @param strategyName strategy name
+     * @param limit defines maximum number of records to be retrieved. Value {@code 0}
+     *              represents no limit.
+     */
+    public List<Transaction> getDailyTransactionsByStrategy(String strategyName, int limit);
 
     /**
      * Finds all Transactions of the current day of a specific Strategy in descending {@code dateTime} order.
+     *
+     * @param strategyName strategy name
      */
-    public List<Transaction> getDailyTransactionsByStrategy(String strategyName);
+    default List<Transaction> getDailyTransactionsByStrategy(String strategyName) {
+
+        return getDailyTransactionsByStrategy(strategyName, 0);
+    }
 
     /**
      * Finds all trades (BUY and SELL transactions) for the given time frame.
@@ -370,12 +398,22 @@ public interface LookupService {
     public List<Order> getDailyOrdersByStrategy(String strategyName);
 
     /**
-     * Gets an Account by its {@code accountName}.
+     * Gets all accounts.
+     */
+    public Collection<Account> getAllAccounts();
+
+    /**
+     * Gets an account by its {@code id}.
+     */
+    public Account getAccount(long accountId);
+
+    /**
+     * Gets an account by its {@code accountName}.
      */
     public Account getAccountByName(String accountName);
 
     /**
-     * Gets all active Accounts for the specified order service tyoe.
+     * Gets all active Accounts for the specified order service type.
      */
     public Collection<String> getActiveSessionsByOrderServiceType(String orderServiceType);
 

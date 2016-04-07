@@ -21,6 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.ServiceLocator;
+import ch.algotrader.config.ConfigLocator;
+import ch.algotrader.config.ConfigParams;
 
 /**
  * Abstract Base Class for starting the AlgoTrader Server in Live Trading Mode
@@ -33,9 +35,17 @@ public abstract class EmbeddedStrategyStarter {
 
     public static void main(String[] args) throws Exception {
 
+        ConfigParams configParams = ConfigLocator.instance().getConfigParams();
+        String strategyName = configParams.getString("strategyName");
+
         ServiceLocator serviceLocator = ServiceLocator.instance();
         try {
             LOGGER.info("Starting Algotrader Server in embedded mode");
+            if ("SERVER".equalsIgnoreCase(strategyName)) {
+                LOGGER.warn("Strategy name not specified. Starting as SERVER");
+            } else if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("Embedded strategy: {}", strategyName);
+            }
             serviceLocator.runEmbedded();
             LOGGER.info("Algotrader started");
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

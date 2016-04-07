@@ -60,17 +60,19 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.strategy.StrategyImpl;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.LimitOrder;
 import ch.algotrader.entity.trade.MarketOrder;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderProperty;
-import ch.algotrader.entity.trade.SlicingOrder;
 import ch.algotrader.entity.trade.StopLimitOrder;
 import ch.algotrader.entity.trade.StopOrder;
-import ch.algotrader.entity.trade.TickwiseIncrementalOrder;
-import ch.algotrader.entity.trade.VariableIncrementalOrder;
+import ch.algotrader.entity.trade.algo.SlicingOrder;
+import ch.algotrader.entity.trade.algo.TargetPositionOrder;
+import ch.algotrader.entity.trade.algo.TickwiseIncrementalOrder;
+import ch.algotrader.entity.trade.algo.TrailingLimitOrder;
+import ch.algotrader.entity.trade.algo.VWAPOrder;
+import ch.algotrader.entity.trade.algo.VariableIncrementalOrder;
 import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OrderPropertyType;
@@ -108,7 +110,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
     private final LookupService lookupService;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final PortfolioService portfolioService;
 
@@ -124,7 +126,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
     private final ConfigParams configParams;
 
-    private volatile boolean serverMode;
+    private volatile boolean isServer;
     private volatile Engine engine;
 
     public ManagementServiceImpl(
@@ -132,7 +134,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             final EngineManager engineManager,
             final SubscriptionService subscriptionService,
             final LookupService lookupService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final PortfolioService portfolioService,
             final OrderService orderService,
             final PositionService positionService,
@@ -145,7 +147,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(subscriptionService, "SubscriptionService is null");
         Validate.notNull(lookupService, "LookupService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(orderService, "OrderService is null");
         Validate.notNull(positionService, "PositionService is null");
@@ -158,7 +160,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         this.engineManager = engineManager;
         this.subscriptionService = subscriptionService;
         this.lookupService = lookupService;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.portfolioService = portfolioService;
         this.orderService = orderService;
         this.positionService = positionService;
@@ -188,7 +190,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent contextRefreshedEvent) {
         this.engine = getMainEngine();
-        this.serverMode = this.engine.getStrategyName().equals(StrategyImpl.SERVER);
+        this.isServer = this.engine.getStrategyName().equals(StrategyImpl.SERVER);
     }
 
     /**
@@ -209,7 +211,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets all available Currency Balances (only available for the AlgoTrader Server)")
     public Collection<BalanceVO> getDataBalances() {
 
-        if (this.serverMode) {
+        if (this.isServer) {
             return this.portfolioService.getBalances();
         } else {
             return this.portfolioService.getBalances(this.engine.getStrategyName());
@@ -221,7 +223,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the Net FX Currency Exposure of all FX positions")
     public Collection<FxExposureVO> getDataFxExposure() {
 
-        if (this.serverMode) {
+        if (this.isServer) {
             return this.portfolioService.getFxExposure();
         } else {
             return this.portfolioService.getFxExposure(this.engine.getStrategyName());
@@ -230,7 +232,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
     private Collection<OrderStatusVO> convert(Collection<OrderDetailsVO> orderDetails) {
         return orderDetails.stream()
-                .filter(entry -> this.serverMode || entry.getOrder().getStrategy().getName().equals(this.engine.getStrategyName()))
+                .filter(entry -> this.isServer || entry.getOrder().getStrategy().getName().equals(this.engine.getStrategyName()))
                 .map(this::convert)
                 .collect(Collectors.toList());
     }
@@ -251,16 +253,16 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      */
     @Override
     @ManagedAttribute(description = "Gets recently executed Orders")
-    public Collection<OrderStatusVO> getDataRecentOrders() {
+    public Collection<ch.algotrader.vo.client.OrderStatusVO> getDataRecentOrders() {
         return convert(this.orderService.getRecentOrderDetails());
     }
 
     private OrderStatusVO convert(final OrderDetailsVO entry) {
 
         Order order = entry.getOrder();
-        ExecutionStatusVO details = entry.getExecutionStatus();
+        ch.algotrader.entity.trade.OrderStatusVO execStatus = entry.getOrderStatus();
 
-        OrderStatusVO orderStatusVO = new OrderStatusVO();
+        ch.algotrader.vo.client.OrderStatusVO orderStatusVO = new OrderStatusVO();
         orderStatusVO.setSide(order.getSide());
         orderStatusVO.setQuantity(order.getQuantity());
         orderStatusVO.setType(StringUtils.substringBefore(ClassUtils.getShortClassName(order.getClass()), "OrderImpl"));
@@ -271,9 +273,9 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         orderStatusVO.setTif(order.getTif() != null ? order.getTif().toString() : "");
         orderStatusVO.setIntId(order.getIntId());
         orderStatusVO.setExtId(order.getExtId());
-        orderStatusVO.setStatus(details.getStatus());
-        orderStatusVO.setFilledQuantity(details.getFilledQuantity());
-        orderStatusVO.setRemainingQuantity(details.getRemainingQuantity());
+        orderStatusVO.setStatus(execStatus.getStatus());
+        orderStatusVO.setFilledQuantity(execStatus.getFilledQuantity());
+        orderStatusVO.setRemainingQuantity(execStatus.getRemainingQuantity());
         orderStatusVO.setDescription(order.getExtDescription());
 
         return orderStatusVO;
@@ -289,7 +291,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         String baseQuery = "from PositionImpl as p join fetch p.strategy join fetch p.security as s join fetch s.securityFamily ";
 
         Collection<Position> positions;
-        if (this.serverMode) {
+        if (this.isServer) {
             if (this.commonConfig.isDisplayClosedPositions()) {
                 positions = this.lookupService.find(Position.class, baseQuery + "order by p.id", QueryType.HQL, true);
             } else {
@@ -304,7 +306,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
                         new NamedParam("strategyName", this.engine.getStrategyName()));
             }
         }
-        PositionVOProducer converter = new PositionVOProducer(this.marketDataCache);
+        PositionVOProducer converter = new PositionVOProducer(this.marketDataCacheService);
         return CollectionUtils.collect(positions, converter::convert);
     }
 
@@ -318,7 +320,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         Validate.notEmpty(this.engine.getStrategyName(), "Strategy name is empty");
 
         Collection<Transaction> transactions;
-        if (this.serverMode) {
+        if (this.isServer) {
             transactions = this.lookupService.getDailyTransactions();
         } else {
             transactions = this.lookupService.getDailyTransactionsByStrategy(this.engine.getStrategyName());
@@ -338,7 +340,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
         List<MarketDataEventVO> subscribedMarketDataEvent = new ArrayList<>();
 
         // get all subscribed securities
-        if (this.serverMode) {
+        if (this.isServer) {
 
             // for the AlgoTrader Server iterate over a distinct list of subscribed securities and feedType
             List<Pair<Security, String>> subscribedSecurities = this.lookupService.getSubscribedSecuritiesAndFeedTypeForAutoActivateStrategiesInclComponents();
@@ -346,7 +348,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscribedSecurity.getFirst();
                 String feedType = subscribedSecurity.getSecond();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         } else {
@@ -357,7 +359,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
 
                 Security security = subscription.getSecurity();
                 String feedType = subscription.getFeedType();
-                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+                ch.algotrader.entity.marketData.MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
                 subscribedMarketDataEvent.add(convert(marketDataEvent, security, feedType));
             }
         }
@@ -386,10 +388,69 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the Allocation that is assigned to this Strategy (or to the AlgoTrader Server)")
-    public double getStrategyAllocation() {
+    @ManagedAttribute(description = "Gets the name of this Strategy")
+    public String getStrategyName() {
 
-        return this.lookupService.getStrategyByName(this.engine.getStrategyName()).getAllocation();
+        return this.engine.getStrategyName();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyNetLiqValue() {
+
+        if (this.isServer) {
+            return this.portfolioService.getNetLiqValue();
+        } else {
+            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyMarketValue() {
+
+        if (this.isServer) {
+            return this.portfolioService.getMarketValue();
+        } else {
+            return this.portfolioService.getMarketValue(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total RealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyRealizedPL() {
+
+        if (this.isServer) {
+            return this.portfolioService.getRealizedPL();
+        } else {
+            return this.portfolioService.getRealizedPL(this.engine.getStrategyName());
+        }
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
+    public BigDecimal getStrategyUnrealizedPL() {
+
+        if (this.isServer) {
+            return this.portfolioService.getUnrealizedPL();
+        } else {
+            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
+        }
 
     }
 
@@ -400,7 +461,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the Cash Balance of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public BigDecimal getStrategyCashBalance() {
 
-        if (this.serverMode) {
+        if (this.isServer) {
             return this.portfolioService.getCashBalance();
         } else {
             return this.portfolioService.getCashBalance(this.engine.getStrategyName());
@@ -415,7 +476,7 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
     @ManagedAttribute(description = "Gets the current Leverage of this Strategy")
     public double getStrategyLeverage() {
 
-        if (this.serverMode) {
+        if (this.isServer) {
             return this.portfolioService.getLeverage();
         } else {
             return this.portfolioService.getLeverage(this.engine.getStrategyName());
@@ -427,68 +488,13 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedAttribute(description = "Gets the name of this Strategy")
-    public String getStrategyName() {
-
-        return this.engine.getStrategyName();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the Net-Liquidation-Value of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyNetLiqValue() {
-
-        if (this.serverMode) {
-            return this.portfolioService.getNetLiqValue();
-        } else {
-            return this.portfolioService.getNetLiqValue(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     @ManagedAttribute(description = "Gets the performance since the beginning of the month of this Strategy (or the entire System if called from the AlgoTrader Server)")
     public double getStrategyPerformance() {
 
-        if (this.serverMode) {
+        if (this.isServer) {
             return this.portfolioService.getPerformance();
         } else {
             return this.portfolioService.getPerformance(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the total Market Value of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategySecuritiesCurrentValue() {
-
-        if (this.serverMode) {
-            return this.portfolioService.getSecuritiesCurrentValue();
-        } else {
-            return this.portfolioService.getSecuritiesCurrentValue(this.engine.getStrategyName());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @ManagedAttribute(description = "Gets the total UnrealizedPL of all Positions of this Strategy (or the entire System if called from the AlgoTrader Server)")
-    public BigDecimal getStrategyUnrealizedPL() {
-
-        if (this.serverMode) {
-            return this.portfolioService.getUnrealizedPL();
-        } else {
-            return this.portfolioService.getUnrealizedPL(this.engine.getStrategyName());
         }
 
     }
@@ -532,17 +538,19 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             @ManagedOperationParameter(name = "security", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
             @ManagedOperationParameter(name = "quantity", description = "The requested quantity (positive value)"),
             @ManagedOperationParameter(name = "side", description = "<html>Side: <ul> <li> B (BUY) </li> <li> S (SELL) </li> <li> SS (SELL_SHORT) </li> </ul></html>"),
-            @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> </ul> or order preference (e.g. 'FVIX' or 'OVIX')</html>"),
+            @ManagedOperationParameter(name = "type", description = "<html>Order type: <ul> <li> M (Market) </li> <li> L (Limit) </li> <li> S (Stop) </li> <li> SL (StopLimit) </li> <li> TI (TickwiseIncremental) </li> <li> VI (VariableIncremental) </li> <li> SLI (Slicing) </li> <li> V (VWAP) </li> <li> TP (Target position) </li> <li> TL (Trailing Limit) </li> </ul> or order preference (e.g. 'SLICING' or 'VWAP')</html>"),
             @ManagedOperationParameter(name = "accountName", description = "accountName (optional)"),
             @ManagedOperationParameter(name = "exchangeName", description = "exchangeName (optional)"),
             @ManagedOperationParameter(name = "properties", description = "<html>Additional properties to be set on the order as a comma separated list (e.g. stop=12.0,limit=12.5).<p> In addition custom properties can be set on the order (e.g. FIX123=12, INTERNALportfolio=TEST)</hmlt>") })
     public void sendOrder(final String security, final long quantity, final String side, final String type, String accountName, final String exchangeName, final String properties) {
 
-        Validate.notEmpty(security, "Security is empty");
-        Validate.notEmpty(side, "Side is empty");
         Validate.notEmpty(type, "Type is empty");
-
-        Side sideObject = Side.fromValue(side);
+        Validate.notEmpty(security, "Security is empty");
+        Side sideObject = null;
+        if (!"TP".equals(type)) {
+            Validate.notEmpty(side, "Side is empty");
+            sideObject = Side.fromValue(side);
+        }
 
         Strategy strategy = this.lookupService.getStrategyByName(this.engine.getStrategyName());
         Security securityObject = this.lookupService.getSecurity(getSecurityId(security));
@@ -563,6 +571,12 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
             order = new VariableIncrementalOrder();
         } else if ("SLI".equals(type)) {
             order = new SlicingOrder();
+        } else if ("V".equals(type)) {
+            order = new VWAPOrder();
+        } else if ("TP".equals(type)) {
+            order = new TargetPositionOrder();
+        } else if ("TL".equals(type)) {
+            order = new TrailingLimitOrder();
         } else {
 
             // create the order from an OrderPreference
@@ -638,9 +652,11 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
                 } else if (name.toUpperCase().startsWith(OrderPropertyType.IB.toString())) {
                     name = name.substring(2);
                     orderProperty.setType(OrderPropertyType.IB);
-                } else {
+                } else if (name.toUpperCase().startsWith(OrderPropertyType.INTERNAL.toString())) {
                     name = name.substring(8);
                     orderProperty.setType(OrderPropertyType.INTERNAL);
+                } else {
+                    throw new IllegalArgumentException("unrecognized property " + name);
                 }
                 orderProperty.setName(name);
                 orderProperty.setValue(entry.getValue());
@@ -706,11 +722,10 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined default OrderPreference")
-    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
-    public void reducePosition(final long positionId, final int quantity) {
+    @ManagedOperation(description = "Closes all positions of this strategy by using the defined default OrderPreference")
+    public void closeAllPositions() {
 
-        this.positionService.reducePosition(positionId, quantity);
+        this.positionService.closeAllPositionsByStrategy(this.engine.getStrategyName(), false);
 
     }
 
@@ -718,15 +733,11 @@ public class ManagementServiceImpl implements ManagementService, ApplicationList
      * {@inheritDoc}
      */
     @Override
-    @ManagedOperation(description = "Reduce the Component quantities and the associated Position by the specified ratio")
-    @ManagedOperationParameters({
-            @ManagedOperationParameter(name = "combination", description = "<html><ul> <li> securityId (e.g. 123) </li> <li> symbol (e.g. GOOG) </li> <li> isin, prefix with &quot;isin:&quot;, (e.g. &quot;isin:EU0009654078&quot;) </li> <li> bbgid, prefix with &quot;bbgid:&quot;, (e.g. &quot;bbgid:BBG005NHP5P9&quot;) </li> <li> ric, prefix with &quot;ric:&quot;, (e.g. &quot;ric:.SPX&quot;) </li> <li> conid, prefix with &quot;conid:&quot;, (e.g. &quot;conid:12087817&quot;) </li> </ul></html>"),
-            @ManagedOperationParameter(name = "ratio", description = "ratio") })
-    public void reduceCombination(final String combination, final double ratio) {
+    @ManagedOperation(description = "Reduces the Position by the specified amount by using the defined default OrderPreference")
+    @ManagedOperationParameters({ @ManagedOperationParameter(name = "positionId", description = "positionId"), @ManagedOperationParameter(name = "quantity", description = "quantity") })
+    public void reducePosition(final long positionId, final int quantity) {
 
-        Validate.notEmpty(combination, "Combination is empty");
-
-        this.combinationService.reduceCombination(getSecurityId(combination), this.engine.getStrategyName(), ratio);
+        this.positionService.reducePosition(positionId, quantity);
 
     }
 

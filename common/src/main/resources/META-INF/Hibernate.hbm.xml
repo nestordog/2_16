@@ -168,10 +168,11 @@
         from PositionImpl as p 
         join p.security as s 
         join s.securityFamily as sf 
-        where p.strategy.name = :strategyName 
+        join sf.underlying as u
+        where p.strategy.name = :strategyName
         and p.quantity != 0 
         and s.class = :type 
-        and sf.class = :underlyingType 
+        and u.class = :underlyingType
         order by p.security.id 
     ]]>
     </query>
@@ -275,9 +276,9 @@
     <query name='Position.findExpirablePositions'>
     <![CDATA[
         select p 
-        from ExpirableI as e 
-        join e.positions as p 
-        where p.quantity != 0 
+        from ExpirableI as e, Position as p
+        where p.security = e
+        and p.quantity != 0
         and e.expiration <= :currentTime 
     ]]>
     </query>
@@ -309,7 +310,15 @@
     <!-- Position DAO queries ends-->
     
     <!-- Subscription DAO queries starts -->
-    
+
+    <query name='Subscription.findBySecurity'>
+        <![CDATA[
+        from SubscriptionImpl
+        where security.id = :securityId
+        order by security.id
+    ]]>
+    </query>
+
     <query name='Subscription.findByStrategy'>
     <![CDATA[
         from SubscriptionImpl 
@@ -422,8 +431,8 @@
     <![CDATA[
         from TransactionImpl as t 
         join fetch t.strategy
-        join fetch t.security as s
-        join fetch s.securityFamily
+        left join fetch t.security as s
+        left join fetch s.securityFamily
         left join fetch t.account
         where t.strategy.name = :strategyName 
         and t.dateTime >= :curdate
@@ -541,10 +550,9 @@
     <query name='Bar.findSubscribedByTimePeriodAndBarSize'>
     <![CDATA[ 
         select b 
-        from BarImpl as b 
-        join fetch b.security  
-        join b.security.subscriptions as s
-        where s != null 
+        from BarImpl as b, SubscriptionImpl as su
+        join fetch b.security as s
+        where su.security = s
         and b.dateTime >= :minDate 
         and b.dateTime < :maxDate 
         and b.barSize = :barSize 
@@ -655,9 +663,9 @@
     <query name='Tick.findSubscribedByTimePeriod'>
     <![CDATA[
         select t 
-        from TickImpl as t 
-        join t.security.subscriptions as s 
-        where s != null 
+        from TickImpl as t, SubscriptionImpl as su
+        join fetch t.security as s
+        where su.security = s
         and t.dateTime >= :minDate 
         and t.dateTime < :maxDate 
         order by t.dateTime 
@@ -681,20 +689,20 @@
     
     <query name='Combination.findSubscribedByStrategy'>
     <![CDATA[
-        select distinct c 
-        from CombinationImpl as c 
-        join c.subscriptions as s 
-        where s.strategy.name = :strategyName 
+        select distinct s
+        from CombinationImpl as s, SubscriptionImpl as su
+        where su.security = s
+        and su.strategy.name = :strategyName
     ]]>
     </query>
     
     <query name='Combination.findSubscribedByStrategyAndUnderlying'>
     <![CDATA[
-        select distinct c 
-        from CombinationImpl as c 
-        join c.underlying as ul 
-        join c.subscriptions as s 
-        where s.strategy.name = :strategyName 
+        select distinct s
+        from CombinationImpl as s, SubscriptionImpl as su
+        join s.underlying as ul
+        where su.security = s
+        and su.strategy.name = :strategyName
         and ul.id = :underlyingId 
     ]]>
     </query>
@@ -702,10 +710,10 @@
     <query name='Combination.findSubscribedByStrategyAndComponent'>
     <![CDATA[
         select distinct s 
-        from CombinationImpl as s 
+        from CombinationImpl as s, SubscriptionImpl as su
         join s.components as c 
-        join s.subscriptions as su 
-        where su.strategy.name = :strategyName 
+        where su.security = s
+        and su.strategy.name = :strategyName
         and c.security.id = :securityId 
     ]]>
     </query>
@@ -713,11 +721,11 @@
     <query name='Combination.findSubscribedByStrategyAndComponentType'>
     <![CDATA[
         select distinct s 
-        from CombinationImpl as s 
+        from CombinationImpl as s, SubscriptionImpl as su
         join s.components as c 
-        join s.subscriptions as su 
-        join c.security as se 
-        where su.strategy.name = :strategyName 
+        join c.security as se
+        where su.security = s
+        and su.strategy.name = :strategyName
         and se.class = :type 
     ]]>
     </query>
@@ -725,11 +733,11 @@
     <query name='Combination.findSubscribedByStrategyAndComponentTypeWithZeroQty'>
     <![CDATA[
         select distinct s 
-        from CombinationImpl as s 
+        from CombinationImpl as s, SubscriptionImpl as su
         join s.components as c 
-        join s.subscriptions as su 
-        join c.security as se 
-        where su.strategy.name = :strategyName 
+        join c.security as se
+        where su.security = s
+        and su.strategy.name = :strategyName
         and se.class = :type 
         and c.quantity = 0 
     ]]>
@@ -749,34 +757,33 @@
     <query name='Component.findSubscribedByStrategyInclSecurity'>
     <![CDATA[
         select distinct c 
-        from ComponentImpl as c 
+        from ComponentImpl as c, SubscriptionImpl as su
         join fetch c.security as s 
         join fetch c.combination as c2 
-        join c2.subscriptions as su 
-        where su.strategy.name = :strategyName 
+        where su.security = c2
+        and su.strategy.name = :strategyName
     ]]>
     </query>
     
     <query name='Component.findSubscribedBySecurityInclSecurity'>
     <![CDATA[
         select distinct c 
-        from ComponentImpl as c 
+        from ComponentImpl as c, SubscriptionImpl as su
         join fetch c.security as s 
         join fetch c.combination as c2 
-        join c2.subscriptions as su 
-        where su != null 
-        and s.id = :securityId 
+        where su.security = c2
+        and s.id = :securityId
     ]]>
     </query>
     
      <query name='Component.findSubscribedByStrategyAndSecurityInclSecurity'>
     <![CDATA[
-        select distinct c 
-        from ComponentImpl as c 
+        select distinct c
+        from ComponentImpl as c, SubscriptionImpl as su
         join fetch c.security as s 
         join fetch c.combination as c2 
-        join c2.subscriptions as su 
-        where su.strategy.name = :strategyName 
+        where su.security = c2
+        and su.strategy.name = :strategyName
         and s.id = :securityId 
     ]]>
     </query>
@@ -839,9 +846,8 @@
     <query name='Future.findSubscribedFutures'>
     <![CDATA[
         select distinct f 
-        from FutureImpl as f 
-        join f.subscriptions as s 
-        where s != null 
+        from FutureImpl as f, SubscriptionImpl as su
+        where su.security = f
         order by f.id 
     ]]>
     </query>
@@ -855,11 +861,11 @@
     ]]>
     </query>
 
-    <query name='Future.findByExpirationMonth'>
+    <query name='Future.findByMonthYear'>
     <![CDATA[
         from FutureImpl f 
         where f.securityFamily.id = :futureFamilyId 
-        and last_day(f.expiration) = :expirationMonth 
+        and f.monthYear = :monthYear 
     ]]>
     </query>
  
@@ -895,7 +901,7 @@
         from OptionImpl as so 
         where so.underlying.id = :underlyingId 
         and so.expiration >= :targetExpirationDate 
-        and so.type = :optionType 
+        and so.optionType = :optionType 
         order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
     ]]>
     </query>
@@ -905,9 +911,9 @@
         from OptionImpl as so 
         where so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate 
-        and so.type = :optionType
-        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
-        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+        and so.optionType = :optionType
+        and (case so.optionType when 'PUT' then so.strike else -so.strike end)  <= (case so.optionType when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.optionType when 'PUT' then -so.strike else so.strike end) asc 
     ]]>
     </query>
 
@@ -918,7 +924,7 @@
         where so.id = t.security.id
         and so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate
-        and so.type = :optionType
+        and so.optionType = :optionType
         and t.dateTime = :date
         order by so.expiration asc, abs(:underlyingSpot - so.strike) asc 
     ]]>
@@ -931,19 +937,18 @@
         where so.id = t.security.id
         and so.underlying.id = :underlyingId
         and so.expiration >= :targetExpirationDate
-        and so.type = :optionType
+        and so.optionType = :optionType
         and t.dateTime = :date
-        and (case so.type when 'PUT' then so.strike else -so.strike end)  <= (case so.type when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
-        order by so.expiration asc, (case so.type when 'PUT' then -so.strike else so.strike end) asc 
+        and (case so.optionType when 'PUT' then so.strike else -so.strike end)  <= (case so.optionType when 'PUT' then 1.0 else -1.0 end) * :underlyingSpot
+        order by so.expiration asc, (case so.optionType when 'PUT' then -so.strike else so.strike end) asc 
     ]]>
     </query>
     
     <query name='Option.findSubscribedOptions'>
     <![CDATA[
         select distinct s 
-        from OptionImpl as s 
-        join s.subscriptions as s2 
-        where s2 != null 
+        from OptionImpl as s, SubscriptionImpl as su
+        where su.security = s
         order by s.id 
     ]]>
     </query>
@@ -974,7 +979,7 @@
         where o.securityFamily.id = :optionFamilyId 
         and o.expiration = :expirationDate 
         and o.strike = :strike 
-        and o.type = :type 
+        and o.optionType = :type 
     ]]>
     </query>
 
@@ -1062,9 +1067,9 @@
     <query name='Security.findSubscribedForAutoActivateStrategies'>
     <![CDATA[
         select distinct s 
-        from SecurityImpl as s 
-        join s.subscriptions as su 
-        where su.strategy.autoActivate = true 
+        from SecurityImpl as s, SubscriptionImpl as su
+        where su.security = s
+        and su.strategy.autoActivate = true
         order by s.id 
     ]]>
     </query>
@@ -1072,22 +1077,22 @@
     <query name='Security.findSubscribedByFeedTypeForAutoActivateStrategiesInclFamily'>
     <![CDATA[
         select distinct s 
-        from SecurityImpl as s 
+        from SecurityImpl as s, SubscriptionImpl as su
         join fetch s.securityFamily as f 
-        join s.subscriptions as su 
-        where su.strategy.autoActivate = true 
+        where su.security = s
+        and su.strategy.autoActivate = true
         and su.feedType = :feedType 
-        order by s.id 
+        order by s.id
     ]]>
     </query>
 
     <query name='Security.findSubscribedByFeedTypeAndStrategyInclFamily'>
     <![CDATA[
         select distinct s 
-        from SecurityImpl as s 
+        from SecurityImpl as s, SubscriptionImpl as su
         join fetch s.securityFamily as f 
-        join s.subscriptions as su 
-        where su.strategy.name = :strategyName 
+        where su.security = s
+        and su.strategy.name = :strategyName
         and su.feedType = :feedType 
         order by s.id 
     ]]>
@@ -1391,12 +1396,11 @@
 
     <sql-query name='OrderStatus.findPending'>
     <![CDATA[
-        select os.* 
-        from order_status os 
-        left join order_status os2 on (substring_index(os.int_id, '.', 1) = substring_index(os2.int_id, '.', 1) 
-        and (os.date_time < os2.date_time or (os.date_time = os2.date_time and os.sequence_number < os2.sequence_number))) 
-        where os2.id is null 
-        and (os.status = 'OPEN' or os.status = 'SUBMITTED' or os.status = 'PARTIALLY_EXECUTED') 
+        select os.*
+            from (select max(UNIX_TIMESTAMP(os2.`date_time`) * 1000000000 + os2.`sequence_number`) as max_date_time_sequence
+                        from `order_status` os2 group by substring_index(os2.int_id, '.', 1)) as os2
+            inner join `order_status` as os on UNIX_TIMESTAMP(os.`date_time`) * 1000000000 + os.`sequence_number` = os2.max_date_time_sequence
+            and (os.`status` = 'OPEN' or os.`status` = 'SUBMITTED' or os.`status` = 'PARTIALLY_EXECUTED')
     ]]>
     </sql-query>
 

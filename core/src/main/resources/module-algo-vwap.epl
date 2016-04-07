@@ -1,0 +1,13 @@
+// ------------------------------ VWAP Order ---------------------------------------
+
+@Name('VWAP_NEXT_ORDER')
+@RunTimeOnly
+@Subscriber(className='vWAPOrderService#sendNextOrder')
+select
+    vwapOrder, 
+    current_timestamp.toDate()
+from
+    // every VWAPOrder -> (every timer:interval and not OrderStatusVWAP)
+    pattern [every vwapOrder=ch.algotrader.entity.trade.algo.VWAPOrder
+            -> (every timer:interval(vwapOrder.minInterval + (vwapOrder.maxInterval - vwapOrder.minInterval) * Math.random())
+               and not OrderStatus(status = Status.EXECUTED or status = Status.CANCELED or status = Status.REJECTED, intId = vwapOrder.intId))];

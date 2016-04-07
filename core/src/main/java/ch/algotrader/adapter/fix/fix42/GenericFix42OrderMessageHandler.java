@@ -23,8 +23,8 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.security.Security;
@@ -37,11 +37,8 @@ import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
-import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.ExecType;
@@ -59,8 +56,8 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
     private static final Logger LOGGER = LogManager.getLogger(GenericFix42OrderMessageHandler.class);
 
-    public GenericFix42OrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
-        super(orderExecutionService, transactionService, serverEngine);
+    public GenericFix42OrderMessageHandler(final OrderExecutionService orderExecutionService) {
+        super(orderExecutionService);
     }
 
     @Override
@@ -225,13 +222,13 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
             try {
                 currency = Currency.valueOf(s);
             } catch (IllegalArgumentException ex) {
-                throw new FixApplicationException("Unsupported currency " + s);
+                throw new BrokerAdapterException("Unsupported currency " + s);
             }
         }
         if (securityFamily != null) {
             if (currency != null) {
                 if (!currency.equals(securityFamily.getCurrency())) {
-                    throw new FixApplicationException("Transaction currency does not match that defined by the security family");
+                    throw new BrokerAdapterException("Transaction currency does not match that defined by the security family");
                 }
             } else {
                 currency = securityFamily.getCurrency();
@@ -248,8 +245,7 @@ public class GenericFix42OrderMessageHandler extends AbstractFix42OrderMessageHa
 
         BigDecimal normalizedPrice;
         if (securityFamily != null) {
-            double priceMultiplier = securityFamily.getPriceMultiplier(broker);
-            normalizedPrice = RoundUtil.getBigDecimal(price / priceMultiplier, securityFamily.getScale());
+            normalizedPrice = PriceUtil.normalizePrice(securityFamily, broker, price);
         } else {
             normalizedPrice = new BigDecimal(price);
         }

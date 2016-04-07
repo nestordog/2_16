@@ -4,7 +4,7 @@
     <parent>
         <groupId>algotrader</groupId>
         <artifactId>algotrader</artifactId>
-        <version>2.3.2</version>
+        <version>3.0.0</version>
     </parent>
     <artifactId>algotrader-common</artifactId>
     <name>AlgoTrader Common</name>
@@ -27,7 +27,7 @@
             <plugin>
                 <groupId>algotrader</groupId>
                 <artifactId>model-codegen-plugin</artifactId>
-                <version>0.1.5</version>
+                <version>0.1.6</version>
                 <executions>
                     <execution>
                         <id>generate-model</id>
@@ -48,6 +48,10 @@
                                 <template>
                                     <file>pojo/ValueObject.ftl</file>
                                     <pattern>{package-name}/{class-name}VO.java</pattern>
+                                </template>
+                                <template>
+                                    <file>pojo/ValueObjectBuilder.ftl</file>
+                                    <pattern>{package-name}/{class-name}VOBuilder.java</pattern>
                                 </template>
                             </templates>
                         </configuration>

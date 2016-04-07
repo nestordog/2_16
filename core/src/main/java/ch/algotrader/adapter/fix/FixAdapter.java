@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.adapter.fix;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import quickfix.Message;
 import quickfix.Session;
@@ -31,44 +32,44 @@ public interface FixAdapter {
     /**
      * Returns session with the given identifier.
      */
-    Session getSession(String sessionQualifier) throws FixApplicationException;
+    Session getSession(String sessionQualifier) throws BrokerAdapterException;
 
     /**
      * creates an individual session
      */
-    void createSessionForService(String orderServiceType) throws FixApplicationException;
+    void createSessionForService(String orderServiceType) throws BrokerAdapterException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSessionForService(String orderServiceType) throws FixApplicationException;
+    void openSessionForService(String orderServiceType) throws BrokerAdapterException;
 
     /**
      * creates an individual session with the given qualifier
      */
-    void createSession(String sessionQualifier) throws FixApplicationException;
+    void createSession(String sessionQualifier) throws BrokerAdapterException;
 
     /**
      * Makes sure there is an existing session with the given qualifier. New session will be created
      * if there is no session with the given qualifier.
      */
-    void openSession(String sessionQualifier) throws FixApplicationException;
+    void openSession(String sessionQualifier) throws BrokerAdapterException;
 
     /**
      * Closes session with the given identifier if open.
      */
-    void closeSession(String sessionQualifier) throws FixApplicationException;
+    void closeSession(String sessionQualifier) throws BrokerAdapterException;
 
     /**
      * sends a message to the designated session for the given account
      */
-    void sendMessage(Message message, Account account) throws FixApplicationException;
+    void sendMessage(Message message, Account account) throws BrokerAdapterException;
 
     /**
      * sends a message to the designated session with the given qualifier.
      */
-    void sendMessage(Message message, String sessionQualifier) throws FixApplicationException;
+    void sendMessage(Message message, String sessionQualifier) throws BrokerAdapterException;
 
     /**
      * Gets the next {@code orderId} for the specified {@code account}

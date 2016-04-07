@@ -17,16 +17,15 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.math.util.MathUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.transaction.annotation.Propagation;
@@ -39,9 +38,12 @@ import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.Transaction;
+import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
+import ch.algotrader.entity.strategy.CashBalanceVO;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
@@ -50,12 +52,14 @@ import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.report.TradeReport;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.CollectionUtil;
 import ch.algotrader.util.metric.MetricsUtil;
-import ch.algotrader.vo.PositionMutationVO;
+import ch.algotrader.vo.TradePerformanceVO;
+import ch.algotrader.vo.TransactionResultVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -72,8 +76,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionPersistenceService transactionPersistenceService;
 
-    private final PortfolioService portfolioService;
-
     private final StrategyDao strategyDao;
 
     private final SecurityDao securityDao;
@@ -82,42 +84,36 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final EventDispatcher eventDispatcher;
 
-    private final EngineManager engineManager;
-
     private final Engine serverEngine;
+
+    private volatile TradeReport tradeReport;
 
     public TransactionServiceImpl(
             final CommonConfig commonConfig,
             final CoreConfig coreConfig,
             final TransactionPersistenceService transactionPersistenceService,
-            final PortfolioService portfolioService,
             final StrategyDao strategyDao,
             final SecurityDao securityDao,
             final AccountDao accountDao,
             final EventDispatcher eventDispatcher,
-            final EngineManager engineManager,
             final Engine serverEngine) {
 
         Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(coreConfig, "CoreConfig is null");
         Validate.notNull(transactionPersistenceService, "TransactionPersistenceService is null");
-        Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(accountDao, "AccountDao is null");
         Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
-        Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
         this.commonConfig = commonConfig;
         this.coreConfig = coreConfig;
         this.transactionPersistenceService = transactionPersistenceService;
-        this.portfolioService = portfolioService;
         this.strategyDao = strategyDao;
         this.securityDao = securityDao;
         this.accountDao = accountDao;
         this.eventDispatcher = eventDispatcher;
-        this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
 
@@ -317,7 +313,7 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalArgumentException("transaction type REBALANCE not allowed");
         }
 
-        Account account = this.accountDao.findByName(accountName);
+        Account account = accountName != null ? this.accountDao.findByName(accountName) : null;
 
         // create the transaction
         Transaction transaction = Transaction.Factory.newInstance();
@@ -340,6 +336,21 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Override
+    public void recordTransaction(final Transaction transaction) {
+
+        if (!this.coreConfig.isPositionCheckDisabled()) {
+
+            this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
+        }
+
+        this.transactionPersistenceService.saveTransaction(transaction);
+    }
+
     // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
@@ -349,7 +360,39 @@ public class TransactionServiceImpl implements TransactionService {
 
             this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-        this.transactionPersistenceService.saveTransaction(transaction);
+        TransactionResultVO transactionResult = this.transactionPersistenceService.saveTransaction(transaction);
+        handleTransactionResult(transaction, transactionResult);
+    }
+
+    private TransactionResultVO handleTransactionResult(final Transaction transaction, final TransactionResultVO transactionResult) {
+
+        TradePerformanceVO tradePerformance = transactionResult.getTradePerformance();
+        if (tradePerformance != null && tradePerformance.getProfit() != 0.0) {
+
+            // propagate the TradePerformance event
+            this.serverEngine.sendEvent(tradePerformance);
+
+            // log trade report
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("executed transaction: {},profit={},profitPct=", transaction,
+                        RoundUtil.getBigDecimal(tradePerformance.getProfit()),
+                        RoundUtil.getBigDecimal(tradePerformance.getProfitPct()));
+            }
+            printTransaction(transaction, tradePerformance);
+        } else {
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("executed transaction: {}", transaction);
+            }
+        }
+        List<CashBalanceVO> cashBalances = transactionResult.getCashBalances();
+        if (!cashBalances.isEmpty()) {
+            Strategy strategy = transaction.getStrategy();
+            for (CashBalanceVO cashBalance: cashBalances) {
+                this.eventDispatcher.sendEvent(strategy.getName(), cashBalance);
+            }
+        }
+
+        return transactionResult;
     }
 
     /**
@@ -405,104 +448,22 @@ public class TransactionServiceImpl implements TransactionService {
 
             this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
         }
-        PositionMutationVO positionMutationEvent =  this.transactionPersistenceService.saveTransaction(transaction);
-
-        // propagate the positionMutationEvent to the corresponding strategy
-        if (positionMutationEvent != null) {
-            this.eventDispatcher.sendEvent(positionMutationEvent.getStrategy(), positionMutationEvent);
-        }
+        TransactionResultVO transactionResult = this.transactionPersistenceService.saveTransaction(transaction);
+        handleTransactionResult(transaction, transactionResult);
 
         // propagate the transaction to the corresponding strategy and AlgoTrader Server
         Strategy strategy = transaction.getStrategy();
-        if (!strategy.isServer()) {
+        TransactionVO transactionEvent = transaction.convertToVO();
+        this.eventDispatcher.sendEvent(strategy.getName(), transactionEvent);
+        this.eventDispatcher.broadcast(transactionEvent, EventRecipient.SERVER_LISTENERS);
 
-            this.eventDispatcher.sendEvent(strategy.getName(), transaction.convertToVO());
+        // propagate the positionMutation to the corresponding strategy
+        PositionVO positionMutation = transactionResult.getPositionMutation();
+        if (positionMutation != null) {
+            this.eventDispatcher.sendEvent(strategy.getName(), positionMutation);
+            this.eventDispatcher.broadcast(positionMutation, EventRecipient.SERVER_LISTENERS);
         }
-
-        this.serverEngine.sendEvent(transaction);
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    // This method needs to be non-transaction in ensure correct creation of position and cash balance records in a separate transaction
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
-    @Override
-    public void rebalancePortfolio() {
-
-        Strategy server = this.strategyDao.findServer();
-        Collection<Strategy> strategies = this.strategyDao.loadAll();
-        double portfolioNetLiqValue = this.portfolioService.getNetLiqValueDouble();
-
-        double totalAllocation = 0.0;
-        double totalRebalanceAmount = 0.0;
-        Collection<Transaction> transactions = new ArrayList<>();
-        for (Strategy strategy : strategies) {
-
-            totalAllocation += strategy.getAllocation();
-
-            if (strategy.isServer()) {
-                continue;
-            }
-
-            double actualNetLiqValue = MathUtils.round(this.portfolioService.getNetLiqValueDouble(strategy.getName()), 2);
-            double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * strategy.getAllocation(), 2);
-            double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
-
-            if (Math.abs(rebalanceAmount) >= this.coreConfig.getRebalanceMinAmount().doubleValue()) {
-
-                totalRebalanceAmount += rebalanceAmount;
-
-                Transaction transaction = Transaction.Factory.newInstance();
-                transaction.setUuid(UUID.randomUUID().toString());
-                transaction.setDateTime(this.engineManager.getCurrentEPTime());
-                transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
-                transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
-                transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
-                transaction.setType(TransactionType.REBALANCE);
-                transaction.setStrategy(strategy);
-
-                transactions.add(transaction);
-            }
-        }
-
-        // check allocations add up to 1.0
-        if (MathUtils.round(totalAllocation, 2) != 1.0) {
-            throw new IllegalStateException("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
-        }
-
-        // add REBALANCE transaction to offset totalRebalanceAmount
-        if (transactions.size() != 0) {
-
-            Transaction transaction = Transaction.Factory.newInstance();
-            transaction.setUuid(UUID.randomUUID().toString());
-            transaction.setDateTime(this.engineManager.getCurrentEPTime());
-            transaction.setQuantity((int) Math.signum(-1.0 * totalRebalanceAmount));
-            transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(totalRebalanceAmount)));
-            transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
-            transaction.setType(TransactionType.REBALANCE);
-            transaction.setStrategy(server);
-
-            transactions.add(transaction);
-
-        } else {
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("no rebalancing is performed because all rebalancing amounts are below min amount {}", this.coreConfig.getRebalanceMinAmount());
-            }
-        }
-
-        if (!this.coreConfig.isPositionCheckDisabled()) {
-
-            for (Transaction transaction : transactions) {
-
-                this.transactionPersistenceService.ensurePositionAndCashBalance(transaction);
-            }
-        }
-
-        this.transactionPersistenceService.saveTransactions(transactions);
-    }
-
 
     /**
      * {@inheritDoc}
@@ -511,6 +472,22 @@ public class TransactionServiceImpl implements TransactionService {
     public String resetCashBalances() {
 
         return this.transactionPersistenceService.resetCashBalances();
+    }
+
+    private void printTransaction(final Transaction transaction, final TradePerformanceVO tradePerformance) {
+
+        if (!this.commonConfig.isDisableReports()) {
+            synchronized(this) {
+                try {
+                    if (this.tradeReport == null) {
+                        this.tradeReport = TradeReport.create();
+                    }
+                    this.tradeReport.write(transaction, tradePerformance);
+                } catch (IOException ex) {
+                    LOGGER.error(ex.getMessage(), ex);
+                }
+            }
+        }
     }
 
 }

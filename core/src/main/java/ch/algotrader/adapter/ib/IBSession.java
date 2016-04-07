@@ -161,8 +161,8 @@ public final class IBSession extends EClientSocket implements InitializingServic
                 return;
             } catch (ConnectException e) {
                 // do nothing, gateway is down
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("please start IB Gateway / TWS on port: {}", this.port);
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("please start IB Gateway / TWS on port: {}", this.port);
                 }
             } catch (IOException e) {
                 LOGGER.error("connection error", e);

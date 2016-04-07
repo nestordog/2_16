@@ -18,6 +18,7 @@
 package ch.algotrader.simulation;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -37,6 +38,7 @@ import org.mockito.Mockito;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.PositionVO;
 import ch.algotrader.entity.TransactionVO;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Index;
@@ -53,15 +55,13 @@ import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.AssetClass;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.service.MarketDataCache;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.OpenPositionVO;
+import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -80,7 +80,7 @@ public class SimulatorTest {
 
         this.eventDispatcher = mock(EventDispatcher.class);
 
-        this.simulator = new Simulator(mock(MarketDataCache.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
+        this.simulator = new Simulator(mock(MarketDataCacheService.class), PositionTrackerImpl.INSTANCE, this.eventDispatcher, engineManager);
 
         doReturn(new Date()).when(engineManager).getCurrentEPTime();
     }
@@ -90,7 +90,7 @@ public class SimulatorTest {
 
         // setup reference data
         String strategyName = "STRAT_1";
-        Strategy strategy = Strategy.Factory.newInstance(strategyName, false, 1.0);
+        Strategy strategy = Strategy.Factory.newInstance(strategyName, false);
 
         Currency currency = Currency.USD;
 
@@ -164,12 +164,11 @@ public class SimulatorTest {
         Assert.assertEquals(0, orderStatus1.getRemainingQuantity());
         Assert.assertEquals(order1.getLimit(), orderStatus1.getAvgPrice());
 
-        Assert.assertEquals(OpenPositionVO.class, values1.get(3).getClass());
-        OpenPositionVO openPositionVO1 = (OpenPositionVO) values1.get(3);
-        Assert.assertEquals(Direction.LONG, openPositionVO1.getDirection());
-        Assert.assertEquals(order1.getQuantity(), openPositionVO1.getQuantity());
-        Assert.assertEquals(order1.getSecurity().getId(), openPositionVO1.getSecurityId());
-        Assert.assertEquals(order1.getStrategy().getName(), openPositionVO1.getStrategy());
+        Assert.assertEquals(PositionVO.class, values1.get(3).getClass());
+        PositionVO PositionVO1 = (PositionVO) values1.get(3);
+        Assert.assertEquals(order1.getQuantity(), PositionVO1.getQuantity());
+        Assert.assertEquals(order1.getSecurity().getId(), PositionVO1.getSecurityId());
+        Assert.assertEquals(order1.getStrategy().getId(), PositionVO1.getStrategyId());
 
         Assert.assertEquals(TransactionVO.class, values1.get(4).getClass());
         TransactionVO transactionVO1 = (TransactionVO) values1.get(4);
@@ -207,7 +206,7 @@ public class SimulatorTest {
         verify(this.eventDispatcher, Mockito.atLeastOnce()).sendEvent(any(String.class), argCaptor2.capture());
 
         List<Object> values2 = argCaptor2.getAllValues();
-        Assert.assertEquals(6, values2.size());
+        Assert.assertEquals(5, values2.size());
 
         Assert.assertEquals(LimitOrderVO.class, values2.get(0).getClass());
         LimitOrderVO orderVO2 = (LimitOrderVO) values2.get(0);
@@ -226,12 +225,11 @@ public class SimulatorTest {
         Assert.assertEquals(0, orderStatus2.getRemainingQuantity());
         Assert.assertEquals(order2.getLimit(), orderStatus2.getAvgPrice());
 
-        Assert.assertEquals(ClosePositionVO.class, values2.get(3).getClass());
-        ClosePositionVO closePositionVO2 = (ClosePositionVO) values2.get(3);
-        Assert.assertEquals(Direction.LONG, closePositionVO2.getDirection());
-        Assert.assertEquals(order2.getQuantity(), closePositionVO2.getQuantity());
+        Assert.assertEquals(PositionVO.class, values2.get(3).getClass());
+        PositionVO closePositionVO2 = (PositionVO) values2.get(3);
+        Assert.assertEquals(0, closePositionVO2.getQuantity());
         Assert.assertEquals(order2.getSecurity().getId(), closePositionVO2.getSecurityId());
-        Assert.assertEquals(order2.getStrategy().getName(), closePositionVO2.getStrategy());
+        Assert.assertEquals(order2.getStrategy().getId(), closePositionVO2.getStrategyId());
 
         Assert.assertEquals(TransactionVO.class, values2.get(4).getClass());
         TransactionVO transactionVO2 = (TransactionVO) values2.get(4);
@@ -242,15 +240,21 @@ public class SimulatorTest {
         Assert.assertEquals(order2.getStrategy().getId(), transactionVO2.getStrategyId());
         Assert.assertEquals(order2.getAccount().getId(), transactionVO2.getAccountId());
 
-        Assert.assertEquals(TradePerformanceVO.class, values2.get(5).getClass());
-        TradePerformanceVO tradePerformanceVO = (TradePerformanceVO) values2.get(5);
+        ArgumentCaptor<Object> argCaptor3 = ArgumentCaptor.forClass(Object.class);
+        verify(this.eventDispatcher, Mockito.atLeastOnce()).broadcast(argCaptor3.capture(), anySetOf(EventRecipient.class));
+
+        List<Object> values3 = argCaptor3.getAllValues();
+        Assert.assertEquals(1, values3.size());
+
+        Assert.assertEquals(TradePerformanceVO.class, values3.get(0).getClass());
+        TradePerformanceVO tradePerformanceVO = (TradePerformanceVO) values3.get(0);
         Assert.assertEquals(40, tradePerformanceVO.getProfit(), 0.001);
         Assert.assertEquals(true, tradePerformanceVO.isWinning());
 
         // verify positions and cashBalances
         position = this.simulator.findPositionByStrategyAndSecurity(strategyName, underlying);
         Assert.assertEquals(0, position.getQuantity());
-        Assert.assertEquals(40, position.getRealizedPL(), 0.01);
+        Assert.assertEquals(40, position.getRealizedPL().doubleValue(), 0.01);
 
         cashBalance = this.simulator.findCashBalanceByStrategyAndCurrency(strategyName, currency);
         Assert.assertEquals(new BigDecimal(1040), cashBalance.getAmount());

@@ -38,7 +38,7 @@ public class Log4jWiring {
     }
 
     @Bean(name = "log4JRewriter")
-    public Log4JRewriter createLog4JRewriter(final CommonConfig commonConfig, final EngineManager engineManager) {
+    public Log4JRewriter createLog4JRewriter(final EngineManager engineManager, final CommonConfig commonConfig) {
 
         return new Log4JRewriter(engineManager, commonConfig);
     }

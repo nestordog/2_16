@@ -24,9 +24,7 @@ import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
@@ -42,25 +40,25 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
     public LMAXFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         super(orderServiceType, fixAdapter, new LMAXFixOrderMessageFactory(),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     public LMAXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
-        this(OrderServiceType.LMAX_FIX.name(), fixAdapter, orderRegistry, orderPersistenceService,
+        this(OrderServiceType.LMAX_FIX.name(), fixAdapter, orderBook, orderPersistenceService,
                 orderDao, accountDao, commonConfig);
     }
 
@@ -74,15 +72,6 @@ public class LMAXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fi
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-    }
-
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        if (type == SimpleOrderType.MARKET) {
-            return TIF.IOC;
-        } else {
-            return TIF.DAY;
-        }
     }
 
 }

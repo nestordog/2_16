@@ -18,10 +18,19 @@
 package ch.algotrader.entity.security;
 
 
+import ch.algotrader.visitor.SecurityVisitor;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class StockImpl extends Stock {
 
     private static final long serialVersionUID = -6169238869632079681L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitStock(this, param);
+    }
+
 }

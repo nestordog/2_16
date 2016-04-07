@@ -43,7 +43,6 @@ import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
-import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.security.Option;
@@ -56,7 +55,6 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.esper.callback.TickCallback;
 import ch.algotrader.option.OptionSymbol;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateUtil;
@@ -81,7 +79,7 @@ public class OptionServiceImpl implements OptionService {
 
     private final OrderService orderService;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final SecurityDao securityDao;
 
@@ -107,7 +105,7 @@ public class OptionServiceImpl implements OptionService {
             final MarketDataService marketDataService,
             final FutureService futureService,
             final OrderService orderService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final SecurityDao securityDao,
             final OptionFamilyDao optionFamilyDao,
             final OptionDao optionDao,
@@ -123,7 +121,7 @@ public class OptionServiceImpl implements OptionService {
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(futureService, "FutureService is null");
         Validate.notNull(orderService, "OrderService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(optionFamilyDao, "OptionFamilyDao is null");
         Validate.notNull(optionDao, "OptionDao is null");
@@ -139,7 +137,7 @@ public class OptionServiceImpl implements OptionService {
         this.marketDataService = marketDataService;
         this.futureService = futureService;
         this.orderService = orderService;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.securityDao = securityDao;
         this.optionFamilyDao = optionFamilyDao;
         this.optionDao = optionDao;
@@ -163,10 +161,10 @@ public class OptionServiceImpl implements OptionService {
         // get the deltaAdjustedMarketValue
         double deltaAdjustedMarketValue = 0;
         for (Position position : positions) {
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getId());
-            MarketDataEventVO underlyingMarketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getId());
+            MarketDataEventVO underlyingMarketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(position.getSecurity().getUnderlying().getId());
 
-            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent) * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
+            deltaAdjustedMarketValue += position.getMarketValue(marketDataEvent).doubleValue() * position.getSecurity().getLeverage(marketDataEvent, underlyingMarketDataEvent, currentEPTime);
         }
 
         final Security underlying = this.securityDao.get(underlyingId);
@@ -183,27 +181,23 @@ public class OptionServiceImpl implements OptionService {
         final Future future = this.futureService.getFutureByMinExpiration(futureFamily.getId(), targetDate);
         final double deltaAdjustedMarketValuePerContract = deltaAdjustedMarketValue / futureFamily.getContractSize();
 
-        this.serverEngine.addFirstTickCallback(Collections.singleton((Security) future), new TickCallback() {
-            @Override
-            public void onFirstTick(String strategyName, List<TickVO> ticks) throws Exception {
+        this.serverEngine.addFirstTickCallback(Collections.singleton(future.getId()), (strategyName, ticks) -> {
+            // round to the number of contracts
+            int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
 
-                // round to the number of contracts
-                int qty = (int) MathUtils.round(deltaAdjustedMarketValuePerContract / ticks.get(0).getCurrentValueDouble(), 0);
+            if (qty != 0) {
+                // create the order
+                Order order = OptionServiceImpl.this.orderService.createOrderByOrderPreference(OptionServiceImpl.this.coreConfig.getDeltaHedgeOrderPreference());
+                order.setStrategy(server);
+                order.setSecurity(future);
+                order.setQuantity(Math.abs(qty));
+                order.setSide(qty > 0 ? Side.SELL : Side.BUY);
 
-                if (qty != 0) {
-                    // create the order
-                    Order order = OptionServiceImpl.this.orderService.createOrderByOrderPreference(OptionServiceImpl.this.coreConfig.getDeltaHedgeOrderPreference());
-                    order.setStrategy(server);
-                    order.setSecurity(future);
-                    order.setQuantity(Math.abs(qty));
-                    order.setSide(qty > 0 ? Side.SELL : Side.BUY);
+                OptionServiceImpl.this.orderService.sendOrder(order);
+            } else {
 
-                    OptionServiceImpl.this.orderService.sendOrder(order);
-                } else {
-
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info("no delta hedge necessary on {}", underlying);
-                    }
+                if (LOGGER.isInfoEnabled()) {
+                    LOGGER.info("no delta hedge necessary on {}", underlying);
                 }
             }
         });
@@ -234,7 +228,7 @@ public class OptionServiceImpl implements OptionService {
         option.setSymbol(symbol);
         option.setStrike(strike);
         option.setExpiration(expirationDate);
-        option.setType(type);
+        option.setOptionType(type);
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 
@@ -280,7 +274,7 @@ public class OptionServiceImpl implements OptionService {
         option.setRic(ric);
         option.setStrike(strike);
         option.setExpiration(expiration);
-        option.setType(type);
+        option.setOptionType(type);
         option.setUnderlying(underlying);
         option.setSecurityFamily(family);
 

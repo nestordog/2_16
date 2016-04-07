@@ -20,7 +20,7 @@ package ch.algotrader.adapter.tt;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.fix42.Fix42SymbologyResolver;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
@@ -62,11 +62,11 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
     }
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws BrokerAdapterException {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
-        String exchangeCode = exchange.getCode();
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
         String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
         if (security.getTtid() != null) {
             message.set(new SecurityID(security.getTtid()));
@@ -81,7 +81,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
 
         } else if (security instanceof Future) {
@@ -91,20 +91,20 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new SecurityExchange(exchangeCode));
             message.set(new Symbol(symbolRoot));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(future.getMonthYear()));
 
         } else {
 
-            throw new FixApplicationException("TT interface does not support security class " + security.getClass());
+            throw new BrokerAdapterException("TT interface does not support security class " + security.getClass());
         }
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         SecurityFamily securityFamily = security.getSecurityFamily();
         Exchange exchange = securityFamily.getExchange();
-        String exchangeCode = exchange.getCode();
+        String exchangeCode = exchange.getTtCode() != null ? exchange.getTtCode() : exchange.getCode();
         String symbolRoot = securityFamily.getSymbolRoot(Broker.TT.name());
         if (security.getTtid() != null) {
             message.set(new SecurityID(security.getTtid()));
@@ -119,7 +119,7 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new Symbol(symbolRoot));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
-            message.set(new PutOrCall(OptionType.PUT.equals(option.getType()) ? PutOrCall.PUT : PutOrCall.CALL));
+            message.set(new PutOrCall(OptionType.PUT.equals(option.getOptionType()) ? PutOrCall.PUT : PutOrCall.CALL));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
 
         } else if (security instanceof Future) {
@@ -129,16 +129,16 @@ public class TTSymbologyResolver implements Fix42SymbologyResolver {
             message.set(new SecurityType(SecurityType.FUTURE));
             message.set(new SecurityExchange(exchangeCode));
             message.set(new Symbol(symbolRoot));
-            message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+            message.set(new MaturityMonthYear(future.getMonthYear()));
 
         } else {
 
-            throw new FixApplicationException("TT interface does not support security class " + security.getClass());
+            throw new BrokerAdapterException("TT interface does not support security class " + security.getClass());
         }
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws BrokerAdapterException {
     }
 
 }

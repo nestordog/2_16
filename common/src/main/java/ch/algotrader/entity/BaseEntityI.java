@@ -31,5 +31,4 @@ public interface BaseEntityI extends Serializable {
 
     boolean isInitialized();
 
-    <R,P> R accept(ch.algotrader.visitor.EntityVisitor<R, ? super P> visitor, P param);
 }

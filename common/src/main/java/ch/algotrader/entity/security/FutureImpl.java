@@ -21,6 +21,7 @@ import java.util.Date;
 
 import ch.algotrader.entity.marketData.MarketDataEventI;
 import ch.algotrader.util.DateUtil;
+import ch.algotrader.visitor.SecurityVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,6 +29,12 @@ import ch.algotrader.util.DateUtil;
 public class FutureImpl extends Future {
 
     private static final long serialVersionUID = -7436972192801577685L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitFuture(this, param);
+    }
 
     @Override
     public double getLeverage(MarketDataEventI marketDataEvent, MarketDataEventI underlyingMarketDataEvent, Date currentTime) {

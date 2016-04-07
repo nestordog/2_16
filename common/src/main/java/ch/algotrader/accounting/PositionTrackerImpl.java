@@ -22,6 +22,7 @@ import org.apache.commons.math.util.MathUtils;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.enumeration.Direction;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.vo.TradePerformanceVO;
 
 /**
@@ -44,8 +45,8 @@ public class PositionTrackerImpl implements PositionTracker {
         position.setSecurity(transaction.getSecurity());
         position.setStrategy(transaction.getStrategy());
         position.setQuantity(transaction.getQuantity());
-        position.setCost(cost);
-        position.setRealizedPL(0.0);
+        position.setCost(RoundUtil.getBigDecimal(cost));
+        position.setRealizedPL(RoundUtil.getBigDecimal(0.0));
 
         return position;
     }
@@ -60,9 +61,9 @@ public class PositionTrackerImpl implements PositionTracker {
 
         // get old values
         long oldQty = position.getQuantity();
-        double oldCost = position.getCost();
-        double oldRealizedPL = position.getRealizedPL();
-        double oldAvgPrice = position.getAveragePrice();
+        double oldCost = position.getCost().doubleValue();
+        double oldRealizedPL = position.getRealizedPL().doubleValue();
+        double oldAvgPrice = position.getAveragePriceDouble();
 
         // get transaction values
         long qty = transaction.getQuantity();
@@ -100,10 +101,10 @@ public class PositionTrackerImpl implements PositionTracker {
 
             double cost, value;
             if (Math.abs(transaction.getQuantity()) <= Math.abs(position.getQuantity())) {
-                cost = position.getCost() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
+                cost = position.getCost().doubleValue() * Math.abs((double) transaction.getQuantity() / (double) position.getQuantity());
                 value = transaction.getNetValueDouble();
             } else {
-                cost = position.getCost();
+                cost = position.getCost().doubleValue();
                 value = transaction.getNetValueDouble() * Math.abs((double) position.getQuantity() / (double) transaction.getQuantity());
             }
 
@@ -115,8 +116,8 @@ public class PositionTrackerImpl implements PositionTracker {
 
         // set values
         position.setQuantity(newQty);
-        position.setCost(newCost);
-        position.setRealizedPL(newRealizedPL);
+        position.setCost(RoundUtil.getBigDecimal(newCost));
+        position.setRealizedPL(RoundUtil.getBigDecimal(newRealizedPL));
 
         return tradePerformance;
     }

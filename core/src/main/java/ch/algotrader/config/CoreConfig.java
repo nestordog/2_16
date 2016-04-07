@@ -18,8 +18,6 @@
 
 package ch.algotrader.config;
 
-import java.math.BigDecimal;
-
 /**
  * Algotrader core configuration object.
  *
@@ -32,7 +30,6 @@ public final class CoreConfig {
     private final boolean simulateFuturesByGenericFutures;
     private final int transactionDisplayCount;
     private final int intervalDays;
-    private final BigDecimal rebalanceMinAmount;
     private final String defaultFeedType;
     private final String defaultOrderPreference;
     private final boolean fxFutureHedgeEnabled;
@@ -50,7 +47,6 @@ public final class CoreConfig {
             @ConfigName("statement.simulateFuturesByGenericFutures") boolean simulateFuturesByGenericFutures,
             @ConfigName("misc.transactionDisplayCount") int transactionDisplayCount,
             @ConfigName("misc.intervalDays") int intervalDays,
-            @ConfigName("misc.rebalanceMinAmount") BigDecimal rebalanceMinAmount,
             @ConfigName("misc.defaultFeedType") String defaultFeedType,
             @ConfigName("misc.defaultOrderPreference") String defaultOrderPreference,
             @ConfigName("fx.futureHedgeEnabled") boolean fxFutureHedgeEnabled,
@@ -60,13 +56,12 @@ public final class CoreConfig {
             @ConfigName("fx.hedgeOrderPreference") String fxHedgeOrderPreference,
             @ConfigName("delta.hedgeMinTimeToExpiration") int deltaHedgeMinTimeToExpiration,
             @ConfigName("delta.hedgeOrderPreference") String deltaHedgeOrderPreference,
-            @ConfigName("persistence.positionCheckDisabled") boolean positionCheckDisabled) {
+            @ConfigName("misc.positionCheckDisabled") boolean positionCheckDisabled) {
         this.simulateOptions = simulateOptions;
         this.simulateFuturesByUnderlying = simulateFuturesByUnderlying;
         this.simulateFuturesByGenericFutures = simulateFuturesByGenericFutures;
         this.transactionDisplayCount = transactionDisplayCount;
         this.intervalDays = intervalDays;
-        this.rebalanceMinAmount = rebalanceMinAmount;
         this.defaultFeedType = defaultFeedType;
         this.defaultOrderPreference = defaultOrderPreference;
         this.fxFutureHedgeEnabled = fxFutureHedgeEnabled;
@@ -80,88 +75,83 @@ public final class CoreConfig {
     }
 
     public boolean isSimulateOptions() {
-        return simulateOptions;
+        return this.simulateOptions;
     }
 
     public boolean isSimulateFuturesByUnderlying() {
-        return simulateFuturesByUnderlying;
+        return this.simulateFuturesByUnderlying;
     }
 
     public boolean isSimulateFuturesByGenericFutures() {
-        return simulateFuturesByGenericFutures;
+        return this.simulateFuturesByGenericFutures;
     }
 
     public int getTransactionDisplayCount() {
-        return transactionDisplayCount;
+        return this.transactionDisplayCount;
     }
 
     public int getIntervalDays() {
-        return intervalDays;
-    }
-
-    public BigDecimal getRebalanceMinAmount() {
-        return rebalanceMinAmount;
+        return this.intervalDays;
     }
 
     public String getDefaultFeedType() {
-        return defaultFeedType;
+        return this.defaultFeedType;
     }
 
     public String getDefaultOrderPreference() {
-        return defaultOrderPreference;
+        return this.defaultOrderPreference;
     }
 
     public boolean isFxFutureHedgeEnabled() {
-        return fxFutureHedgeEnabled;
+        return this.fxFutureHedgeEnabled;
     }
 
     public int getFxFutureHedgeMinTimeToExpiration() {
-        return fxFutureHedgeMinTimeToExpiration;
+        return this.fxFutureHedgeMinTimeToExpiration;
     }
 
     public int getFxHedgeMinAmount() {
-        return fxHedgeMinAmount;
+        return this.fxHedgeMinAmount;
     }
 
     public int getFxHedgeBatchSize() {
-        return fxHedgeBatchSize;
+        return this.fxHedgeBatchSize;
     }
 
     public String getFxHedgeOrderPreference() {
-        return fxHedgeOrderPreference;
+        return this.fxHedgeOrderPreference;
     }
 
     public int getDeltaHedgeMinTimeToExpiration() {
-        return deltaHedgeMinTimeToExpiration;
+        return this.deltaHedgeMinTimeToExpiration;
     }
 
     public String getDeltaHedgeOrderPreference() {
-        return deltaHedgeOrderPreference;
+        return this.deltaHedgeOrderPreference;
     }
 
     public boolean isPositionCheckDisabled() {
-        return positionCheckDisabled;
+        return this.positionCheckDisabled;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
-        sb.append("simulateOptions=").append(simulateOptions);
-        sb.append(", simulateFuturesByUnderlying=").append(simulateFuturesByUnderlying);
-        sb.append(", simulateFuturesByGenericFutures=").append(simulateFuturesByGenericFutures);
-        sb.append(", transactionDisplayCount=").append(transactionDisplayCount);
-        sb.append(", intervalDays=").append(intervalDays);
-        sb.append(", rebalanceMinAmount=").append(rebalanceMinAmount);
-        sb.append(", defaultFeedType=").append(defaultFeedType);
-        sb.append(", defaultOrderPreference=").append(defaultOrderPreference);
-        sb.append(", fxFutureHedgeEnabled=").append(fxFutureHedgeEnabled);
-        sb.append(", fxFutureHedgeMinTimeToExpiration=").append(fxFutureHedgeMinTimeToExpiration);
-        sb.append(", fxHedgeMinAmount=").append(fxHedgeMinAmount);
-        sb.append(", fxHedgeBatchSize=").append(fxHedgeBatchSize);
-        sb.append(", fxHedgeOrderPreference=").append(fxHedgeOrderPreference);
-        sb.append(", deltaHedgeMinTimeToExpiration=").append(deltaHedgeMinTimeToExpiration);
-        sb.append(", deltaHedgeOrderPreference=").append(deltaHedgeOrderPreference);
-        sb.append(", positionCheckDisabled=").append(positionCheckDisabled);
+        sb.append("simulateOptions=").append(this.simulateOptions);
+        sb.append(", simulateFuturesByUnderlying=").append(this.simulateFuturesByUnderlying);
+        sb.append(", simulateFuturesByGenericFutures=").append(this.simulateFuturesByGenericFutures);
+        sb.append(", transactionDisplayCount=").append(this.transactionDisplayCount);
+        sb.append(", intervalDays=").append(this.intervalDays);
+        sb.append(", defaultFeedType=").append(this.defaultFeedType);
+        sb.append(", defaultOrderPreference=").append(this.defaultOrderPreference);
+        sb.append(", fxFutureHedgeEnabled=").append(this.fxFutureHedgeEnabled);
+        sb.append(", fxFutureHedgeMinTimeToExpiration=").append(this.fxFutureHedgeMinTimeToExpiration);
+        sb.append(", fxHedgeMinAmount=").append(this.fxHedgeMinAmount);
+        sb.append(", fxHedgeBatchSize=").append(this.fxHedgeBatchSize);
+        sb.append(", fxHedgeOrderPreference=").append(this.fxHedgeOrderPreference);
+        sb.append(", deltaHedgeMinTimeToExpiration=").append(this.deltaHedgeMinTimeToExpiration);
+        sb.append(", deltaHedgeOrderPreference=").append(this.deltaHedgeOrderPreference);
+        sb.append(", positionCheckDisabled=").append(this.positionCheckDisabled);
         sb.append(']');
         return sb.toString();
     }

@@ -241,7 +241,7 @@ represented by an instance of this class.]]></meta>
                 </meta> 	    
                 <property name="limit">
                     <meta attribute="field-description"><![CDATA[The limit price.]]></meta>
-                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+                    <column name="`LIMIT`" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
                     <type name="java.math.BigDecimal"/>
                 </property>
@@ -255,13 +255,13 @@ represented by an instance of this class.]]></meta>
                 </meta> 	    
                 <property name="limit">
                     <meta attribute="field-description"><![CDATA[the limit price.]]></meta>
-                    <column name="`LIMIT`" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+                    <column name="`LIMIT`" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
                     <type name="java.math.BigDecimal"/>
                 </property>
                 <property name="stop">
                     <meta attribute="field-description"><![CDATA[The stop price.]]></meta>
-                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+                    <column name="STOP" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
                     <type name="java.math.BigDecimal"/>
                 </property>
@@ -283,7 +283,7 @@ represented by an instance of this class.]]></meta>
                 </meta> 	    
                 <property name="stop">
                     <meta attribute="field-description"><![CDATA[The stop price.]]></meta>
-                    <column name="STOP" not-null="false" unique="false" sql-type="Decimal(15,6)"/>
+                    <column name="STOP" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
                     <type name="java.math.BigDecimal"/>
                 </property>

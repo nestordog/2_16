@@ -26,6 +26,6 @@ public interface InitializingServiceI {
      * Abstract initialization method that needs to be overwritten by the Service implementing this
      * Interface
      */
-    void init();
+    void init() throws Exception;
 
 }

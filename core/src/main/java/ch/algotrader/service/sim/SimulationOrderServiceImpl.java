@@ -33,57 +33,45 @@ import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.Side;
-import ch.algotrader.enumeration.SimpleOrderType;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.ordermgmt.OrderRegistry;
-import ch.algotrader.service.MarketDataCache;
+import ch.algotrader.ordermgmt.OrderBook;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class SimulationOrderServiceImpl implements SimulationOrderService {
 
-    private final MarketDataCache marketDataCache;
-    private final OrderRegistry orderRegistry;
+    private final MarketDataCacheService marketDataCacheService;
+    private final OrderBook orderBook;
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
     private final EngineManager engineManager;
-    private final Engine serverEngine;
     private final AtomicLong counter;
     private final AtomicLong seqnum;
 
     public SimulationOrderServiceImpl(
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
-            final MarketDataCache marketDataCache,
-            final EngineManager engineManager,
-            final Engine serverEngine) {
+            final MarketDataCacheService marketDataCacheService,
+            final EngineManager engineManager) {
 
-        Validate.notNull(orderRegistry, "OpenOrderRegistry is null");
+        Validate.notNull(orderBook, "OpenOrderRegistry is null");
         Validate.notNull(orderExecutionService, "OrderExecutionService is null");
-        Validate.notNull(transactionService, "TransactionService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(engineManager, "EngineManager is null");
-        Validate.notNull(serverEngine, "Engine is null");
 
-        this.orderRegistry = orderRegistry;
+        this.orderBook = orderBook;
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
         this.engineManager = engineManager;
-        this.serverEngine = serverEngine;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.counter = new AtomicLong(0);
         this.seqnum = new AtomicLong(0);
     }
 
     @Override
-    public void sendOrder(SimpleOrder order) {
+    public String sendOrder(SimpleOrder order) {
 
         Validate.notNull(order, "Order is null");
 
@@ -94,7 +82,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             order.setIntId(intId);
         }
 
-        this.orderRegistry.add(order);
+        this.orderBook.add(order);
 
         Date d = this.engineManager.getCurrentEPTime();
 
@@ -110,7 +98,6 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         ack.setSequenceNumber(this.seqnum.incrementAndGet());
 
         // send the orderStatus to the AlgoTrader Server
-        this.serverEngine.sendEvent(ack);
         this.orderExecutionService.handleOrderStatus(ack);
 
         // send full execution
@@ -125,7 +112,6 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         orderStatus.setSequenceNumber(this.seqnum.incrementAndGet());
 
         // send the orderStatus to the AlgoTrader Server
-        this.serverEngine.sendEvent(orderStatus);
         this.orderExecutionService.handleOrderStatus(orderStatus);
 
         // create one fill per order
@@ -140,10 +126,9 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
         fill.setClearingCommission(getClearingCommission(order));
         fill.setFee(getFee(order));
 
-        // propagate the fill
-        this.serverEngine.sendEvent(fill);
-        this.transactionService.createTransaction(fill);
         this.orderExecutionService.handleFill(fill);
+
+        return intId;
     }
 
     /**
@@ -164,7 +149,7 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
             Security security = order.getSecurity();
 
             // all other orders are executed the the market
-            MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
+            MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
             return marketDataEvent.getMarketValue(Side.BUY.equals(order.getSide()) ? Direction.SHORT : Direction.LONG)
                     .setScale(security.getSecurityFamily().getScale(), BigDecimal.ROUND_HALF_UP);
         }
@@ -224,13 +209,13 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     }
 
     @Override
-    public void cancelOrder(SimpleOrder order) {
+    public String cancelOrder(SimpleOrder order) {
 
         throw new UnsupportedOperationException("cancel order not supported in simulation");
     }
 
     @Override
-    public void modifyOrder(SimpleOrder order) {
+    public String modifyOrder(SimpleOrder order) {
 
         throw new UnsupportedOperationException("modify order not supported in simulation");
     }
@@ -239,14 +224,6 @@ public class SimulationOrderServiceImpl implements SimulationOrderService {
     public String getOrderServiceType() {
 
         return OrderServiceType.SIMULATION.name();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        return TIF.DAY;
     }
 
 }

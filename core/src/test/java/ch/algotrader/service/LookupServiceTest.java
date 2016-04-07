@@ -19,6 +19,7 @@ package ch.algotrader.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -87,6 +88,7 @@ import ch.algotrader.entity.security.OptionImpl;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.security.SecurityFamilyImpl;
+import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.security.SecurityReference;
 import ch.algotrader.entity.security.SecurityReferenceImpl;
 import ch.algotrader.entity.security.Stock;
@@ -108,13 +110,16 @@ import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.enumeration.OrderServiceType;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.EngineManager;
+import ch.algotrader.event.EventPublisher;
 import ch.algotrader.hibernate.InMemoryDBTest;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.collection.Pair;
 import ch.algotrader.wiring.common.CommonConfigWiring;
 import ch.algotrader.wiring.common.EventDispatchPostInitWiring;
 import ch.algotrader.wiring.common.EventDispatchWiring;
-import ch.algotrader.wiring.server.CacheWiring;
-import ch.algotrader.wiring.server.HibernateWiring;
+import ch.algotrader.wiring.core.CacheWiring;
+import ch.algotrader.wiring.core.HibernateWiring;
 
 /**
 * Unit tests for {@link ch.algotrader.entity.Transaction}.
@@ -147,6 +152,8 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         EngineManager engineManager = Mockito.mock(EngineManager.class);
         context.getDefaultListableBeanFactory().registerSingleton("engineManager", engineManager);
+        EventPublisher eventPublisher = Mockito.mock(EventPublisher.class);
+        context.getDefaultListableBeanFactory().registerSingleton("remoteEventPropagator", eventPublisher);
 
         EmbeddedDatabaseFactory dbFactory = new EmbeddedDatabaseFactory();
         dbFactory.setDatabaseType(EmbeddedDatabaseType.H2);
@@ -581,9 +588,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy2);
         this.session.save(subscription2);
     
-        forex1.addSubscriptions(subscription1);
-        forex2.addSubscriptions(subscription2);
-    
         this.session.flush();
     
         List<Security> forexes1 = new ArrayList<Security>(lookupService.getSubscribedSecuritiesForAutoActivateStrategies());
@@ -636,8 +640,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(strategy1);
         this.session.save(subscription1);
-    
-        forex1.addSubscriptions(subscription1);
     
         this.session.flush();
     
@@ -875,7 +877,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         option1.setSecurityFamily(family1);
         option1.setExpiration(cal1.getTime());
         option1.setStrike(new BigDecimal(111));
-        option1.setType(OptionType.CALL);
+        option1.setOptionType(OptionType.CALL);
         option1.setUnderlying(forex1);
     
         Subscription subscription1 = new SubscriptionImpl();
@@ -889,15 +891,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(option1);
         this.session.save(subscription1);
     
-        option1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Option> options1 = lookupService.getSubscribedOptions();
     
         Assert.assertEquals(1, options1.size());
     
-        Assert.assertEquals(1, options1.get(0).getSubscriptions().size());
         Assert.assertSame(option1, options1.get(0));
     }
 
@@ -912,17 +911,19 @@ public class LookupServiceTest extends InMemoryDBTest {
         Strategy strategy1 = new StrategyImpl();
         strategy1.setName("Strategy1");
     
-        Calendar cal1 = Calendar.getInstance();
+        LocalDate today = LocalDate.now();
     
         Future future1 = new FutureImpl();
         future1.setSecurityFamily(family1);
-        future1.setExpiration(cal1.getTime());
-    
-        Calendar cal2 = Calendar.getInstance();
-    
+        future1.setExpiration(DateTimeLegacy.toLocalDate(today));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(today));
+
+        LocalDate nextMonth = today.plusMonths(1);
+
         Future future2 = new FutureImpl();
         future2.setSecurityFamily(family1);
-        future2.setExpiration(cal2.getTime());
+        future2.setExpiration(DateTimeLegacy.toLocalDate(nextMonth));
+        future2.setMonthYear(DateTimePatterns.MONTH_YEAR.format(nextMonth));
     
         this.session.save(family1);
         this.session.save(future1);
@@ -941,8 +942,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(strategy1);
         this.session.save(subscription1);
     
-        future1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Future> futures2 = lookupService.getSubscribedFutures();
@@ -951,16 +950,13 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertSame(future1, futures2.get(0));
         Assert.assertSame(family1, futures2.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures2.get(0).getSubscriptions().size());
-    
+
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setFeedType(FeedType.BB.name());
         subscription2.setSecurity(future2);
         subscription2.setStrategy(strategy1);
     
         this.session.save(subscription2);
-    
-        future2.addSubscriptions(subscription2);
     
         this.session.flush();
     
@@ -970,10 +966,8 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertSame(future1, futures3.get(0));
         Assert.assertSame(family1, futures3.get(0).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(0).getSubscriptions().size());
         Assert.assertSame(future2, futures3.get(1));
         Assert.assertSame(family1, futures3.get(1).getSecurityFamily());
-        Assert.assertSame(1, futures3.get(1).getSubscriptions().size());
     }
 
     @Test
@@ -999,7 +993,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
     
         Subscription subscription1 = new SubscriptionImpl();
@@ -1013,15 +1007,12 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategy("Strategy1");
     
         Assert.assertEquals(1, combinations1.size());
     
-        Assert.assertEquals(1, combinations1.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations1.get(0));
     }
 
@@ -1048,7 +1039,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setUnderlying(forex1);
     
@@ -1063,8 +1054,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndUnderlying("Strategy1", 0);
@@ -1075,7 +1064,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1102,7 +1090,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
     
         combination1.addComponents(component1);
     
@@ -1121,8 +1109,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         this.session.save(component1);
     
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
         List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponent("Strategy1", 0);
@@ -1133,7 +1119,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1160,7 +1145,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
     
@@ -1179,11 +1164,9 @@ public class LookupServiceTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-    
         this.session.flush();
     
-        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", Security.class);
+        List<Combination> combinations1 = (List<Combination>) lookupService.getSubscribedCombinationsByStrategyAndComponentClass("Strategy1", SecurityImpl.class);
     
         Assert.assertEquals(0, combinations1.size());
     
@@ -1191,7 +1174,6 @@ public class LookupServiceTest extends InMemoryDBTest {
     
         Assert.assertEquals(1, combinations2.size());
     
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -1214,7 +1196,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1226,8 +1208,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-    
-        combination1.addSubscriptions(subscription1);
     
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
@@ -1245,7 +1225,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
     
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components2.get(0).getSecurity());
     }
 
@@ -1268,7 +1247,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1280,8 +1259,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-    
-        combination1.addSubscriptions(subscription1);
     
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
@@ -1303,7 +1280,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components3.size());
     
         Assert.assertSame(combination1, components3.get(0).getCombination());
-        Assert.assertEquals(1, components3.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components3.get(0).getSecurity());
     }
 
@@ -1326,7 +1302,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
     
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -1338,8 +1314,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-    
-        combination1.addSubscriptions(subscription1);
     
         Component component1 = new ComponentImpl();
         component1.setSecurity(forex1);
@@ -1357,7 +1331,6 @@ public class LookupServiceTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
     
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(forex1, components2.get(0).getSecurity());
     }
 
@@ -1418,7 +1391,7 @@ public class LookupServiceTest extends InMemoryDBTest {
         combination1.setSymbol("COMBI1");
         combination1.setUuid(UUID.randomUUID().toString());
         combination1.setSecurityFamily(family1);
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         this.session.save(strategy1);
         this.session.save(family1);
@@ -1507,6 +1480,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(subscription2);
         this.session.save(subscription1);
@@ -1691,7 +1666,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1744,7 +1721,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
     
         this.session.save(family2);
@@ -1755,7 +1734,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position2.setQuantity(222);
         position2.setSecurity(forex2);
         position2.setStrategy(strategy1);
-    
+        position2.setCost(new BigDecimal(0.0));
+        position2.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position2);
         this.session.flush();
     
@@ -1802,7 +1783,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1857,7 +1840,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(0);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1873,6 +1858,8 @@ public class LookupServiceTest extends InMemoryDBTest {
         position2.setQuantity(222);
         position2.setSecurity(forex2);
         position2.setStrategy(strategy2);
+        position2.setCost(new BigDecimal(0.0));
+        position2.setRealizedPL(new BigDecimal(0.0));
 
         this.session.save(position2);
         this.session.flush();
@@ -1911,7 +1898,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1956,7 +1945,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -1998,7 +1989,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2043,7 +2036,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2085,15 +2080,17 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndType("Dummy", Security.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyAndType("Dummy", SecurityImpl.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndType("Strategy1", Forex.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyAndType("Strategy1", ForexImpl.class);
     
         Assert.assertEquals(1, positions2.size());
     
@@ -2105,43 +2102,62 @@ public class LookupServiceTest extends InMemoryDBTest {
 
     @Test
     public void testGetOpenPositionsByStrategyTypeAndUnderlyingType() {
-    
+
         SecurityFamily family1 = new SecurityFamilyImpl();
         family1.setName("Forex1");
         family1.setTickSizePattern("0<0.1");
         family1.setCurrency(Currency.USD);
-    
+
         Forex forex1 = new ForexImpl();
         forex1.setSymbol("EUR.USD");
         forex1.setBaseCurrency(Currency.EUR);
         forex1.setSecurityFamily(family1);
-    
-        Strategy strategy1 = new StrategyImpl();
-        strategy1.setName("Strategy1");
-    
+
         this.session.save(family1);
         this.session.save(forex1);
+
+        FutureFamily futurefamily1 = new FutureFamilyImpl();
+        futurefamily1.setName("Future1");
+        futurefamily1.setTickSizePattern("0<0.1");
+        futurefamily1.setCurrency(Currency.USD);
+        futurefamily1.setExpirationType(ExpirationType.NEXT_3_RD_FRIDAY);
+        futurefamily1.setExpirationDistance(Duration.DAY_1);
+
+        futurefamily1.setUnderlying(forex1);
+        this.session.save(futurefamily1);
+
+        Future future1 = new FutureImpl();
+        future1.setSecurityFamily(futurefamily1);
+        LocalDate expiration = LocalDate.now().plusMonths(1);
+        future1.setExpiration(DateTimeLegacy.toLocalDate(expiration));
+        future1.setMonthYear(DateTimePatterns.MONTH_YEAR.format(expiration));
+        this.session.save(future1);
+
+        Strategy strategy1 = new StrategyImpl();
+        strategy1.setName("Strategy1");
+
         this.session.save(strategy1);
     
         Position position1 = new PositionImpl();
         position1.setQuantity(222);
-        position1.setSecurity(forex1);
+        position1.setSecurity(future1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
-        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", Security.class, SecurityFamily.class);
+        List<Position> positions1 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Dummy", FutureImpl.class, ForexImpl.class);
     
         Assert.assertEquals(0, positions1.size());
     
-        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", Forex.class, SecurityFamily.class);
+        List<Position> positions2 = lookupService.getOpenPositionsByStrategyTypeAndUnderlyingType("Strategy1", FutureImpl.class, ForexImpl.class);
     
         Assert.assertEquals(1, positions2.size());
     
         Assert.assertEquals(222, positions2.get(0).getQuantity());
-        Assert.assertSame(forex1, positions2.get(0).getSecurity());
-        Assert.assertSame(family1, positions2.get(0).getSecurity().getSecurityFamily());
+        Assert.assertSame(future1, positions2.get(0).getSecurity());
         Assert.assertSame(strategy1, positions2.get(0).getStrategy());
     }
 
@@ -2169,7 +2185,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2209,7 +2227,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2247,7 +2267,9 @@ public class LookupServiceTest extends InMemoryDBTest {
         position1.setQuantity(222);
         position1.setSecurity(forex1);
         position1.setStrategy(strategy1);
-    
+        position1.setCost(new BigDecimal(0.0));
+        position1.setRealizedPL(new BigDecimal(0.0));
+
         this.session.save(position1);
         this.session.flush();
     
@@ -2412,11 +2434,11 @@ public class LookupServiceTest extends InMemoryDBTest {
         this.session.save(transaction2);
         this.session.flush();
     
-        List<Transaction> transactionVOs1 = this.lookupService.getDailyTransactionsByStrategy("Dummy");
+        List<Transaction> transactionVOs1 = lookupService.getDailyTransactionsByStrategy("Dummy");
     
         Assert.assertEquals(0, transactionVOs1.size());
     
-        List<Transaction> transactionVOs2 = this.lookupService.getDailyTransactionsByStrategy("Strategy1");
+        List<Transaction> transactionVOs2 = lookupService.getDailyTransactionsByStrategy("Strategy1");
 
         Assert.assertEquals(1, transactionVOs2.size());
     

@@ -18,6 +18,7 @@
 package ch.algotrader.entity.trade;
 
 import org.apache.commons.lang.ClassUtils;
+import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.enumeration.OrderPropertyType;
@@ -114,9 +115,10 @@ public abstract class OrderImpl extends Order {
 
         buffer.append(getDescription());
 
-        if (!"".equals(getExtDescription())) {
+        String extDescription = getExtDescription();
+        if (!StringUtils.isBlank(extDescription)) {
             buffer.append(",");
-            buffer.append(getExtDescription());
+            buffer.append(extDescription);
         }
 
         return buffer.toString();

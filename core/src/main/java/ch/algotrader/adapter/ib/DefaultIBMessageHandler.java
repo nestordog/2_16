@@ -47,17 +47,16 @@ import com.ib.client.Execution;
 
 import ch.algotrader.adapter.AutoIncrementIdGenerator;
 import ch.algotrader.entity.marketData.Bar;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.service.ExternalServiceException;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.PriceUtil;
 
@@ -81,7 +80,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     private final AutoIncrementIdGenerator orderIdGenerator;
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
     private final IBExecutions executions;
 
     private final BlockingQueue<AccountUpdate> accountUpdateQueue;
@@ -95,7 +93,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             final IBPendingRequests pendingRequests,
             final AutoIncrementIdGenerator orderIdGenerator,
             final OrderExecutionService orderExecutionService,
-            final TransactionService transactionService,
             final IBExecutions executions,
             final BlockingQueue<AccountUpdate> accountUpdateQueue,
             final BlockingQueue<Set<String>> accountsQueue,
@@ -106,7 +103,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         this.pendingRequests = pendingRequests;
         this.orderIdGenerator = orderIdGenerator;
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
         this.executions = executions;
         this.accountUpdateQueue = accountUpdateQueue;
         this.accountsQueue = accountsQueue;
@@ -131,7 +127,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         IBExecution executionEntry;
         OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
-            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+            executionEntry = this.executions.getOpen(intId, orderDetails.getOrderStatus());
         } else {
             LOGGER.error("Order with IntId {} could not be found for execution {} {}", intId, contract, execution);
             return;
@@ -155,13 +151,12 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 orderStatus.setRemainingQuantity(order.getQuantity());
                 orderStatus.setLastQuantity(0L);
                 orderStatus.setOrder(order);
-                orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+                orderStatus.setExtDateTime(new Date());
 
             }
         }
 
         if (orderStatus != null) {
-            this.serverEngine.sendEvent(orderStatus);
             this.orderExecutionService.handleOrderStatus(orderStatus);
         }
 
@@ -184,8 +179,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         // associate the fill with the order
         fill.setOrder(order);
 
-        this.serverEngine.sendEvent(fill);
-        this.transactionService.createTransaction(fill);
         this.orderExecutionService.handleFill(fill);
     }
 
@@ -208,7 +201,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         IBExecution executionEntry;
         OrderDetailsVO orderDetails = this.orderExecutionService.getOpenOrderDetailsByIntId(intId);
         if (orderDetails != null) {
-            executionEntry = this.executions.getOpen(intId, orderDetails.getExecutionStatus());
+            executionEntry = this.executions.getOpen(intId, orderDetails.getOrderStatus());
         } else {
             return;
         }
@@ -243,7 +236,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             orderStatus.setRemainingQuantity(remaining);
             orderStatus.setLastQuantity(lastQuantity);
             orderStatus.setOrder(order);
-            orderStatus.setExtDateTime(this.serverEngine.getCurrentTime());
+            orderStatus.setExtDateTime(new Date());
             if (lastFillPrice != 0.0) {
                 orderStatus.setLastPrice(PriceUtil.normalizePrice(order, lastFillPrice));
             }
@@ -251,7 +244,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 orderStatus.setAvgPrice(PriceUtil.normalizePrice(order, avgFillPrice));
             }
 
-            this.serverEngine.sendEvent(orderStatus);
             this.orderExecutionService.handleOrderStatus(orderStatus);
         }
     }
@@ -311,7 +303,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Historic data; request id = " + requestId + " (" + dateString + ")");
+            LOGGER.debug(
+                    "Historic data; request id = " + requestId + " (" + dateString + ",open=" + open + ",high=" + high + ",low=" + low + ",close=" + close + ",vol=" + volume + ",vwap=" + WAP + ")");
         }
 
         Bar bar = Bar.Factory.newInstance();
@@ -332,6 +325,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
         bar.setHigh(BigDecimal.valueOf(high));
         bar.setLow(BigDecimal.valueOf(low));
         bar.setClose(BigDecimal.valueOf(close));
+        bar.setVwap(BigDecimal.valueOf(WAP));
         bar.setVol(volume);
 
         pendingHistoricDataRequest.add(bar);
@@ -638,6 +632,13 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 LOGGER.warn(message);
                 break;
 
+            case 10052:
+
+                // Order rejected un-supported TIF
+                orderRejected(id, errorMsg);
+                LOGGER.error(message);
+                break;
+
             default:
                 if (code < 1000) {
                     orderRejected(id, errorMsg);
@@ -672,7 +673,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
         if (orderDetails != null) {
 
-            ExecutionStatusVO executionStatus = orderDetails.getExecutionStatus();
+            OrderStatusVO executionStatus = orderDetails.getOrderStatus();
             IBExecution executionEntry = this.executions.getOpen(intId, executionStatus);
             OrderStatus orderStatus = null;
             synchronized (executionEntry) {
@@ -695,7 +696,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
             }
 
             if (orderStatus != null) {
-                this.serverEngine.sendEvent(orderStatus);
                 this.orderExecutionService.handleOrderStatus(orderStatus);
             }
         }

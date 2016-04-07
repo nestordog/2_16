@@ -17,11 +17,19 @@
  ***********************************************************************************/
 package ch.algotrader.entity.security;
 
+import ch.algotrader.visitor.SecurityVisitor;
+
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class FundImpl extends Fund {
 
     private static final long serialVersionUID = 2754509090433587434L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitFund(this, param);
+    }
 
 }

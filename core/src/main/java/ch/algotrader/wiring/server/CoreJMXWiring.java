@@ -27,10 +27,10 @@ import ch.algotrader.cache.CoreCacheManagerMBean;
 /**
  * Core JMX configuration.
  */
-@Profile(value = "live")
 @Configuration
 public class CoreJMXWiring {
 
+    @Profile(value = "live")
     @Bean(name = "cacheManagerMBean")
     public CoreCacheManagerMBean createCacheManagerMBean(final CacheManagerImpl cacheManager) {
 

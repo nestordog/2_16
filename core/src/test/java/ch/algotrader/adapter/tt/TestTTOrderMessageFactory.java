@@ -23,7 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
@@ -90,6 +90,7 @@ public class TestTTOrderMessageFactory {
         this.clNov2015.setTtid("00A0KP00CLZ");
         this.clNov2015.setSecurityFamily(futureFamily);
         this.clNov2015.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.clNov2015.setMonthYear("201511");
 
         Exchange iceipe = Exchange.Factory.newInstance();
         iceipe.setName("ICE_IPE");
@@ -107,7 +108,7 @@ public class TestTTOrderMessageFactory {
         this.coffee.setTtid("92900317");
         this.coffee.setSecurityFamily(optionFamily);
         this.coffee.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
-        this.coffee.setType(OptionType.CALL);
+        this.coffee.setOptionType(OptionType.CALL);
         this.coffee.setStrike(new BigDecimal("50.0"));
 
         this.account = Account.Factory.newInstance();
@@ -170,7 +171,7 @@ public class TestTTOrderMessageFactory {
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
     }
 
-    @Test(expected = FixApplicationException.class)
+    @Test(expected = BrokerAdapterException.class)
     public void testOrderForexUnsupportedSecurityType() throws Exception {
 
         Exchange cme = Exchange.Factory.newInstance();
@@ -196,7 +197,7 @@ public class TestTTOrderMessageFactory {
 
         LimitOrder order = new LimitOrderImpl();
         order.setSecurity(this.clNov2015);
-        order.setAccount(account);
+        order.setAccount(this.account);
         order.setSide(Side.BUY);
         order.setQuantity(5);
         order.setLimit(new BigDecimal("1234"));
@@ -268,6 +269,25 @@ public class TestTTOrderMessageFactory {
         Assert.assertEquals(new Price(1255), message.getPrice());
         Assert.assertFalse(message.isSetField(StopPx.FIELD));
         Assert.assertFalse(message.isSetField(TimeInForce.FIELD));
+    }
+
+    @Test
+    public void testTTExchangeCode() throws Exception {
+
+        this.clNov2015.getSecurityFamily().getExchange().setTtCode("CME_TT");
+
+        MarketOrder order = new MarketOrderImpl();
+        order.setSecurity(this.clNov2015);
+        order.setSide(Side.BUY);
+        order.setQuantity(3);
+        order.setAccount(this.account);
+
+        NewOrderSingle message = this.requestFactory.createNewOrderMessage(order, "test-id");
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
+        Assert.assertEquals(new Symbol("CL"), message.getSymbol());
+        Assert.assertEquals(new SecurityExchange("CME_TT"), message.getSecurityExchange());
     }
 
 }

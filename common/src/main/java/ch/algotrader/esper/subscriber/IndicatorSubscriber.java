@@ -17,8 +17,12 @@
  ***********************************************************************************/
 package ch.algotrader.esper.subscriber;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.report.ListReporter;
 import ch.algotrader.report.Report;
@@ -33,24 +37,31 @@ import ch.algotrader.util.DateTimeUtil;
  */
 public class IndicatorSubscriber {
 
+    private static final Logger LOGGER = LogManager.getLogger(IndicatorSubscriber.class);
+
     private ListReporter reporter;
 
     public void update(Map<?, ?> map) {
 
-        if (this.reporter == null) {
-            this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), map.keySet().toArray(new String[] {}));
-        }
-
-        Object[] values = new Object[map.entrySet().size()];
-        int i = 0;
-        for (Object obj : map.values()) {
-            if (obj instanceof Date) {
-                values[i++] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
-            } else {
-                values[i++] = obj;
+        try {
+            if (this.reporter == null) {
+                this.reporter = new ListReporter(Report.generateFile("IndicatorReport"), map.keySet().toArray(new String[] {}));
             }
-        }
 
-        this.reporter.write(values);
+            Object[] values = new Object[map.entrySet().size()];
+            int i = 0;
+            for (Object obj : map.values()) {
+                if (obj instanceof Date) {
+                    values[i++] = DateTimeUtil.formatAsGMT(((Date) obj).toInstant());
+                } else {
+                    values[i++] = obj;
+                }
+            }
+
+            this.reporter.write(values);
+
+        } catch (IOException ex) {
+            LOGGER.error(ex.getMessage(), ex);
+        }
     }
 }

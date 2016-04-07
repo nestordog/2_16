@@ -19,9 +19,10 @@ package ch.algotrader.service;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang.Validate;
@@ -33,20 +34,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ch.algotrader.accounting.PositionTrackerImpl;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.CoreConfig;
-import ch.algotrader.dao.ClosePositionVOProducer;
-import ch.algotrader.dao.ExpirePositionVOProducer;
 import ch.algotrader.dao.HibernateInitializer;
 import ch.algotrader.dao.PositionDao;
 import ch.algotrader.dao.TransactionDao;
-import ch.algotrader.dao.security.SecurityDao;
 import ch.algotrader.dao.strategy.StrategyDao;
 import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.marketData.MarketDataEventVO;
 import ch.algotrader.entity.security.Combination;
-import ch.algotrader.entity.security.Future;
-import ch.algotrader.entity.security.Option;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.entity.strategy.Strategy;
@@ -57,12 +53,7 @@ import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
-import ch.algotrader.event.dispatch.EventDispatcher;
-import ch.algotrader.option.OptionUtil;
-import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.collection.Pair;
-import ch.algotrader.vo.ClosePositionVO;
-import ch.algotrader.vo.ExpirePositionVO;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -82,17 +73,13 @@ public class PositionServiceImpl implements PositionService {
 
     private final OrderService orderService;
 
-    private final MarketDataCache marketDataCache;
+    private final MarketDataCacheService marketDataCacheService;
 
     private final PositionDao positionDao;
-
-    private final SecurityDao securityDao;
 
     private final StrategyDao strategyDao;
 
     private final TransactionDao transactionDao;
-
-    private final EventDispatcher eventDispatcher;
 
     private final EngineManager engineManager;
 
@@ -103,12 +90,10 @@ public class PositionServiceImpl implements PositionService {
             final TransactionService transactionService,
             final MarketDataService marketDataService,
             final OrderService orderService,
-            final MarketDataCache marketDataCache,
+            final MarketDataCacheService marketDataCacheService,
             final PositionDao positionDao,
-            final SecurityDao securityDao,
             final StrategyDao strategyDao,
             final TransactionDao transactionDao,
-            final EventDispatcher eventDispatcher,
             final EngineManager engineManager,
             final Engine serverEngine) {
 
@@ -117,12 +102,10 @@ public class PositionServiceImpl implements PositionService {
         Validate.notNull(transactionService, "TransactionService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(orderService, "OrderService is null");
-        Validate.notNull(marketDataCache, "MarketDataCache is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(positionDao, "PositionDao is null");
-        Validate.notNull(securityDao, "SecurityDao is null");
         Validate.notNull(strategyDao, "StrategyDao is null");
         Validate.notNull(transactionDao, "TransactionDao is null");
-        Validate.notNull(eventDispatcher, "PlatformEventDispatcher is null");
         Validate.notNull(engineManager, "EngineManager is null");
         Validate.notNull(serverEngine, "Engine is null");
 
@@ -131,12 +114,10 @@ public class PositionServiceImpl implements PositionService {
         this.transactionService = transactionService;
         this.marketDataService = marketDataService;
         this.orderService = orderService;
-        this.marketDataCache = marketDataCache;
+        this.marketDataCacheService = marketDataCacheService;
         this.positionDao = positionDao;
-        this.securityDao = securityDao;
         this.strategyDao = strategyDao;
         this.transactionDao = transactionDao;
-        this.eventDispatcher = eventDispatcher;
         this.engineManager = engineManager;
         this.serverEngine = serverEngine;
     }
@@ -194,103 +175,6 @@ public class PositionServiceImpl implements PositionService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Position createNonTradeablePosition(final String strategyName, final long securityId, final long quantity) {
-
-        Validate.notEmpty(strategyName, "Strategy name is empty");
-
-        Security security = this.securityDao.get(securityId);
-        Strategy strategy = this.strategyDao.findByName(strategyName);
-
-        if (security.getSecurityFamily().isTradeable()) {
-            throw new ServiceException(security + " is tradeable, can only creat non-tradeable positions");
-        }
-
-        Position position = Position.Factory.newInstance();
-        position.setQuantity(quantity);
-
-        // associate strategy and security
-        position.setStrategy(strategy);
-        position.setSecurity(security);
-
-        this.positionDao.save(position);
-
-        // reverse-associate the security (after position has received an id)
-        security.getPositions().add(position);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("created non-tradeable position on {} for strategy {} quantity {}", security, strategyName, quantity);
-        }
-
-        return position;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public Position modifyNonTradeablePosition(final long positionId, final long quantity) {
-
-        Position position = this.positionDao.getLocked(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        position.setQuantity(quantity);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("modified non-tradeable position {} new quantity {}", positionId, quantity);
-        }
-
-        return position;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteNonTradeablePosition(final long positionId, final boolean unsubscribe) {
-
-        Position position = this.positionDao.get(positionId);
-        if (position == null) {
-            throw new IllegalArgumentException("position with id " + positionId + " does not exist");
-        }
-
-        Security security = position.getSecurity();
-
-        if (security.getSecurityFamily().isTradeable()) {
-            throw new ServiceException(security + " is tradeable, can only delete non-tradeable positions");
-        }
-
-        ClosePositionVO closePositionVO = ClosePositionVOProducer.INSTANCE.convert(position);
-
-        // propagate the ClosePosition event
-        this.eventDispatcher.sendEvent(position.getStrategy().getName(), closePositionVO);
-
-        // remove the association
-        position.getSecurity().removePositions(position);
-
-        this.positionDao.delete(position);
-
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("deleted non-tradeable position {} on {} for strategy {}", position.getId(), security, position.getStrategy().getName());
-        }
-
-        // unsubscribe if necessary
-        if (unsubscribe) {
-            this.marketDataService.unsubscribe(position.getStrategy().getName(), position.getSecurity().getId());
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void reducePosition(final long positionId, final long quantity) {
 
         Position position = this.positionDao.get(positionId);
@@ -322,8 +206,8 @@ public class PositionServiceImpl implements PositionService {
         Strategy targetStrategy = this.strategyDao.findByName(targetStrategyName);
         Security security = position.getSecurity();
         SecurityFamily family = security.getSecurityFamily();
-        MarketDataEventVO marketDataEvent = this.marketDataCache.getCurrentMarketDataEvent(security.getId());
-        BigDecimal price = RoundUtil.getBigDecimal(position.getMarketPrice(marketDataEvent), family.getScale());
+        MarketDataEventVO marketDataEvent = this.marketDataCacheService.getCurrentMarketDataEvent(security.getId());
+        BigDecimal price = position.getMarketPrice(marketDataEvent);
 
         // debit transaction
         Transaction debitTransaction = Transaction.Factory.newInstance();
@@ -360,22 +244,6 @@ public class PositionServiceImpl implements PositionService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void expirePositions() {
-
-        Date date = this.engineManager.getCurrentEPTime();
-        Collection<Position> positions = this.positionDao.findExpirablePositions(date);
-
-        for (Position position : positions) {
-            expirePosition(position);
-        }
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     public String resetPositions() {
 
         Collection<Transaction> transactions = this.transactionDao.findAllTradesInclSecurity();
@@ -394,6 +262,8 @@ public class PositionServiceImpl implements PositionService {
             }
         }
 
+        Set<Position> actualPositions = new HashSet<>(this.positionDao.loadAll());
+
         // update positions
         StringBuilder buffer = new StringBuilder();
         for (Position targetOpenPosition : positionMap.values()) {
@@ -403,8 +273,7 @@ public class PositionServiceImpl implements PositionService {
             // create if it does not exist
             if (actualOpenPosition == null) {
 
-                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()
-                        + " does not exist";
+                String warning = "position on security " + targetOpenPosition.getSecurity() + " strategy " + targetOpenPosition.getStrategy() + " quantity " + targetOpenPosition.getQuantity()  + " does not exist";
                 LOGGER.warn(warning);
                 buffer.append(warning + "\n");
 
@@ -422,9 +291,9 @@ public class PositionServiceImpl implements PositionService {
                 }
 
                 // check cost
-                if (actualOpenPosition.getCost() != targetOpenPosition.getCost()) {
+                if (actualOpenPosition.getCost().compareTo(targetOpenPosition.getCost()) != 0) {
 
-                    double existingCost = actualOpenPosition.getCost();
+                    BigDecimal existingCost = actualOpenPosition.getCost();
                     actualOpenPosition.setCost(targetOpenPosition.getCost());
 
                     String warning = "adjusted cost of position " + actualOpenPosition.getId() + " from " + existingCost + " to " + targetOpenPosition.getCost();
@@ -433,16 +302,28 @@ public class PositionServiceImpl implements PositionService {
                 }
 
                 // check realizedPL
-                if (actualOpenPosition.getRealizedPL() != targetOpenPosition.getRealizedPL()) {
+                if (actualOpenPosition.getRealizedPL().compareTo(targetOpenPosition.getRealizedPL()) != 0) {
 
-                    double existingRealizedPL = actualOpenPosition.getRealizedPL();
+                    BigDecimal existingRealizedPL = actualOpenPosition.getRealizedPL();
                     actualOpenPosition.setRealizedPL(targetOpenPosition.getRealizedPL());
 
                     String warning = "adjusted realizedPL of position " + actualOpenPosition.getId() + " from " + existingRealizedPL + " to " + targetOpenPosition.getRealizedPL();
                     LOGGER.warn(warning);
                     buffer.append(warning + "\n");
                 }
+
+                actualPositions.remove(actualOpenPosition);
             }
+        }
+
+        // remove obsolete positions
+        if (!actualPositions.isEmpty()) {
+            for (Position position : actualPositions) {
+                String warning = "deleted obsolete position " + position.getId();
+                LOGGER.warn(warning);
+                buffer.append(warning + "\n");
+            }
+            this.positionDao.deleteAll(actualPositions);
         }
 
         return buffer.toString();
@@ -458,12 +339,13 @@ public class PositionServiceImpl implements PositionService {
 
         Order order = this.orderService.createOrderByOrderPreference(this.coreConfig.getDefaultOrderPreference());
 
-        if (order.getIntId() == null) {
+        // Assign intId if un-subscribing automatically
+        if (unsubscribe && order.getIntId() == null) {
             Account account = order.getAccount();
             if (account == null) {
                 throw new ServiceException("Cannot execute an order without an account");
             }
-            String intId = this.orderService.getNextOrderId(account.getId());
+            String intId = this.orderService.getNextOrderId(order.getClass(), account.getId());
             order.setIntId(intId);
         }
 
@@ -478,7 +360,7 @@ public class PositionServiceImpl implements PositionService {
                 this.marketDataService.unsubscribe(order.getStrategy().getName(), order.getSecurity().getId());
             }
         } else {
-            if (unsubscribe) {
+            if (unsubscribe && order.getIntId() != null) {
                 String alias = "ON_INTERNAL_TRADE_COMPLETED_" + order.getIntId();
                 if (this.serverEngine.isDeployed(alias)) {
 
@@ -503,48 +385,5 @@ public class PositionServiceImpl implements PositionService {
         }
 
         this.orderService.sendOrder(order);
-    }
-
-    private void expirePosition(Position position) {
-
-        Security security = position.getSecurity();
-
-        ExpirePositionVO expirePositionEvent = ExpirePositionVOProducer.INSTANCE.convert(position);
-
-        Transaction transaction = Transaction.Factory.newInstance();
-        transaction.setUuid(UUID.randomUUID().toString());
-        transaction.setDateTime(this.engineManager.getCurrentEPTime());
-        transaction.setType(TransactionType.EXPIRATION);
-        transaction.setQuantity(-position.getQuantity());
-        transaction.setSecurity(security);
-        transaction.setStrategy(position.getStrategy());
-        transaction.setCurrency(security.getSecurityFamily().getCurrency());
-
-        if (security instanceof Option) {
-
-            Option option = (Option) security;
-            int scale = security.getSecurityFamily().getScale();
-            double underlyingSpot = this.marketDataCache.getCurrentValueDouble(security.getUnderlying().getId());
-            double intrinsicValue = OptionUtil.getIntrinsicValue(option, underlyingSpot);
-            BigDecimal price = RoundUtil.getBigDecimal(intrinsicValue, scale);
-            transaction.setPrice(price);
-
-        } else if (security instanceof Future) {
-
-            BigDecimal price = this.marketDataCache.getCurrentValue(security.getUnderlying().getId());
-            transaction.setPrice(price);
-
-        } else {
-            throw new IllegalArgumentException("Expiration not allowed for " + security.getClass().getName());
-        }
-
-        // perisite the transaction
-        this.transactionService.persistTransaction(transaction);
-
-        // unsubscribe the security
-        this.marketDataService.unsubscribe(position.getStrategy().getName(), security.getId());
-
-        // propagate the ExpirePosition event
-        this.eventDispatcher.sendEvent(position.getStrategy().getName(), expirePositionEvent);
     }
 }

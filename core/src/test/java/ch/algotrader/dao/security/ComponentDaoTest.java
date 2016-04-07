@@ -89,7 +89,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -101,8 +101,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-
-        combination1.addSubscriptions(subscription1);
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -120,7 +118,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
 
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
     }
 
@@ -130,7 +127,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -142,8 +139,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-
-        combination1.addSubscriptions(subscription1);
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -161,7 +156,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components2.size());
 
         Assert.assertSame(combination1, components2.get(0).getCombination());
-        Assert.assertEquals(1, components2.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components2.get(0).getSecurity());
     }
 
@@ -171,7 +165,7 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -183,8 +177,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(this.forex1);
         this.session.save(combination1);
         this.session.save(subscription1);
-
-        combination1.addSubscriptions(subscription1);
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);
@@ -206,7 +198,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         Assert.assertEquals(1, components3.size());
 
         Assert.assertSame(combination1, components3.get(0).getCombination());
-        Assert.assertEquals(1, components3.get(0).getCombination().getSubscriptions().size());
         Assert.assertSame(this.forex1, components3.get(0).getSecurity());
     }
 
@@ -215,8 +206,8 @@ public class ComponentDaoTest extends InMemoryDBTest {
 
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
-        combination1.setUuid("521ds5ds2d");
-        combination1.setType(CombinationType.BUTTERFLY);
+        combination1.setUuid("this");
+        combination1.setCombinationType(CombinationType.BUTTERFLY);
 
         Subscription subscription1 = new SubscriptionImpl();
         subscription1.setFeedType(FeedType.SIM.name());
@@ -225,8 +216,8 @@ public class ComponentDaoTest extends InMemoryDBTest {
 
         Combination combination2 = new CombinationImpl();
         combination2.setSecurityFamily(this.family1);
-        combination2.setUuid("521ds5ds2d");
-        combination2.setType(CombinationType.STRADDLE);
+        combination2.setUuid("that");
+        combination2.setCombinationType(CombinationType.STRADDLE);
 
         Subscription subscription2 = new SubscriptionImpl();
         subscription2.setFeedType(FeedType.BB.name());
@@ -240,9 +231,6 @@ public class ComponentDaoTest extends InMemoryDBTest {
         this.session.save(subscription1);
         this.session.save(combination2);
         this.session.save(subscription2);
-
-        combination1.addSubscriptions(subscription1);
-        combination2.addSubscriptions(subscription2);
 
         Component component1 = new ComponentImpl();
         component1.setSecurity(this.forex1);

@@ -18,6 +18,7 @@
 package ch.algotrader.dao;
 
 import java.util.List;
+
 import ch.algotrader.entity.Subscription;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.util.collection.Pair;
@@ -28,6 +29,13 @@ import ch.algotrader.util.collection.Pair;
  * @see ch.algotrader.entity.Subscription
  */
 public interface SubscriptionDao extends ReadWriteDao<Subscription> {
+
+    /**
+     * Finds all Subscriptions for the given security..
+     * @param securityId
+     * @return List<Subscription>
+     */
+    List<Subscription> findBySecurity(long securityId);
 
     /**
      * Finds all Subscriptions by the defined {@code strategyName}.
@@ -87,11 +95,10 @@ public interface SubscriptionDao extends ReadWriteDao<Subscription> {
      * Finds Subscriptions for the specified Strategy and SecurityType that do not have any open
      * {@link ch.algotrader.entity.Position}s.
      * @param strategyName
-     * @param type The Security Type which has to be defined as an {@code int} using
-     * {@link ch.algotrader.util.HibernateUtil#getDisriminatorValue HibernateUtil}
+     * @param type security type (class)
      * @return List<Subscription>
      */
-    List<Subscription> findNonPositionSubscriptionsByType(String strategyName, int type);
+    List<Subscription> findNonPositionSubscriptionsByType(String strategyName, Class<? extends Security> type);
 
 
     /**

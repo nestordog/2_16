@@ -39,7 +39,6 @@ import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.strategy.CashBalance;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.TransactionPersistenceServiceImpl;
 import ch.algotrader.vo.CurrencyAmountVO;
@@ -61,10 +60,9 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
             final SessionFactory sessionFactory,
             final PositionDao positionDao,
             final TransactionDao transactionDao,
-            final CashBalanceDao cashBalanceDao,
-            final Engine serverEngine) {
+            final CashBalanceDao cashBalanceDao) {
 
-        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao, serverEngine);
+        super(commonConfig, portfolioService, positionDao, transactionDao, cashBalanceDao);
 
         Validate.notNull(sessionFactory, "SessionFactory is null");
         Validate.notNull(positionDao, "PositionDao is null");
@@ -100,7 +98,7 @@ public class H2TransactionPersistenceServiceImpl extends TransactionPersistenceS
 
             Position position = this.positionDao.findBySecurityAndStrategy(security.getId(), strategy.getName());
             if (position == null) {
-                position = Position.Factory.newInstance(0, 0, 0, false, strategy, security);
+                position = Position.Factory.newInstance(0, new BigDecimal(0.0), new BigDecimal(0.0), false, strategy, security);
                 currentSession.save(position);
             }
         }

@@ -8,6 +8,8 @@
         <constructor-arg>
            <list>
                 <value>classpath:/META-INF/applicationContext-common.xml</value>
+                <value>classpath:/META-INF/applicationContext-core.xml</value>
+                <value>classpath:/META-INF/applicationContext-adapters.xml</value>
                 <value>classpath:/META-INF/applicationContext-server.xml</value>
                 <value>classpath:/META-INF/applicationContext-messaging.xml</value>
                 <value>classpath*:/META-INF/applicationContext-export-remoteServices.xml</value>

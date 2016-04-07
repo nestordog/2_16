@@ -20,7 +20,7 @@ package ch.algotrader.adapter.fix.fix44;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
-import ch.algotrader.adapter.fix.FixApplicationException;
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.Future;
@@ -79,7 +79,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final NewOrderSingle message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -94,7 +94,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             message.set(new SecurityType(SecurityType.OPTION));
             message.set(new Currency(securityFamily.getCurrency().toString()));
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
-            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
+            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getOptionType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
@@ -112,7 +112,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
             message.set(new ContractMultiplier(securityFamily.getContractSize(broker)));
 
@@ -129,7 +129,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelReplaceRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -139,7 +139,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             Option option = (Option) security;
 
             message.set(new SecurityType(SecurityType.OPTION));
-            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getType()) ? "P" : "C")));
+            message.set(new CFICode("O" + (OptionType.PUT.equals(option.getOptionType()) ? "P" : "C")));
             message.set(new StrikePrice(option.getStrike().doubleValue()));
             message.set(new MaturityMonthYear(formatYM(option.getExpiration())));
 
@@ -151,7 +151,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
 
         } else if (security instanceof Forex) {
@@ -164,7 +164,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
     }
 
     @Override
-    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws FixApplicationException {
+    public void resolve(final OrderCancelRequest message, final Security security, final String broker) throws BrokerAdapterException {
 
         message.set(resolveSymbol(security, broker));
 
@@ -186,7 +186,7 @@ public class GenericFix44SymbologyResolver implements Fix44SymbologyResolver {
             if (future.getRic() != null) {
                 message.set(new MaturityMonthYear(monthFormat.format(FutureSymbol.getMaturityFromRic(future.getRic()))));
             } else {
-                message.set(new MaturityMonthYear(formatYM(future.getExpiration())));
+                message.set(new MaturityMonthYear(future.getMonthYear()));
             }
 
         } else if (security instanceof Forex) {

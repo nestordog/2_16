@@ -41,7 +41,6 @@ import ch.algotrader.entity.exchange.Exchange;
 import ch.algotrader.entity.security.Future;
 import ch.algotrader.entity.security.FutureFamily;
 import ch.algotrader.entity.strategy.Strategy;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
 import ch.algotrader.entity.trade.ExternalFill;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.LimitOrder;
@@ -51,16 +50,15 @@ import ch.algotrader.entity.trade.MarketOrderImpl;
 import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderDetailsVO;
 import ch.algotrader.entity.trade.OrderStatus;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.ExpirationType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.LookupService;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.DateTimeLegacy;
 import ch.algotrader.util.DateTimeUtil;
 import quickfix.ConfigError;
@@ -94,11 +92,7 @@ public class TestTTFixOrderMessageHandler {
     @Mock
     private OrderExecutionService orderExecutionService;
     @Mock
-    private TransactionService transactionService;
-    @Mock
     private LookupService lookupService;
-    @Mock
-    private Engine engine;
     @Mock
     private DropCopyAllocator dropCopyAllocator;
 
@@ -130,6 +124,7 @@ public class TestTTFixOrderMessageHandler {
         this.future.setTtid("00A0KP00CLZ");
         this.future.setSecurityFamily(futureFamily);
         this.future.setExpiration(DateTimeLegacy.toGMTDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.future.setMonthYear("201511");
 
         this.future2 = Future.Factory.newInstance();
         this.future2.setId(2L);
@@ -143,8 +138,7 @@ public class TestTTFixOrderMessageHandler {
         this.account.setExtAccount("ratkodts2");
         this.account.setBroker(Broker.TT.name());
 
-        this.impl = new TTFixOrderMessageHandler(this.orderExecutionService, this.transactionService, this.lookupService,
-                this.engine, this.dropCopyAllocator);
+        this.impl = new TTFixOrderMessageHandler(this.orderExecutionService, this.lookupService, this.dropCopyAllocator);
     }
 
     @Test
@@ -166,11 +160,10 @@ public class TestTTFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
         ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("1502848e0fc", orderStatus1.getIntId());
         Assert.assertEquals("0GR44P004", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
@@ -200,14 +193,10 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertEquals(2, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("1502848e0fc", orderStatus1.getIntId());
         Assert.assertEquals("0GR44P004", orderStatus1.getExtId());
         Assert.assertEquals(Status.EXECUTED, orderStatus1.getStatus());
@@ -218,9 +207,10 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(new BigDecimal("4828"), orderStatus1.getLastPrice());
         Assert.assertEquals(new BigDecimal("4828"), orderStatus1.getAvgPrice());
 
-        Object event2 = events.get(1);
-        Assert.assertTrue(event2 instanceof Fill);
-        Fill fill1 = (Fill) event2;
+        ArgumentCaptor<Fill> argumentCaptor2 = ArgumentCaptor.forClass(Fill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor2.capture());
+
+        Fill fill1 = argumentCaptor2.getValue();
         Assert.assertEquals("o5b4513xd1k4", fill1.getExtId());
         Assert.assertSame(order, fill1.getOrder());
         Assert.assertEquals(DateTimeLegacy.parseAsDateTimeMilliGMT("2015-10-02 11:22:04.250"), fill1.getExtDateTime());
@@ -244,7 +234,8 @@ public class TestTTFixOrderMessageHandler {
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).getOpenOrderByIntId("123");
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -265,12 +256,10 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("15036f0ca9c", orderStatus1.getIntId());
         Assert.assertEquals("0GS0TX004", orderStatus1.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
@@ -306,16 +295,12 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(2)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(2)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertNotNull(events);
-        Assert.assertEquals(2, events.size());
+        List<OrderStatus> events = argumentCaptor1.getAllValues();
 
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = events.get(0);
         Assert.assertEquals("150370a3871", orderStatus1.getIntId());
         Assert.assertEquals(null, orderStatus1.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
@@ -325,9 +310,7 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(null, orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
 
-        Object event2 = events.get(1);
-        Assert.assertTrue(event2 instanceof OrderStatus);
-        OrderStatus orderStatus2 = (OrderStatus) event2;
+        OrderStatus orderStatus2 = events.get(1);
         Assert.assertEquals("150370a3913", orderStatus2.getIntId());
         Assert.assertEquals("0GS0TX007", orderStatus2.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus2.getStatus());
@@ -351,7 +334,7 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
     }
 
     @Test
@@ -377,14 +360,10 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<ExternalFill> argumentCaptor2 = ArgumentCaptor.forClass(ExternalFill.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(argumentCaptor2.capture());
 
-        Object event = argumentCaptor.getValue();
-        Assert.assertNotNull(event);
-
-        Assert.assertTrue(event instanceof ExternalFill);
-        ExternalFill fill1 = (ExternalFill) event;
+        ExternalFill fill1 = argumentCaptor2.getValue();
         Assert.assertSame(this.future, fill1.getSecurity());
         Assert.assertSame(this.account, fill1.getAccount());
         Assert.assertSame(strategy, fill1.getStrategy());
@@ -412,16 +391,10 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(businessMessageReject, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        List<Object> events = argumentCaptor.getAllValues();
-        Assert.assertNotNull(events);
-        Assert.assertEquals(1, events.size());
-
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("ttt5.0", orderStatus1.getIntId());
         Assert.assertEquals(null, orderStatus1.getExtId());
         Assert.assertEquals(Status.REJECTED, orderStatus1.getStatus());
@@ -442,7 +415,8 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(orderCancelReject, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -455,9 +429,9 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(orderCancelReject, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
-
 
     @Test
     public void testExecutionReportCancelMissingOrigIntId() throws Exception {
@@ -477,12 +451,10 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        ArgumentCaptor<Object> argumentCaptor = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor1 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor1.capture());
 
-        Object event1 = argumentCaptor.getValue();
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor1.getValue();
         Assert.assertEquals("ttt14.0", orderStatus1.getIntId());
         Assert.assertEquals("0G5EC7014", orderStatus1.getExtId());
         Assert.assertEquals(Status.CANCELED, orderStatus1.getStatus());
@@ -513,8 +485,8 @@ public class TestTTFixOrderMessageHandler {
 
         ArgumentCaptor<Order> argumentCaptor1 = ArgumentCaptor.forClass(Order.class);
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleRestatedOrder(Mockito.same(order), argumentCaptor1.capture());
-        ArgumentCaptor<Object> argumentCaptor2 = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor2.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor2 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor2.capture());
 
         List<Order> orders = argumentCaptor1.getAllValues();
         Assert.assertNotNull(orders);
@@ -529,12 +501,7 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(1, reinstatedOrder.getQuantity());
         Assert.assertEquals(TIF.DAY, reinstatedOrder.getTif());
 
-        List<Object> events = argumentCaptor2.getAllValues();
-        Assert.assertNotNull(events);
-        Assert.assertEquals(1, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor2.getValue();
         Assert.assertEquals("ttt207.0", orderStatus1.getIntId());
         Assert.assertEquals("020AU7009", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
@@ -566,8 +533,8 @@ public class TestTTFixOrderMessageHandler {
 
         ArgumentCaptor<Order> argumentCaptor1 = ArgumentCaptor.forClass(Order.class);
         Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleRestatedOrder(Mockito.same(order), argumentCaptor1.capture());
-        ArgumentCaptor<Object> argumentCaptor2 = ArgumentCaptor.forClass(Object.class);
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(argumentCaptor2.capture());
+        ArgumentCaptor<OrderStatus> argumentCaptor2 = ArgumentCaptor.forClass(OrderStatus.class);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(argumentCaptor2.capture());
 
         List<Order> orders = argumentCaptor1.getAllValues();
         Assert.assertNotNull(orders);
@@ -586,12 +553,7 @@ public class TestTTFixOrderMessageHandler {
                 new Date(LocalDate.of(2015, Month.NOVEMBER, 20).atStartOfDay(ZoneId.of("US/Central")).toInstant().toEpochMilli()),
                 reinstatedOrder.getTifDateTime());
 
-        List<Object> events = argumentCaptor2.getAllValues();
-        Assert.assertNotNull(events);
-        Assert.assertEquals(1, events.size());
-        Object event1 = events.get(0);
-        Assert.assertTrue(event1 instanceof OrderStatus);
-        OrderStatus orderStatus1 = (OrderStatus) event1;
+        OrderStatus orderStatus1 = argumentCaptor2.getValue();
         Assert.assertEquals("ttt210.0", orderStatus1.getIntId());
         Assert.assertEquals("020VGR012", orderStatus1.getExtId());
         Assert.assertEquals(Status.SUBMITTED, orderStatus1.getStatus());
@@ -618,8 +580,8 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
         Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -638,8 +600,8 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(executionReport, FixTestUtils.fakeFix42Session());
 
-        Mockito.verify(this.engine, Mockito.never()).sendEvent(Mockito.any());
         Mockito.verify(this.orderExecutionService, Mockito.never()).handleOrderStatus(Mockito.any());
+        Mockito.verify(this.orderExecutionService, Mockito.never()).handleFill(Mockito.<Fill>any());
     }
 
     @Test
@@ -680,8 +642,7 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(3, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("3821"), fill1.getPrice());
 
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(fill1);
-        Mockito.verify(this.transactionService, Mockito.times(1)).createTransaction(fill1);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(fill1);
     }
 
     @Test
@@ -698,7 +659,7 @@ public class TestTTFixOrderMessageHandler {
         order.setSecurity(this.future2);
         order.setAccount(this.account);
         order.setQuantity(6);
-        ExecutionStatusVO executionStatus = new ExecutionStatusVO("ttt3.0", Status.SUBMITTED, 1, 5, null);
+        OrderStatusVO executionStatus = new OrderStatusVO(0L, null, Status.SUBMITTED, 1L, 5L, 0L, "ttt3.0", 0L, 0L);
 
         Mockito.when(this.lookupService.getTransactionByExtId(Mockito.anyString())).thenReturn(null);
         Mockito.when(this.orderExecutionService.lookupIntId("065ZT3025")).thenReturn("ttt3.0");
@@ -728,7 +689,7 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(new BigDecimal("3821"), orderStatus1.getLastPrice());
         Assert.assertEquals(null, orderStatus1.getAvgPrice());
 
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(orderStatus1);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleOrderStatus(orderStatus1);
 
         Fill fill1 = argumentCaptor2.getValue();
         Assert.assertNotNull(fill1);
@@ -740,10 +701,7 @@ public class TestTTFixOrderMessageHandler {
         Assert.assertEquals(3, fill1.getQuantity());
         Assert.assertEquals(new BigDecimal("3821"), fill1.getPrice());
 
-        Mockito.verify(this.engine, Mockito.times(1)).sendEvent(fill1);
-        Mockito.verify(this.transactionService, Mockito.times(1)).createTransaction(fill1);
-
-        Mockito.verifyNoMoreInteractions(this.engine);
+        Mockito.verify(this.orderExecutionService, Mockito.times(1)).handleFill(fill1);
 
     }
 
@@ -761,7 +719,7 @@ public class TestTTFixOrderMessageHandler {
 
         this.impl.onMessage(message, FixTestUtils.fakeFix42Session());
 
-        Mockito.verifyZeroInteractions(this.engine, this.transactionService, this.orderExecutionService);
+        Mockito.verifyZeroInteractions(this.orderExecutionService);
     }
 
 }

@@ -373,22 +373,22 @@ public class ServiceLocator {
         return getContext().getBean("lifecycleManager", LifecycleManager.class);
     }
 
-    public void runServer() {
+    public void runServer() throws Exception {
         init(SERVER_BEAN_REFERENCE_LOCATION);
         getLifecycleManager().runServer();
     }
 
-    public void runEmbedded() {
+    public void runEmbedded() throws Exception  {
         init(EMBEDDED_BEAN_REFERENCE_LOCATION);
         getLifecycleManager().runEmbedded();
     }
 
-    public void runStrategy() {
+    public void runStrategy() throws Exception  {
         init(CLIENT_BEAN_REFERENCE_LOCATION);
         getLifecycleManager().runStrategy();
     }
 
-    public void runServices() {
+    public void runServices() throws Exception  {
         init(LOCAL_BEAN_REFERENCE_LOCATION);
         getLifecycleManager().runServices();
     }

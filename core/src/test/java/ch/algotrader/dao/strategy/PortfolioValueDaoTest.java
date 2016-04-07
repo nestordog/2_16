@@ -71,7 +71,7 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
 
         this.orderPreference = new OrderPreferenceImpl();
         this.orderPreference.setName("Primary");
-        this.orderPreference.setOrderType(OrderType.DISTRIBUTIONAL);
+        this.orderPreference.setOrderType(OrderType.SLICING);
 
         this.family = new SecurityFamilyImpl();
         this.family.setName("Forex1");
@@ -90,11 +90,13 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         PortfolioValue portfolioValue1 = new PortfolioValueImpl();
         portfolioValue1.setDateTime(cal1.getTime());
         portfolioValue1.setNetLiqValue(new BigDecimal("11.1"));
-        portfolioValue1.setSecuritiesCurrentValue(new BigDecimal("12.2"));
-        portfolioValue1.setCashBalance(new BigDecimal("13.3"));
-        portfolioValue1.setLeverage(15.5);
-        portfolioValue1.setAllocation(16.6);
-        portfolioValue1.setCashFlow(new BigDecimal("17.7"));
+        portfolioValue1.setMarketValue(new BigDecimal("12.2"));
+        portfolioValue1.setRealizedPL(new BigDecimal("13.3"));
+        portfolioValue1.setUnrealizedPL(new BigDecimal("14.4"));
+        portfolioValue1.setCashBalance(new BigDecimal("15.5"));
+        portfolioValue1.setOpenPositions(16);
+        portfolioValue1.setLeverage(17.7);
+        portfolioValue1.setCashFlow(new BigDecimal("18.8"));
         portfolioValue1.setStrategy(this.strategy);
 
         Calendar cal2 = Calendar.getInstance();
@@ -103,11 +105,13 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         PortfolioValue portfolioValue2 = new PortfolioValueImpl();
         portfolioValue2.setDateTime(cal2.getTime());
         portfolioValue2.setNetLiqValue(new BigDecimal("21.1"));
-        portfolioValue2.setSecuritiesCurrentValue(new BigDecimal("22.2"));
-        portfolioValue2.setCashBalance(new BigDecimal("23.3"));
-        portfolioValue2.setLeverage(25.5);
-        portfolioValue2.setAllocation(26.6);
-        portfolioValue2.setCashFlow(new BigDecimal("27.7"));
+        portfolioValue2.setMarketValue(new BigDecimal("22.2"));
+        portfolioValue2.setRealizedPL(new BigDecimal("23.3"));
+        portfolioValue2.setUnrealizedPL(new BigDecimal("24.4"));
+        portfolioValue2.setCashBalance(new BigDecimal("25.5"));
+        portfolioValue2.setOpenPositions(26);
+        portfolioValue2.setLeverage(27.7);
+        portfolioValue2.setCashFlow(new BigDecimal("28.8"));
         portfolioValue2.setStrategy(this.strategy);
 
         this.session.save(this.strategy);
@@ -144,11 +148,13 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         PortfolioValue portfolioValue1 = new PortfolioValueImpl();
         portfolioValue1.setDateTime(cal1.getTime());
         portfolioValue1.setNetLiqValue(new BigDecimal("11.1"));
-        portfolioValue1.setSecuritiesCurrentValue(new BigDecimal("12.2"));
-        portfolioValue1.setCashBalance(new BigDecimal("13.3"));
-        portfolioValue1.setLeverage(15.5);
-        portfolioValue1.setAllocation(16.6);
-        portfolioValue1.setCashFlow(new BigDecimal("17.7"));
+        portfolioValue1.setMarketValue(new BigDecimal("12.2"));
+        portfolioValue1.setRealizedPL(new BigDecimal("13.3"));
+        portfolioValue1.setUnrealizedPL(new BigDecimal("14.4"));
+        portfolioValue1.setCashBalance(new BigDecimal("15.5"));
+        portfolioValue1.setOpenPositions(16);
+        portfolioValue1.setLeverage(17.7);
+        portfolioValue1.setCashFlow(new BigDecimal("18.8"));
         portfolioValue1.setStrategy(this.strategy);
 
         Calendar cal2 = Calendar.getInstance();
@@ -157,11 +163,13 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
         PortfolioValue portfolioValue2 = new PortfolioValueImpl();
         portfolioValue2.setDateTime(cal2.getTime());
         portfolioValue2.setNetLiqValue(new BigDecimal("21.1"));
-        portfolioValue2.setSecuritiesCurrentValue(new BigDecimal("22.2"));
-        portfolioValue2.setCashBalance(new BigDecimal("23.3"));
-        portfolioValue2.setLeverage(25.5);
-        portfolioValue2.setAllocation(26.6);
-        portfolioValue2.setCashFlow(new BigDecimal("27.7"));
+        portfolioValue2.setMarketValue(new BigDecimal("22.2"));
+        portfolioValue2.setRealizedPL(new BigDecimal("23.3"));
+        portfolioValue2.setUnrealizedPL(new BigDecimal("24.4"));
+        portfolioValue2.setCashBalance(new BigDecimal("25.5"));
+        portfolioValue2.setOpenPositions(26);
+        portfolioValue2.setLeverage(27.7);
+        portfolioValue2.setCashFlow(new BigDecimal("28.8"));
         portfolioValue2.setStrategy(this.strategy);
 
         this.session.save(this.strategy);
@@ -183,10 +191,9 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(portfolioValue2.getDateTime(), portfolioValueVO1.getDateTime());
         Assert.assertEquals(portfolioValue2.getNetLiqValue(), portfolioValueVO1.getNetLiqValue());
-        Assert.assertEquals(portfolioValue2.getSecuritiesCurrentValue(), portfolioValueVO1.getSecuritiesCurrentValue());
+        Assert.assertEquals(portfolioValue2.getMarketValue(), portfolioValueVO1.getMarketValue());
         Assert.assertEquals(portfolioValue2.getCashBalance(), portfolioValueVO1.getCashBalance());
         Assert.assertEquals(new Double(portfolioValue2.getLeverage()), new Double(portfolioValueVO1.getLeverage()));
-        Assert.assertEquals(new Double(portfolioValue2.getAllocation()), new Double(portfolioValueVO1.getAllocation()));
         Assert.assertEquals(portfolioValue2.getCashFlow(), portfolioValueVO1.getCashFlow());
 
         List<PortfolioValueVO> portfolioValueVOs3 = this.dao.findByStrategyAndMinDate("Strategy1", cal1.getTime(), PortfolioValueVOProducer.INSTANCE);
@@ -203,18 +210,16 @@ public class PortfolioValueDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(portfolioValue1.getDateTime(), portfolioValueVO2.getDateTime());
         Assert.assertEquals(portfolioValue1.getNetLiqValue(), portfolioValueVO2.getNetLiqValue());
-        Assert.assertEquals(portfolioValue1.getSecuritiesCurrentValue(), portfolioValueVO2.getSecuritiesCurrentValue());
+        Assert.assertEquals(portfolioValue1.getMarketValue(), portfolioValueVO2.getMarketValue());
         Assert.assertEquals(portfolioValue1.getCashBalance(), portfolioValueVO2.getCashBalance());
         Assert.assertEquals(new Double(portfolioValue1.getLeverage()), new Double(portfolioValueVO2.getLeverage()));
-        Assert.assertEquals(new Double(portfolioValue1.getAllocation()), new Double(portfolioValueVO2.getAllocation()));
         Assert.assertEquals(portfolioValue1.getCashFlow(), portfolioValueVO2.getCashFlow());
 
         Assert.assertEquals(portfolioValue2.getDateTime(), portfolioValueVO3.getDateTime());
         Assert.assertEquals(portfolioValue2.getNetLiqValue(), portfolioValueVO3.getNetLiqValue());
-        Assert.assertEquals(portfolioValue2.getSecuritiesCurrentValue(), portfolioValueVO3.getSecuritiesCurrentValue());
+        Assert.assertEquals(portfolioValue2.getMarketValue(), portfolioValueVO3.getMarketValue());
         Assert.assertEquals(portfolioValue2.getCashBalance(), portfolioValueVO3.getCashBalance());
         Assert.assertEquals(new Double(portfolioValue2.getLeverage()), new Double(portfolioValueVO3.getLeverage()));
-        Assert.assertEquals(new Double(portfolioValue2.getAllocation()), new Double(portfolioValueVO3.getAllocation()));
         Assert.assertEquals(portfolioValue2.getCashFlow(), portfolioValueVO3.getCashFlow());
     }
 

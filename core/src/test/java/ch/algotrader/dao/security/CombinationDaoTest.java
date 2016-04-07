@@ -42,7 +42,6 @@ import ch.algotrader.enumeration.CombinationType;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.hibernate.InMemoryDBTest;
-import ch.algotrader.util.HibernateUtil;
 
 /**
 * Unit tests for {@link CombinationDaoImpl}.
@@ -98,7 +97,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
 
         Subscription subscription1 = new SubscriptionImpl();
@@ -112,15 +111,12 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategy("Strategy1");
 
         Assert.assertEquals(1, combinations1.size());
 
-        Assert.assertEquals(1, combinations1.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations1.get(0));
     }
 
@@ -134,7 +130,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setUnderlying(this.forex1);
 
@@ -149,8 +145,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination1);
         this.session.save(subscription1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndUnderlying("Strategy1", 0);
@@ -161,7 +155,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -175,7 +168,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -194,8 +187,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
         List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponent("Strategy1", 0);
@@ -206,7 +197,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -220,7 +210,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -239,23 +229,16 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
-        int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
-
-        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", discriminator1);
+        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", Security.class);
 
         Assert.assertEquals(0, combinations1.size());
 
-        int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, ForexImpl.class);
-
-        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", discriminator2);
+        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentType("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -269,7 +252,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
 
         combination1.addComponents(component1);
 
@@ -288,27 +271,20 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         this.session.save(component1);
 
-        combination1.addSubscriptions(subscription1);
-
         this.session.flush();
 
-        int discriminator1 = HibernateUtil.getDisriminatorValue(this.sessionFactory, Security.class);
-
-        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", discriminator1);
+        List<Combination> combinations1 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", Security.class);
 
         Assert.assertEquals(0, combinations1.size());
-
-        int discriminator2 = HibernateUtil.getDisriminatorValue(this.sessionFactory, ForexImpl.class);
 
         component1.setQuantity(0);
 
         this.session.flush();
 
-        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", discriminator2);
+        List<Combination> combinations2 = this.dao.findSubscribedByStrategyAndComponentTypeWithZeroQty("Strategy1", ForexImpl.class);
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
     }
 
@@ -322,7 +298,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination1 = new CombinationImpl();
         combination1.setSecurityFamily(this.family1);
         combination1.setUuid(UUID.randomUUID().toString());
-        combination1.setType(CombinationType.STRADDLE);
+        combination1.setCombinationType(CombinationType.STRADDLE);
         combination1.addComponents(component1);
         combination1.setPersistent(false);
 
@@ -338,7 +314,7 @@ public class CombinationDaoTest extends InMemoryDBTest {
         Combination combination2 = new CombinationImpl();
         combination2.setSecurityFamily(this.family1);
         combination2.setUuid(UUID.randomUUID().toString());
-        combination2.setType(CombinationType.STRANGLE);
+        combination2.setCombinationType(CombinationType.STRANGLE);
         combination2.addComponents(component2);
         combination2.setPersistent(true);
 
@@ -355,16 +331,12 @@ public class CombinationDaoTest extends InMemoryDBTest {
         this.session.save(combination2);
         this.session.save(subscription2);
 
-        combination1.addSubscriptions(subscription1);
-        combination2.addSubscriptions(subscription2);
-
         this.session.flush();
 
         List<Combination> combinations2 = this.dao.findNonPersistent();
 
         Assert.assertEquals(1, combinations2.size());
 
-        Assert.assertEquals(1, combinations2.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations2.get(0));
 
         combination2.setPersistent(false);
@@ -375,7 +347,6 @@ public class CombinationDaoTest extends InMemoryDBTest {
 
         Assert.assertEquals(2, combinations3.size());
 
-        Assert.assertEquals(1, combinations3.get(0).getSubscriptions().size());
         Assert.assertSame(combination1, combinations3.get(0));
         Assert.assertSame(combination2, combinations3.get(1));
     }

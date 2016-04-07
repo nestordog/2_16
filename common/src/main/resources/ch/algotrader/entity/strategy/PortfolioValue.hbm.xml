@@ -19,7 +19,19 @@
      * 
      * @return double
      */
-    public abstract double getSecuritiesCurrentValueDouble();
+    public abstract double getMarketValueDouble();
+
+    /**
+     * 
+     * @return double
+     */
+    public abstract double getRealizedPLDouble();
+
+    /**
+     * 
+     * @return double
+     */
+    public abstract double getUnrealizedPLDouble();
 
     /**
      * 
@@ -51,9 +63,21 @@
 
             <type name="java.math.BigDecimal"/>
         </property>
-        <property name="securitiesCurrentValue">
+        <property name="marketValue">
             <meta attribute="field-description"><![CDATA[Current market value of all positions.]]></meta>
-            <column name="SECURITIES_CURRENT_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+            <column name="MARKET_VALUE" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="realizedPL">
+            <meta attribute="field-description"><![CDATA[Current market value of all Assets. {@code cashBalance} + {@code securitiesCurrentValue}]]></meta>
+            <column name="REALIZED_P_L" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
+
+            <type name="java.math.BigDecimal"/>
+        </property>
+        <property name="unrealizedPL">
+            <meta attribute="field-description"><![CDATA[Current market value of all Assets. {@code cashBalance} + {@code securitiesCurrentValue}]]></meta>
+            <column name="UNREALIZED_P_L" not-null="true" unique="false" sql-type="Decimal(15,6)"/>
 
             <type name="java.math.BigDecimal"/>
         </property>
@@ -63,17 +87,13 @@
 
             <type name="java.math.BigDecimal"/>
         </property>
-        <property name="leverage">
-            <meta attribute="field-description"><![CDATA[Current (delta-adjusted) Notional Exposure]]></meta>
-            <column name="LEVERAGE" not-null="true" unique="false" sql-type="DOUBLE"/>
+        <property name="openPositions">
+            <column name="OPEN_POSITIONS" not-null="true" unique="false" sql-type="INTEGER"/>
 
-            <type name="double"/>
+            <type name="int"/>
         </property>
-        <property name="allocation">
-            <meta attribute="field-description"><![CDATA[Allocation assigned to the AlgoTrader Server / Strategy.
-<p>
-The total of all allocations needs to be {@code 1.0}]]></meta>
-            <column name="ALLOCATION" not-null="true" unique="false" sql-type="DOUBLE"/>
+        <property name="leverage">
+            <column name="LEVERAGE" not-null="true" unique="false" sql-type="DOUBLE"/>
 
             <type name="double"/>
         </property>

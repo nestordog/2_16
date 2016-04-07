@@ -19,8 +19,8 @@ package ch.algotrader.service;
 
 import java.util.Set;
 
-import ch.algotrader.entity.marketData.Tick;
 import ch.algotrader.entity.marketData.TickVO;
+import ch.algotrader.entity.security.Security;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -28,13 +28,12 @@ import ch.algotrader.entity.marketData.TickVO;
 public interface MarketDataService {
 
     /**
-     * Persists a Tick to the DB and CSV File.
+     * Initializes persistent subscriptions.
      */
-    void persistTick(Tick tick);
+    void initSubscriptions();
 
     /**
-     * Initializes current Subscriptions with the external Market Data Provider for the specified
-     * feed type
+     * Initializes persistent subscriptions for the specified feed type.
      */
     void initSubscriptions(String feedType);
 
@@ -69,7 +68,7 @@ public interface MarketDataService {
      * an open Position.
      * @param type The class for which a potential Subscription should be removed. Example: {@link ch.algotrader.entity.security.Future Future}
      */
-    void removeNonPositionSubscriptionsByType(String strategyName, Class<?> type);
+    void removeNonPositionSubscriptionsByType(String strategyName, Class<? extends Security> type);
 
     /**
      * Publishes the latest Market Data Events of all subscribed Securities to the corresponding
@@ -86,12 +85,12 @@ public interface MarketDataService {
     /**
      * Returns all supported data feeds.
      */
-    Set<String> getSupportedFeeds();
+    Set<String> getSupportedFeedTypes();
 
     /**
      * Returns {@code true} if the data feed is supported.
      */
-    boolean isSupportedFeed(String feedType);
+    boolean isSupportedFeedType(String feedType);
 
     /**
      * Verifies if the tick is valid for the security associated with it.
@@ -101,6 +100,6 @@ public interface MarketDataService {
     /**
      * Normalise the tick value according to broker params multiplier if normaliseMarketData is enabled
      */
-    TickVO normaliseTick(TickVO tick);
+    TickVO normalizeTick(TickVO tick);
 
 }

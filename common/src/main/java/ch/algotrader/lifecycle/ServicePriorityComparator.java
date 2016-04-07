@@ -33,21 +33,29 @@ class ServicePriorityComparator implements Comparator<InitializingServiceI> {
 
     @Override
     public int compare(final InitializingServiceI s1, final InitializingServiceI s2) {
-        InitializingServiceType p1 = getServiceType(s1);
-        InitializingServiceType p2 = getServiceType(s2);
-        int result = p1.compareTo(p2);
+        InitializationPriority a1 = getServiceType(s1);
+        InitializationPriority a2 = getServiceType(s2);
+        InitializingServiceType t1 = a1 != null ? a1.value() : InitializingServiceType.CORE;
+        InitializingServiceType t2 = a2 != null ? a2.value() : InitializingServiceType.CORE;
+        int result = t1.compareTo(t2);
         if (result != 0) {
             return result;
         } else {
-            // Ensure predictable order in case the type of services is the same
-            return s1.getClass().getName().compareTo(s2.getClass().getName());
+            int p1 = a1 != null ? a1.priority() : 0;
+            int p2 = a2 != null ? a2.priority() : 0;
+            result = Integer.compare(p2, p1);
+            if (result != 0) {
+                return result;
+            } else {
+                // Ensure predictable order in case the type of services is the same
+                return s1.getClass().getName().compareTo(s2.getClass().getName());
+            }
         }
     }
 
-    private InitializingServiceType getServiceType(final InitializingServiceI service) {
+    private InitializationPriority getServiceType(final InitializingServiceI service) {
         Class<?> implClass = AopProxyUtils.ultimateTargetClass(service);
-        InitializationPriority initializationPriority = AnnotationUtils.findAnnotation(implClass, InitializationPriority.class);
-        return initializationPriority != null ? initializationPriority.value() : InitializingServiceType.CORE;
+        return AnnotationUtils.findAnnotation(implClass, InitializationPriority.class);
     }
 
 }

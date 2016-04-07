@@ -18,17 +18,15 @@
 package ch.algotrader.adapter.cnx;
 
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 
 /**
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
 public class CNXFixOrderMessageHandler extends GenericFix44OrderMessageHandler {
 
-    public CNXFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine) {
-        super(orderExecutionService, transactionService, serverEngine);
+    public CNXFixOrderMessageHandler(final OrderExecutionService orderExecutionService) {
+        super(orderExecutionService);
     }
 
 }

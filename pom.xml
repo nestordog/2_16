@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>2.3.2</version>
+    <version>3.0.0</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
 
@@ -47,7 +47,7 @@
                 <directory>${basedir}/src/main/resources</directory>
             </resource>
             <resource>
-                <directory>${basedir}/..</directory>
+                <directory>${project.parent.basedir}</directory>
                 <includes>
                     <include>LICENSE.txt</include>
                 </includes>
@@ -176,6 +176,10 @@
                         <tagBase>svn+ssh://repo.algotrader.ch/var/svn/repository/tags</tagBase>
                     </configuration>
                 </plugin>
+	            <plugin>
+	                <artifactId>maven-assembly-plugin</artifactId>
+	                <version>2.5.5</version>
+	            </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -214,12 +218,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.flywaydb</groupId>
-                    <artifactId>flyway-maven-plugin</artifactId>
-                    <version>3.2.1</version>
                 </plugin>
 
             </plugins>
@@ -483,6 +481,16 @@
                 <version>${spring.retry.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.integration</groupId>
                 <artifactId>spring-integration-mail</artifactId>
                 <version>${spring.integration.version}-at</version>
@@ -492,11 +500,80 @@
                 <artifactId>spring-integration-file</artifactId>
                 <version>${spring.integration.version}.RELEASE</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.activemq</groupId>
                 <artifactId>activemq-broker</artifactId>
-                <version>5.10.0</version>
+                <version>${activemq.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-http</artifactId>
+                <version>${activemq.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-mqtt</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.eclipse.jetty.aggregate</groupId>
+                        <artifactId>jetty-all</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpclient</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-stomp</artifactId>
+                <version>${activemq.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jsonSchema</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-core</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-analyzers-common</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.lucene</groupId>
+                <artifactId>lucene-queryparser</artifactId>
+                <version>${lucene.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>net.sourceforge.collections</groupId>
                 <artifactId>collections-generic</artifactId>
@@ -579,6 +656,7 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -619,6 +697,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <html.content.version>3.0.0</html.content.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
         <jboss-logging.version>3.2.1.Final</jboss-logging.version>
         <spring.version>4.2.1.RELEASE</spring.version>
@@ -627,8 +706,11 @@
         <esper.version>5.3.0</esper.version>
         <esperee.version>4.11.0</esperee.version>
         <quickfixj.version>1.5.2</quickfixj.version>
-        <grails.version>2.2.4</grails.version>
-        <log4j.version>2.4.1</log4j.version>
+        <activemq.version>5.13.0</activemq.version>
+        <jetty.version>9.3.6.v20151106</jetty.version>
+        <jackson.version>2.6.3</jackson.version>
+        <lucene.version>5.3.0</lucene.version>
+        <log4j.version>2.5</log4j.version>
         <slf4j.version>1.7.10</slf4j.version>
         <project.build.sourceEncoding>ISO-8859-1</project.build.sourceEncoding>
     </properties>

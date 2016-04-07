@@ -63,6 +63,15 @@ public interface FutureDao extends ReadWriteDao<Future> {
     List<Future> findByMinExpiration(int limit, long futureFamilyId, Date targetExpirationDate);
 
     /**
+     * Finds a Future by the specified maturity {@code year} / {@code month} and {@code futureFamilyId}.
+     * @param futureFamilyId
+     * @param year
+     * @param month
+     * @return Future
+     */
+    Future findByMonthYear(long futureFamilyId, int year, int month);
+
+    /**
      * Finds all Futures that are subscribed by at least one Strategy.
      * @return List<Future>
      */
@@ -74,16 +83,5 @@ public interface FutureDao extends ReadWriteDao<Future> {
      * @return List<Future>
      */
     List<Future> findBySecurityFamily(long securityFamilyId);
-
-    /**
-     * Finds a Future by the specified {@code expirationMonth} and {@code futureFamilyId}. the
-     * {@code expirationMonth} has to be defined as the last day of the month (e.g. March 31st
-     * 00:00:00).
-     * @param futureFamilyId
-     * @param expirationMonth
-     * @return Future
-     */
-    Future findByExpirationMonth(long futureFamilyId, Date expirationMonth);
-    // spring-dao merge-point
 
 }

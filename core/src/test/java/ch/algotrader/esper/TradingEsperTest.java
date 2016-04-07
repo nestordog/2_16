@@ -5,9 +5,7 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -16,7 +14,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -31,26 +28,15 @@ import com.espertech.esper.client.time.CurrentTimeEvent;
 import com.espertech.esperio.AdapterCoordinator;
 import com.espertech.esperio.AdapterCoordinatorImpl;
 
-import ch.algotrader.config.CommonConfig;
-import ch.algotrader.config.ConfigBeanFactory;
-import ch.algotrader.config.ConfigLocator;
-import ch.algotrader.config.ConfigParams;
-import ch.algotrader.config.spring.DefaultConfigProvider;
-import ch.algotrader.entity.Account;
 import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.exchange.Exchange;
-import ch.algotrader.entity.marketData.TickVO;
 import ch.algotrader.entity.security.Forex;
 import ch.algotrader.entity.security.SecurityFamily;
-import ch.algotrader.entity.trade.Allocation;
-import ch.algotrader.entity.trade.DistributingOrder;
 import ch.algotrader.entity.trade.Fill;
 import ch.algotrader.entity.trade.MarketOrder;
-import ch.algotrader.entity.trade.Order;
 import ch.algotrader.entity.trade.OrderCompletionVO;
 import ch.algotrader.entity.trade.OrderStatus;
 import ch.algotrader.enumeration.Currency;
-import ch.algotrader.enumeration.FeedType;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
 import ch.algotrader.enumeration.TIF;
@@ -72,37 +58,6 @@ public class TradingEsperTest extends EsperTestBase {
     private Exchange exchange;
     private Forex eurusd;
     private Forex chfusd;
-
-    private static Map<String, String> CONFIG_MAP;
-
-    @BeforeClass
-    public static void setupConfig() {
-        CONFIG_MAP = new HashMap<>();
-        CONFIG_MAP.put("dataSource.dataSet", "someDataSet");
-        CONFIG_MAP.put("dataSource.dataSetType", "BAR");
-        CONFIG_MAP.put("dataSource.dataSetLocation", "stuff/more-stuff");
-        CONFIG_MAP.put("dataSource.barSize", "MIN_5");
-        CONFIG_MAP.put("dataSource.feedCSV", "false");
-        CONFIG_MAP.put("dataSource.feedDB", "false");
-        CONFIG_MAP.put("dataSource.feedGenericEvents", "true");
-        CONFIG_MAP.put("dataSource.feedAllMarketDataFiles", "true");
-        CONFIG_MAP.put("dataSource.feedBatchSize", "20");
-        CONFIG_MAP.put("report.reportLocation", "stuff/report-stuff");
-        CONFIG_MAP.put("simulation", "true");
-        CONFIG_MAP.put("simulation.initialBalance", "500.5");
-        CONFIG_MAP.put("simulation.logTransactions", "true");
-        CONFIG_MAP.put("misc.embedded", "true");
-        CONFIG_MAP.put("misc.portfolioBaseCurrency", "EUR");
-        CONFIG_MAP.put("misc.portfolioDigits", "5");
-        CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
-        CONFIG_MAP.put("misc.validateCrossedSpread", "true");
-        CONFIG_MAP.put("misc.displayClosedPositions", "true");
-
-        DefaultConfigProvider configProvider = new DefaultConfigProvider(CONFIG_MAP);
-        ConfigParams configParams = new ConfigParams(configProvider);
-        CommonConfig commonConfig = new ConfigBeanFactory().create(configParams, CommonConfig.class);
-        ConfigLocator.initialize(configParams, commonConfig);
-    }
 
     @Before
     public void setupEsper() throws Exception {
@@ -200,7 +155,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
-        transaction1.setExecutionCommission(new BigDecimal("0.003"));
+        transaction1.setExecutionCommission(new BigDecimal("0.01"));
         transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction1);
@@ -223,7 +178,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction2.setPrice(new BigDecimal("0.96"));
         transaction2.setType(TransactionType.BUY);
         transaction2.setClearingCommission(new BigDecimal("0.001"));
-        transaction2.setFee(new BigDecimal("0.002"));
+        transaction2.setFee(new BigDecimal("0.01"));
         transaction2.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction2);
@@ -234,7 +189,7 @@ public class TradingEsperTest extends EsperTestBase {
         Assert.assertEquals(1000L, orderCompletion.getFilledQuantity());
         Assert.assertEquals(2, orderCompletion.getFills());
         Assert.assertEquals(new BigDecimal("0.962"), orderCompletion.getAvgPrice());
-        Assert.assertEquals(new BigDecimal("0.00600"), orderCompletion.getTotalCharges());
+        Assert.assertEquals(new BigDecimal("0.02"), orderCompletion.getTotalCharges());
     }
 
     @Test
@@ -279,7 +234,7 @@ public class TradingEsperTest extends EsperTestBase {
         transaction1.setSecurity(this.eurusd);
         transaction1.setPrice(new BigDecimal("0.98"));
         transaction1.setType(TransactionType.BUY);
-        transaction1.setExecutionCommission(new BigDecimal("0.003"));
+        transaction1.setExecutionCommission(new BigDecimal("0.01"));
         transaction1.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
 
         this.epRuntime.sendEvent(transaction1);
@@ -310,7 +265,7 @@ public class TradingEsperTest extends EsperTestBase {
         Assert.assertEquals(100L, orderCompletion.getFilledQuantity());
         Assert.assertEquals(1, orderCompletion.getFills());
         Assert.assertEquals(new BigDecimal("0.98"), orderCompletion.getAvgPrice());
-        Assert.assertEquals(new BigDecimal("0.00300"), orderCompletion.getTotalCharges());
+        Assert.assertEquals(new BigDecimal("0.01"), orderCompletion.getTotalCharges());
     }
 
     @Test
@@ -392,56 +347,6 @@ public class TradingEsperTest extends EsperTestBase {
         String msg = notificationQueue.poll();
         Assert.assertNotNull(msg);
         Assert.assertTrue(msg.startsWith("missing reply on order:"));
-    }
-
-    @Test
-    public void testAlgoOrderInitialOrders() throws Exception {
-
-        deployModule(this.epService,
-                getClass().getResource("/module-current-values.epl"), "MARKET_DATA_WINDOW", "INSERT_INTO_CURRENT_MARKET_DATA_EVENT");
-        deployModule(this.epService,
-                getClass().getResource("/module-trades.epl"), "SEND_INITIAL_ALGO_ORDERS");
-
-        final Queue<Collection<Order>> orderQueue = new ConcurrentLinkedQueue<>();
-        EPStatement statement1 = this.epService.getEPAdministrator().getStatement("SEND_INITIAL_ALGO_ORDERS");
-        Assert.assertNotNull(statement1);
-        statement1.setSubscriber(new Object() {
-            @SuppressWarnings("unused")
-            public void update(final Collection<Order> event) {
-                orderQueue.add(event);
-            }
-        });
-
-        TickVO tick1 = new TickVO(0L, new Date(), FeedType.IB.name(), this.eurusd.getId(),
-                new BigDecimal("1.11"), new Date(this.epService.getEPRuntime().getCurrentTime()), new BigDecimal("1.12"), new BigDecimal("1.1"), 0, 0, 0);
-        this.epRuntime.sendEvent(tick1);
-
-        DistributingOrder algoOrder = new DistributingOrder();
-        algoOrder.setSecurity(this.eurusd);
-        algoOrder.setSide(Side.BUY);
-        algoOrder.setQuantity(200);
-        algoOrder.setDateTime(new Date(this.epService.getEPRuntime().getCurrentTime()));
-
-        Account account1 = Account.Factory.newInstance();
-        account1.setName("acc1");
-        Account account2 = Account.Factory.newInstance();
-        account1.setName("acc2");
-
-        Allocation allocation1 = Allocation.Factory.newInstance();
-        allocation1.setValue(0.4);
-        allocation1.setAccount(account1);
-        algoOrder.addAllocations(allocation1);
-
-        Allocation allocation2 = Allocation.Factory.newInstance();
-        allocation2.setValue(0.6);
-        allocation2.setAccount(account2);
-        algoOrder.addAllocations(allocation2);
-
-        this.epRuntime.sendEvent(algoOrder);
-
-        Collection<Order> orders = orderQueue.poll();
-        Assert.assertNotNull(orders);
-        Assert.assertEquals(2, orders.size());
     }
 
     @Test

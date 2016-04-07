@@ -22,12 +22,10 @@ import ch.algotrader.adapter.ftx.FTXFixOrderMessageFactory;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.AccountDao;
 import ch.algotrader.dao.trade.OrderDao;
-import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.entity.trade.SimpleOrder;
 import ch.algotrader.enumeration.OrderServiceType;
-import ch.algotrader.enumeration.SimpleOrderType;
-import ch.algotrader.enumeration.TIF;
-import ch.algotrader.ordermgmt.OrderRegistry;
+import ch.algotrader.ordermgmt.OrderBook;
 import ch.algotrader.service.OrderPersistenceService;
 import ch.algotrader.service.fix.fix44.Fix44OrderService;
 import ch.algotrader.service.fix.fix44.Fix44OrderServiceImpl;
@@ -41,32 +39,32 @@ import quickfix.fix44.OrderCancelRequest;
  */
 public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix44OrderService {
 
-    private final OrderRegistry orderRegistry;
+    private final OrderBook orderBook;
 
     public FTXFixOrderServiceImpl(
             final String orderServiceType,
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         super(orderServiceType, fixAdapter, new FTXFixOrderMessageFactory(),
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
-        this.orderRegistry = orderRegistry;
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
+        this.orderBook = orderBook;
     }
 
     public FTXFixOrderServiceImpl(
             final FixAdapter fixAdapter,
-            final OrderRegistry orderRegistry,
+            final OrderBook orderBook,
             final OrderPersistenceService orderPersistenceService,
             final OrderDao orderDao,
             final AccountDao accountDao,
             final CommonConfig commonConfig) {
 
         this(OrderServiceType.FTX_FIX.name(), fixAdapter,
-                orderRegistry, orderPersistenceService, orderDao, accountDao, commonConfig);
+                orderBook, orderPersistenceService, orderDao, accountDao, commonConfig);
     }
 
     @Override
@@ -77,7 +75,7 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
     public void prepareModifyOrder(SimpleOrder order, OrderCancelReplaceRequest replaceRequest) {
 
         String intId = order.getIntId();
-        ExecutionStatusVO execStatus = this.orderRegistry.getStatusByIntId(intId);
+        OrderStatusVO execStatus = this.orderBook.getStatusByIntId(intId);
         if (execStatus != null) {
             replaceRequest.setDouble(CumQty.FIELD, execStatus.getFilledQuantity());
         }
@@ -85,11 +83,6 @@ public class FTXFixOrderServiceImpl extends Fix44OrderServiceImpl implements Fix
 
     @Override
     public void prepareCancelOrder(SimpleOrder order, OrderCancelRequest cancelRequest) {
-    }
-
-    @Override
-    public TIF getDefaultTIF(final SimpleOrderType type) {
-        return TIF.GTC;
     }
 
 }

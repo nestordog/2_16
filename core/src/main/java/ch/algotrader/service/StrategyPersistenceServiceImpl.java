@@ -53,16 +53,13 @@ public class StrategyPersistenceServiceImpl implements StrategyPersistenceServic
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public Strategy getOrCreateStrategy(String name, double allocation) {
+    public Strategy getOrCreateStrategy(String name) {
 
         Validate.notNull(name, "Name is null");
 
         Strategy strategy = strategyDao.findByName(name);
         if (strategy == null) {
-            strategy = Strategy.Factory.newInstance(name, true, allocation);
-            strategyDao.save(strategy);
-        } else if (strategy.getAllocation() != allocation) {
-            strategy.setAllocation(allocation);
+            strategy = Strategy.Factory.newInstance(name, true);
             strategyDao.save(strategy);
         }
         return strategy;

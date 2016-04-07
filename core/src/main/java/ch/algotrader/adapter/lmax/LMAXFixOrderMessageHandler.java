@@ -23,9 +23,9 @@ import java.util.Date;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import ch.algotrader.adapter.BrokerAdapterException;
 import ch.algotrader.adapter.fix.DropCopyAllocationVO;
 import ch.algotrader.adapter.fix.DropCopyAllocator;
-import ch.algotrader.adapter.fix.FixApplicationException;
 import ch.algotrader.adapter.fix.FixUtil;
 import ch.algotrader.adapter.fix.fix44.GenericFix44OrderMessageHandler;
 import ch.algotrader.entity.Account;
@@ -40,11 +40,8 @@ import ch.algotrader.enumeration.Broker;
 import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.Side;
 import ch.algotrader.enumeration.Status;
-import ch.algotrader.esper.Engine;
 import ch.algotrader.service.OrderExecutionService;
-import ch.algotrader.service.TransactionService;
 import ch.algotrader.util.PriceUtil;
-import ch.algotrader.util.RoundUtil;
 import quickfix.FieldNotFound;
 import quickfix.field.AvgPx;
 import quickfix.field.ExecType;
@@ -65,15 +62,11 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
     private static final Logger LOGGER = LogManager.getLogger(LMAXFixOrderMessageHandler.class);
 
     private final OrderExecutionService orderExecutionService;
-    private final TransactionService transactionService;
-    private final Engine serverEngine;
     private final DropCopyAllocator dropCopyAllocator;
 
-    public LMAXFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final TransactionService transactionService, final Engine serverEngine, final DropCopyAllocator dropCopyAllocator) {
-        super(orderExecutionService, transactionService, serverEngine);
+    public LMAXFixOrderMessageHandler(final OrderExecutionService orderExecutionService, final DropCopyAllocator dropCopyAllocator) {
+        super(orderExecutionService);
         this.orderExecutionService = orderExecutionService;
-        this.transactionService = transactionService;
-        this.serverEngine = serverEngine;
         this.dropCopyAllocator = dropCopyAllocator;
     }
 
@@ -115,7 +108,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
             return;
         }
         if (allocation.getStrategy() == null) {
-            throw new FixApplicationException("External fill could not be allocated to a strategy");
+            throw new BrokerAdapterException("External fill could not be allocated to a strategy");
         }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("External (drop-copy) fill {} allocated to " +
@@ -129,8 +122,6 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
         }
 
         if (fill != null) {
-            this.serverEngine.sendEvent(fill);
-            this.transactionService.createTransaction(fill);
             this.orderExecutionService.handleFill(fill);
         }
     }
@@ -211,6 +202,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
         }
     }
 
+    @Override
     protected ExternalFill createFill(final ExecutionReport executionReport, final DropCopyAllocationVO allocation) throws FieldNotFound {
 
         char execType = executionReport.getExecType().getValue();
@@ -227,13 +219,13 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
             try {
                 currency = Currency.valueOf(s);
             } catch (IllegalArgumentException ex) {
-                throw new FixApplicationException("Unsupported currency " + s);
+                throw new BrokerAdapterException("Unsupported currency " + s);
             }
         }
         if (securityFamily != null) {
             if (currency != null) {
                 if (!currency.equals(securityFamily.getCurrency())) {
-                    throw new FixApplicationException("Transaction currency does not match that defined by the security family");
+                    throw new BrokerAdapterException("Transaction currency does not match that defined by the security family");
                 }
             } else {
                 currency = securityFamily.getCurrency();
@@ -250,8 +242,7 @@ public class LMAXFixOrderMessageHandler extends GenericFix44OrderMessageHandler 
 
         BigDecimal normalizedPrice;
         if (securityFamily != null) {
-            double priceMultiplier = securityFamily.getPriceMultiplier(broker);
-            normalizedPrice = RoundUtil.getBigDecimal(price / priceMultiplier, securityFamily.getScale());
+            normalizedPrice = PriceUtil.normalizePrice(securityFamily, broker, price);
         } else {
             normalizedPrice = new BigDecimal(price);
         }

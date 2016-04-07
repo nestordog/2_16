@@ -20,7 +20,7 @@ package ch.algotrader.adapter.ib;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import ch.algotrader.entity.trade.ExecutionStatusVO;
+import ch.algotrader.entity.trade.OrderStatusVO;
 import ch.algotrader.enumeration.Status;
 
 public final class IBExecutions {
@@ -39,7 +39,7 @@ public final class IBExecutions {
         return existingEntry != null ? existingEntry : newEntry;
     }
 
-    public IBExecution getOpen(final String id, final ExecutionStatusVO executionStatus) {
+    public IBExecution getOpen(final String id, final OrderStatusVO executionStatus) {
 
         IBExecution execution = this.executionMap.get(id);
         if (execution == null) {

@@ -9,6 +9,10 @@
 	    <meta attribute="generated-class">ch.algotrader.entity.security.Security</meta>
 	    <meta attribute="class-code">
 <![CDATA[
+
+    public abstract <R,P> R accept(ch.algotrader.visitor.SecurityVisitor<R, ? super P> visitor, P param);
+
+
     /**
      * Gets the leverage of this Security. This method has to be overwritten by subclasses (it
      * returns zero by default).
@@ -30,6 +34,7 @@
                 <!-- id-generator merge-point -->
             </generator>
         </id>
+        <discriminator column="class" type="string"/>
         <property name="symbol">
             <meta attribute="use-in-equals">true</meta>
             <column name="SYMBOL" not-null="false" unique="true" sql-type="VARCHAR(255)"/>
@@ -86,24 +91,6 @@
             <column name="UNDERLYING_FK" not-null="false" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="subscriptions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="SUBSCRIPTION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.SubscriptionImpl" not-found="exception"/>
-        </set>
-        <set name="positions" order-by="SECURITY_FK" lazy="true" fetch="select" inverse="true">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <cache usage="read-write" />
-            <key foreign-key="POSITION_SECURITY_FKC">
-                <column name="SECURITY_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.PositionImpl" not-found="exception"/>
-        </set>
         <many-to-one name="securityFamily" class="ch.algotrader.entity.security.SecurityFamilyImpl" foreign-key="SECURITY_SECURITY_FAMILY_FKC" not-null="true" lazy="proxy" fetch="select">
             <meta attribute="property-type">ch.algotrader.entity.security.SecurityFamily</meta>
             <meta attribute="field-description"><![CDATA[Represents an entire family of similar {@link ch.algotrader.entity.security.Security Securities}
@@ -111,17 +98,7 @@
             <column name="SECURITY_FAMILY_FK" not-null="true" sql-type="BIGINT"/>
 
         </many-to-one>
-        <set name="securityReferences" order-by="OWNER_FK" lazy="true" fetch="select" inverse="true" cascade="delete">
-            <meta attribute="field-description"><![CDATA[The base class of all Securities in the system]]></meta>
-            <meta attribute="field-inverse-name">owner</meta>
-            <cache usage="read-write" />
-            <key foreign-key="SECURITY_REFERENCE_OWNER_FKC">
-                <column name="OWNER_FK" sql-type="BIGINT"/>
-
-            </key>
-            <one-to-many class="ch.algotrader.entity.security.SecurityReferenceImpl" not-found="exception"/>
-        </set>
-        <joined-subclass name="ch.algotrader.entity.security.GenericFutureImpl" table="`generic_future`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        <subclass name="ch.algotrader.entity.security.GenericFutureImpl" discriminator-value="GenericFutureImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.GenericFutureI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.GenericFuture</meta>
             <meta attribute="class-code">
@@ -135,9 +112,6 @@
 
 ]]>   
             </meta> 	    
-            <key foreign-key="GENERIC_FUTUREIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="duration">
                 <meta attribute="field-description"><![CDATA[The Duration of this GenericFuture. A Duration of @code{MONTH_1} means that this GenericFuture is equal to the physical Front Month Future. After the Expiration Date of the physical Future, the GenericFuture with Duration 1 (that until now represented the expiring Future) now switches to represent the Future that is next to expire.]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
@@ -155,8 +129,8 @@
                  <param name="enumClassName">ch.algotrader.enumeration.AssetClass</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.ForexImpl" table="`forex`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.ForexImpl" discriminator-value="ForexImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.ForexI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Forex</meta>
             <meta attribute="class-code">
@@ -169,9 +143,6 @@
 
 ]]>   
             </meta> 	    
-            <key foreign-key="FOREXIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="baseCurrency">
                 <meta attribute="field-description"><![CDATA[The Base Currency of this Forex Contract (e.g. EUR for the EUR.USD Forex)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.Currency</meta>
@@ -181,8 +152,8 @@
                  <param name="enumClassName">ch.algotrader.enumeration.Currency</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.OptionImpl" table="`option`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.OptionImpl" discriminator-value="OptionImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.OptionI,ch.algotrader.entity.security.ExpirableI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Option</meta>
             <meta attribute="class-code">
@@ -204,9 +175,6 @@
 
 ]]>   
             </meta> 	    
-            <key foreign-key="OPTIONIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="expiration">
                 <meta attribute="field-description"><![CDATA[The Expiration Date]]></meta>
                 <column name="EXPIRATION" not-null="true" unique="false" sql-type="DATE"/>
@@ -219,17 +187,17 @@
 
                 <type name="java.math.BigDecimal"/>
             </property>
-            <property name="type">
+            <property name="optionType">
                 <meta attribute="field-description"><![CDATA[The {@link OptionType} (i.e. Put or Call)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.OptionType</meta>
-                <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+                <column name="OPTION_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
                 <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.OptionType</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.FutureImpl" table="`future`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.FutureImpl" discriminator-value="FutureImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.FutureI,ch.algotrader.entity.security.ExpirableI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Future</meta>
             <meta attribute="class-code">
@@ -251,14 +219,18 @@
 
 ]]>   
             </meta> 	    
-            <key foreign-key="FUTUREIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="expiration">
-                <meta attribute="field-description"><![CDATA[The Expiration Date]]></meta>
+                <meta attribute="field-description"><![CDATA[The Last Trading / Expiration Date]]></meta>
                 <column name="EXPIRATION" not-null="true" unique="false" sql-type="DATE"/>
 
                 <type name="java.util.Date"/>
+            </property>
+            <property name="monthYear">
+                <meta attribute="field-description"><![CDATA[The month and year in the format "yyyymm".
+Note: month can be different that the month part of the expiration. E.g. a Jan 2016 contract might have an expiration date of Dec. 16th 2015.]]></meta>
+                <column name="MONTH_YEAR" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+
+                <type name="java.lang.String"/>
             </property>
             <property name="firstNotice">
                 <meta attribute="field-description"><![CDATA[The first notice date]]></meta>
@@ -266,23 +238,14 @@
 
                 <type name="java.util.Date"/>
             </property>
-            <property name="lastTrading">
-                <meta attribute="field-description"><![CDATA[The last trading date]]></meta>
-                <column name="LAST_TRADING" not-null="false" unique="false" sql-type="DATE"/>
-
-                <type name="java.util.Date"/>
-            </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.IntrestRateImpl" table="`intrest_rate`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.IntrestRateImpl" discriminator-value="IntrestRateImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.IntrestRateI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.IntrestRate</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="INTREST_RATEIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="duration">
                 <meta attribute="property-type">ch.algotrader.enumeration.Duration</meta>
                 <column name="DURATION" not-null="true" unique="false" sql-type="BIGINT"/>
@@ -291,17 +254,14 @@
                  <param name="enumClassName">ch.algotrader.enumeration.Duration</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.IndexImpl" table="`index`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.IndexImpl" discriminator-value="IndexImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.IndexI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Index</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="INDEXIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="assetClass">
                 <meta attribute="property-type">ch.algotrader.enumeration.AssetClass</meta>
                 <column name="ASSET_CLASS" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
@@ -310,24 +270,21 @@
                  <param name="enumClassName">ch.algotrader.enumeration.AssetClass</param>
                 </type>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.StockImpl" table="`stock`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.StockImpl" discriminator-value="StockImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.StockI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Stock</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="STOCKIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="gics">
                 <column name="GICS" not-null="false" unique="false" sql-type="VARCHAR(255)"/>
 
                 <type name="java.lang.String"/>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.CombinationImpl" table="`combination`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.CombinationImpl" discriminator-value="CombinationImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.CombinationI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Combination</meta>
             <meta attribute="class-code">
@@ -375,9 +332,6 @@
 
 ]]>   
             </meta> 	    
-            <key foreign-key="COMBINATIONIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="uuid">
                 <meta attribute="field-description"><![CDATA[auto generated unique identifier. Combinations do not have any other natural identifiers.]]></meta>
                 <meta attribute="use-in-equals">true</meta>
@@ -385,10 +339,10 @@
 
                 <type name="java.lang.String"/>
             </property>
-            <property name="type">
+            <property name="combinationType">
                 <meta attribute="field-description"><![CDATA[The type of the Combination (e.g. Butterfly, Condor, RatioSpread, etc.)]]></meta>
                 <meta attribute="property-type">ch.algotrader.enumeration.CombinationType</meta>
-                <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+                <column name="COMBINATION_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
                 <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.CombinationType</param>
@@ -409,17 +363,14 @@
                 </key>
                 <one-to-many class="ch.algotrader.entity.security.ComponentImpl" not-found="exception"/>
             </set>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.BondImpl" table="`bond`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.BondImpl" discriminator-value="BondImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.BondI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Bond</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="BONDIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
             <property name="maturity">
                 <meta attribute="field-description"><![CDATA[The Maturity Date]]></meta>
                 <column name="MATURITY" not-null="true" unique="false" sql-type="DATE"/>
@@ -432,36 +383,30 @@
 
                 <type name="double"/>
             </property>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.FundImpl" table="`fund`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.FundImpl" discriminator-value="FundImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.FundI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Fund</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="FUNDIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
-        </joined-subclass>
-        <joined-subclass name="ch.algotrader.entity.security.CommodityImpl" table="`commodity`" dynamic-insert="false" dynamic-update="false" abstract="false">
+        </subclass>
+        <subclass name="ch.algotrader.entity.security.CommodityImpl" discriminator-value="CommodityImpl" dynamic-insert="false" dynamic-update="false" abstract="false">
             <meta attribute="implements">ch.algotrader.entity.security.CommodityI</meta>
             <meta attribute="generated-class">ch.algotrader.entity.security.Commodity</meta>
             <meta attribute="class-code">
 <![CDATA[
 ]]>   
             </meta> 	    
-            <key foreign-key="COMMODITYIFKC">
-                <column name="ID" sql-type="BIGINT"/>
-            </key>
-            <property name="type">
+            <property name="commodityType">
                 <meta attribute="property-type">ch.algotrader.enumeration.CommodityType</meta>
-                <column name="TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
+                <column name="COMMODITY_TYPE" not-null="true" unique="false" sql-type="VARCHAR(255)"/>
 
                 <type name="ch.algotrader.hibernate.HibernateEnumType">
                  <param name="enumClassName">ch.algotrader.enumeration.CommodityType</param>
                 </type>
             </property>
-        </joined-subclass>
+        </subclass>
     </class>
 </hibernate-mapping>

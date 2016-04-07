@@ -71,6 +71,7 @@ public class TestTTSymbologyResolver {
         this.clNov2015.setTtid("00A0KP00CLZ");
         this.clNov2015.setSecurityFamily(futureFamily);
         this.clNov2015.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-11-01")));
+        this.clNov2015.setMonthYear("201511");
 
         Exchange iceipe = Exchange.Factory.newInstance();
         iceipe.setName("ICE_IPE");
@@ -88,7 +89,7 @@ public class TestTTSymbologyResolver {
         this.coffee.setTtid("92900317");
         this.coffee.setSecurityFamily(optionFamily);
         this.coffee.setExpiration(DateTimeLegacy.toLocalDate(DateTimeUtil.parseLocalDate("2015-10-09")));
-        this.coffee.setType(OptionType.CALL);
+        this.coffee.setOptionType(OptionType.CALL);
         this.coffee.setStrike(new BigDecimal("50.0"));
 
         this.symbologyResolver = new TTSymbologyResolver();
@@ -153,6 +154,21 @@ public class TestTTSymbologyResolver {
         Assert.assertEquals(new PutOrCall(PutOrCall.CALL), message.getPutOrCall());
         Assert.assertEquals(new StrikePrice(50.0d), message.getStrikePrice());
         Assert.assertEquals(new SecurityID("92900317"), message.getSecurityID());
+    }
+
+    @Test
+    public void testResolveTTExchangeCode() throws Exception {
+
+        this.clNov2015.getSecurityFamily().getExchange().setTtCode("CME_TT");
+
+        NewOrderSingle message = new NewOrderSingle();
+
+        this.symbologyResolver.resolve(message, this.clNov2015, Broker.TT.name());
+
+        Assert.assertNotNull(message);
+        Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
+        Assert.assertEquals(new Symbol("CL"), message.getSymbol());
+        Assert.assertEquals(new SecurityExchange("CME_TT"), message.getSecurityExchange());
     }
 
 }

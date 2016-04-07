@@ -17,17 +17,26 @@
  ***********************************************************************************/
 package ch.algotrader.simulation;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.math.FunctionEvaluationException;
@@ -54,12 +63,14 @@ import com.espertech.esperio.csv.CSVInputAdapter;
 import ch.algotrader.cache.CacheManager;
 import ch.algotrader.config.CommonConfig;
 import ch.algotrader.entity.Position;
+import ch.algotrader.entity.Transaction;
 import ch.algotrader.entity.security.Security;
 import ch.algotrader.entity.security.SecurityImpl;
 import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.enumeration.LifecyclePhase;
 import ch.algotrader.enumeration.MarketDataType;
 import ch.algotrader.enumeration.OperationMode;
+import ch.algotrader.enumeration.TransactionType;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineManager;
 import ch.algotrader.esper.io.CsvBarInputAdapter;
@@ -72,8 +83,11 @@ import ch.algotrader.esper.io.DBTickInputAdapter;
 import ch.algotrader.esper.io.GenericEventInputAdapterSpec;
 import ch.algotrader.event.EventListenerRegistry;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
+import ch.algotrader.report.BackTestReport;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
 import ch.algotrader.service.ResetService;
@@ -81,6 +95,8 @@ import ch.algotrader.service.ServerLookupService;
 import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
 import ch.algotrader.vo.LifecycleEventVO;
@@ -98,7 +114,9 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
     private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
-
+    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT);
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss", Locale.ROOT);
+    private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static final NumberFormat format = NumberFormat.getInstance();
 
     private final CommonConfig commonConfig;
@@ -114,6 +132,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private final PortfolioService portfolioService;
 
     private final LookupService lookupService;
+
+    private final MarketDataService marketDataService;
 
     private final ServerLookupService serverLookupService;
 
@@ -138,6 +158,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final PortfolioService portfolioService,
                                   final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
+                                  final MarketDataService marketDataService,
                                   final ServerLookupService serverLookupService,
                                   final EventListenerRegistry eventListenerRegistry,
                                   final EventDispatcher eventDispatcher,
@@ -152,6 +173,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(portfolioService, "PortfolioService is null");
         Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
+        Validate.notNull(marketDataService, "MarketDataService is null");
         Validate.notNull(serverLookupService, "ServerLookupService is null");
         Validate.notNull(eventListenerRegistry, "EventListenerRegistry is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
@@ -166,6 +188,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.portfolioService = portfolioService;
         this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
+        this.marketDataService = marketDataService;
         this.serverLookupService = serverLookupService;
         this.eventListenerRegistry = eventListenerRegistry;
         this.eventDispatcher = eventDispatcher;
@@ -208,8 +231,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         // reset the db
         this.resetService.resetSimulation();
 
-        // rebalance portfolio (to distribute initial CREDIT to strategies)
-        this.transactionService.rebalancePortfolio();
+        rebalancePortfolio(strategyGroup);
 
         // init coordination
         this.serverEngine.initCoordination();
@@ -233,6 +255,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         for (final Engine engine: strategyEngines) {
             engine.deployRunModules();
         }
+
+        this.marketDataService.initSubscriptions();
 
         // LifecycleEvent: START
         broadcastLocal(LifecyclePhase.START);
@@ -277,16 +301,15 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     private void initStrategies(final StrategyGroup strategyGroup) {
         //add or update strategy for each group item
         for (final String strategyName : strategyGroup.getStrategyNames()) {
-            final double weight = strategyGroup.getWeight(strategyName);
-            final Strategy strategy = this.strategyPersistenceService.getOrCreateStrategy(strategyName, weight);
+            final Strategy strategy = this.strategyPersistenceService.getOrCreateStrategy(strategyName);
             if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Update strategy '{}' with allocation {}", strategy.getName(), strategy.getAllocation());
+                LOGGER.info("Update strategy '{}'", strategy.getName());
             }
         }
     }
 
     private void broadcastLocal(LifecyclePhase phase) {
-        this.eventDispatcher.broadcastLocal(new LifecycleEventVO(OperationMode.SIMULATION, phase, new Date()));
+        this.eventDispatcher.broadcast(new LifecycleEventVO(OperationMode.SIMULATION, phase, new Date()), EventRecipient.ALL_LOCAL);
     }
 
     /**
@@ -472,6 +495,39 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         }
     }
 
+    private void rebalancePortfolio(final StrategyGroup strategyGroup) {
+
+        double portfolioNetLiqValue = this.portfolioService.getNetLiqValueDouble();
+        double totalAllocation = 0.0;
+        Set<String> strategyNames = strategyGroup.getStrategyNames();
+        for (String strategyName: strategyNames) {
+
+            Strategy strategy = this.lookupService.getStrategyByName(strategyName);
+            double weight = strategyGroup.getWeight(strategyName);
+            totalAllocation += weight;
+
+            double actualNetLiqValue = MathUtils.round(this.portfolioService.getNetLiqValueDouble(strategyName), 2);
+            double targetNetLiqValue = MathUtils.round(portfolioNetLiqValue * weight, 2);
+            double rebalanceAmount = targetNetLiqValue - actualNetLiqValue;
+
+            Transaction transaction = Transaction.Factory.newInstance();
+            transaction.setUuid(UUID.randomUUID().toString());
+            transaction.setDateTime(this.engineManager.getCurrentEPTime());
+            transaction.setQuantity(targetNetLiqValue > actualNetLiqValue ? +1 : -1);
+            transaction.setPrice(RoundUtil.getBigDecimal(Math.abs(rebalanceAmount)));
+            transaction.setCurrency(this.commonConfig.getPortfolioBaseCurrency());
+            transaction.setType(TransactionType.REBALANCE);
+            transaction.setStrategy(strategy);
+
+            this.transactionService.recordTransaction(transaction);
+        }
+
+        // check allocations add up to 1.0
+        if (MathUtils.round(totalAllocation, 2) != 1.0) {
+            throw new IllegalStateException("the total of all allocations is: " + totalAllocation + " where it should be 1.0");
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -479,6 +535,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
     public SimulationResultVO simulateWithCurrentParams(final StrategyGroup strategyGroup) {
 
         SimulationResultVO resultVO = runSimulation(strategyGroup);
+        reportStatisticsToFile(resultVO);
         logMultiLineString(convertStatisticsToLongString(resultVO));
         return resultVO;
     }
@@ -677,13 +734,23 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
             return resultVO;
         }
 
-        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
         @SuppressWarnings("unchecked")
         List<PeriodPerformanceVO> monthlyPerformances = engine.getAllEvents("KEEP_MONTHLY_PERFORMANCE");
+        if (monthlyPerformances.size() == 0) {
+            resultVO.setAllTrades(new TradesVO(0, 0, 0, 0));
+            return resultVO;
+        }
+
+        PerformanceKeysVO performanceKeys = (PerformanceKeysVO) engine.getLastEvent("INSERT_INTO_PERFORMANCE_KEYS");
         MaxDrawDownVO maxDrawDown = (MaxDrawDownVO) engine.getLastEvent("INSERT_INTO_MAX_DRAW_DOWN");
         TradesVO allTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_ALL_TRADES");
         TradesVO winningTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_WINNING_TRADES");
-        TradesVO loosingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
+        TradesVO losingTrades = (TradesVO) engine.getLastEvent("INSERT_INTO_LOOSING_TRADES");
+
+        // increase last monthlyPerformance date by one month
+        PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
+        Date lastMonthlyPerformanceDate = DateUtils.addMonths(lastMonthlyPerformance.getDate(), 1);
+        lastMonthlyPerformance.setDate(lastMonthlyPerformanceDate);
 
         // compile yearly performance
         List<PeriodPerformanceVO> yearlyPerformances = null;
@@ -703,7 +770,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 lastDate = monthlyPerformance.getDate();
             }
 
-            PeriodPerformanceVO lastMonthlyPerformance = monthlyPerformances.get(monthlyPerformances.size() - 1);
             if (DateUtils.toCalendar(lastMonthlyPerformance.getDate()).get(Calendar.MONTH) != 11) {
                 PeriodPerformanceVO yearlyPerformance = new PeriodPerformanceVO();
                 yearlyPerformance.setDate(lastMonthlyPerformance.getDate());
@@ -721,7 +787,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         resultVO.setMaxDrawDown(maxDrawDown);
         resultVO.setAllTrades(allTrades);
         resultVO.setWinningTrades(winningTrades);
-        resultVO.setLoosingTrades(loosingTrades);
+        resultVO.setLoosingTrades(losingTrades);
 
         // get potential strategy specific results
         Map<String, Object> strategyResults = new HashMap<>();
@@ -731,6 +797,136 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         resultVO.setStrategyResults(strategyResults);
 
         return resultVO;
+    }
+
+    private void reportStatisticsToFile(SimulationResultVO resultVO) {
+
+        if (!this.commonConfig.isDisableReports()) {
+
+            try {
+
+                File reportLocation = this.commonConfig.getReportLocation();
+                File reportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.csv");
+                BackTestReport backTestReport = new BackTestReport(reportFile);
+
+                backTestReport.write("dateTime", dateTimeFormat.format(LocalDateTime.now()));
+                backTestReport.write("executionTime", resultVO.getMins());
+                backTestReport.write("dataSet", this.commonConfig.getDataSet());
+
+                if (resultVO.getAllTrades().getCount() == 0) {
+                    backTestReport.write("allTradesCount", 0);
+                    backTestReport.close();
+                    return;
+                }
+
+                double netLiqValue = resultVO.getNetLiqValue();
+                backTestReport.write("netLiqValue", twoDigitFormat.format(netLiqValue));
+
+                // monthlyPerformances
+                Collection<PeriodPerformanceVO> monthlyPerformances = resultVO.getMonthlyPerformances();
+                double maxDrawDownM = 0d;
+                double bestMonthlyPerformance = Double.NEGATIVE_INFINITY;
+                int positiveMonths = 0;
+                int negativeMonths = 0;
+                if ((monthlyPerformances != null)) {
+                    for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                        maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
+                        bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
+                        if (monthlyPerformance.getValue() > 0) {
+                            positiveMonths++;
+                        } else {
+                            negativeMonths++;
+                        }
+                    }
+                }
+
+                // yearlyPerformances
+                int positiveYears = 0;
+                int negativeYears = 0;
+                Collection<PeriodPerformanceVO> yearlyPerformances = resultVO.getYearlyPerformances();
+                if ((yearlyPerformances != null)) {
+                    for (PeriodPerformanceVO yearlyPerformance : yearlyPerformances) {
+                        if (yearlyPerformance.getValue() > 0) {
+                            positiveYears++;
+                        } else {
+                            negativeYears++;
+                        }
+                    }
+                }
+
+                if ((monthlyPerformances != null)) {
+                    backTestReport.write("posMonths", positiveMonths);
+                    backTestReport.write("negMonths", negativeMonths);
+                    if ((yearlyPerformances != null)) {
+                        backTestReport.write("posYears", positiveYears);
+                        backTestReport.write("negYears", negativeYears);
+                    }
+                }
+
+                PerformanceKeysVO performanceKeys = resultVO.getPerformanceKeys();
+                MaxDrawDownVO maxDrawDownVO = resultVO.getMaxDrawDown();
+                if (performanceKeys != null && maxDrawDownVO != null) {
+                    backTestReport.write("avgM", performanceKeys.getAvgM());
+                    backTestReport.write("stdM", performanceKeys.getStdM());
+                    backTestReport.write("avgY", performanceKeys.getAvgY());
+                    backTestReport.write("stdY", performanceKeys.getStdY());
+                    backTestReport.write("sharpeRatio", performanceKeys.getSharpeRatio());
+
+                    backTestReport.write("maxMonthlyDrawDown", -maxDrawDownM);
+                    backTestReport.write("bestMonthlyPerformance", bestMonthlyPerformance);
+                    backTestReport.write("maxDrawDown", maxDrawDownVO.getAmount());
+                    backTestReport.write("maxDrawDownPeriod", maxDrawDownVO.getPeriod() / 86400000);
+                    backTestReport.write("colmarRatio", performanceKeys.getAvgY() / maxDrawDownVO.getAmount());
+                }
+
+                reportTrades(backTestReport, "winningTrades", resultVO.getWinningTrades(), resultVO.getAllTrades().getCount());
+                reportTrades(backTestReport, "losingTrades", resultVO.getLoosingTrades(), resultVO.getAllTrades().getCount());
+                reportTrades(backTestReport, "allTrades", resultVO.getAllTrades(), resultVO.getAllTrades().getCount());
+
+                backTestReport.write("returns");
+                if ((monthlyPerformances != null)) {
+                    for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
+                        backTestReport.write(dateFormat.format(DateTimeLegacy.toLocalDate(monthlyPerformance.getDate())), monthlyPerformance.getValue());
+                    }
+                }
+
+                backTestReport.close();
+
+                // make sure BackTestReport.xlsx exists
+                File excelReportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.xlsm");
+                if (!excelReportFile.exists()) {
+                    InputStream is = getClass().getResourceAsStream("/BackTestReport.xlsm");
+                    FileUtils.copyInputStreamToFile(is, excelReportFile);
+                }
+
+                if (this.commonConfig.isOpenBackTestReport()) {
+                    if (Desktop.isDesktopSupported()) {
+                        try {
+                            Desktop.getDesktop().open(excelReportFile);
+                        } catch (IOException e) {
+                            // no application registered to .xlsm files
+                            RESULT_LOGGER.info("BackTestReport available at: " + excelReportFile);
+                        }
+                    } else {
+                        RESULT_LOGGER.info("BackTestReport available at: " + excelReportFile);
+                    }
+                }
+
+            } catch (IOException ex) {
+                LOGGER.error(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    private void reportTrades(BackTestReport backTestReport, String type, TradesVO tradesVO, long totalTrades) throws IOException {
+
+        backTestReport.write(type + "Count", tradesVO.getCount());
+        if (tradesVO.getCount() != totalTrades) {
+            backTestReport.write(type + "Pct", (double) tradesVO.getCount() / totalTrades);
+        }
+        backTestReport.write(type + "TotalProfit", tradesVO.getTotalProfit());
+        backTestReport.write(type + "AvgProfit", tradesVO.getAvgProfit());
+        backTestReport.write(type + "AvgProfitPct", tradesVO.getAvgProfitPct());
     }
 
     private String convertStatisticsToShortString(SimulationResultVO resultVO) {

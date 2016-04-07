@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 
 import ch.algotrader.enumeration.Direction;
 import ch.algotrader.util.collection.LongMap;
+import ch.algotrader.visitor.SecurityVisitor;
 
 /**
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
@@ -31,6 +32,12 @@ import ch.algotrader.util.collection.LongMap;
 public class CombinationImpl extends Combination {
 
     private static final long serialVersionUID = -3967940153149799380L;
+
+    @Override
+    public <R, P> R accept(SecurityVisitor<R, ? super P> visitor, P param) {
+
+        return visitor.visitCombination(this, param);
+    }
 
     @Override
     public LongMap<Security> getQuantityMap() {

@@ -35,15 +35,16 @@ public final class CommonConfigBuilder {
     private MarketDataType dataSetType;
     private File dataSetLocation;
     private Duration barSize;
-    private final boolean feedCSV;
-    private final boolean feedDB;
+    private boolean feedCSV;
+    private boolean feedDB;
     private boolean feedGenericEvents;
     private boolean feedAllMarketDataFiles;
-    private final int feedBatchSize;
+    private int feedBatchSize;
     private File reportLocation;
+    private boolean disableReports;
+    private boolean openBackTestReport;
     private boolean simulation;
     private BigDecimal simulationInitialBalance;
-    private boolean simulationLogTransactions;
     private boolean embedded;
     private Currency portfolioBaseCurrency;
     private int portfolioDigits;
@@ -54,18 +55,24 @@ public final class CommonConfigBuilder {
     CommonConfigBuilder() {
         this.dataSet = "current";
         this.dataSetType = MarketDataType.TICK;
+        this.dataSetLocation = new File("files");
         this.barSize = Duration.MIN_1;
         this.feedCSV = true;
         this.feedDB = false;
         this.feedGenericEvents = false;
         this.feedAllMarketDataFiles = false;
         this.feedBatchSize = 20;
+        this.reportLocation = new File("files/report");
+        this.disableReports = false;
+        this.openBackTestReport = true;
         this.simulation = false;
         this.simulationInitialBalance = new BigDecimal(1000000L);
         this.embedded = false;
         this.portfolioBaseCurrency = Currency.USD;
         this.portfolioDigits = 2;
         this.defaultAccountName = "IB_NATIVE_TEST";
+        this.validateCrossedSpread = false;
+        this.displayClosedPositions = false;
     }
 
     public static CommonConfigBuilder create() {
@@ -107,6 +114,16 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setDisableReports(boolean disableReports) {
+        this.disableReports = disableReports;
+        return this;
+    }
+
+    public CommonConfigBuilder setOpenBackTestReport(boolean openBackTestReport) {
+        this.openBackTestReport = openBackTestReport;
+        return this;
+    }
+
     public CommonConfigBuilder setSimulation(final boolean simulation) {
         this.simulation = simulation;
         return this;
@@ -114,11 +131,6 @@ public final class CommonConfigBuilder {
 
     public CommonConfigBuilder setSimulationInitialBalance(final BigDecimal simulationInitialBalance) {
         this.simulationInitialBalance = simulationInitialBalance;
-        return this;
-    }
-
-    public CommonConfigBuilder setSimulationLogTransactions(boolean simulationLogTransactions) {
-        this.simulationLogTransactions = simulationLogTransactions;
         return this;
     }
 
@@ -155,7 +167,7 @@ public final class CommonConfigBuilder {
     public CommonConfig build() {
         return new CommonConfig(
                 this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
-                this.feedBatchSize, this.reportLocation, this.simulation, this.simulationInitialBalance, this.simulationLogTransactions, this.embedded,
+                this.feedBatchSize, this.reportLocation, this.disableReports, this.openBackTestReport, this.simulation, this.simulationInitialBalance, this.embedded,
                 this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions);
     }
 

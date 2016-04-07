@@ -17,8 +17,10 @@
  ***********************************************************************************/
 package ch.algotrader.starter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import ch.algotrader.ServiceLocator;
 import ch.algotrader.enumeration.Duration;
@@ -42,6 +44,27 @@ public class HistoricalDataStarter {
 
     public static void main(String[] args) throws Exception {
 
+        if (args.length < 7) {
+            System.out.println("Usage: HistoricalDataStarter " +
+                    "<replaceBars> " +
+                    "<endDate> " +
+                    "<timePeriodLength> " +
+                    "<timePeriod> " +
+                    "<marketDataEventType> " +
+                    "<barSize> " +
+                    "<security ids>... \r\n"+
+                    "where\r\n" +
+                    " replaceBars = true | false \r\n" +
+                    " endDate: date in format YYYY-MM-DD \r\n" +
+                    " timePeriodLength: non-negative integer number \r\n" +
+                    " timePeriod: SEC | DAY | WEEK | MONTH | YEAR \r\n" +
+                    " marketDataEventType: TRADES | MIDPOINT | BID | ASK | BID_ASK | BEST_BID | BEST_ASK\r\n" +
+                    " barSize: SEC_1 | SEC_5 | MIN_1 | MIN_2 | MIN_3 | MIN_5 | MIN_10 | MIN_15 | MIN_30 | HOUR_1 | HOUR_2 | DAY_1 | DAY_2 \r\n" +
+                    " securityIds: list of security ids");
+            System.exit(1);
+            return;
+        }
+
         boolean replace = Boolean.parseBoolean(args[0]);
 
         Date endDate = DateTimeLegacy.parseAsLocalDate(args[1]);
@@ -52,10 +75,9 @@ public class HistoricalDataStarter {
         MarketDataEventType marketDataEventType = MarketDataEventType.valueOf(args[4]);
         Duration barSize = Duration.valueOf(args[5]);
 
-        String[] securityIdStrings = args[6].split(":");
-        long[] securityIds = new long[securityIdStrings.length];
-        for (int i = 0; i < securityIdStrings.length; i++) {
-            securityIds[i] = Long.parseLong(securityIdStrings[i]);
+        List<Long> securityIds = new ArrayList<>();
+        for (int i = 6; i < args.length; i++) {
+            securityIds.add(Long.parseLong(args[i]));
         }
 
         ServiceLocator serviceLocator = ServiceLocator.instance();

@@ -23,9 +23,10 @@
                                 <property name="seriesDefinitions">
                                     <set>
                                         <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="netLiqValue" p:label="NetLiqValue" p:color="RED" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="securitiesCurrentValue" p:label="SecuritiesCurrentValue" p:color="BLUE" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="GREEN" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="maintenanceMargin" p:label="MaintenanceMargin" p:color="YELLOW" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="marketValue" p:label="MarketValue" p:color="BLUE" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="realizedPL" p:label="RealizedPL" p:color="GREEN" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="unrealizedPL" p:label="UnrealizedPL" p:color="YELLOW" p:selected="false" />
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="cashBalance" p:label="CashBalance" p:color="MAGENTA" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>
@@ -37,10 +38,10 @@
                         <set>
                             <bean class="ch.algotrader.vo.client.DatasetDefinitionVO" p:type="TIME">
                                 <property name="seriesDefinitions">
-                                    <set>
+                                    <set>                                    
+                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="openPositions" p:label="OpenPositions" p:color="LIGHT_GRAY" p:selected="false" />
                                         <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="performance" p:label="Performance" p:color="BLACK" p:selected="true" />
                                         <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="leverage" p:label="Leverage" p:color="DARK_GRAY" p:selected="false" />
-                                        <bean class="ch.algotrader.vo.client.IndicatorDefinitionVO" p:name="allocation" p:label="Allocation" p:color="LIGHT_GRAY" p:selected="false" />
                                     </set>
                                 </property>
                             </bean>

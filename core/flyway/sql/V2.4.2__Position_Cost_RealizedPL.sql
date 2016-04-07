@@ -1,0 +1,2 @@
+ALTER TABLE `position` MODIFY `COST` decimal(15,2) NOT NULL;
+ALTER TABLE `position` MODIFY `REALIZED_P_L` decimal(15,2) NOT NULL

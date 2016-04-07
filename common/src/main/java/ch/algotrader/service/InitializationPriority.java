@@ -32,4 +32,6 @@ public @interface InitializationPriority {
 
     InitializingServiceType value();
 
+    int priority() default 0;
+
 }

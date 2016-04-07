@@ -38,10 +38,9 @@ public interface StrategyPersistenceService {
      * exists then it is returned after updating its allocation if necessary.
      *
      * @param name          the name of the strategy to return
-     * @param allocation    the allocation value for the strategy
      * @return the existing or newly created strategy entity
      */
-    Strategy getOrCreateStrategy(String name, double allocation);
+    Strategy getOrCreateStrategy(String name);
 
     /**
      * Deletes the strategy with the given ID.

@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import ch.algotrader.enumeration.ConnectionState;
 import ch.algotrader.event.dispatch.EventDispatcher;
+import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.vo.SessionEventVO;
 
 /**
@@ -69,7 +70,7 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         if (compareAndSet(ConnectionState.DISCONNECTED, ConnectionState.CONNECTED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
     }
 
@@ -85,7 +86,7 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
             }
 
             SessionEventVO event = new SessionEventVO(ConnectionState.DISCONNECTED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
 
     }
@@ -100,7 +101,7 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         if (onLogon0(maintained)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.LOGGED_ON, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
     }
 
@@ -129,7 +130,7 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         if (onLogoff0()) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.CONNECTED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
         }
     }
 
@@ -147,7 +148,7 @@ public class DefaultIBSessionStateHolder implements IBSessionStateHolder {
         if (compareAndSet(ConnectionState.LOGGED_ON, ConnectionState.SUBSCRIBED)) {
 
             SessionEventVO event = new SessionEventVO(ConnectionState.SUBSCRIBED, this.name);
-            this.eventDispatcher.broadcast(event);
+            this.eventDispatcher.broadcast(event, EventRecipient.ALL);
             return true;
         } else {
 

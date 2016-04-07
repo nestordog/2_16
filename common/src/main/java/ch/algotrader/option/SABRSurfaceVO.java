@@ -46,7 +46,6 @@ public class SABRSurfaceVO implements Serializable {
 
     /**
      * Constructor with all properties
-     * @param smilesIn Collection<SABRSmileVO>
      */
     public SABRSurfaceVO(final Collection<SABRSmileVO> smilesIn) {
 
@@ -71,7 +70,6 @@ public class SABRSurfaceVO implements Serializable {
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the object.
-     * @return this.smiles Collection<SABRSmileVO>
      */
     public Collection<SABRSmileVO> getSmiles() {
 
@@ -84,7 +82,6 @@ public class SABRSurfaceVO implements Serializable {
 
     /**
      * Sets the smiles
-     * @param value Collection<SABRSmileVO>
      */
     public void setSmiles(Collection<SABRSmileVO> value) {
 

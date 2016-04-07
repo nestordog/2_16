@@ -53,6 +53,8 @@ public class ConfigBeanFactoryTest {
         this.map.put("dataSource.feedAllMarketDataFiles", "true");
         this.map.put("dataSource.feedBatchSize", "20");
         this.map.put("report.reportLocation", "stuff/report-stuff");
+        this.map.put("report.disabled", "false");
+        this.map.put("report.openBackTestReport", "true");
         this.map.put("simulation", "true");
         this.map.put("simulation.initialBalance", "500.5");
         this.map.put("simulation.logTransactions", "true");
@@ -82,7 +84,6 @@ public class ConfigBeanFactoryTest {
         Assert.assertEquals(new File("stuff/report-stuff"), atConfig.getReportLocation());
         Assert.assertTrue(atConfig.isSimulation());
         Assert.assertEquals(new BigDecimal("500.5"), atConfig.getSimulationInitialBalance());
-        Assert.assertEquals(true, atConfig.isSimulationLogTransactions());
         Assert.assertTrue(atConfig.isEmbedded());
         Assert.assertEquals(5, atConfig.getPortfolioDigits());
         Assert.assertEquals(Currency.EUR, atConfig.getPortfolioBaseCurrency());

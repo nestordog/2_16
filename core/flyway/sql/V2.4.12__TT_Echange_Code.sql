@@ -1,0 +1,1 @@
+ALTER TABLE `exchange` ADD `TT_CODE` varchar(10) DEFAULT NULL AFTER `IB_CODE`;

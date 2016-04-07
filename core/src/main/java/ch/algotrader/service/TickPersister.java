@@ -37,15 +37,15 @@ public class TickPersister {
 
     private final Engine serverEngine;
     private final LookupService lookupService;
-    private final MarketDataService marketDataService;
+    private final MarketDataPersistenceService marketDataPersistenceService;
 
     public TickPersister(
             final Engine serverEngine,
             final LookupService lookupService,
-            final MarketDataService marketDataService) {
+            final MarketDataPersistenceService marketDataPersistenceService) {
         this.serverEngine = serverEngine;
         this.lookupService = lookupService;
-        this.marketDataService = marketDataService;
+        this.marketDataPersistenceService = marketDataPersistenceService;
     }
 
     public void persist(final TickVO event, final Map<?, ?> map) throws IOException {
@@ -66,7 +66,7 @@ public class TickPersister {
         Date date = DateUtils.round(serverEngine.getCurrentTime(), Calendar.MINUTE);
         tick.setDateTime(date);
 
-        this.marketDataService.persistTick(tick);
+        this.marketDataPersistenceService.persistTick(tick);
     }
 
 }
