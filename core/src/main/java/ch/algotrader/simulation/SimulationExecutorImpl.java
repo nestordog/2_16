@@ -24,14 +24,12 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -96,6 +94,7 @@ import ch.algotrader.service.StrategyPersistenceService;
 import ch.algotrader.service.TransactionService;
 import ch.algotrader.service.groups.StrategyGroup;
 import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
 import ch.algotrader.util.RoundUtil;
 import ch.algotrader.util.metric.MetricsUtil;
 import ch.algotrader.vo.EndOfSimulationVO;
@@ -114,8 +113,6 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private static final Logger LOGGER = LogManager.getLogger(SimulationExecutorImpl.class);
     private static final Logger RESULT_LOGGER = LogManager.getLogger("ch.algotrader.simulation.SimulationExecutor.RESULT");
-    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.ROOT);
-    private static final DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss", Locale.ROOT);
     private static final DecimalFormat twoDigitFormat = new DecimalFormat("#,##0.00");
     private static final NumberFormat format = NumberFormat.getInstance();
 
@@ -809,7 +806,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 File reportFile = new File(reportLocation != null ? reportLocation : new File("."), "BackTestReport.csv");
                 BackTestReport backTestReport = new BackTestReport(reportFile);
 
-                backTestReport.write("dateTime", dateTimeFormat.format(LocalDateTime.now()));
+                backTestReport.write("dateTime", DateTimePatterns.LOCAL_DATE_TIME.format(LocalDateTime.now()));
                 backTestReport.write("executionTime", resultVO.getMins());
                 backTestReport.write("dataSet", this.commonConfig.getDataSet());
 
@@ -886,7 +883,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                 backTestReport.write("returns");
                 if ((monthlyPerformances != null)) {
                     for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
-                        backTestReport.write(dateFormat.format(DateTimeLegacy.toLocalDate(monthlyPerformance.getDate())), monthlyPerformance.getValue());
+                        backTestReport.write(DateTimePatterns.LOCAL_DATE.format(DateTimeLegacy.toLocalDate(monthlyPerformance.getDate())), monthlyPerformance.getValue());
                     }
                 }
 
