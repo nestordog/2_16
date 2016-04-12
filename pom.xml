@@ -697,7 +697,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <html.content.version>3.0.0</html.content.version>
+        <html.content.version>3.0.1-SNAPSHOT</html.content.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
         <jboss-logging.version>3.2.1.Final</jboss-logging.version>
         <spring.version>4.2.1.RELEASE</spring.version>
