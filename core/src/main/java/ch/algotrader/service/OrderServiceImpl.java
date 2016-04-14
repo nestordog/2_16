@@ -481,7 +481,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public String modifyOrder(OrderVO order) {
 
-        return this.simpleOrderService.sendOrder(convert(order));
+        return this.simpleOrderService.modifyOrder(convert(order));
     }
 
     /**
