@@ -17,6 +17,7 @@
  ***********************************************************************************/
 package ch.algotrader.esper;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -97,6 +98,16 @@ public class EngineManagerImpl implements EngineManager {
     }
 
     @Override
+    public Collection<Engine> getEngines() {
+        List<Engine> engines = new ArrayList<>();
+        if (hasEngine(SERVER_ENGINE)) {
+            engines.add(getServerEngine());
+        }
+        engines.addAll(getStrategyEngines());
+        return engines;
+    }
+
+    @Override
     public Collection<Engine> getStrategyEngines() {
         return this.engineMap.entrySet().stream()
                 .filter(entry -> !entry.getKey().equals(SERVER_ENGINE))
@@ -111,11 +122,6 @@ public class EngineManagerImpl implements EngineManager {
         if (engine != null) {
             engine.destroy();
         }
-    }
-
-    @Override
-    public Collection<Engine> getEngines() {
-        return this.engineMap.values();
     }
 
     @Override
