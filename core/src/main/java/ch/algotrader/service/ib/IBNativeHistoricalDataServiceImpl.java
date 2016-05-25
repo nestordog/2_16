@@ -209,8 +209,8 @@ public class IBNativeHistoricalDataServiceImpl extends HistoricalDataServiceImpl
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Request historic data; request id = {}; conId = {}; date = {}; duration = {}; bar size = {}",
-                    requestId, contract.m_conId, dateString, durationString, barSizeString);
+            LOGGER.debug("Request historic data; request id = {}; security id = {}; conId = {}; date = {}; duration = {}; bar size = {}", requestId, securityId, contract.m_conId, dateString,
+                    durationString, barSizeString);
         }
 
         PromiseImpl<List<Bar>> promise = new PromiseImpl<>(null);
