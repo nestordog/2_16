@@ -9,8 +9,7 @@ select
 from
     pattern[(every timer:at (0, 0, 1, *, *) or EndOfSimulation) -> portfolioValue=PortfolioValue]
 having
-    prior(1, portfolioValue.netLiqValue) is not null and
-    portfolioValue.netLiqValue != prior(1, portfolioValue.netLiqValue);
+    prior(1, portfolioValue.netLiqValue) is not null;
 
 @Name('INSERT_INTO_PERFORMANCE_KEYS')
 @SimulationOnly
