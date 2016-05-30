@@ -635,17 +635,3 @@ CREATE TABLE `transaction` (
 --
 
 INSERT INTO `strategy` (`ID`, `NAME`, `AUTO_ACTIVATE`, `ALLOCATION`, `INIT_MODULES`, `RUN_MODULES`, `VERSION`) VALUES (1,'BASE','',0,'market-data,combination,current-values,market-data-simulation,trades,portfolio,performance,algo-slicing,market-data-ib,market-data-dc',NULL,0);
-
---
--- table data for table `cash_balance`
---
-
-INSERT INTO `cash_balance` (`ID`, `CURRENCY`, `AMOUNT`, `STRATEGY_FK`, `VERSION`) VALUES (1,'USD',1000000.00,1,1);
-
---
--- table data for table `transaction`
---
-
-INSERT INTO `transaction` (`ID`, `EXT_ID`, `DATE_TIME`, `SETTLEMENT_DATE`, `QUANTITY`, `PRICE`, `EXECUTION_COMMISSION`, `CLEARING_COMMISSION`, `CURRENCY`, `TYPE`, `DESCRIPTION`, `SECURITY_FK`, `STRATEGY_FK`, `POSITION_FK`, `ACCOUNT_FK`) VALUES (1,NULL,'2012-08-16 00:00:00',NULL,1,1000000.000000,NULL,NULL,'USD','CREDIT',NULL,NULL,1,NULL,NULL);
-
--- Dump completed on 2014-02-06 15:38:49
