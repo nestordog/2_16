@@ -461,23 +461,8 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
     }
 
     @Override
-    public void error(int id, int errorCode, String errorMsg) {
-        try {
-            handleError(id, errorCode, errorMsg);
-        } finally {
-            // If it is a general session error, fail all pending requests
-            if (errorCode >= 500 && id < 1) {
-                this.pendingRequests.failAll(new IBSessionException(errorCode, errorMsg));
-            } else {
-                IBPendingRequest<?> pendingRequest = this.pendingRequests.removeRequest(id);
-                if (pendingRequest != null) {
-                    pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
-                }
-            }
-        }
-    }
+    public void error(int id, int code, String errorMsg) {
 
-    private void handleError(int id, int code, String errorMsg) {
         String message = "client: " + this.clientId + "; request id: " + id + "; error code: " + code +
                 "; error message: " + errorMsg.replaceAll("\n", " ");
 
@@ -503,7 +488,9 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             case 162:
 
-                LOGGER.warn(message);
+                // Historical market data Service error message.
+                this.pendingRequests.fail(id, code, errorMsg);
+                LOGGER.error(message);
                 break;
 
             case 165:
@@ -516,6 +503,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
                 // No security definition has been found for the request
                 orderRejected(id, errorMsg);
+                this.pendingRequests.fail(id, code, errorMsg);
                 LOGGER.error(message);
                 break;
 
@@ -540,7 +528,6 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                     LOGGER.error(message);
                 }
                 break;
-
 
             case 202:
 
@@ -579,7 +566,7 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
 
             case 502:
 
-                // Couldn't onConnect to TWS
+                // Couldn't connect to TWS
                 this.sessionStateHolder.onDisconnect();
                 LOGGER.debug(message);
                 break;
@@ -640,8 +627,11 @@ public final class DefaultIBMessageHandler extends AbstractIBMessageHandler {
                 break;
 
             default:
+
+                // codes below 1000 are errors, codes above 1000 are warnings
                 if (code < 1000) {
                     orderRejected(id, errorMsg);
+                    this.pendingRequests.fail(id, code, errorMsg);
                     LOGGER.error(message);
                 } else {
                     LOGGER.debug(message);
