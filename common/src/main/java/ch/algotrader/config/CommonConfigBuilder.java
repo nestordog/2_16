@@ -51,6 +51,8 @@ public final class CommonConfigBuilder {
     private String defaultAccountName;
     private boolean validateCrossedSpread;
     private boolean displayClosedPositions;
+    private String futureSymbolPattern;
+    private String optionSymbolPattern;
 
     CommonConfigBuilder() {
         this.dataSet = "current";
@@ -164,11 +166,21 @@ public final class CommonConfigBuilder {
         return this;
     }
 
+    public CommonConfigBuilder setFutureSymbolPattern(String futureSymbolPattern) {
+        this.futureSymbolPattern = futureSymbolPattern;
+        return this;
+    }
+
+    public CommonConfigBuilder setOptionSymbolPattern(String optionSymbolPattern) {
+        this.optionSymbolPattern = optionSymbolPattern;
+        return this;
+    }
+
     public CommonConfig build() {
         return new CommonConfig(
                 this.dataSet, this.dataSetType, this.dataSetLocation, this.barSize, this.feedCSV, this.feedDB, this.feedGenericEvents, this.feedAllMarketDataFiles,
                 this.feedBatchSize, this.reportLocation, this.disableReports, this.openBackTestReport, this.simulation, this.simulationInitialBalance, this.embedded,
-                this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions);
+                this.portfolioBaseCurrency, this.portfolioDigits, this.defaultAccountName, this.validateCrossedSpread, this.displayClosedPositions, this.futureSymbolPattern, this.optionSymbolPattern);
     }
 
 }

@@ -102,7 +102,7 @@ public class FutureServiceImpl implements FutureService {
             LocalDate expirationDate = DateTimeLegacy.toLocalDate(expiration);
             String monthYear = DateTimePatterns.MONTH_YEAR.format(expirationDate);
 
-            String symbol = FutureSymbol.getSymbol(family, expirationDate);
+            String symbol = FutureSymbol.getSymbol(family, expirationDate, this.commonConfig.getFutureSymbolPattern());
             String isin = FutureSymbol.getIsin(family, expirationDate);
             String ric = FutureSymbol.getRic(family, expirationDate);
 

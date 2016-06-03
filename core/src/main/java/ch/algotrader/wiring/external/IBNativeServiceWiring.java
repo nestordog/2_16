@@ -117,6 +117,7 @@ public class IBNativeServiceWiring {
     @Profile("iBReferenceData")
     @Bean(name = { "iBNativeReferenceDataService", "referenceDataService" })
     public ReferenceDataService createIBNativeReferenceDataService(
+            final CommonConfig commonConfig,
             final IBSession iBSession,
             final IBConfig iBConfig,
             final IBPendingRequests iBPendingRequests,
@@ -126,7 +127,7 @@ public class IBNativeServiceWiring {
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
-        return new IBNativeReferenceDataServiceImpl(iBSession, iBConfig, iBPendingRequests, iBRequestIdGenerator,
+        return new IBNativeReferenceDataServiceImpl(commonConfig, iBSession, iBConfig, iBPendingRequests, iBRequestIdGenerator,
                 optionDao, futureDao, securityFamilyDao, stockDao);
     }
 

@@ -19,7 +19,6 @@ package ch.algotrader.service.ib;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -49,6 +48,7 @@ import ch.algotrader.adapter.ib.IBPendingRequests;
 import ch.algotrader.adapter.ib.IBSession;
 import ch.algotrader.concurrent.Promise;
 import ch.algotrader.concurrent.PromiseImpl;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.config.IBConfig;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
@@ -81,6 +81,8 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     private static final DateTimeFormatter YEAR_MONTH_FORMAT = DateTimeFormatter.ofPattern("yyyyMM");
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.#######");
 
+    private final CommonConfig commonConfig;
+
     private final IBSession iBSession;
 
     private final IBConfig ibConfig;
@@ -98,6 +100,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
     private final StockDao stockDao;
 
     public IBNativeReferenceDataServiceImpl(
+            final CommonConfig commonConfig,
             final IBSession iBSession,
             final IBConfig ibConfig,
             final IBPendingRequests pendingRequests,
@@ -107,6 +110,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
             final SecurityFamilyDao securityFamilyDao,
             final StockDao stockDao) {
 
+        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(iBSession, "IBSession is null");
         Validate.notNull(ibConfig, "IBConfig is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
@@ -116,6 +120,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
         Validate.notNull(stockDao, "StockDao is null");
 
+        this.commonConfig = commonConfig;
         this.iBSession = iBSession;
         this.ibConfig = ibConfig;
         this.pendingRequests = pendingRequests;
@@ -160,16 +165,12 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         this.iBSession.reqContractDetails(requestId, contract);
 
         Set<ContractDetails> contractDetailsSet = getContractDetailsBlocking(promise);
-        try {
-            if (securityFamily instanceof OptionFamily) {
-                retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
-            } else if (securityFamily instanceof FutureFamily) {
-                retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
-            } else {
-                throw new ServiceException("illegal securityFamily type");
-            }
-        } catch (ParseException ex) {
-            throw new ExternalServiceException(ex);
+        if (securityFamily instanceof OptionFamily) {
+            retrieveOptions((OptionFamily) securityFamily, contractDetailsSet);
+        } else if (securityFamily instanceof FutureFamily) {
+            retrieveFutures((FutureFamily) securityFamily, contractDetailsSet);
+        } else {
+            throw new ServiceException("illegal securityFamily type");
         }
     }
 
@@ -219,7 +220,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         }
     }
 
-    private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
+    private void retrieveOptions(OptionFamily securityFamily, Set<ContractDetails> contractDetailsSet) {
 
         // get all current options
         List<Option> allOptions = this.optionDao.findBySecurityFamily(securityFamily.getId());
@@ -238,7 +239,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
                 OptionType type = "C".equals(contract.m_right) ? OptionType.CALL : OptionType.PUT;
                 BigDecimal strike = RoundUtil.getBigDecimal(contract.m_strike, securityFamily.getScale(Broker.IB.name()));
                 LocalDate expirationDate = DATE_FORMAT.parse(contract.m_expiry, LocalDate::from);
-                String symbol = OptionSymbol.getSymbol(securityFamily, expirationDate, type, strike, false);
+                String symbol = OptionSymbol.getSymbol(securityFamily, expirationDate, type, strike, this.commonConfig.getOptionSymbolPattern());
                 if (!mapBySymbol.containsKey(symbol)) {
                     Option option = Option.Factory.newInstance();
 
@@ -268,7 +269,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
         }
     }
 
-    private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) throws ParseException {
+    private void retrieveFutures(FutureFamily securityFamily, Set<ContractDetails> contractDetailsSet) {
 
         // get all current futures
         List<Future> allFutures = this.futureDao.findBySecurityFamily(securityFamily.getId());
@@ -288,7 +289,7 @@ public class IBNativeReferenceDataServiceImpl implements ReferenceDataService {
                 String contractMonthString = contractDetails.m_contractMonth;
                 LocalDate contractMonth = parseYearMonth(contractMonthString);
 
-                String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth);
+                String symbol = FutureSymbol.getSymbol(securityFamily, contractMonth, this.commonConfig.getFutureSymbolPattern());
                 if (!mapBySymbol.containsKey(symbol)) {
                     Future future = Future.Factory.newInstance();
 

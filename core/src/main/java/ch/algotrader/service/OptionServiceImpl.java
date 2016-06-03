@@ -222,7 +222,7 @@ public class OptionServiceImpl implements OptionService {
         Security underlying = family.getUnderlying();
 
         // symbol / isin
-        String symbol = OptionSymbol.getSymbol(family, DateTimeLegacy.toLocalDate(expirationDate), type, strike, true);
+        String symbol = OptionSymbol.getSymbol(family, DateTimeLegacy.toLocalDate(expirationDate), type, strike, this.commonConfig.getOptionSymbolPattern());
 
         Option option = Option.Factory.newInstance();
         option.setSymbol(symbol);
@@ -264,7 +264,7 @@ public class OptionServiceImpl implements OptionService {
         BigDecimal strike = roundOptionStrikeToNextN(targetStrike, new BigDecimal(family.getStrikeDistance()), type);
 
         // symbol / isin
-        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, false);
+        String symbol = OptionSymbol.getSymbol(family, expirationDate, type, strike, this.commonConfig.getOptionSymbolPattern());
         String isin = OptionSymbol.getIsin(family, expirationDate, type, strike);
         String ric = OptionSymbol.getRic(family, expirationDate, type, strike);
 

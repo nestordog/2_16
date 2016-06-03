@@ -88,6 +88,7 @@ public class TTFixServiceWiring {
     @Profile("tTMarketData")
     @Bean(name = { "tTReferenceDataService", "referenceDataService" })
     public ReferenceDataService createTTReferenceDataService(
+            final CommonConfig commonConfig,
             final ManagedFixAdapter fixAdapter,
             final ExternalSessionStateHolder tTMarketDataSessionStateHolder,
             final TTPendingRequests tTPendingRequests,
@@ -95,7 +96,7 @@ public class TTFixServiceWiring {
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao) {
 
-        return new TTFixReferenceDataServiceImpl(fixAdapter, tTMarketDataSessionStateHolder, tTPendingRequests, optionDao, futureDao, securityFamilyDao);
+        return new TTFixReferenceDataServiceImpl(commonConfig, fixAdapter, tTMarketDataSessionStateHolder, tTPendingRequests, optionDao, futureDao, securityFamilyDao);
     }
 
     @Profile("tTMarketData")

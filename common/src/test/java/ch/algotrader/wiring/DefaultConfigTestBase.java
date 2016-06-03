@@ -55,6 +55,8 @@ public class DefaultConfigTestBase {
         CONFIG_MAP.put("misc.defaultAccountName", "IB_NATIVE_TEST");
         CONFIG_MAP.put("misc.validateCrossedSpread", "true");
         CONFIG_MAP.put("misc.displayClosedPositions", "true");
+        CONFIG_MAP.put("misc.futureSymbolPattern", "SRMRYYYY");
+        CONFIG_MAP.put("misc.optionSymbolPattern", "SRMRYYYY TS");
 
         ConfigLocator.initialize(CONFIG_MAP);
     }

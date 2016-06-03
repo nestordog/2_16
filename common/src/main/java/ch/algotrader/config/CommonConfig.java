@@ -51,6 +51,8 @@ public final class CommonConfig {
     private final String defaultAccountName;
     private final boolean validateCrossedSpread;
     private final boolean displayClosedPositions;
+    private final String futureSymbolPattern;
+    private final String optionSymbolPattern;
 
     public CommonConfig(
             @ConfigName("dataSource.dataSet") final String dataSet,
@@ -72,7 +74,9 @@ public final class CommonConfig {
             @ConfigName("misc.portfolioDigits") final int portfolioDigits,
             @ConfigName("misc.defaultAccountName") final String defaultAccountName,
             @ConfigName("misc.validateCrossedSpread") final boolean validateCrossedSpread,
-            @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions) {
+            @ConfigName("misc.displayClosedPositions") final boolean displayClosedPositions,
+            @ConfigName("misc.futureSymbolPattern") final String futureSymbolPattern,
+            @ConfigName("misc.optionSymbolPattern") final String optionSymbolPattern) {
         this.dataSet = dataSet;
         this.dataSetType = dataSetType;
         this.dataSetLocation = dataSetLocation;
@@ -93,6 +97,8 @@ public final class CommonConfig {
         this.defaultAccountName = defaultAccountName;
         this.validateCrossedSpread = validateCrossedSpread;
         this.displayClosedPositions = displayClosedPositions;
+        this.futureSymbolPattern = futureSymbolPattern;
+        this.optionSymbolPattern = optionSymbolPattern;
     }
 
     public String getDataSet() {
@@ -175,6 +181,14 @@ public final class CommonConfig {
         return this.displayClosedPositions;
     }
 
+    public String getFutureSymbolPattern() {
+        return this.futureSymbolPattern;
+    }
+
+    public String getOptionSymbolPattern() {
+        return this.optionSymbolPattern;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("[");
@@ -197,6 +211,8 @@ public final class CommonConfig {
         sb.append(", defaultAccountName=").append(this.defaultAccountName);
         sb.append(", validateCrossedSpread=").append(this.validateCrossedSpread);
         sb.append(", displayClosedPositions=").append(this.displayClosedPositions);
+        sb.append(", futureSymbolPattern=").append(this.futureSymbolPattern);
+        sb.append(", optionSymbolPattern=").append(this.optionSymbolPattern);
         sb.append(']');
         return sb.toString();
     }

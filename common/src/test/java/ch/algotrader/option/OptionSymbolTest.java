@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.entity.security.OptionFamilyImpl;
+import ch.algotrader.enumeration.Currency;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.DateTimeUtil;
 
@@ -38,47 +39,52 @@ public class OptionSymbolTest {
     @Before
     public void setup() {
 
-        securityFamily = new OptionFamilyImpl();
-        securityFamily.setSymbolRoot("CL");
+        this.securityFamily = new OptionFamilyImpl();
+        this.securityFamily.setName("CrudeOil");
+        this.securityFamily.setSymbolRoot("CL");
+        this.securityFamily.setCurrency(Currency.USD);
+        this.securityFamily.setContractSize(1000);
     }
 
     @Test
     public void testGetSymbol() throws Exception {
 
-        Assert.assertEquals("CL JAN/15-C 10.0", OptionSymbol.getSymbol(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("10.0"), false));
-        Assert.assertEquals("CL 01/Jan/15-P 12.0", OptionSymbol.getSymbol(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("12.0"), true));
-        Assert.assertEquals("CL 01/Jan/15-C 12.0", OptionSymbol.getSymbol(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("12.0"), true));
-        Assert.assertEquals("CL JUN/15-C 10.0", OptionSymbol.getSymbol(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-06-01"), OptionType.CALL, new BigDecimal("10.0"), false));
+        String pattern1 = "N SR CS C MMMM MMM MM MR YYYY YY YR W T TT S";
+        Assert.assertEquals("CrudeOil CL 1000 USD JANUARY JAN 01 M 2015 15 F 1 P PUT 500",
+                OptionSymbol.getSymbol(this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("500"), pattern1));
+        Assert.assertEquals("CrudeOil CL 1000 USD JUNE JUN 06 F 2016 16 G 3 C CALL 500",
+                OptionSymbol.getSymbol(this.securityFamily, DateTimeUtil.parseLocalDate("2016-06-20"), OptionType.CALL, new BigDecimal("500"), pattern1));
+
+        String pattern2 = "SRMRYYYY TS";
+        Assert.assertEquals("CLM2015 P500", OptionSymbol.getSymbol(this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("500"), pattern2));
+        Assert.assertEquals("CLF2016 C500", OptionSymbol.getSymbol(this.securityFamily, DateTimeUtil.parseLocalDate("2016-06-20"), OptionType.CALL, new BigDecimal("500"), pattern2));
+
     }
 
     @Test
     public void testGetIsin() throws Exception {
 
         Assert.assertEquals("1OCLAF1002S", OptionSymbol.getIsin(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("10.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("10.0")));
         Assert.assertEquals("1OCLMF1003C", OptionSymbol.getIsin(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("12.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("12.0")));
         Assert.assertEquals("1OCLAF1003C", OptionSymbol.getIsin(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("12.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("12.0")));
         Assert.assertEquals("1OCLFF1002S", OptionSymbol.getIsin(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-06-01"), OptionType.CALL, new BigDecimal("10.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-06-01"), OptionType.CALL, new BigDecimal("10.0")));
     }
 
     @Test
     public void testGetRic() throws Exception {
 
         Assert.assertEquals("CLA011501000.U", OptionSymbol.getRic(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("10.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("10.0")));
         Assert.assertEquals("CLM011501200.U", OptionSymbol.getRic(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("12.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.PUT, new BigDecimal("12.0")));
         Assert.assertEquals("CLA011501200.U", OptionSymbol.getRic(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("12.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-01-01"), OptionType.CALL, new BigDecimal("12.0")));
         Assert.assertEquals("CLF011501000.U", OptionSymbol.getRic(
-                securityFamily, DateTimeUtil.parseLocalDate("2015-06-01"), OptionType.CALL, new BigDecimal("10.0")));
+                this.securityFamily, DateTimeUtil.parseLocalDate("2015-06-01"), OptionType.CALL, new BigDecimal("10.0")));
     }
 
 }

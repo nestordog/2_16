@@ -21,8 +21,11 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
+
 import ch.algotrader.entity.security.SecurityFamily;
 import ch.algotrader.util.DateTimePatterns;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Future Futures}.
@@ -36,17 +39,51 @@ public class FutureSymbol {
 
     /**
      * Generates the symbol for the specified {@link ch.algotrader.entity.security.FutureFamily}.
+     *
+     * Example
+     *     <table>
+     *     <tr><td><b>Pattern</b></td><td><b>Description</b></td><td><b>Example</b></td></tr>
+     *     <tr><td>N</td><td>Name</td><td>CrudeOil</td></tr>
+     *     <tr><td>CR</td><td>SymbolRoot</td><td>CL</td></tr>
+     *     <tr><td>C</td><td>Currency</td><td>USD</td></tr>
+     *     <tr><td>CS</td><td>ContractSize</td><td>1000</td></tr>
+     *     <tr><td>M</td><td>Month 1-digit</td><td>6</td></tr>
+     *     <tr><td>MM</td><td>Month 2-digit</td><td>06</td></tr>
+     *     <tr><td>MMM</td><td>Month Short</td><td>JUN</td></tr>
+     *     <tr><td>MMMM</td><td>Month Long</td><td>June</td></tr>
+     *     <tr><td>YY</td><td>Year 2-digit</td><td>16</td></tr>
+     *     <tr><td>YYYY</td><td>Year 4-digit</td><td>2016</td></tr>
+     *     </table>
      */
-    public static String getSymbol(SecurityFamily family, LocalDate expiration) {
+    public static String getSymbol(SecurityFamily family, LocalDate expiration, String pattern) {
 
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(family.getSymbolRoot());
-        buffer.append(" ");
-        buffer.append(DateTimePatterns.MONTH_LONG.format(expiration).toUpperCase());
-        buffer.append("/");
-        final String s = DateTimePatterns.YEAR_4_DIGIT.format(expiration);
-        buffer.append(s.substring(s.length() - 2, s.length()));
-        return buffer.toString();
+        String[] placeHolders = new String[] {
+                "N",
+                "SR",
+                "CS",
+                "C",
+                "MMMM",
+                "MMM",
+                "MM",
+                "MR",
+                "YYYY",
+                "YY",
+                "YR"};
+
+        String[] values = new String[] {
+                family.getName(),
+                family.getSymbolRoot(),
+                RoundUtil.getBigDecimal(family.getContractSize(), 0).toString(),
+                family.getCurrency().toString(),
+                DateTimePatterns.MONTH_LONG.format(expiration).toUpperCase(),
+                DateTimePatterns.MONTH_SHORT.format(expiration).toUpperCase(),
+                DateTimePatterns.MONTH_2_DIGIT.format(expiration).toUpperCase(),
+                monthEnc[expiration.getMonth().getValue() - 1],
+                DateTimePatterns.YEAR_4_DIGIT.format(expiration),
+                DateTimePatterns.YEAR_2_DIGIT.format(expiration),
+                yearEnc[expiration.getYear() % 10]};
+
+        return StringUtils.replaceEach(pattern, placeHolders, values);
     }
 
     /**
@@ -87,38 +124,6 @@ public class FutureSymbol {
     }
 
     /**
-     * Gets the week number based on the specified {@code symbol}
-     */
-    public static int getWeek(String symbol) {
-
-        return Integer.parseInt(symbol.substring(0, 1));
-    }
-
-    /**
-     * Gets the underlying symbole based on the specified {@code symbol}
-     */
-    public static String getUnderlying(String symbol) {
-
-        return symbol.substring(2, 5);
-    }
-
-    /**
-     * Gets the month number based on the specified {@code symbol}
-     */
-    public static int getMonth(String symbol) {
-
-        return convertMonth(symbol.substring(5, 6));
-    }
-
-    /**
-     * Gets the year number based on the specified {@code symbol}
-     */
-    public static int getYear(String symbol) {
-
-        return convertYear(symbol.substring(6, 7));
-    }
-
-    /**
      * Converts from future month symbol to month ordinal number from {@code 0} to {@code 11}.
      * @param month future month symbol
      * @return value from {@code 0} to {@code 11} in case of a successful symbol conversion,
@@ -137,15 +142,4 @@ public class FutureSymbol {
     public static int convertYear(final String year) {
         return Arrays.binarySearch(yearEnc, year);
     }
-
-
-    public static LocalDate getMaturityFromRic(final String ric) {
-
-        String code = ric.substring(ric.length() - 5, ric.length() - 3);
-        int month = Arrays.binarySearch(monthEnc, code.substring(0, 1));
-        int year = Integer.valueOf(code.substring(1));
-        year = year >= 5 ? year + 2010 : year + 2020;
-        return LocalDate.of(year, Month.of(month + 1), 1);
-    }
-
 }

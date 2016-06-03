@@ -19,7 +19,6 @@ package ch.algotrader.option;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -27,6 +26,7 @@ import ch.algotrader.entity.security.OptionFamily;
 import ch.algotrader.enumeration.OptionType;
 import ch.algotrader.util.BaseConverterUtil;
 import ch.algotrader.util.DateTimePatterns;
+import ch.algotrader.util.RoundUtil;
 
 /**
  * Utility class to generate symbol, isin and ric for {@link ch.algotrader.entity.security.Option Options}.
@@ -41,23 +41,63 @@ public class OptionSymbol {
 
     /**
      * Generates the symbole for the specified {@link ch.algotrader.entity.security.OptionFamily}.
+     *
+     * Example
+     *     <table>
+     *     <tr><td><b>Pattern</b></td><td><b>Description</b></td><td><b>Example</b></td></tr>
+     *     <tr><td>N</td><td>Name</td><td>CrudeOil</td></tr>
+     *     <tr><td>CR</td><td>SymbolRoot</td><td>CL</td></tr>
+     *     <tr><td>C</td><td>Currency</td><td>USD</td></tr>
+     *     <tr><td>CS</td><td>ContractSize</td><td>1000</td></tr>
+     *     <tr><td>M</td><td>Month 1-digit</td><td>6</td></tr>
+     *     <tr><td>MM</td><td>Month 2-digit</td><td>06</td></tr>
+     *     <tr><td>MMM</td><td>Month Short</td><td>JUN</td></tr>
+     *     <tr><td>MMMM</td><td>Month Long</td><td>June</td></tr>
+     *     <tr><td>YY</td><td>Year 2-digit</td><td>16</td></tr>
+     *     <tr><td>YYYY</td><td>Year 4-digit</td><td>2016</td></tr>
+     *     <tr><td>W</td><td>Week of Month</td><td>3</td></tr>
+     *     <tr><td>T</td><td>Type Short</td><td>C</td></tr>
+     *     <tr><td>TT</td><td>Type Long</td><td>CALL</td></tr>
+     *     <tr><td>S</td><td>Strike</td><td>500</td></tr>
+     *     </table>
      */
-    public static String getSymbol(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike, boolean includeDay) {
+    public static String getSymbol(OptionFamily family, LocalDate expiration, OptionType type, BigDecimal strike, String pattern) {
 
-        String week = family.isWeekly() ? DateTimePatterns.WEEK_OF_MONTH.format(expiration) : "";
+        String[] placeHolders = new String[] {
+                "N",
+                "SR",
+                "CS",
+                "C",
+                "MMMM",
+                "MMM",
+                "MM",
+                "MR",
+                "YYYY",
+                "YY",
+                "YR",
+                "W",
+                "TT",
+                "T",
+                "S"};
 
-        StringBuilder buffer = new StringBuilder();
-        buffer.append(family.getSymbolRoot());
-        buffer.append(week);
-        buffer.append(" ");
-        buffer.append(includeDay ? DateTimePatterns.OPTION_DAY_MONTH_YEAR.format(expiration) :
-                DateTimePatterns.OPTION_MONTH_YEAR.format(expiration).toUpperCase());
-        buffer.append("-");
-        buffer.append(type.toString().substring(0, 1));
-        buffer.append(" ");
-        buffer.append(strike);
+        String[] values = new String[] {
+                family.getName(),
+                family.getSymbolRoot(),
+                RoundUtil.getBigDecimal(family.getContractSize(), 0).toString(),
+                family.getCurrency().toString(),
+                DateTimePatterns.MONTH_LONG.format(expiration).toUpperCase(),
+                DateTimePatterns.MONTH_SHORT.format(expiration).toUpperCase(),
+                DateTimePatterns.MONTH_2_DIGIT.format(expiration).toUpperCase(),
+                OptionType.CALL.equals(type) ? monthCallEnc[expiration.getMonth().getValue() - 1] : monthPutEnc[expiration.getMonthValue() - 1],
+                DateTimePatterns.YEAR_4_DIGIT.format(expiration),
+                DateTimePatterns.YEAR_2_DIGIT.format(expiration),
+                yearEnc[expiration.getYear() % 10],
+                DateTimePatterns.WEEK_OF_MONTH.format(expiration),
+                type.toString(),
+                type.toString().substring(0, 1),
+                strike.toString()};
 
-        return buffer.toString();
+        return StringUtils.replaceEach(pattern, placeHolders, values);
     }
 
     /**
@@ -110,63 +150,5 @@ public class OptionSymbol {
         buffer.append(".U");
 
         return buffer.toString();
-    }
-
-    /**
-     * Gets the week number based on the specified {@code symbol}
-     */
-    public static int getWeek(String symbol) {
-
-        return Integer.parseInt(symbol.substring(0, 1));
-    }
-
-    /**
-     * Gets the underlying symbole based on the specified {@code symbol}
-     */
-    public static String getUnderlying(String symbol) {
-
-        return symbol.substring(2, 5);
-    }
-
-    /**
-     * Gets the {@link OptionType} based on the specified {@code symbol}
-     */
-    public static OptionType getOptionType(String symbol) {
-
-        String month = symbol.substring(5, 6);
-        int callIndex = Arrays.binarySearch(monthCallEnc, month);
-
-        return callIndex > 0 ? OptionType.CALL : OptionType.PUT;
-    }
-
-    /**
-     * Gets the month number based on the specified {@code symbol}
-     */
-    public static int getMonth(String symbol) {
-
-        String month = symbol.substring(5, 6);
-        int callIndex = Arrays.binarySearch(monthCallEnc, month);
-        int putIndex = Arrays.binarySearch(monthPutEnc, month);
-
-        return Math.max(callIndex, putIndex) + 1;
-    }
-
-    /**
-     * Gets the year number based on the specified {@code symbol}
-     */
-    public static int getYear(String symbol) {
-
-        String year = symbol.substring(6, 7);
-        return Arrays.binarySearch(yearEnc, year) + 2010;
-    }
-
-    /**
-     * Gets the strike based on the specified {@code symbol}
-     */
-    public static int getStrike(String symbol) {
-
-        String strike = symbol.substring(7, 12);
-
-        return BaseConverterUtil.fromBase36(strike);
     }
 }
