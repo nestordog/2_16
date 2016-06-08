@@ -110,7 +110,7 @@ public final class SimulationResultFormatter {
             for (PeriodPerformanceVO monthlyPerformance : monthlyPerformances) {
                 maxDrawDownM = Math.min(maxDrawDownM, monthlyPerformance.getValue());
                 bestMonthlyPerformance = Math.max(bestMonthlyPerformance, monthlyPerformance.getValue());
-                monthFormat.formatTo(DateTimeLegacy.toGMTDate(monthlyPerformance.getDate()), dateBuffer);
+                monthFormat.formatTo(DateTimeLegacy.toLocalDate(monthlyPerformance.getDate()), dateBuffer);
                 performanceBuffer.append(StringUtils.leftPad(twoDigitFormat.format(monthlyPerformance.getValue() * 100), 6) + "% ");
                 if (monthlyPerformance.getValue() > 0) {
                     positiveMonths++;
