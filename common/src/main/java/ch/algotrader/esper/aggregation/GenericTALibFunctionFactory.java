@@ -26,14 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.NotFoundException;
-
 import org.apache.commons.collections15.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +35,7 @@ import com.espertech.esper.epl.agg.aggregator.AggregationMethod;
 import com.espertech.esper.epl.agg.service.AggregationValidationContext;
 import com.espertech.esper.epl.expression.core.ExprEvaluator;
 import com.tictactec.ta.lib.CoreAnnotated;
+import com.tictactec.ta.lib.FuncUnstId;
 import com.tictactec.ta.lib.MAType;
 import com.tictactec.ta.lib.meta.annotation.InputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.InputParameterType;
@@ -51,6 +44,14 @@ import com.tictactec.ta.lib.meta.annotation.OptInputParameterType;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterInfo;
 import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+
 /**
  * Factory class needed for {@link GenericTALibFunction}
  *
@@ -58,8 +59,7 @@ import com.tictactec.ta.lib.meta.annotation.OutputParameterType;
  */
 public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
-    private static final CoreAnnotated core = new CoreAnnotated();
-
+    private CoreAnnotated core;
     private Method function;
     private Class<?> outputClass;
 
@@ -95,6 +95,8 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
     @Override
     public void validate(AggregationValidationContext validationContext) {
 
+        this.core = new CoreAnnotated();
+
         Class<?>[] paramTypes = validationContext.getParameterTypes();
 
         // get the functionname
@@ -102,7 +104,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
         // get the method by iterating over all core-methods
         // we have to do it this way, since we don't have the exact parameters
-        for (Method method : core.getClass().getDeclaredMethods()) {
+        for (Method method : this.core.getClass().getDeclaredMethods()) {
             if (method.getName().equals(talibFunctionName)) {
                 this.function = method;
                 break;
@@ -180,6 +182,17 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
             }
         }
 
+        // get unstable period
+        int unstablePeriod = 0;
+        if (paramTypes.length == paramCounter + 1) {
+            unstablePeriod = (int) getConstant(validationContext, paramCounter, Integer.class);
+            paramCounter++;
+        }
+
+        if (paramTypes.length > paramCounter) {
+            throw new IllegalArgumentException("too many params, expected " + paramCounter + " or " + (paramCounter + 1) + " found " + paramTypes.length);
+        }
+
         try {
 
             // get the dynamically created output class
@@ -206,9 +219,16 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
                 argCount++;
             }
 
+            // set unstable period
+            if (unstablePeriod > 0) {
+                for (FuncUnstId value : FuncUnstId.values()) {
+                    this.core.SetUnstablePeriod(value, 50);
+                }
+            }
+
             // get and invoke the lookback method
-            Method lookback = core.getClass().getMethod(talibFunctionName + "Lookback", argTypes);
-            this.lookbackPeriod = (Integer) lookback.invoke(core, args) + 1;
+            Method lookback = this.core.getClass().getMethod(talibFunctionName + "Lookback", argTypes);
+            this.lookbackPeriod = (Integer) lookback.invoke(this.core, args) + 1;
 
             // create the fixed size Buffers
             for (int i = 0; i < this.inputParamCount; i++) {
@@ -223,7 +243,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
     @Override
     public AggregationMethod newAggregator() {
 
-        return new GenericTALibFunction(this.function, this.inputParamCount, this.lookbackPeriod, this.optInputParams, this.outputParams, this.outputClass);
+        return new GenericTALibFunction(this.core, this.function, this.inputParamCount, this.lookbackPeriod, this.optInputParams, this.outputParams, this.outputClass);
     }
 
     private Object getConstant(AggregationValidationContext validationContext, int index, Class<?> clazz) {
