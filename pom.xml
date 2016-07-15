@@ -403,6 +403,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>cglib</groupId>
+                 <artifactId>cglib-nodep</artifactId>
+                 <version>3.2.4</version>
+            </dependency>
+            <dependency>
                 <groupId>com.interactivebrokers</groupId>
                 <artifactId>ibclient</artifactId>
                 <version>9.7.1.1-at</version>
@@ -700,7 +705,7 @@
         <html.content.version>3.0.1-SNAPSHOT</html.content.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
         <jboss-logging.version>3.2.1.Final</jboss-logging.version>
-        <spring.version>4.2.1.RELEASE</spring.version>
+        <spring.version>4.3.1.RELEASE</spring.version>
         <spring.retry.version>1.1.2.RELEASE</spring.retry.version>
         <spring.integration.version>3.0.2</spring.integration.version>
         <esper.version>5.3.0</esper.version>

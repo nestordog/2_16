@@ -107,6 +107,10 @@
             <artifactId>esperio-csv</artifactId>
         </dependency>
         <dependency>
+            <groupId>cglib</groupId>
+             <artifactId>cglib-nodep</artifactId>
+        </dependency>       
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
