@@ -12,6 +12,8 @@ files
 lib
 core/data/
 core/webapps
+core/src/main/resources/*.csv
+core/dependency-reduced-pom.xml
 core/src/main/resources/fix.cfg
 test/src/main/resources/fix.cfg
 tmp
