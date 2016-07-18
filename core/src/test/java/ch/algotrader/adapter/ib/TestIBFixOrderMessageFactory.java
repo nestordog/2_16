@@ -123,7 +123,7 @@ public class TestIBFixOrderMessageFactory {
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
         Assert.assertEquals(new quickfix.field.Currency("EUR"), message.getCurrency());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201503"), message.getMaturityMonthYear());
         Assert.assertEquals(new ExDestination("DTB"), message.getExDestination());
 
         Assert.assertEquals(new quickfix.field.Account("U1449112"), message.getAccount());
@@ -165,7 +165,7 @@ public class TestIBFixOrderMessageFactory {
         Assert.assertEquals(new OrderQty(3), message.getOrderQty());
         Assert.assertEquals(new OrdType(OrdType.MARKET), message.getOrdType());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201503"), message.getMaturityMonthYear());
 
         Assert.assertEquals(new quickfix.field.Account("U1449112"), message.getAccount());
         Assert.assertEquals(new ClearingAccount("U1449112"), message.getClearingAccount());
@@ -204,7 +204,7 @@ public class TestIBFixOrderMessageFactory {
         Assert.assertEquals(new quickfix.field.Side(quickfix.field.Side.BUY), message.getSide());
         Assert.assertEquals(new OrderQty(3), message.getOrderQty());
         Assert.assertEquals(new SecurityType(SecurityType.FUTURE), message.getSecurityType());
-        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201503"), message.getMaturityMonthYear());
 
         Assert.assertEquals(new quickfix.field.Account("U1449112"), message.getAccount());
         Assert.assertEquals(new AllocationGroup("acc-group"), message.getAllocationGroup());

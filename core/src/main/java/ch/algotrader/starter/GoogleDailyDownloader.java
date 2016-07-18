@@ -40,6 +40,9 @@ import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.io.FileUtils;
 
+import ch.algotrader.util.DateTimeLegacy;
+import ch.algotrader.util.DateTimePatterns;
+
 /**
  * Utility class to download multiple market data files from finance.google.com
  *
@@ -48,7 +51,6 @@ import org.apache.commons.io.FileUtils;
 public class GoogleDailyDownloader {
 
     private static final DateFormat fileFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-    private static final String EXCHANGE = "VTX";
 
     private HttpClient httpclient;
 
@@ -66,15 +68,17 @@ public class GoogleDailyDownloader {
 
         String startDate = args[0];
         String endDate = "none".equals(args[1]) ? null : args[1];
+        String exchange = args[2];
 
-        for (int i = 2; i < args.length; i++) {
-            retrieve(this.httpclient, args[i], startDate, endDate);
+        for (int i = 3; i < args.length; i++) {
+            retrieve(this.httpclient, args[i], startDate, endDate, exchange);
         }
     }
 
-    private void retrieve(HttpClient httpclient, String symbol, String startDate, String endDate) throws IOException, HttpException, FileNotFoundException, ParseException {
+    private void retrieve(HttpClient httpclient, String symbol, String startDate, String endDate, String exchange) throws IOException, HttpException, FileNotFoundException, ParseException {
 
-        GetMethod fileGet = new GetMethod("https://www.google.com/finance/historical?q=" + EXCHANGE + ":" + symbol + "&output=csv&startdate=" + startDate + (endDate == null ? "" : "&endDate=" + endDate));
+        GetMethod fileGet = new GetMethod(
+                "https://www.google.com/finance/historical?q=" + exchange + ":" + symbol + "&output=csv&startdate=" + startDate + (endDate == null ? "" : "&endDate=" + endDate));
 
         fileGet.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 
@@ -90,7 +94,7 @@ public class GoogleDailyDownloader {
                     FileUtils.forceMkdir(parent);
                 }
 
-                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(parent, symbol + "-" + "1day.csv")));
+                Writer writer = new OutputStreamWriter(new FileOutputStream(new File(parent, symbol + ".csv")));
 
                 try {
 
@@ -105,27 +109,23 @@ public class GoogleDailyDownloader {
                         Date dateTime = fileFormat.parse(tokens[0]);
 
                         StringBuffer buffer = new StringBuffer();
-                        buffer.append(Long.toString(dateTime.getTime()));
+                        buffer.append(DateTimePatterns.LOCAL_DATE_TIME.format(DateTimeLegacy.toLocalDateTime(dateTime)));
                         buffer.append(",");
-                        buffer.append(tokens[1]);
+                        buffer.append(tokens[1].equals("-") ? "" : tokens[1]);
                         buffer.append(",");
-                        buffer.append(tokens[2]);
+                        buffer.append(tokens[2].equals("-") ? "" : tokens[2]);
                         buffer.append(",");
-                        buffer.append(tokens[3]);
+                        buffer.append(tokens[3].equals("-") ? "" : tokens[3]);
                         buffer.append(",");
-                        buffer.append(tokens[4]);
+                        buffer.append(tokens[4].equals("-") ? "" : tokens[4]);
                         buffer.append(",");
                         buffer.append(tokens[5]);
-                        buffer.append(",");
-                        buffer.append("DAY_1");
-                        buffer.append(",");
-                        buffer.append(symbol);
                         buffer.append("\n");
 
                         lines.add(buffer.toString());
                     }
 
-                    writer.write("dateTime,open,high,low,close,vol,barSize,security\n");
+                    writer.write("dateTime,open,high,low,close,vol\n");
 
                     // write in reverse order
                     for (int i = lines.size() - 1; i > 0; i--) {

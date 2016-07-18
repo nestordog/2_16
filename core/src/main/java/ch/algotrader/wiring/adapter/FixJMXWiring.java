@@ -28,7 +28,7 @@ import quickfix.SocketInitiator;
  * Fix core JMX configuration.
  */
 @Configuration
-@Profile({"jPMFix", "iBFix", "dCFix", "rTFix", "dcMarkteData", "lMAXFix", "lMAXMarketData", "fXCMFix", "fXCMMarketData", "cNXFix", "cNXMarketData"})
+@Profile({"jPMFix", "iBFix", "dCFix", "rTFix", "dcMarkteData", "lMAXFix", "lMAXMarketData", "fXCMFix", "fXCMMarketData", "cNXFix", "cNXMarketData", "tTFix", "tTMarketData"})
 public class FixJMXWiring {
 
     @Bean(name = "fixSocketInitiatorMBean")

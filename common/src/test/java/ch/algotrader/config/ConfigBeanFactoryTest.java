@@ -64,6 +64,8 @@ public class ConfigBeanFactoryTest {
         this.map.put("misc.defaultAccountName", "IB_NATIVE_TEST");
         this.map.put("misc.validateCrossedSpread", "true");
         this.map.put("misc.displayClosedPositions", "true");
+        this.map.put("misc.futureSymbolPattern", "SRMRYYYY");
+        this.map.put("misc.optionSymbolPattern", "SRMRYYYY TS");
     }
 
     @Test

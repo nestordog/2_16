@@ -95,26 +95,12 @@ public final class DateTimePatterns {
     }
 
     /**
-     * The short format used by options: {@literal MMM/yy}.
+     * The 2-digit year format: {@literal yy}.
      */
-    public final static DateTimeFormatter OPTION_MONTH_YEAR;
+    public final static DateTimeFormatter YEAR_2_DIGIT;
     static {
-        OPTION_MONTH_YEAR = new DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
-                .appendLiteral('/')
-                .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
-                .toFormatter(Locale.ENGLISH);
-    }
-
-    /**
-     * The long format used by options: {@literal dd/MMM/yy}.
-     */
-    public final static DateTimeFormatter OPTION_DAY_MONTH_YEAR;
-    static {
-        OPTION_DAY_MONTH_YEAR = new DateTimeFormatterBuilder()
-                .appendValue(ChronoField.DAY_OF_MONTH, 2)
-                .appendLiteral('/')
-                .append(OPTION_MONTH_YEAR)
+        YEAR_2_DIGIT = new DateTimeFormatterBuilder()
+                .appendPattern("yy")
                 .toFormatter(Locale.ROOT);
     }
 
@@ -126,9 +112,7 @@ public final class DateTimePatterns {
         YEAR_4_DIGIT = new DateTimeFormatterBuilder()
                 .appendValue(ChronoField.YEAR, 4)
                 .toFormatter(Locale.ROOT);
-
     }
-
 
     /**
      * The 4-digit year and two-digit month format: {@literal yyyymm}.
@@ -142,12 +126,43 @@ public final class DateTimePatterns {
     }
 
     /**
+     * The 1-digit month format: {@literal M}.
+     */
+    public final static DateTimeFormatter MONTH_1_DIGIT;
+    static {
+        MONTH_1_DIGIT = new DateTimeFormatterBuilder()
+                .appendPattern("M")
+                .toFormatter(Locale.ROOT);
+    }
+
+    /**
+     * The 2-digit month format: {@literal MM}.
+     */
+    public final static DateTimeFormatter MONTH_2_DIGIT;
+    static {
+        MONTH_2_DIGIT = new DateTimeFormatterBuilder()
+                .appendPattern("MM")
+                .toFormatter(Locale.ROOT);
+    }
+
+    /**
      * The short month text format: {@literal MMM}.
+     */
+    public final static DateTimeFormatter MONTH_SHORT;
+    static {
+        MONTH_SHORT = new DateTimeFormatterBuilder()
+                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+                .toFormatter(Locale.ENGLISH);
+    }
+
+
+    /**
+     * The long month text format: {@literal MMMM}.
      */
     public final static DateTimeFormatter MONTH_LONG;
     static {
         MONTH_LONG = new DateTimeFormatterBuilder()
-                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.SHORT)
+                .appendText(ChronoField.MONTH_OF_YEAR, TextStyle.FULL)
                 .toFormatter(Locale.ENGLISH);
     }
 

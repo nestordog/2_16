@@ -43,10 +43,10 @@ import com.tictactec.ta.lib.RetCode;
  * The AggregationFunction can be used in an esper statement like this:
  * <pre>
  * insert into StochF
- * select talib("stochF", high, low, close, 3, 2, "Sma") as values
+ * select talib("stochF", high, low, close, 3, 2, "Sma") as result
  * from OHLCBar;
  *
- * select values.fastk, values.fastd
+ * select result.fastk, result.fastd
  * from StochF(values != null);
  * </pre>
  * <p>
@@ -61,20 +61,29 @@ import com.tictactec.ta.lib.RetCode;
  * Example: the TA-Lib function stochF has return values: outFastK and outFastD. The returned dynamic class
  * will have double typed properties by the name of: fastk and fastd (all lowercase)
  * </p>
+ * Some functions are influenced by the entire range of the past data. These functions are sometimes called functions with memory.
+ * An example is the EMA (Exponential Moving Average). For these functions an optional unstable period paramter can be specified.
+ * The following statement will create a 30 period moving average with an unstable period of 10.
+ * <pre>
+ * insert into MovingAverage
+ * select talib("movingAverage", close, 30, "Ema", 10) as value
+ * from OHLCBar;
+ * </pre>
+ * For further details about the unstable period please see: <a href="http://ta-lib.org/d_api/ta_setunstableperiod.html">SetUnstablePeriod</a>
+ * </p>
  * The AggregationFunction needs the following libraries: </p>
  * <ul>
  * <li><a href="http://commons.apache.org/lang/">Apache Commons Lang</a></li>
  * <li><a href="http://larvalabs.com/collections/">Commons Generics</a></li>
- * <li><a href="http://ta-lib.org/">TA-Lib</a></li> </p>
- * <li><a href="http://www.javassist.org/">Javaassist</a></li> </p>
+ * <li><a href="http://ta-lib.org/">TA-Lib</a></li>
+ * <li><a href="http://www.javassist.org/">Javaassist</a></li>
  * </ul>
  *
  * @author <a href="mailto:aflury@algotrader.ch">Andy Flury</a>
  */
 public class GenericTALibFunction implements AggregationMethod {
 
-    private static final CoreAnnotated core = new CoreAnnotated();
-
+    private final CoreAnnotated core;
     private final Method function;
     private final Class<?> outputClass;
 
@@ -82,10 +91,11 @@ public class GenericTALibFunction implements AggregationMethod {
     private final List<Object> optInputParams;
     private final Map<String, Object> outputParams;
 
-    public GenericTALibFunction(Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams, Map<String, Object> outputParams, Class<?> outputClass) {
+    public GenericTALibFunction(CoreAnnotated core, Method function, int inputParamCount, int lookbackPeriod, List<Object> optInputParams, Map<String, Object> outputParams, Class<?> outputClass) {
 
         super();
 
+        this.core = core;
         this.function = function;
         this.outputClass = outputClass;
 
@@ -193,7 +203,7 @@ public class GenericTALibFunction implements AggregationMethod {
             }
 
             // invoke the function
-            RetCode retCode = (RetCode) this.function.invoke(core, args);
+            RetCode retCode = (RetCode) this.function.invoke(this.core, args);
 
             if (retCode == RetCode.Success) {
                 if (length.value == 0) {

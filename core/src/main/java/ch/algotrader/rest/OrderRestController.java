@@ -125,9 +125,10 @@ public class OrderRestController extends RestControllerBase {
 
     @CrossOrigin
     @RequestMapping(path = "/execution/order/{intId}", method = RequestMethod.DELETE)
-    public void submitOrder(@PathVariable final String intId) {
+    public void cancelOrder(@PathVariable final String intId) {
 
-        this.orderService.cancelOrder(intId);
+        String key = intId.replace('_', '.');
+        this.orderService.cancelOrder(key);
     }
 
     @CrossOrigin

@@ -16,7 +16,7 @@ mysqldump \
     --skip-comments \
     --ignore-table=algotrader.schema_version \
     -u $DB_USER \
-    -p $DB_PASSWORD \
+    -p$DB_PASSWORD \
     -r $OUT_FILE \
     $DB_INSTANCE
 

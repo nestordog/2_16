@@ -82,6 +82,18 @@ public final class IBPendingRequests {
         return pendingRequest;
     }
 
+    public void fail(final int requestId, final int errorCode, final String errorMsg) {
+
+        if (requestId < 1) {
+            failAll(new IBSessionException(errorCode, errorMsg));
+        } else {
+            IBPendingRequest<?> pendingRequest = removeRequest(requestId);
+            if (pendingRequest != null) {
+                pendingRequest.fail(new IBSessionException(errorCode, errorMsg));
+            }
+        }
+    }
+
     public void failAll(final Exception ex) {
         for (IBPendingRequest<Bar> pendingRequest: this.historicDataRequestMap.values()) {
             pendingRequest.fail(ex);

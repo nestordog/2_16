@@ -47,6 +47,7 @@ import ch.algotrader.adapter.tt.TTSecurityDefinitionRequestFactory;
 import ch.algotrader.adapter.tt.TTSecurityDefinitionRequestIdGenerator;
 import ch.algotrader.concurrent.Promise;
 import ch.algotrader.concurrent.PromiseImpl;
+import ch.algotrader.config.CommonConfig;
 import ch.algotrader.dao.security.FutureDao;
 import ch.algotrader.dao.security.OptionDao;
 import ch.algotrader.dao.security.SecurityFamilyDao;
@@ -85,6 +86,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             .appendValueReduced(ChronoField.YEAR, 2, 2, 2000)
             .toFormatter(Locale.ROOT);
 
+    private final CommonConfig commonConfig;
     private final FixAdapter fixAdapter;
     private final ExternalSessionStateHolder stateHolder;
     private final TTPendingRequests pendingRequests;
@@ -95,6 +97,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
     private final TTSecurityDefinitionRequestFactory requestFactory;
 
     public TTFixReferenceDataServiceImpl(
+            final CommonConfig commonConfig,
             final FixAdapter fixAdapter,
             final ExternalSessionStateHolder stateHolder,
             final TTPendingRequests pendingRequests,
@@ -102,6 +105,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
             final FutureDao futureDao,
             final SecurityFamilyDao securityFamilyDao) {
 
+        Validate.notNull(commonConfig, "CommonConfig is null");
         Validate.notNull(fixAdapter, "FixAdapter is null");
         Validate.notNull(stateHolder, "ExternalSessionStateHolder is null");
         Validate.notNull(pendingRequests, "IBPendingRequests is null");
@@ -109,6 +113,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
         Validate.notNull(futureDao, "FutureDao is null");
         Validate.notNull(securityFamilyDao, "SecurityFamilyDao is null");
 
+        this.commonConfig = commonConfig;
         this.fixAdapter = fixAdapter;
         this.stateHolder = stateHolder;
         this.pendingRequests = pendingRequests;
@@ -195,7 +200,7 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                 OptionType optionType = securityDef.getOptionType();
                 BigDecimal strike = securityDef.getStrikePrice() != null ? PriceUtil.normalizePrice(securityFamily, Broker.TT.name(), securityDef.getStrikePrice()) : null;
                 LocalDate expiryDate = securityDef.getExpiryDate() != null ? securityDef.getExpiryDate() : securityDef.getMaturityDate();
-                String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, false);
+                String symbol = OptionSymbol.getSymbol(securityFamily, expiryDate, optionType, strike, this.commonConfig.getOptionSymbolPattern());
 
                 if (!mapBySymbol.containsKey(symbol)) {
                     String isin = securityFamily.getIsinRoot() != null ? OptionSymbol.getIsin(securityFamily, expiryDate, optionType, strike) : null;
@@ -269,13 +274,13 @@ public class TTFixReferenceDataServiceImpl implements ReferenceDataService, Init
                             int year = parsed.get(ChronoField.YEAR);
                             int month = parsed.get(ChronoField.MONTH_OF_YEAR);
                             expiration = LocalDate.of(year, month, 1);
-                            symbol = FutureSymbol.getSymbol(securityFamily, expiration);
+                            symbol = FutureSymbol.getSymbol(securityFamily, expiration, this.commonConfig.getFutureSymbolPattern());
                         } catch (DateTimeParseException ex) {
                             throw new ServiceException("Unable to parse IPE e-Brent expiration month / year: " + altSymbol, ex);
                         }
                     }
                 } else {
-                    symbol = FutureSymbol.getSymbol(securityFamily, maturityDate);
+                    symbol = FutureSymbol.getSymbol(securityFamily, maturityDate, this.commonConfig.getFutureSymbolPattern());
                 }
                 if (!mapBySymbol.containsKey(symbol)) {
                     Future future = Future.Factory.newInstance();

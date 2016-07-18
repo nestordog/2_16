@@ -194,7 +194,7 @@ public class TestGenericSymbologyResolver {
         this.symbologyResolver.resolve(message, future, Broker.RT.name());
 
         Assert.assertEquals(new Symbol("STUFF"), message.getSymbol());
-        Assert.assertEquals(new MaturityMonthYear("201604"), message.getMaturityMonthYear());
+        Assert.assertEquals(new MaturityMonthYear("201412"), message.getMaturityMonthYear());
     }
 
     @Test

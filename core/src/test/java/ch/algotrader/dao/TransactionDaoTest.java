@@ -491,20 +491,20 @@ public class TransactionDaoTest extends InMemoryDBTest {
 
         List<Transaction> transactions1 = this.dao.findByMaxDate(calendar.getTime());
 
-        Assert.assertEquals(1, transactions1.size());
+        Assert.assertEquals(0, transactions1.size());
 
         List<Transaction> transactions2 = this.dao.findByMaxDate(new Date());
 
-        Assert.assertEquals(3, transactions2.size());
+        Assert.assertEquals(2, transactions2.size());
 
-        Transaction transaction3 = transactions2.get(1);
+        Transaction transaction3 = transactions2.get(0);
         Assert.assertEquals(222, transaction3.getQuantity());
         Assert.assertEquals(new BigDecimal(111), transaction3.getPrice());
         Assert.assertEquals(Currency.INR, transaction3.getCurrency());
         Assert.assertEquals(TransactionType.SELL, transaction3.getType());
         Assert.assertEquals(this.strategy1, transaction3.getStrategy());
 
-        Transaction transaction4 = transactions2.get(2);
+        Transaction transaction4 = transactions2.get(1);
         Assert.assertEquals(222, transaction4.getQuantity());
         Assert.assertEquals(new BigDecimal(111), transaction4.getPrice());
         Assert.assertEquals(Currency.NZD, transaction4.getCurrency());
