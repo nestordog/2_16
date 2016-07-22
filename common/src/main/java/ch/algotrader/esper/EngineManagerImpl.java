@@ -125,6 +125,15 @@ public class EngineManagerImpl implements EngineManager {
     }
 
     @Override
+    public void initializeEngine(final String engineName) {
+
+        Engine engine = this.engineMap.get(engineName);
+        if (engine != null) {
+            engine.initialize();
+        }
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public void logStatementMetrics() {
 

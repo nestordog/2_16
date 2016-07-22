@@ -86,6 +86,7 @@ import ch.algotrader.event.dispatch.EventRecipient;
 import ch.algotrader.report.BackTestReport;
 import ch.algotrader.report.ReportManager;
 import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataCacheService;
 import ch.algotrader.service.MarketDataService;
 import ch.algotrader.service.PortfolioService;
 import ch.algotrader.service.PositionService;
@@ -133,6 +134,8 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
 
     private final MarketDataService marketDataService;
 
+    private final MarketDataCacheService marketDataCacheService;
+
     private final ServerLookupService serverLookupService;
 
     private final EventListenerRegistry eventListenerRegistry;
@@ -157,6 +160,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
                                   final StrategyPersistenceService strategyPersistenceService,
                                   final LookupService lookupService,
                                   final MarketDataService marketDataService,
+                                  final MarketDataCacheService marketDataCacheService,
                                   final ServerLookupService serverLookupService,
                                   final EventListenerRegistry eventListenerRegistry,
                                   final EventDispatcher eventDispatcher,
@@ -172,6 +176,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         Validate.notNull(strategyPersistenceService, "StrategyPersistenceService is null");
         Validate.notNull(lookupService, "LookupService is null");
         Validate.notNull(marketDataService, "MarketDataService is null");
+        Validate.notNull(marketDataCacheService, "MarketDataCacheService is null");
         Validate.notNull(serverLookupService, "ServerLookupService is null");
         Validate.notNull(eventListenerRegistry, "EventListenerRegistry is null");
         Validate.notNull(eventDispatcher, "EventDispatcher is null");
@@ -187,6 +192,7 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         this.strategyPersistenceService = strategyPersistenceService;
         this.lookupService = lookupService;
         this.marketDataService = marketDataService;
+        this.marketDataCacheService = marketDataCacheService;
         this.serverLookupService = serverLookupService;
         this.eventListenerRegistry = eventListenerRegistry;
         this.eventDispatcher = eventDispatcher;
@@ -232,17 +238,17 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         rebalancePortfolio(strategyGroup);
 
         // init coordination
+        this.serverEngine.initServices();
         this.serverEngine.initCoordination();
         this.serverEngine.deployAllModules();
-
-        //strategy engines
-        final Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
 
         // LifecycleEvent: INIT
         broadcastLocal(LifecyclePhase.INIT);
 
         //deploy init modules
+        final Collection<Engine> strategyEngines = this.engineManager.getStrategyEngines();
         for (final Engine engine: strategyEngines) {
+            engine.initServices();
             engine.deployInitModules();
         }
 
@@ -280,11 +286,14 @@ public class SimulationExecutorImpl implements SimulationExecutor, InitializingB
         // get the results
         SimulationResultVO resultVO = getSimulationResultVO(startTime);
 
-        // destroy all service providers
+        // re-initialize all service providers
         for (final Engine engine : strategyEngines) {
-            engine.destroy();
+            engine.initialize();
         }
-        this.serverEngine.destroy();
+        this.serverEngine.initialize();
+
+        // flush market data cache
+        this.marketDataCacheService.flush();
 
         // clear the second-level cache
         net.sf.ehcache.CacheManager.getInstance().clearAll();

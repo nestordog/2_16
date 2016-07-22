@@ -56,6 +56,8 @@
         <logger name="quickfix" level="warn" />
         <logger name="com.jcraft.jsch" level="warn" />
 
+		<logger name="ch.algotrader.simulation.SimulationExecutor.RESULT" level="info"/>
+
         <!--
         <logger name="ch.algotrader.event.dispatch.mq.EVENTS" level="trace" additivity="false">
             <AppenderRef ref="EventTrace" level="trace"/>

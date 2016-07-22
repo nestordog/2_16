@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -104,7 +105,7 @@ public class EngineImpl extends AbstractEngine {
     private static final Logger LOGGER = LogManager.getLogger(EngineImpl.class);
     private static final String newline = System.getProperty("line.separator");
 
-    private final SubscriberResolver subscriberResolver;
+    private final ServiceResolver subscriberResolver;
     private final String[] initModules;
     private final String[] runModules;
     private final ConfigParams configParams;
@@ -120,7 +121,7 @@ public class EngineImpl extends AbstractEngine {
         }
     };
 
-    EngineImpl(final String strategyName, final SubscriberResolver subscriberResolver,
+    EngineImpl(final String strategyName, final ServiceResolver subscriberResolver,
                final Configuration configuration, final String[] initModules, final String[] runModules, final ConfigParams configParams) {
 
         super(strategyName);
@@ -137,6 +138,12 @@ public class EngineImpl extends AbstractEngine {
 
         initVariables(configuration, configParams);
         configuration.getVariables().get("strategyName").setInitializationValue(strategyName);
+
+        if (!this.simulation) {
+            Properties props = new Properties();
+            props.put("use-platform-mbean-server", "true");
+            configuration.addPluginLoader("EsperJMX", "com.espertech.esper.jmx.client.EsperJMXPlugin", props);
+        }
 
         this.serviceProvider = EPServiceProviderManager.getProvider(strategyName, configuration);
     }
@@ -180,6 +187,21 @@ public class EngineImpl extends AbstractEngine {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("destroyed service provider: {}", getStrategyName());
         }
+    }
+
+    @Override
+    public void initialize() {
+
+        ((EPServiceProviderSPI) this.serviceProvider).initialize(0l);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("initialized service provider: {}", getStrategyName());
+        }
+    }
+
+    @Override
+    public void initServices() {
+        this.subscriberResolver.resolveServices(this);
     }
 
     @Override

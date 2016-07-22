@@ -43,6 +43,16 @@ public interface Engine {
     public String getStrategyName();
 
     /**
+     * Initializes the specified Engine.
+     */
+    public void initialize();
+
+    /**
+     * Makes services available via variables
+     */
+    void initServices();
+
+    /**
      * Destroys the specified Engine.
      */
     public void destroy();
