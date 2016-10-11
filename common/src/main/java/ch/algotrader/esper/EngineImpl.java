@@ -759,7 +759,7 @@ public class EngineImpl extends AbstractEngine {
         if (dateTime.compareTo(getCurrentTime()) < 0) {
             consumer.accept(getCurrentTime());
         } else {
-            String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_") + (name != null ? "_" + name : "");
+            String alias = "ON_TIMER_" + DateTimeUtil.formatAsGMT(dateTime.toInstant()).replace(" ", "_").replace(":", "-") + (name != null ? "_" + name : "");
 
             Calendar cal = Calendar.getInstance();
             cal.setTime(dateTime);
