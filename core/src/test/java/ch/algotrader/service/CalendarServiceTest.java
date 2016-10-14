@@ -125,6 +125,15 @@ public class CalendarServiceTest {
         Assert.assertEquals(this.impl.getNextOpenTime(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-23 17:00:00 CET")), DateTimeLegacy.parseAsZonedDateTime("2013-11-25 14:30:00 CET")); // Jan 2nd
     }
 
+    //Reverse
+    @Test
+    public void testIsOpenRegularOpenReverse() throws Exception {
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:50:00 CET")));
+        Assert.assertTrue(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:45:00 CET")));
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:20:00 CET")));
+        Assert.assertFalse(this.impl.isOpen(1, DateTimeLegacy.parseAsZonedDateTime("2013-11-20 14:15:00 CET")));
+    }
+
     // Regular Day light savings time
     @Test
     public void testIsOpenRegularOpenDLS() throws Exception {

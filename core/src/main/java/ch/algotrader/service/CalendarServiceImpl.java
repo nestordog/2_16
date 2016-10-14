@@ -52,6 +52,7 @@ public class CalendarServiceImpl implements CalendarService {
 
     private final ExchangeDao exchangeDao;
     private final EngineManager engineManager;
+    private final Map<Long, Date> lastRequestTimeMap;
     private final Map<Long, Date> openTimeMap;
     private final Map<Long, Date> closeTimeMap;
 
@@ -62,6 +63,7 @@ public class CalendarServiceImpl implements CalendarService {
 
         this.exchangeDao = exchangeDao;
         this.engineManager = engineManager;
+        this.lastRequestTimeMap = new HashMap<>();
         this.openTimeMap = new HashMap<>();
         this.closeTimeMap = new HashMap<>();
 
@@ -101,17 +103,22 @@ public class CalendarServiceImpl implements CalendarService {
 
         Validate.notNull(dateTime, "Data time is null");
 
-        Date openTime = this.openTimeMap.get(exchangeId);
-        Date closeTime = this.closeTimeMap.get(exchangeId);
-        if (closeTime != null) {
-            if (closeTime.compareTo(dateTime) > 0) {
-                return true;
-            } else {
-                return isOpenInternal(exchangeId, dateTime);
-            }
-        } else if (openTime != null) {
-            if (openTime.compareTo(dateTime) > 0) {
-                return false;
+        Date lastRequestTime = this.lastRequestTimeMap.get(exchangeId);
+        if (lastRequestTime != null && dateTime.compareTo(lastRequestTime) > 0) {
+            Date openTime = this.openTimeMap.get(exchangeId);
+            Date closeTime = this.closeTimeMap.get(exchangeId);
+            if (closeTime != null) {
+                if (closeTime.compareTo(dateTime) > 0) {
+                    return true;
+                } else {
+                    return isOpenInternal(exchangeId, dateTime);
+                }
+            } else if (openTime != null) {
+                if (openTime.compareTo(dateTime) > 0) {
+                    return false;
+                } else {
+                    return isOpenInternal(exchangeId, dateTime);
+                }
             } else {
                 return isOpenInternal(exchangeId, dateTime);
             }
@@ -303,6 +310,8 @@ public class CalendarServiceImpl implements CalendarService {
             Date openTime = getNextOpenTime(exchangeId, dateTime);
             this.openTimeMap.put(exchangeId, openTime);
         }
+
+        this.lastRequestTimeMap.put(exchangeId, dateTime);
 
         return isOpen;
     }
