@@ -457,6 +457,9 @@ public class TransactionServiceImpl implements TransactionService {
         this.eventDispatcher.sendEvent(strategy.getName(), transactionEvent);
         this.eventDispatcher.broadcast(transactionEvent, EventRecipient.SERVER_LISTENERS);
 
+        // we need the transaction entity inside the server engine to create OrderComplitionVO
+        this.serverEngine.sendEvent(transaction);
+
         // propagate the positionMutation to the corresponding strategy
         PositionVO positionMutation = transactionResult.getPositionMutation();
         if (positionMutation != null) {
