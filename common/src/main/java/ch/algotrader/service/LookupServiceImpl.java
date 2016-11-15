@@ -39,6 +39,7 @@ import ch.algotrader.cache.CacheManager;
 import ch.algotrader.dao.GenericDao;
 import ch.algotrader.dao.NamedParam;
 import ch.algotrader.entity.Account;
+import ch.algotrader.entity.AccountImpl;
 import ch.algotrader.entity.Position;
 import ch.algotrader.entity.PositionImpl;
 import ch.algotrader.entity.Subscription;
@@ -817,7 +818,7 @@ public class LookupServiceImpl implements LookupService {
     @Override
     public Account getAccount(long accountId) {
 
-        return this.cacheManager.get(Account.class, accountId);
+        return this.cacheManager.get(AccountImpl.class, accountId);
     }
 
     /**
