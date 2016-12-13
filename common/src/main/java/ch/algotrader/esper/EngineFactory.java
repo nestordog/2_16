@@ -33,10 +33,10 @@ import ch.algotrader.config.ConfigParams;
  */
 public class EngineFactory {
 
-    private final SubscriberResolver subscriberResolver;
+    private final ServiceResolver subscriberResolver;
     private final ConfigParams configParams;
 
-    public EngineFactory(final SubscriberResolver subscriberResolver, final ConfigParams configParams) {
+    public EngineFactory(final ServiceResolver subscriberResolver, final ConfigParams configParams) {
         this.subscriberResolver = subscriberResolver;
         this.configParams = configParams;
     }

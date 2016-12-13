@@ -77,7 +77,7 @@ public class TrailingLimitOrderService extends AbstractAlgoOrderExecService<Trai
             throw new IllegalStateException("no market data subscription for " + security);
         }
 
-        BigDecimal limit = calculateLimit(algoOrder, tick.getLast());
+        BigDecimal limit = calculateLimit(algoOrder, tick.getCurrentValue());
 
         LimitOrder order = LimitOrder.Factory.newInstance();
         order.setSecurity(security);

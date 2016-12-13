@@ -25,8 +25,10 @@ import com.espertech.esper.client.EPStatement;
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public interface SubscriberResolver {
+public interface ServiceResolver {
 
     void resolve(EPStatement statement, String subscriberExpression);
+
+    void resolveServices(Engine engine);
 
 }

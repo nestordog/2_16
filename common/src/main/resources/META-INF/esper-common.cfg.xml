@@ -77,11 +77,6 @@
     <variable name="optionService" type="ch.algotrader.service.OptionService"/>
     <variable name="engineStrategy" type="ch.algotrader.entity.strategy.Strategy"/>
 
-    <!-- Esper JMX -->
-    <plugin-loader name="EsperJMX" class-name="com.espertech.esper.jmx.client.EsperJMXPlugin">
-        <init-arg name="use-platform-mbean-server" value="true" />
-    </plugin-loader>
-
     <!-- Esper HQ -->
 <!--     <plugin-loader name="EndpointMgmt" class-name="com.espertech.esperdds.client.EndpointMgmtPlugin"> -->
 <!--         <init-arg name="esperdds.configuration.file" value="esperdds.cfg.xml" /> -->

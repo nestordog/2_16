@@ -81,5 +81,15 @@ public interface MarketDataCacheService {
      */
     boolean hasCurrentMarketDataEvents();
 
+    /**
+     * Clears cached market data events for all securities.
+     */
+    void flush();
+
+    /**
+     * Clears the cached market data event for the specified security.
+     * @param securityId the ID of the security whose cached market data event to clear
+     */
+    void flush(long securityId);
 
 }

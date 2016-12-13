@@ -60,6 +60,7 @@ public class SimulationWiring {
             final StrategyPersistenceService strategyPersistenceService,
             final LookupService lookupService,
             final MarketDataService marketDataService,
+            final MarketDataCacheService marketDataCacheService,
             final ServerLookupService serverLookupService,
             final EventListenerRegistry eventListenerRegistry,
             final EventDispatcher eventDispatcher,
@@ -68,7 +69,7 @@ public class SimulationWiring {
             final CacheManager cacheManager) {
 
         return new SimulationExecutorImpl(commonConfig, positionService, resetService, transactionService, portfolioService, strategyPersistenceService,
-                lookupService, marketDataService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
+                lookupService, marketDataService, marketDataCacheService, serverLookupService, eventListenerRegistry, eventDispatcher, engineManager, serverEngine, cacheManager);
     }
 
     @Bean(name = "simulationOrderService")

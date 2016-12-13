@@ -278,7 +278,7 @@ public class GenericTALibFunctionFactory implements AggregationFunctionFactory {
 
     private Class<?> getReturnClass(String className, Map<String, Class<?>> fields) throws CannotCompileException, NotFoundException {
 
-        String fqClassName = this.getClass().getPackage().getName() + "." + className;
+        String fqClassName = this.getClass().getPackage().getName() + ".talib." + className;
 
         try {
             // see if the class already exists

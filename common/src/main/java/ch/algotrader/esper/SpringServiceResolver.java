@@ -30,21 +30,30 @@ import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EPSubscriberException;
 
 import ch.algotrader.config.ConfigParams;
+import ch.algotrader.entity.strategy.Strategy;
+import ch.algotrader.service.CalendarService;
+import ch.algotrader.service.LookupService;
+import ch.algotrader.service.MarketDataService;
+import ch.algotrader.service.OptionService;
+import ch.algotrader.service.OrderService;
+import ch.algotrader.service.PortfolioService;
+import ch.algotrader.service.PositionService;
 
 /**
  * Spring context based subscriber resolution algorithm.
  *
  * @author <a href="mailto:okalnichevski@algotrader.ch">Oleg Kalnichevski</a>
  */
-public class SpringSubscriberResolver implements SubscriberResolver {
+public class SpringServiceResolver implements ServiceResolver {
 
     private static final Pattern SUBSCRIBER_NOTATION = Pattern.compile("^([a-zA-Z]+[a-zA-Z0-9\\-_]*)(\\.|#)([a-zA-Z0-9_]+)$");
+    private static final String SERVER_ENGINE = "SERVER";
 
     private final String strategyName;
     private final ConfigParams configParams;
     private final ApplicationContext applicationContext;
 
-    public SpringSubscriberResolver(final String strategyName, final ConfigParams configParams, final ApplicationContext applicationContext) {
+    public SpringServiceResolver(final String strategyName, final ConfigParams configParams, final ApplicationContext applicationContext) {
         Validate.notNull(strategyName, "StrategyName is null");
         Validate.notNull(configParams, "ConfigParams is null");
         Validate.notNull(applicationContext, "ApplicationContext is null");
@@ -73,9 +82,9 @@ public class SpringSubscriberResolver implements SubscriberResolver {
         PropertyPlaceholderHelper placeholderHelper = new PropertyPlaceholderHelper("${", "}", ",", false);
         String s = placeholderHelper.replacePlaceholders(subscriberExpression, name -> {
             if (name.equalsIgnoreCase("strategyName")) {
-                return strategyName;
+                return this.strategyName;
             } else {
-                return configParams.getString(name, "null");
+                return this.configParams.getString(name, "null");
             }
         });
 
@@ -106,6 +115,37 @@ public class SpringSubscriberResolver implements SubscriberResolver {
                 Object bean = this.applicationContext.getBean(serviceName);
                 statement.setSubscriber(bean, beanMethod);
             }
+        }
+    }
+
+    @Override
+    public void resolveServices(Engine engine) {
+
+        LookupService lookupService = this.applicationContext.getBean("lookupService", LookupService.class);
+        PortfolioService portfolioService = this.applicationContext.getBean("portfolioService", PortfolioService.class);
+        CalendarService calendarService = this.applicationContext.getBean("calendarService", CalendarService.class);
+        OrderService orderService = this.applicationContext.getBean("orderService", OrderService.class);
+        PositionService positionService = this.applicationContext.getBean("positionService", PositionService.class);
+        MarketDataService marketDataService = this.applicationContext.getBean("marketDataService", MarketDataService.class);
+        OptionService optionService = this.applicationContext.getBean("optionService", OptionService.class);
+
+        engine.setVariableValue("lookupService", lookupService);
+        engine.setVariableValue("portfolioService", portfolioService);
+        engine.setVariableValue("calendarService", calendarService);
+        engine.setVariableValue("orderService", orderService);
+        engine.setVariableValue("positionService", positionService);
+        engine.setVariableValue("marketDataService", marketDataService);
+        engine.setVariableValue("optionService", optionService);
+        Strategy strategy = lookupService.getStrategyByName(engine.getStrategyName());
+        if (strategy != null) {
+            engine.setVariableValue("engineStrategy", strategy);
+        }
+
+        if (engine.getStrategyName() == SERVER_ENGINE) {
+            engine.setVariableValue("transactionService", this.applicationContext.getBean("transactionService"));
+            engine.setVariableValue("forexService", this.applicationContext.getBean("forexService"));
+            engine.setVariableValue("simpleOrderService", this.applicationContext.getBean("simpleOrderService"));
+            engine.setVariableValue("algoOrderService", this.applicationContext.getBean("algoOrderService"));
         }
     }
 

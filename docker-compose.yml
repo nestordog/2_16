@@ -1,5 +1,5 @@
 algotrader:
-  image: algotrader/algotrader
+  image: docker.algotrader.ch/algotrader
   command: -i
   links:
     - mysql
@@ -9,7 +9,7 @@ algotrader:
     - 61614:61614
 
 ibgateway:
-  image: algotrader/ibgateway
+  image: docker.algotrader.ch/ibgateway
   environment:
     TWS_USERNAME: edemo
     TWS_PASSWORD: demouser

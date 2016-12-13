@@ -63,6 +63,12 @@ public interface EngineManager {
     Collection<Engine> getStrategyEngines();
 
     /**
+     * Initializes engine with the given name
+     * @param engineName
+     */
+    void initializeEngine(String engineName);
+
+    /**
      * Destroys engine with the given name
      * @param engineName
      */

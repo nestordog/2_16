@@ -17,11 +17,8 @@
  ***********************************************************************************/
 package ch.algotrader.service;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
@@ -225,8 +222,8 @@ public class ResetServiceImpl implements ResetService {
     }
 
     /**
-     * deletes all transactions (except the initial CREDIT)
-     * resets all cash balances (except the one associated with the initial CREDIT)
+     * deletes all transactions
+     * resets all cash balances
      * deletes all non-persistent positions and resets all persistent ones
      */
     private void resetTrades() {
@@ -234,30 +231,13 @@ public class ResetServiceImpl implements ResetService {
         Collection<Strategy> strategies = this.strategyDao.loadAll();
         for (Strategy strategy : strategies) {
 
-            // delete all transactions except the initial CREDIT
+            // delete all transactions
             Collection<Transaction> transactions = this.transactionDao.findByStrategy(strategy.getName());
-            Set<Transaction> toRemoveTransactions = new HashSet<>();
-            BigDecimal initialAmount = new BigDecimal(0);
-            for (Transaction transaction : transactions) {
-                if (transaction.getId() == 1) {
-                    initialAmount = transaction.getPrice();
-                } else {
-                    toRemoveTransactions.add(transaction);
-                }
-            }
-            this.transactionDao.deleteAll(toRemoveTransactions);
+            this.transactionDao.deleteAll(transactions);
 
-            // delete all cashBalances except the initial CREDIT
+            // delete all cashBalances
             Collection<CashBalance> cashBalances = this.cashBalanceDao.findCashBalancesByStrategy(strategy.getName());
-            Set<CashBalance> toRemoveCashBalance = new HashSet<>();
-            for (CashBalance cashBalance : cashBalances) {
-                if (cashBalance.getId() == 1) {
-                    cashBalance.setAmount(initialAmount);
-                } else {
-                    toRemoveCashBalance.add(cashBalance);
-                }
-            }
-            this.cashBalanceDao.deleteAll(toRemoveCashBalance);
+            this.cashBalanceDao.deleteAll(cashBalances);
         }
 
         Collection<Position> nonPersistentPositions = this.positionDao.findNonPersistent();

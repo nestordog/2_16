@@ -52,6 +52,14 @@ public abstract class AbstractEngine implements Engine {
     }
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
+    public void initServices() {
+    }
+
+    @Override
     public void destroy() {
 
     }

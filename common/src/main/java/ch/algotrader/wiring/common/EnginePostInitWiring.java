@@ -26,15 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-import ch.algotrader.entity.strategy.Strategy;
 import ch.algotrader.esper.Engine;
-import ch.algotrader.service.CalendarService;
-import ch.algotrader.service.LookupService;
-import ch.algotrader.service.MarketDataService;
-import ch.algotrader.service.OptionService;
-import ch.algotrader.service.OrderService;
-import ch.algotrader.service.PortfolioService;
-import ch.algotrader.service.PositionService;
 
 /**
  * Engine manager post-initialization configuration. Ideally should be eliminated in the future.
@@ -54,30 +46,11 @@ public class EnginePostInitWiring {
                 if (this.postProcessed.compareAndSet(false, true)) {
 
                     ApplicationContext applicationContext = contextRefreshedEvent.getApplicationContext();
-                    LookupService lookupService = applicationContext.getBean("lookupService", LookupService.class);
-                    PortfolioService portfolioService = applicationContext.getBean("portfolioService", PortfolioService.class);
-                    CalendarService calendarService = applicationContext.getBean("calendarService", CalendarService.class);
-                    OrderService orderService = applicationContext.getBean("orderService", OrderService.class);
-                    PositionService positionService = applicationContext.getBean("positionService", PositionService.class);
-                    MarketDataService marketDataService = applicationContext.getBean("marketDataService", MarketDataService.class);
-                    OptionService optionService = applicationContext.getBean("optionService", OptionService.class);
-
                     Map<String, Engine> engineBeanMap = applicationContext.getBeansOfType(Engine.class);
                     for (Map.Entry<String, Engine> entry: engineBeanMap.entrySet()) {
 
                         Engine engine = entry.getValue();
-                        engine.setVariableValue("lookupService", lookupService);
-                        engine.setVariableValue("portfolioService", portfolioService);
-                        engine.setVariableValue("calendarService", calendarService);
-                        engine.setVariableValue("orderService", orderService);
-                        engine.setVariableValue("positionService", positionService);
-                        engine.setVariableValue("marketDataService", marketDataService);
-                        engine.setVariableValue("optionService", optionService);
-                        Strategy strategy = lookupService.getStrategyByName(engine.getStrategyName());
-                        if (strategy != null) {
-
-                            engine.setVariableValue("engineStrategy", strategy);
-                        }
+                        engine.initServices();
                     }
                 }
             }

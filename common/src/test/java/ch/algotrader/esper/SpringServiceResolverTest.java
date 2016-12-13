@@ -31,7 +31,7 @@ import ch.algotrader.config.ConfigParams;
 import ch.algotrader.config.NoopConfigProvider;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SpringSubscriberResolverTest {
+public class SpringServiceResolverTest {
 
     @Mock
     private EPStatement statement;
@@ -39,12 +39,12 @@ public class SpringSubscriberResolverTest {
     private ApplicationContext applicationContext;
 
     private ConfigParams configParams;
-    private SpringSubscriberResolver impl;
+    private SpringServiceResolver impl;
 
     @Before
     public void setup() {
         configParams = new ConfigParams(new NoopConfigProvider());
-        impl = new SpringSubscriberResolver("myStrategy", configParams, applicationContext);
+        impl = new SpringServiceResolver("myStrategy", configParams, applicationContext);
     }
 
     @Test

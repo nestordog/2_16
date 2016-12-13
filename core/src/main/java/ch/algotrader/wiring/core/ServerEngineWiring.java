@@ -29,7 +29,7 @@ import org.springframework.core.io.Resource;
 import ch.algotrader.config.ConfigParams;
 import ch.algotrader.esper.Engine;
 import ch.algotrader.esper.EngineFactory;
-import ch.algotrader.esper.SpringSubscriberResolver;
+import ch.algotrader.esper.SpringServiceResolver;
 
 /**
  * Server engine configuration.
@@ -40,7 +40,7 @@ public class ServerEngineWiring {
     @Bean(name = "serverEngine")
     public Engine createServerEngine(final ConfigParams configParams, final ApplicationContext applicationContext) throws Exception {
 
-        EngineFactory engineFactory = new EngineFactory(new SpringSubscriberResolver("server", configParams, applicationContext), configParams);
+        EngineFactory engineFactory = new EngineFactory(new SpringServiceResolver("server", configParams, applicationContext), configParams);
 
         Resource resource1 = applicationContext.getResource("classpath:/META-INF/esper-common.cfg.xml");
         Resource resource2 = applicationContext.getResource("classpath:/META-INF/esper-core.cfg.xml");

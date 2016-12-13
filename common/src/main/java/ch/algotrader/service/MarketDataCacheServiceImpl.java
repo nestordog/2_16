@@ -197,17 +197,13 @@ public class MarketDataCacheServiceImpl implements MarketDataCacheService, TickE
         return !lastMarketDataEventBySecurityId.isEmpty();
     }
 
-    /**
-     * Clears cached market data events for all securities.
-     */
+
+    @Override
     public void flush() {
         lastMarketDataEventBySecurityId.clear();
     }
 
-    /**
-     * Clears the cached market data event for the specified security.
-     * @param securityId the ID of the security whose cached market data event to clear
-     */
+    @Override
     public void flush(long securityId) {
         lastMarketDataEventBySecurityId.remove(securityId);
     }

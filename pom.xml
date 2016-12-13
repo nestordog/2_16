@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>algotrader</groupId>
     <artifactId>algotrader</artifactId>
-    <version>3.0.1</version>
+    <version>3.0.2</version>
     <packaging>pom</packaging>
     <name>AlgoTrader</name>
 
@@ -287,7 +287,6 @@
             <modules>
                 <module>test</module>
                 <module>archetype</module>
-                <module>assembly</module>
             </modules>
         </profile>
     </profiles>
@@ -692,17 +691,17 @@
     <distributionManagement>
         <repository>
             <id>algotrader-deploy</id>
-            <url>https://repo.algotrader.ch/nexus/content/repositories/releases</url>
+            <url>https://repo.algotrader.ch/nexus/repository/releases</url>
         </repository>
         <snapshotRepository>
             <id>algotrader-deploy</id>
-            <url>https://repo.algotrader.ch/nexus/content/repositories/snapshots</url>
+            <url>https://repo.algotrader.ch/nexus/repository/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
     <properties>
         <java.version>1.8</java.version>
-        <html.content.version>3.0.1</html.content.version>
+        <html.content.version>3.0.2</html.content.version>
         <hibernate.version>4.3.8.Final</hibernate.version>
         <jboss-logging.version>3.2.1.Final</jboss-logging.version>
         <spring.version>4.3.1.RELEASE</spring.version>
