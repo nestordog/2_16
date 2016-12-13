@@ -692,11 +692,11 @@
     <distributionManagement>
         <repository>
             <id>algotrader-deploy</id>
-            <url>https://repo.algotrader.ch/nexus/content/repositories/releases</url>
+            <url>https://repo.algotrader.ch/nexus/repository/releases</url>
         </repository>
         <snapshotRepository>
             <id>algotrader-deploy</id>
-            <url>https://repo.algotrader.ch/nexus/content/repositories/snapshots</url>
+            <url>https://repo.algotrader.ch/nexus/repository/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
